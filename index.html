@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精选 AI 工具导航</title>
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Phosphor Icons (图标库) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#64748B', // Slate 500
+                        bgLight: '#F8FAFC', // Slate 50
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- 头部区域 -->
+    <header class="w-full py-12 px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-flex items-center justify-center p-3 bg-white rounded-2xl shadow-sm mb-6">
+                <i class="ph-fill ph-rocket-launch text-3xl text-primary"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3 tracking-tight">精选 AI 效率工具箱</h1>
+            <p class="text-secondary text-lg max-w-xl mx-auto">汇集教学教研、内容创作与智能开发的优质 AI 助手</p>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="flex-grow px-4 pb-16">
+        <div class="max-w-7xl mx-auto">
+            <!-- 工具网格 -->
+            <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- 卡片将通过 JS 动态生成 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部版权 -->
+    <footer class="py-8 text-center text-slate-400 text-sm">
+        <p>&copy; 2024 AI Tools Navigation. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 工具数据列表
+        const tools = [
+            {
+                name: "AI好记",
+                desc: "分析优质公开课，智能总结课程精华",
+                url: "https://aihaoji.com/zh?utm_source=invite&utm_content=MCHihFWN",
+                icon: "ph-notebook",
+                color: "text-blue-500",
+                bg: "bg-blue-50"
+            },
+            {
+                name: "快出题",
+                desc: "智能生成试题，快速组卷的教学助手",
+                url: "https://kuaichuti.net/",
+                icon: "ph-exam",
+                color: "text-emerald-500",
+                bg: "bg-emerald-50"
+            },
+            {
+                name: "棒棒糖AI听评课",
+                desc: "辅助教研、听课、评课、议课全流程",
+                url: "https://bbt.etah-tech.com/publish/login?key=5SiCv0QgJ40=",
+                icon: "ph-chats-circle",
+                color: "text-pink-500",
+                bg: "bg-pink-50"
+            },
+            {
+                name: "Nano Banana",
+                desc: "功能强大的图片生成工具 (Gemini)",
+                url: "https://gemini.google.com/app?hl=zh-cn",
+                icon: "ph-image",
+                color: "text-purple-500",
+                bg: "bg-purple-50"
+            },
+            {
+                name: "Gamma",
+                desc: "PPT视觉效果表现优秀，一键生成幻灯片",
+                url: "https://gamma.app/signup?r=qelbuujfixnt8t6",
+                icon: "ph-presentation-chart",
+                color: "text-orange-500",
+                bg: "bg-orange-50"
+            },
+            {
+                name: "秘塔搜索",
+                desc: "能够辅助建立知识库的专题研究功能",
+                url: "https://metaso.cn/",
+                icon: "ph-magnifying-glass",
+                color: "text-teal-500",
+                bg: "bg-teal-50"
+            },
+            {
+                name: "海绵音乐",
+                desc: "输入灵感，快速生成高质量歌曲",
+                url: "https://www.haimian.com/",
+                icon: "ph-music-notes",
+                color: "text-rose-500",
+                bg: "bg-rose-50"
+            },
+            {
+                name: "飞象老师",
+                desc: "快速生成高质量教学动画",
+                url: "https://www.feixianglaoshi.com/",
+                icon: "ph-film-strip",
+                color: "text-cyan-500",
+                bg: "bg-cyan-50"
+            },
+            {
+                name: "即梦AI",
+                desc: "强大的生成式AI，支持生成数字人",
+                url: "https://jimeng.jianying.com/ai-tool/home/?utm_medium=bingpc&utm_source=pinzhuan&utm_campaign=button",
+                icon: "ph-magic-wand",
+                color: "text-violet-500",
+                bg: "bg-violet-50"
+            },
+            {
+                name: "Coze",
+                desc: "新一代一站式 AI Bot 开发平台",
+                url: "https://www.coze.cn/home",
+                icon: "ph-robot",
+                color: "text-indigo-500",
+                bg: "bg-indigo-50"
+            },
+            {
+                name: "飞影数字人",
+                desc: "专业的数字人视频制作平台",
+                url: "https://hifly.cc/i/GXyeDnoyGPc",
+                icon: "ph-user-focus",
+                color: "text-sky-500",
+                bg: "bg-sky-50"
+            }
+        ];
+
+        // 渲染函数
+        function renderTools() {
+            const container = document.getElementById('tools-grid');
+            let html = '';
+
+            tools.forEach(tool => {
+                html += `
+                <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="glass-card border border-slate-100 rounded-2xl p-6 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-slate-200 relative overflow-hidden">
+                        
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl ${tool.bg} ${tool.color} flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                <i class="ph-fill ${tool.icon}"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                                <i class="ph-bold ph-arrow-up-right"></i>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">${tool.name}</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">${tool.desc}</p>
+                        
+                        <!-- 装饰性背景圆 -->
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    </div>
+                </a>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', renderTools);
+    </script>
+</body>
+</html>
