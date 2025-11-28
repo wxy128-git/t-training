@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创意设计与AI工具导航</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 引入 Phosphor Icons 图标库 -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8f9fa;
+        }
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="text-slate-700 antialiased">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center h-auto md:h-20 py-4 md:py-0 gap-4">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-compass-tool text-3xl text-indigo-600"></i>
+                    <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                        设计资源库
+                    </h1>
+                </div>
+                
+                <!-- 搜索框 -->
+                <div class="relative w-full md:w-96">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="ph ph-magnifying-glass text-slate-400"></i>
+                    </div>
+                    <input type="text" id="searchInput" 
+                        class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-full leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-200" 
+                        placeholder="搜索资源名称或描述...">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- 资源列表容器 -->
+        <div id="content-area" class="space-y-12">
+            <!-- 内容将通过 JavaScript 动态渲染 -->
+        </div>
+
+        <!-- 无结果提示 -->
+        <div id="no-results" class="hidden text-center py-20">
+            <i class="ph ph-ghost text-6xl text-slate-300 mb-4 inline-block"></i>
+            <p class="text-slate-500 text-lg">没有找到相关资源，换个关键词试试？</p>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-slate-200 mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-slate-400 text-sm">
+            <p>© 2025 精选设计导航. 为创意赋能.</p>
+        </div>
+    </footer>
+
+    <!-- 数据与逻辑 -->
+    <script>
+        // 定义资源数据 (已添加 itemIcon 属性)
+        const categories = [
+            {
+                id: "photos",
+                title: "免费高清图库",
+                icon: "ph-image",
+                color: "text-rose-500",
+                bg: "bg-rose-50",
+                items: [
+                    { name: "Unsplash", desc: "全球最大免费图库，数百万张高质量照片，完全开放商用", url: "https://unsplash.com", itemIcon: "ph-camera-plus" },
+                    { name: "Pexels", desc: "精选摄影作品与视频素材，可按颜色、方向快速筛选", url: "https://pexels.com", itemIcon: "ph-video-camera" },
+                    { name: "Pixabay", desc: "超过460万张图片与视频，支持中文搜索，无版权限制", url: "https://pixabay.com", itemIcon: "ph-globe" },
+                    { name: "Picjumbo", desc: "精心策展的图片集合，每日更新，风格独特", url: "https://picjumbo.com", itemIcon: "ph-aperture" },
+                    { name: "Life of Pix", desc: "摄影师社区贡献，强调自然与人文主题", url: "https://lifeofpix.com", itemIcon: "ph-users-three" },
+                    { name: "Burst", desc: "专注商业场景的免费图库，按行业与主题分类", url: "https://burst.shopify.com", itemIcon: "ph-storefront" }
+                ]
+            },
+            {
+                id: "pngs",
+                title: "免抠 PNG 素材库",
+                icon: "ph-selection-inverse",
+                color: "text-amber-500",
+                bg: "bg-amber-50",
+                items: [
+                    // *** 更改了 Cleanpng 的图标为 ph-bounding-box ***
+                    { name: "Cleanpng", desc: "海量透明PNG素材库，素材质量高，支持高分辨率下载", url: "https://cleanpng.com", itemIcon: "ph-bounding-box" },
+                    { name: "StickPNG", desc: "充满活力的创意社区，超过70,000张透明背景PNG素材", url: "https://stickpng.com", itemIcon: "ph-sticker" },
+                    { name: "PNGTree", desc: "提供部分免费下载额度，素材质量高", url: "https://pngtree.com", itemIcon: "ph-tree" },
+                    { name: "PNGimg", desc: "超11万张免费透明背景PNG素材，无需注册即可下载", url: "https://pngimg.com", itemIcon: "ph-image-square" }
+                ]
+            },
+            {
+                id: "vectors",
+                title: "免费矢量图标库",
+                icon: "ph-bezier-curve",
+                color: "text-emerald-500",
+                bg: "bg-emerald-50",
+                items: [
+                    { name: "Iconfinder", desc: "数百万个图标可选，提供免费与付费，支持SVG/PNG输出", url: "https://www.iconfinder.com", itemIcon: "ph-list-magnifying-glass" },
+                    { name: "Iconpark", desc: "开源图标库，支持在线修改图标与多种格式输出", url: "https://iconpark.oceanengine.com/", itemIcon: "ph-shapes" },
+                    { name: "Iconfont", desc: "阿里妈妈打造的矢量图标管理、交流平台", url: "https://www.iconfont.cn", itemIcon: "ph-sketch-logo" },
+                    { name: "IconMonstr", desc: "简洁的单色图标集，完全免费，无需注册，可直接下载SVG", url: "https://iconmonstr.com", itemIcon: "ph-skull" }
+                ]
+            },
+            {
+                id: "ai-remove",
+                title: "智能抠图平台",
+                icon: "ph-scissors",
+                color: "text-blue-500",
+                bg: "bg-blue-50",
+                items: [
+                    { name: "BgSub", desc: "完全自动化、免费的抠图平台，支持离线使用", url: "https://bgsub.cn", itemIcon: "ph-magic-wand" },
+                    { name: "趣作图", desc: "发丝级AI自动抠图，支持批量物品、批量人像抠图", url: "https://quzuotu.com", itemIcon: "ph-person-simple" },
+                    { name: "Pixian", desc: "智能去除人像背景，下载高清版可能需要付费", url: "https://pixian.ai", itemIcon: "ph-crop" }
+                ]
+            },
+            {
+                id: "aigc",
+                title: "AIGC 应用平台",
+                icon: "ph-robot",
+                color: "text-violet-500",
+                bg: "bg-violet-50",
+                items: [
+                    { name: "AI好记", desc: "可以分析优质公开课的AI工具", url: "https://aihaoji.com/zh?utm_source=invite&utm_content=MCHihFWN", itemIcon: "ph-book-open-text" },
+                    { name: "快出题", desc: "可以快速出题组卷的效率工具", url: "https://kuaichuti.net/", itemIcon: "ph-exam" },
+                    { name: "棒棒糖AI", desc: "辅助教研、听课、评课、议课", url: "https://bbt.etah-tech.com/publish/login?key=5SiCv0QgJ40=", itemIcon: "ph-chalkboard" },
+                    { name: "Nano banana", desc: "功能强大的图片生成工具 (Gemini)", url: "https://gemini.google.com/app?hl=zh-cn", itemIcon: "ph-palette" },
+                    { name: "Gamma", desc: "PPT视觉效果表现优秀的生成工具", url: "https://gamma.app/signup?r=qelbuujfixnt8t6", itemIcon: "ph-file-ppt" },
+                    { name: "秘塔搜索", desc: "能够辅助建立知识库的专题研究功能", url: "https://metaso.cn/", itemIcon: "ph-magnifying-glass-plus" },
+                    { name: "海绵音乐", desc: "可以快速生成歌曲的AI音乐工具", url: "https://www.haimian.com/", itemIcon: "ph-music-notes" },
+                    { name: "飞象老师", desc: "快速生成高质量教学动画", url: "https://www.feixianglaoshi.com/", itemIcon: "ph-airplane-takeoff" },
+                    { name: "即梦AI", desc: "可以生成数字人的AI视频工具", url: "https://jimeng.jianying.com/ai-tool/home/?utm_medium=bingpc&utm_source=pinzhuan&utm_campaign=button", itemIcon: "ph-film-strip" },
+                    { name: "Coze", desc: "扣子 - 下一代 AI 智能体开发平台", url: "https://www.coze.cn/home", itemIcon: "ph-brain" },
+                    { name: "飞影数字人", desc: "专业的数字人生成官网", url: "https://hifly.cc/i/GXyeDnoyGPc", itemIcon: "ph-user-circle" }
+                ]
+            }
+        ];
+
+        // 渲染函数
+        function renderContent(filterText = '') {
+            const container = document.getElementById('content-area');
+            const noResults = document.getElementById('no-results');
+            container.innerHTML = '';
+            
+            let hasResults = false;
+
+            categories.forEach(category => {
+                // 筛选符合条件的子项
+                const filteredItems = category.items.filter(item => 
+                    item.name.toLowerCase().includes(filterText.toLowerCase()) || 
+                    item.desc.toLowerCase().includes(filterText.toLowerCase()) ||
+                    category.title.toLowerCase().includes(filterText.toLowerCase())
+                );
+
+                if (filteredItems.length > 0) {
+                    hasResults = true;
+                    
+                    // 创建分类区块
+                    const section = document.createElement('section');
+                    section.className = 'animate-fade-in';
+                    
+                    // 分类标题
+                    section.innerHTML = `
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 rounded-lg ${category.bg} ${category.color}">
+                                <i class="ph-fill ${category.icon} text-2xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-800">${category.title}</h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            ${filteredItems.map(item => `
+                                <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
+                                   class="group block bg-white rounded-xl border border-slate-100 p-6 transition-all duration-300 card-hover relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="ph-bold ph-arrow-up-right text-slate-400"></i>
+                                    </div>
+                                    <div class="mb-3 flex items-center gap-2">
+                                        <!-- 新增的图标 -->
+                                        <i class="ph-bold ${item.itemIcon} text-xl text-indigo-500 group-hover:text-indigo-600 transition-colors"></i>
+                                        <h3 class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors truncate">${item.name}</h3>
+                                    </div>
+                                    <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 h-[4.5em]">${item.desc}</p>
+                                    <div class="mt-4 pt-4 border-t border-slate-50 flex items-center text-xs font-medium text-slate-400">
+                                        <span class="truncate hover:underline">${new URL(item.url).hostname.replace('www.', '')}</span>
+                                    </div>
+                                </a>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.appendChild(section);
+                }
+            });
+
+            // 切换无结果显示
+            if (!hasResults) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+
+        // 初始化渲染
+        renderContent();
+
+        // 搜索监听
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderContent(e.target.value.trim());
+        });
+
+    </script>
+</body>
+</html>
