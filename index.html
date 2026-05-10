@@ -3,223 +3,655 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精选 AI 工具导航</title>
-    <!-- 引入 Google Fonts -->
+    <title>AI 教师培训中心</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- 引入 Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Phosphor Icons (图标库) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Noto Sans SC"', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#4F46E5', // Indigo 600
-                        secondary: '#64748B', // Slate 500
-                        bgLight: '#F8FAFC', // Slate 50
-                    }
+                    fontFamily: { sans: ['"Noto Sans SC"', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', 'primary-dark': '#4338CA' }
                 }
             }
         }
     </script>
     <style>
-        body {
-            background-color: #F8FAFC;
-            background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-        }
+        body { background-color: #F8FAFC; }
+        .glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); }
+        .hero-bg { background: linear-gradient(135deg, #4338CA 0%, #6D28D9 45%, #BE185D 100%); }
+        .card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(79,70,229,0.18); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 200; backdrop-filter: blur(4px); }
+        .modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+        .skeleton { animation: skeleton-pulse 1.8s ease-in-out infinite; background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; }
+        @keyframes skeleton-pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .tool-filter-btn { transition: all 0.18s; }
+        .tool-filter-btn.active { background: #EEF2FF; color: #4F46E5; border-color: #A5B4FC; font-weight: 600; }
+        .feed-tab.active { background: #4F46E5; color: #fff; border-color: #4F46E5; }
+        .scroll-mt { scroll-margin-top: 72px; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .copy-btn:active { transform: scale(0.95); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="text-slate-800 antialiased">
 
-    <!-- 头部区域 -->
-    <header class="w-full py-12 px-4 text-center">
-        <div class="max-w-4xl mx-auto">
-            <div class="inline-flex items-center justify-center p-3 bg-white rounded-2xl shadow-sm mb-6">
-                <i class="ph-fill ph-rocket-launch text-3xl text-primary"></i>
+<!-- ===== HEADER ===== -->
+<header class="glass border-b border-slate-200/80 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <a href="#" class="flex items-center gap-2.5 flex-shrink-0">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-sm">
+                <i class="ph-fill ph-graduation-cap text-white text-xl"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3 tracking-tight">精选 AI 效率工具箱</h1>
-            <p class="text-secondary text-lg max-w-xl mx-auto">汇集教学教研、内容创作与智能开发的优质 AI 助手</p>
-        </div>
-    </header>
-
-    <!-- 主要内容区域 -->
-    <main class="flex-grow px-4 pb-16">
-        <div class="max-w-7xl mx-auto">
-            <!-- 工具网格 -->
-            <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- 卡片将通过 JS 动态生成 -->
+            <div class="hidden sm:block leading-tight">
+                <div class="font-bold text-slate-900 text-sm">AI 教师培训中心</div>
+                <div class="text-xs text-slate-400">Teacher AI Training Hub</div>
             </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-0.5">
+            <a href="#tools" class="px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-indigo-50 transition-colors">AI工具</a>
+            <a href="#news" class="px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-indigo-50 transition-colors">全球资讯</a>
+            <a href="#prompts" class="px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-indigo-50 transition-colors">提示词库</a>
+            <a href="#paths" class="px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-indigo-50 transition-colors">学习路径</a>
+            <a href="main.html" class="px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-indigo-50 transition-colors">设计资源</a>
+        </nav>
+
+        <div class="flex items-center gap-2 flex-shrink-0" id="auth-area">
+            <button onclick="showModal('login')" class="px-3 py-1.5 text-sm text-slate-600 hover:text-primary transition-colors font-medium">登录</button>
+            <button onclick="showModal('register')" class="px-4 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm">注册</button>
         </div>
-    </main>
+    </div>
+</header>
 
-    <!-- 底部版权 -->
-    <footer class="py-8 text-center text-slate-400 text-sm">
-        <p>&copy; 2024 AI Tools Navigation. All rights reserved.</p>
-    </footer>
+<!-- ===== HERO ===== -->
+<section class="hero-bg text-white py-20 px-4 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 32px 32px;"></div>
+    <div class="max-w-4xl mx-auto text-center relative">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-1.5 rounded-full text-sm mb-6 border border-white/20">
+            <span class="w-2 h-2 bg-green-400 rounded-full" style="animation: ping 1.5s cubic-bezier(0,0,.2,1) infinite; display: inline-block;"></span>
+            持续更新 · 每日同步全球 AI 教育动态
+        </div>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 leading-tight tracking-tight">
+            赋能教育<br>探索 AI 新边界
+        </h1>
+        <p class="text-white/75 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+            为在职教师打造的 AI 学习与实践平台<br>汇聚优质工具、前沿资讯与结构化学习路径
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+            <a href="#tools" class="px-7 py-3 bg-white text-primary font-semibold rounded-xl hover:bg-slate-50 transition-colors shadow-md">探索工具箱</a>
+            <button onclick="showModal('register')" class="px-7 py-3 bg-white/10 border border-white/25 text-white font-semibold rounded-xl hover:bg-white/20 transition-colors backdrop-blur">免费注册</button>
+        </div>
+    </div>
+</section>
 
-    <script>
-        // 工具数据列表
-        const tools = [
-            {
-                name: "PrompterHub",
-                desc: "一个能把你的想法转化成完美提示词的社区",
-                url: "https://www.prompterhub.cn/home",
-                icon: "ph-pencil",
-                color: "text-blue-500",
-                bg: "bg-blue-50"
-            },
-            {
-                name: "Prompt123",
-                desc: "完全免费的中文AI提示词宝库",
-                url: "https://prompt123.cn",
-                icon: "ph-pen",
-                color: "text-blue-500",
-                bg: "bg-pink-50"
-            },
-            {
-                name: "AI好记",
-                desc: "分析优质公开课，智能总结课程精华",
-                url: "https://aihaoji.com/zh?utm_source=invite&utm_content=MCHihFWN",
-                icon: "ph-notebook",
-                color: "text-blue-500",
-                bg: "bg-blue-50"
-            },
-            {
-                name: "快出题",
-                desc: "智能生成试题，快速组卷的教学助手",
-                url: "https://kuaichuti.net/",
-                icon: "ph-exam",
-                color: "text-emerald-500",
-                bg: "bg-emerald-50"
-            },
-            {
-                name: "棒棒糖AI听评课",
-                desc: "辅助教研、听课、评课、议课全流程",
-                url: "https://bbt.etah-tech.com/publish/login?key=5SiCv0QgJ40=",
-                icon: "ph-chats-circle",
-                color: "text-pink-500",
-                bg: "bg-pink-50"
-            },
-            {
-                name: "Nano Banana",
-                desc: "功能强大的图片生成工具 (Gemini)",
-                url: "https://gemini.google.com/app?hl=zh-cn",
-                icon: "ph-image",
-                color: "text-purple-500",
-                bg: "bg-purple-50"
-            },
-            {
-                name: "Gamma",
-                desc: "PPT视觉效果表现优秀，一键生成幻灯片",
-                url: "https://gamma.app/signup?r=qelbuujfixnt8t6",
-                icon: "ph-presentation-chart",
-                color: "text-orange-500",
-                bg: "bg-orange-50"
-            },
-            {
-                name: "anygen.io",
-                desc: "能够创作系列图，适配绘本、课件等多种场景的平台",
-                url: "https://www.anygen.io/home?invitation_code=4UQOT4NA0EBPFWS",
-                icon: "ph-pencil",
-                color: "text-orange-500",
-                bg: "bg-orange-50"
-            },
-            {
-                name: "秘塔搜索",
-                desc: "能够辅助建立知识库的专题研究功能",
-                url: "https://metaso.cn/",
-                icon: "ph-magnifying-glass",
-                color: "text-teal-500",
-                bg: "bg-teal-50"
-            },
-            {
-                name: "海绵音乐",
-                desc: "输入灵感，快速生成高质量歌曲",
-                url: "https://www.haimian.com/",
-                icon: "ph-music-notes",
-                color: "text-rose-500",
-                bg: "bg-rose-50"
-            },
-            {
-                name: "飞象老师",
-                desc: "快速生成高质量教学动画",
-                url: "https://www.feixianglaoshi.com/",
-                icon: "ph-film-strip",
-                color: "text-cyan-500",
-                bg: "bg-cyan-50"
-            },
-            {
-                name: "即梦AI",
-                desc: "强大的生成式AI，支持生成数字人",
-                url: "https://jimeng.jianying.com/ai-tool/home/?utm_medium=bingpc&utm_source=pinzhuan&utm_campaign=button",
-                icon: "ph-magic-wand",
-                color: "text-violet-500",
-                bg: "bg-violet-50"
-            },
-            {
-                name: "Coze",
-                desc: "新一代一站式 AI Bot 开发平台",
-                url: "https://www.coze.cn/studio?invite_code=260ab871053241e8a2730bb5dff7f662",
-                icon: "ph-robot",
-                color: "text-indigo-500",
-                bg: "bg-indigo-50"
-            },
-            {
-                name: "飞影数字人",
-                desc: "专业的数字人视频制作平台",
-                url: "https://hifly.cc/i/GXyeDnoyGPc",
-                icon: "ph-user-focus",
-                color: "text-sky-500",
-                bg: "bg-sky-50"
-            }
-        ];
+<!-- ===== STATS ===== -->
+<section class="bg-white border-b border-slate-100">
+    <div class="max-w-5xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div>
+            <div class="text-2xl font-bold text-primary">14+</div>
+            <div class="text-xs text-slate-500 mt-0.5">精选 AI 工具</div>
+        </div>
+        <div>
+            <div class="text-2xl font-bold text-primary">每日</div>
+            <div class="text-xs text-slate-500 mt-0.5">资讯自动更新</div>
+        </div>
+        <div>
+            <div class="text-2xl font-bold text-primary">3 条</div>
+            <div class="text-xs text-slate-500 mt-0.5">结构化学习路径</div>
+        </div>
+        <div>
+            <div class="text-2xl font-bold text-primary">8 款</div>
+            <div class="text-xs text-slate-500 mt-0.5">即用提示词模板</div>
+        </div>
+    </div>
+</section>
 
-        // 渲染函数
-        function renderTools() {
-            const container = document.getElementById('tools-grid');
-            let html = '';
+<main class="max-w-7xl mx-auto px-4 py-14 space-y-20">
 
-            tools.forEach(tool => {
-                html += `
-                <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="group">
-                    <div class="glass-card border border-slate-100 rounded-2xl p-6 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-slate-200 relative overflow-hidden">
-                        
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="w-12 h-12 rounded-xl ${tool.bg} ${tool.color} flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                <i class="ph-fill ${tool.icon}"></i>
-                            </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                                <i class="ph-bold ph-arrow-up-right"></i>
-                            </div>
-                        </div>
-                        
-                        <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">${tool.name}</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">${tool.desc}</p>
-                        
-                        <!-- 装饰性背景圆 -->
-                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+    <!-- ===== TOOLS ===== -->
+    <section id="tools" class="scroll-mt">
+        <div class="flex items-end justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">精选 AI 工具箱</h2>
+                <p class="text-slate-500 text-sm mt-1">为教师场景精心筛选，覆盖教学全流程</p>
+            </div>
+            <a href="main.html" class="hidden md:flex items-center gap-1 text-sm text-primary hover:underline font-medium">
+                设计资源库 <i class="ph ph-arrow-right"></i>
+            </a>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button onclick="filterTools('all', this)" class="tool-filter-btn active px-4 py-1.5 rounded-full text-sm border border-slate-200">全部</button>
+            <button onclick="filterTools('teaching', this)" class="tool-filter-btn px-4 py-1.5 rounded-full text-sm border border-slate-200 text-slate-600">教学辅助</button>
+            <button onclick="filterTools('creation', this)" class="tool-filter-btn px-4 py-1.5 rounded-full text-sm border border-slate-200 text-slate-600">内容创作</button>
+            <button onclick="filterTools('search', this)" class="tool-filter-btn px-4 py-1.5 rounded-full text-sm border border-slate-200 text-slate-600">智能搜索</button>
+            <button onclick="filterTools('dev', this)" class="tool-filter-btn px-4 py-1.5 rounded-full text-sm border border-slate-200 text-slate-600">智能开发</button>
+        </div>
+        <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+    </section>
+
+    <!-- ===== NEWS ===== -->
+    <section id="news" class="scroll-mt">
+        <div class="flex items-end justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">全球 AI 教育资讯</h2>
+                <p class="text-slate-500 text-sm mt-1">来自顶尖媒体的 AI 与教育动态，自动聚合 · 30分钟缓存</p>
+            </div>
+            <button onclick="fetchNews(true)" class="flex items-center gap-1.5 px-4 py-2 text-sm text-primary border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors font-medium">
+                <i class="ph ph-arrows-clockwise" id="refresh-icon"></i> 刷新
+            </button>
+        </div>
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-1">
+            <button onclick="switchFeed('edsurge', this)" class="feed-tab active flex-shrink-0 px-4 py-1.5 rounded-full text-sm border border-slate-200 transition-all">EdSurge · 教育科技</button>
+            <button onclick="switchFeed('verge', this)" class="feed-tab flex-shrink-0 px-4 py-1.5 rounded-full text-sm border border-slate-200 text-slate-600 transition-all">The Verge · AI动态</button>
+            <button onclick="switchFeed('techcrunch', this)" class="feed-tab flex-shrink-0 px-4 py-1.5 rounded-full text-sm border border-slate-200 text-slate-600 transition-all">TechCrunch · 科技前沿</button>
+        </div>
+        <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        <p class="text-xs text-slate-400 text-center mt-4">内容来自第三方媒体，以原文语言呈现，点击标题阅读全文</p>
+    </section>
+
+    <!-- ===== PROMPTS ===== -->
+    <section id="prompts" class="scroll-mt">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-slate-900">教学提示词速查库</h2>
+            <p class="text-slate-500 text-sm mt-1">点击复制，直接粘贴到任意 AI 工具使用，将 [ ] 内容替换为具体信息</p>
+        </div>
+        <div id="prompts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- ===== PATHS ===== -->
+    <section id="paths" class="scroll-mt">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-slate-900">结构化学习路径</h2>
+            <p class="text-slate-500 text-sm mt-1">从零基础到进阶创作，系统掌握 AI 教学应用</p>
+        </div>
+        <div id="paths-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                        <i class="ph-fill ph-graduation-cap text-white text-base"></i>
                     </div>
-                </a>
-                `;
-            });
+                    <span class="font-bold text-slate-100">AI 教师培训中心</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed">为在职教师提供 AI 工具导航、前沿资讯与系统学习路径的综合平台</p>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-3 text-slate-200 text-sm">快速导航</h4>
+                <ul class="space-y-1.5 text-slate-400 text-sm">
+                    <li><a href="#tools" class="hover:text-white transition-colors">AI 工具箱</a></li>
+                    <li><a href="#news" class="hover:text-white transition-colors">全球资讯</a></li>
+                    <li><a href="#prompts" class="hover:text-white transition-colors">提示词库</a></li>
+                    <li><a href="#paths" class="hover:text-white transition-colors">学习路径</a></li>
+                    <li><a href="main.html" class="hover:text-white transition-colors">设计资源库</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-3 text-slate-200 text-sm">关于平台</h4>
+                <p class="text-slate-400 text-sm leading-relaxed">本平台专为在职教师 AI 培训设计，持续收录全球优质 AI 教育资源。工具推荐均经过实际教学场景筛选验证。</p>
+            </div>
+        </div>
+        <div class="border-t border-slate-800 pt-6 text-center text-slate-500 text-xs">
+            © 2025 AI 教师培训中心 · 保留所有权利
+        </div>
+    </div>
+</footer>
 
-            container.innerHTML = html;
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-overlay" id="auth-modal" onclick="closeModalOnOverlay(event)">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="flex border-b border-slate-100">
+            <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-4 text-sm font-semibold text-primary border-b-2 border-primary transition-colors">登录</button>
+            <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-4 text-sm font-semibold text-slate-400 transition-colors">注册账号</button>
+            <button onclick="closeModal()" class="px-4 text-slate-400 hover:text-slate-600 transition-colors">
+                <i class="ph ph-x text-lg"></i>
+            </button>
+        </div>
+
+        <div id="form-login" class="p-6">
+            <p class="text-slate-500 text-sm mb-5">欢迎回来，请登录您的账号</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">邮箱</label>
+                    <input type="email" id="login-email" placeholder="your@email.com"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">密码</label>
+                    <input type="password" id="login-password" placeholder="••••••••"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                </div>
+                <div id="login-error" class="text-red-500 text-xs hidden bg-red-50 px-3 py-2 rounded-lg"></div>
+                <button onclick="handleLogin()" class="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">登录</button>
+            </div>
+            <p class="text-center text-sm text-slate-500 mt-4">还没有账号？<button onclick="switchAuthTab('register')" class="text-primary hover:underline font-medium">立即注册</button></p>
+        </div>
+
+        <div id="form-register" class="p-6 hidden">
+            <p class="text-slate-500 text-sm mb-5">加入 AI 教师培训中心，开启学习之旅</p>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">姓名 <span class="text-red-400">*</span></label>
+                        <input type="text" id="reg-name" placeholder="您的姓名"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">学校/单位</label>
+                        <input type="text" id="reg-school" placeholder="所在单位"
+                            class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">邮箱 <span class="text-red-400">*</span></label>
+                    <input type="email" id="reg-email" placeholder="your@email.com"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">密码 <span class="text-red-400">*</span></label>
+                    <input type="password" id="reg-password" placeholder="至少 6 位"
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                </div>
+                <div id="reg-error" class="text-red-500 text-xs hidden bg-red-50 px-3 py-2 rounded-lg"></div>
+                <button onclick="handleRegister()" class="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">创建账号</button>
+            </div>
+            <p class="text-center text-sm text-slate-500 mt-4">已有账号？<button onclick="switchAuthTab('login')" class="text-primary hover:underline font-medium">立即登录</button></p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm px-5 py-2.5 rounded-xl shadow-lg opacity-0 transition-opacity duration-300 z-[300] pointer-events-none">
+    已复制到剪贴板
+</div>
+
+<script>
+// ===== DATA =====
+const tools = [
+    { name:"PrompterHub", desc:"把想法转化成完美提示词的社区平台", url:"https://www.prompterhub.cn/home", icon:"ph-pencil", color:"text-blue-500", bg:"bg-blue-50", category:"teaching" },
+    { name:"Prompt123", desc:"完全免费的中文AI提示词宝库", url:"https://prompt123.cn", icon:"ph-pen", color:"text-pink-500", bg:"bg-pink-50", category:"teaching" },
+    { name:"AI好记", desc:"分析优质公开课，智能总结课程精华", url:"https://aihaoji.com/zh?utm_source=invite&utm_content=MCHihFWN", icon:"ph-notebook", color:"text-blue-600", bg:"bg-blue-50", category:"teaching" },
+    { name:"快出题", desc:"智能生成试题，快速组卷的教学助手", url:"https://kuaichuti.net/", icon:"ph-exam", color:"text-emerald-500", bg:"bg-emerald-50", category:"teaching" },
+    { name:"棒棒糖AI听评课", desc:"辅助教研、听课、评课、议课全流程", url:"https://bbt.etah-tech.com/publish/login?key=5SiCv0QgJ40=", icon:"ph-chats-circle", color:"text-pink-500", bg:"bg-pink-50", category:"teaching" },
+    { name:"飞象老师", desc:"快速生成高质量教学动画", url:"https://www.feixianglaoshi.com/", icon:"ph-film-strip", color:"text-cyan-500", bg:"bg-cyan-50", category:"teaching" },
+    { name:"Gamma", desc:"PPT视觉效果表现优秀，一键生成幻灯片", url:"https://gamma.app/signup?r=qelbuujfixnt8t6", icon:"ph-presentation-chart", color:"text-orange-500", bg:"bg-orange-50", category:"creation" },
+    { name:"anygen.io", desc:"创作系列图，适配绘本、课件等多种场景", url:"https://www.anygen.io/home?invitation_code=4UQOT4NA0EBPFWS", icon:"ph-pencil-circle", color:"text-orange-400", bg:"bg-orange-50", category:"creation" },
+    { name:"海绵音乐", desc:"输入灵感，快速生成高质量歌曲", url:"https://www.haimian.com/", icon:"ph-music-notes", color:"text-rose-500", bg:"bg-rose-50", category:"creation" },
+    { name:"即梦AI", desc:"强大的生成式AI，支持生成数字人", url:"https://jimeng.jianying.com/ai-tool/home/", icon:"ph-magic-wand", color:"text-violet-500", bg:"bg-violet-50", category:"creation" },
+    { name:"Nano Banana", desc:"功能强大的图片生成工具 (Gemini)", url:"https://gemini.google.com/app?hl=zh-cn", icon:"ph-image", color:"text-purple-500", bg:"bg-purple-50", category:"creation" },
+    { name:"飞影数字人", desc:"专业的数字人视频制作平台", url:"https://hifly.cc/i/GXyeDnoyGPc", icon:"ph-user-focus", color:"text-sky-500", bg:"bg-sky-50", category:"creation" },
+    { name:"秘塔搜索", desc:"辅助建立知识库的专题研究功能", url:"https://metaso.cn/", icon:"ph-magnifying-glass", color:"text-teal-500", bg:"bg-teal-50", category:"search" },
+    { name:"Coze", desc:"新一代一站式 AI Bot 开发平台", url:"https://www.coze.cn/studio?invite_code=260ab871053241e8a2730bb5dff7f662", icon:"ph-robot", color:"text-indigo-500", bg:"bg-indigo-50", category:"dev" }
+];
+
+const promptTemplates = [
+    {
+        label:"备课助手",
+        icon:"ph-book-open-text",
+        color:"text-blue-500",
+        bg:"bg-blue-50",
+        text:"你是一位经验丰富的[学科]教师，请为[年级]学生设计一节关于「[主题]」的完整教案，包括：①教学目标（知识、能力、情感三维）②教学重难点 ③教学流程（40分钟，含导入-新授-练习-小结）④板书设计 ⑤作业布置。要求贴近学生实际，体现新课程理念。"
+    },
+    {
+        label:"智能出题",
+        icon:"ph-exam",
+        color:"text-emerald-500",
+        bg:"bg-emerald-50",
+        text:"请为[年级][学科]「[知识点]」出[数量]道[题型（选择/填空/解答）]题，要求：①难度分布：基础题[X]道、提高题[X]道、拓展题[X]道 ②每道题附参考答案和解题思路 ③题目情境联系生活实际，避免纯机械记忆。"
+    },
+    {
+        label:"学生评语",
+        icon:"ph-star",
+        color:"text-yellow-500",
+        bg:"bg-yellow-50",
+        text:"请为以下学生生成一段温暖、个性化的期末评语（100-150字）：姓名：[姓名]，性格特点：[特点]，学习优势：[优点]，待改进之处：[不足]，本学期印象深刻的事：[事件]。要求积极正面，给予期待与鼓励。"
+    },
+    {
+        label:"课堂提问",
+        icon:"ph-question",
+        color:"text-purple-500",
+        bg:"bg-purple-50",
+        text:"请围绕「[课文/主题]」为[年级]学生设计6个由浅入深的课堂提问，要求：①前2题：基础理解层（What）②中2题：分析应用层（Why/How）③后2题：评价创造层（引发思考与讨论）。每题附上提问目的和预期学生反应。"
+    },
+    {
+        label:"作业设计",
+        icon:"ph-pencil-line",
+        color:"text-rose-500",
+        bg:"bg-rose-50",
+        text:"请为学完[学科][内容]的[年级]学生设计一项有创意的课后作业，要求：①趣味性强，避免机械练习 ②可操作性强，预计完成时间不超过[X]分钟 ③体现跨学科融合或生活应用 ④附评价标准（优秀/良好/合格三个等级描述）。"
+    },
+    {
+        label:"差异化教学",
+        icon:"ph-users-three",
+        color:"text-indigo-500",
+        bg:"bg-indigo-50",
+        text:"针对[学科][知识点]，请为三类不同水平的学生分别设计学习方案：①学困生：降低难度、提供支架式指导 ②中等生：夯实基础、适当提升 ③优等生：拓展延伸、开放性探究。每类方案包括学习目标、学习活动和评价方式。"
+    },
+    {
+        label:"课文分析",
+        icon:"ph-article",
+        color:"text-teal-500",
+        bg:"bg-teal-50",
+        text:"请对「[课文名称]」进行深度教学分析，包括：①主题思想与情感基调 ②写作特色与艺术手法 ③重点词句赏析（列举3-5处）④教学价值与育人意义 ⑤本文在[年级]教材体系中的地位与作用。请以教师备课视角撰写。"
+    },
+    {
+        label:"家长沟通",
+        icon:"ph-chats",
+        color:"text-cyan-500",
+        bg:"bg-cyan-50",
+        text:"请帮我起草一段与家长沟通的消息，主题是：[沟通主题（如学生成绩下滑/行为问题/进步表扬等）]。学生情况：[简要描述]。要求：语气温和专业、以合作解决问题为导向、明确说明期望家长配合的具体事项，约150-200字。"
+    }
+];
+
+const learningPaths = [
+    {
+        title:"AI 入门基础", subtitle:"零基础快速上手AI工具", icon:"ph-seedling",
+        gradient:"from-emerald-500 to-teal-500", duration:"约 2 周",
+        steps:[
+            { name:"了解人工智能基本概念", icon:"ph-brain" },
+            { name:"掌握基础提示词技巧", icon:"ph-chat-text" },
+            { name:"体验主流AI对话工具", icon:"ph-robot" },
+            { name:"用AI辅助日常备课", icon:"ph-book-open-text" }
+        ]
+    },
+    {
+        title:"AI 教学应用", subtitle:"将AI工具融入日常教学", icon:"ph-chalkboard-teacher",
+        gradient:"from-blue-500 to-indigo-600", duration:"约 4 周",
+        steps:[
+            { name:"AI辅助出题与批改", icon:"ph-exam" },
+            { name:"AI生成教学课件", icon:"ph-presentation-chart" },
+            { name:"AI分析课堂效果", icon:"ph-chart-line-up" },
+            { name:"AI个性化辅导方案", icon:"ph-user-gear" }
+        ]
+    },
+    {
+        title:"AI 创作进阶", subtitle:"用AI创作丰富的教学内容", icon:"ph-sparkle",
+        gradient:"from-purple-500 to-pink-500", duration:"约 6 周",
+        steps:[
+            { name:"AI生成教学动画", icon:"ph-film-strip" },
+            { name:"AI音乐与声音设计", icon:"ph-music-notes" },
+            { name:"数字人与虚拟讲师", icon:"ph-user-circle" },
+            { name:"搭建专属AI教学助手", icon:"ph-robot" }
+        ]
+    }
+];
+
+const rssFeeds = {
+    edsurge:   'https://edsurge.com/news.rss',
+    verge:     'https://www.theverge.com/rss/ai-artificial-intelligence/rss.xml',
+    techcrunch:'https://techcrunch.com/category/artificial-intelligence/feed/'
+};
+let currentFeed = 'edsurge';
+
+// ===== TOOLS =====
+function filterTools(category, btn) {
+    document.querySelectorAll('.tool-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = category === 'all' ? tools : tools.filter(t => t.category === category);
+    renderToolCards(filtered);
+}
+
+function renderToolCards(list) {
+    document.getElementById('tools-grid').innerHTML = list.map(t => `
+        <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="group card">
+            <div class="bg-white border border-slate-100 rounded-2xl p-5 h-full relative overflow-hidden">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-11 h-11 rounded-xl ${t.bg} ${t.color} flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300">
+                        <i class="ph-fill ${t.icon}"></i>
+                    </div>
+                    <div class="w-7 h-7 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                        <i class="ph-bold ph-arrow-up-right text-xs"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-bold text-slate-800 mb-1.5 group-hover:text-primary transition-colors">${t.name}</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">${t.desc}</p>
+            </div>
+        </a>
+    `).join('');
+}
+
+// ===== NEWS =====
+const NEWS_TTL = 30 * 60 * 1000;
+
+function switchFeed(feedKey, btn) {
+    currentFeed = feedKey;
+    document.querySelectorAll('.feed-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    fetchNews();
+}
+
+function showNewsSkeletons() {
+    document.getElementById('news-grid').innerHTML = Array(6).fill(`
+        <div class="bg-white border border-slate-100 rounded-2xl p-5">
+            <div class="h-2.5 skeleton rounded w-1/3 mb-3"></div>
+            <div class="h-4 skeleton rounded w-full mb-2"></div>
+            <div class="h-4 skeleton rounded w-5/6 mb-4"></div>
+            <div class="h-3 skeleton rounded w-full mb-1.5"></div>
+            <div class="h-3 skeleton rounded w-4/5 mb-1.5"></div>
+            <div class="h-3 skeleton rounded w-3/5"></div>
+        </div>`).join('');
+}
+
+function renderNewsItems(items) {
+    const container = document.getElementById('news-grid');
+    if (!items || items.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-14 text-slate-400">
+                <i class="ph ph-wifi-slash text-5xl mb-3 block"></i>
+                <p class="text-sm">暂时无法获取资讯，请稍后点击刷新重试</p>
+            </div>`;
+        return;
+    }
+    container.innerHTML = items.slice(0, 6).map(item => {
+        const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN', { month:'short', day:'numeric' }); } catch { return ''; } })();
+        const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch { return ''; } })();
+        const desc = item.description ? item.description.replace(/<[^>]*>/g,'').trim().substring(0, 130) : '';
+        return `
+        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="group card block bg-white border border-slate-100 rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-3 text-xs text-slate-400">
+                <span class="font-medium text-indigo-500 truncate max-w-[120px]">${domain}</span>
+                <span>·</span>
+                <span class="flex-shrink-0">${date}</span>
+            </div>
+            <h3 class="text-sm font-semibold text-slate-800 leading-snug mb-2 line-clamp-2 group-hover:text-primary transition-colors">${item.title}</h3>
+            <p class="text-xs text-slate-500 leading-relaxed line-clamp-3">${desc}${desc ? '…' : ''}</p>
+            <div class="mt-3 flex items-center gap-1 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                阅读全文 <i class="ph ph-arrow-right"></i>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+async function fetchNews(force = false) {
+    const cacheKey = `ai_news_${currentFeed}`;
+    if (!force) {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            const { items, ts } = JSON.parse(cached);
+            if (Date.now() - ts < NEWS_TTL) { renderNewsItems(items); return; }
         }
+    }
+    const icon = document.getElementById('refresh-icon');
+    if (icon) icon.style.animation = 'spin 1s linear infinite';
+    showNewsSkeletons();
+    try {
+        const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssFeeds[currentFeed])}&count=6`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status === 'ok' && data.items) {
+            localStorage.setItem(cacheKey, JSON.stringify({ items: data.items, ts: Date.now() }));
+            renderNewsItems(data.items);
+        } else { renderNewsItems(null); }
+    } catch { renderNewsItems(null); }
+    finally { if (icon) icon.style.animation = ''; }
+}
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', renderTools);
-    </script>
+// ===== PROMPTS =====
+function renderPrompts() {
+    document.getElementById('prompts-grid').innerHTML = promptTemplates.map(p => `
+        <div class="bg-white border border-slate-100 rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg ${p.bg} ${p.color} flex items-center justify-center">
+                        <i class="ph-fill ${p.icon}"></i>
+                    </div>
+                    <span class="font-semibold text-slate-800 text-sm">${p.label}</span>
+                </div>
+                <button onclick="copyPrompt(this)" data-text="${p.text.replace(/"/g,'&quot;')}"
+                    class="copy-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors">
+                    <i class="ph ph-copy"></i> 复制
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed line-clamp-3">${p.text}</p>
+        </div>
+    `).join('');
+}
+
+function copyPrompt(btn) {
+    const text = btn.getAttribute('data-text').replace(/&quot;/g, '"');
+    navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<i class="ph ph-check"></i> 已复制';
+        btn.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
+        btn.classList.remove('text-primary', 'border-indigo-200');
+        showToast();
+        setTimeout(() => {
+            btn.innerHTML = '<i class="ph ph-copy"></i> 复制';
+            btn.classList.remove('bg-emerald-50','text-emerald-600','border-emerald-200');
+            btn.classList.add('text-primary','border-indigo-200');
+        }, 2000);
+    });
+}
+
+function showToast() {
+    const t = document.getElementById('toast');
+    t.style.opacity = '1';
+    setTimeout(() => t.style.opacity = '0', 1800);
+}
+
+// ===== PATHS =====
+function renderPaths() {
+    document.getElementById('paths-grid').innerHTML = learningPaths.map(p => `
+        <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden card">
+            <div class="bg-gradient-to-r ${p.gradient} p-6 text-white">
+                <i class="ph-fill ${p.icon} text-3xl mb-3 block"></i>
+                <h3 class="text-xl font-bold mb-1">${p.title}</h3>
+                <p class="text-white/75 text-sm">${p.subtitle}</p>
+                <div class="mt-3 flex items-center gap-1.5 text-white/60 text-xs">
+                    <i class="ph ph-clock"></i> ${p.duration}
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    ${p.steps.map((s,i) => `
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-slate-400">${i+1}</div>
+                            <div class="flex items-center gap-2 text-sm text-slate-600">
+                                <i class="ph ${s.icon} text-slate-400"></i> ${s.name}
+                            </div>
+                        </div>`).join('')}
+                </div>
+                <button onclick="showModal('register')" class="mt-6 w-full py-2.5 bg-gradient-to-r ${p.gradient} text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm">
+                    开始学习
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===== AUTH =====
+function showModal(tab) {
+    document.getElementById('auth-modal').classList.add('active');
+    switchAuthTab(tab);
+}
+function closeModal() {
+    document.getElementById('auth-modal').classList.remove('active');
+}
+function closeModalOnOverlay(e) {
+    if (e.target === document.getElementById('auth-modal')) closeModal();
+}
+function switchAuthTab(tab) {
+    const login = tab === 'login';
+    document.getElementById('form-login').classList.toggle('hidden', !login);
+    document.getElementById('form-register').classList.toggle('hidden', login);
+    document.getElementById('tab-login').className = `flex-1 py-4 text-sm font-semibold transition-colors ${login ? 'text-primary border-b-2 border-primary' : 'text-slate-400'}`;
+    document.getElementById('tab-register').className = `flex-1 py-4 text-sm font-semibold transition-colors ${!login ? 'text-primary border-b-2 border-primary' : 'text-slate-400'}`;
+}
+function getUsers() { return JSON.parse(localStorage.getItem('aitc_users') || '[]'); }
+function saveUsers(u) { localStorage.setItem('aitc_users', JSON.stringify(u)); }
+function getCurrentUser() { return JSON.parse(sessionStorage.getItem('aitc_user') || 'null'); }
+
+function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pwd = document.getElementById('login-password').value;
+    const err = document.getElementById('login-error');
+    err.classList.add('hidden');
+    if (!email || !pwd) { err.textContent = '请填写邮箱和密码'; err.classList.remove('hidden'); return; }
+    const user = getUsers().find(u => u.email === email && u.password === btoa(unescape(encodeURIComponent(pwd))));
+    if (!user) { err.textContent = '邮箱或密码错误'; err.classList.remove('hidden'); return; }
+    sessionStorage.setItem('aitc_user', JSON.stringify(user));
+    closeModal();
+    updateAuthUI(user);
+}
+
+function handleRegister() {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const school = document.getElementById('reg-school').value.trim();
+    const pwd = document.getElementById('reg-password').value;
+    const err = document.getElementById('reg-error');
+    err.classList.add('hidden');
+    if (!name || !email || !pwd) { err.textContent = '请填写姓名、邮箱和密码'; err.classList.remove('hidden'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = '请输入有效的邮箱地址'; err.classList.remove('hidden'); return; }
+    if (pwd.length < 6) { err.textContent = '密码至少需要 6 位'; err.classList.remove('hidden'); return; }
+    const users = getUsers();
+    if (users.find(u => u.email === email)) { err.textContent = '该邮箱已被注册'; err.classList.remove('hidden'); return; }
+    const user = { name, email, school, password: btoa(unescape(encodeURIComponent(pwd))), joinedAt: new Date().toISOString() };
+    users.push(user);
+    saveUsers(users);
+    sessionStorage.setItem('aitc_user', JSON.stringify(user));
+    closeModal();
+    updateAuthUI(user);
+}
+
+function updateAuthUI(user) {
+    document.getElementById('auth-area').innerHTML = user ? `
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">${user.name.charAt(0).toUpperCase()}</div>
+            <span class="text-sm text-slate-700 hidden sm:block font-medium">${user.name}</span>
+            <button onclick="handleLogout()" class="text-xs text-slate-400 hover:text-slate-600 transition-colors ml-1">退出</button>
+        </div>` :
+        `<button onclick="showModal('login')" class="px-3 py-1.5 text-sm text-slate-600 hover:text-primary transition-colors font-medium">登录</button>
+         <button onclick="showModal('register')" class="px-4 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm">注册</button>`;
+}
+
+function handleLogout() {
+    sessionStorage.removeItem('aitc_user');
+    updateAuthUI(null);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+    renderToolCards(tools);
+    renderPrompts();
+    renderPaths();
+    fetchNews();
+    const u = getCurrentUser();
+    if (u) updateAuthUI(u);
+});
+</script>
 </body>
 </html>
