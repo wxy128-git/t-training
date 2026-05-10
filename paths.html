@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习路径 · AI 教师培训中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .step-detail { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .step-detail.open { max-height: 200px; }
+        .step-row { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .step-row:last-child { border-bottom: none; }
+        .step-row:hover .step-num { background: #4F46E5; color: white; }
+        .step-chevron { margin-left: auto; color: #cbd5e1; transition: transform 0.2s; flex-shrink: 0; }
+        .step-row.expanded .step-chevron { transform: rotate(180deg); }
+        .resource-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.2); border-radius: 999px; font-size: 12px; margin: 3px; }
+    </style>
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main style="max-width:1000px;margin:0 auto;padding:40px 16px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>学习路径</span></div>
+
+    <div style="margin-bottom:36px">
+        <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">结构化学习路径</h1>
+        <p style="font-size:14px;color:#64748b;margin-top:6px">三条精心设计的进阶路径，从零基础到 AI 创作高手，点击每一步展开详细指引</p>
+    </div>
+
+    <!-- Path comparison -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px" id="path-nav-cards">
+        <!-- rendered by JS -->
+    </div>
+
+    <!-- Detailed paths -->
+    <div id="paths-detail" style="display:flex;flex-direction:column;gap:40px"></div>
+</main>
+
+<div id="main-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script>
+renderNav('paths');
+renderFooter();
+
+const paths = DB.paths.get();
+
+// Nav cards
+document.getElementById('path-nav-cards').innerHTML = paths.map(p => `
+    <a href="#${p.slug}" style="text-decoration:none">
+        <div style="background:${p.gradient};border-radius:16px;padding:20px;color:white;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 30px -6px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <i class="ph-fill ${p.icon}" style="font-size:24px;display:block;margin-bottom:8px"></i>
+            <div style="font-weight:700;font-size:15px;margin-bottom:4px">${p.title}</div>
+            <div style="opacity:.75;font-size:12px">${p.duration}</div>
+            <div style="margin-top:8px;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:999px;font-size:11px;display:inline-block">${p.level}</div>
+        </div>
+    </a>`).join('');
+
+// Detailed sections
+document.getElementById('paths-detail').innerHTML = paths.map(p => `
+    <section id="${p.slug}" style="scroll-margin-top:80px">
+        <div style="border-radius:20px;overflow:hidden;box-shadow:0 4px 24px -4px rgba(0,0,0,0.08)">
+            <!-- Header -->
+            <div style="background:${p.gradient};padding:32px;color:white">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                            <i class="ph-fill ${p.icon}" style="font-size:32px"></i>
+                            <div>
+                                <h2 style="font-size:1.4rem;font-weight:800">${p.title}</h2>
+                                <div style="opacity:.75;font-size:13px">${p.subtitle}</div>
+                            </div>
+                        </div>
+                        <p style="opacity:.85;font-size:14px;line-height:1.8;max-width:600px">${p.desc}</p>
+                    </div>
+                    <div style="text-align:center;background:rgba(255,255,255,0.15);border-radius:14px;padding:16px 24px;flex-shrink:0">
+                        <div style="font-size:11px;opacity:.7;margin-bottom:4px">预计时长</div>
+                        <div style="font-size:20px;font-weight:800">${p.duration}</div>
+                        <div style="margin-top:8px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:999px;font-size:12px">${p.level}水平</div>
+                    </div>
+                </div>
+                <!-- Related resources -->
+                <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.2)">
+                    <div style="font-size:12px;opacity:.7;margin-bottom:8px">推荐配合使用的工具：</div>
+                    <div>${p.resources.map(r => `<span class="resource-chip"><i class="ph ph-arrow-up-right"></i>${r}</span>`).join('')}</div>
+                </div>
+            </div>
+
+            <!-- Steps -->
+            <div style="background:white;padding:28px">
+                <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px">学习步骤 <span style="font-size:13px;font-weight:400;color:#94a3b8">（点击展开详情）</span></h3>
+                <div>
+                    ${p.steps.map((s, i) => `
+                    <div class="step-row" onclick="toggleStep(this)">
+                        <div class="step-num" style="width:28px;height:28px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#64748b;flex-shrink:0;transition:all 0.15s">${i+1}</div>
+                        <i class="ph ${s.icon}" style="color:#94a3b8;flex-shrink:0"></i>
+                        <span style="font-size:14px;font-weight:500;color:#1e293b">${s.name}</span>
+                        <i class="ph ph-caret-down step-chevron"></i>
+                    </div>
+                    <div class="step-detail">
+                        <div style="padding:10px 16px 14px 66px;font-size:13px;color:#64748b;line-height:1.7;background:#fafafa;border-radius:0 0 8px 8px">${s.detail}</div>
+                    </div>`).join('')}
+                </div>
+                <button onclick="showAuthModal('register')" style="margin-top:20px;padding:12px 24px;background:${p.gradient};color:white;font-size:14px;font-weight:600;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.15s;width:100%" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                    加入学习，开始这条路径
+                </button>
+            </div>
+        </div>
+    </section>`).join('');
+
+function toggleStep(row) {
+    const detail = row.nextElementSibling;
+    const isOpen = detail.classList.contains('open');
+    // Close all in this section
+    row.closest('section').querySelectorAll('.step-detail').forEach(d => d.classList.remove('open'));
+    row.closest('section').querySelectorAll('.step-row').forEach(r => r.classList.remove('expanded'));
+    if (!isOpen) { detail.classList.add('open'); row.classList.add('expanded'); }
+}
+
+// Scroll to hash on load
+if (location.hash) {
+    setTimeout(() => {
+        const el = document.querySelector(location.hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+}
+</script>
+</body>
+</html>

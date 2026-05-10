@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提示词库 · AI 教师培训中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main style="max-width:1100px;margin:0 auto;padding:40px 16px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>提示词库</span></div>
+
+    <div style="margin-bottom:28px">
+        <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">教学提示词库</h1>
+        <p style="font-size:14px;color:#64748b;margin-top:4px">即用模板，一键复制。将 <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">[ ]</code> 中的内容替换为你的实际信息后使用</p>
+    </div>
+
+    <div class="filter-bar" id="filter-bar"></div>
+
+    <div class="cards-grid cards-grid-2" id="prompts-grid" style="margin-top:4px"></div>
+</main>
+
+<div id="main-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script>
+renderNav('prompts');
+renderFooter();
+
+const cats = [
+    { key:'all', label:'全部' },
+    { key:'teaching', label:'教学设计' },
+    { key:'advanced', label:'进阶技巧' },
+    { key:'communication', label:'沟通协作' }
+];
+let currentCat = 'all';
+
+document.getElementById('filter-bar').innerHTML = cats.map(c =>
+    `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
+).join('');
+
+function setCat(key, btn) {
+    currentCat = key;
+    document.querySelectorAll('#filter-bar .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+}
+
+function copyPrompt(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        btn.className = 'copy-btn copied';
+        btn.innerHTML = '<i class="ph ph-check"></i>已复制';
+        showToast('提示词已复制到剪贴板 ✓');
+        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<i class="ph ph-copy"></i>复制'; }, 2000);
+    });
+}
+
+function render() {
+    const prompts = DB.prompts.get();
+    const filtered = currentCat === 'all' ? prompts : prompts.filter(p => p.category === currentCat);
+    document.getElementById('prompts-grid').innerHTML = filtered.map(p => `
+        <div class="card prompt-card">
+            <div class="prompt-card-header">
+                <div class="prompt-card-title">
+                    <div class="prompt-icon ${p.bg} ${p.color}"><i class="ph-fill ${p.icon}"></i></div>
+                    <div>
+                        <div style="font-size:14px;font-weight:700;color:#0f172a">${p.label}</div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:1px">点击复制后直接粘贴使用</div>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyPrompt(this,${JSON.stringify(p.text)})"><i class="ph ph-copy"></i>复制</button>
+            </div>
+            <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#374151;line-height:1.8;font-family:monospace;white-space:pre-wrap;word-break:break-all">${p.text}</div>
+        </div>`).join('');
+}
+
+render();
+</script>
+</body>
+</html>

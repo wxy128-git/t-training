@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球 AI 教育资讯 · AI 教师培训中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main style="max-width:1280px;margin:0 auto;padding:40px 16px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>全球资讯</span></div>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+        <div>
+            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">全球 AI 教育资讯</h1>
+            <p style="font-size:14px;color:#64748b;margin-top:4px">来自顶尖媒体的 AI 与教育动态，双引擎自动抓取 · 30分钟本地缓存</p>
+        </div>
+        <button id="refresh-btn" onclick="refresh()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;color:#4F46E5;border:1px solid #c7d2fe;border-radius:10px;background:white;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='#EEF2FF'" onmouseout="this.style.background='white'">
+            <i class="ph ph-arrows-clockwise" id="refresh-icon"></i> 刷新
+        </button>
+    </div>
+
+    <!-- Feed selector -->
+    <div class="filter-bar" id="feed-tabs"></div>
+
+    <!-- Status -->
+    <div id="fetch-status" style="font-size:12px;color:#94a3b8;margin-bottom:16px"></div>
+
+    <!-- Grid -->
+    <div class="cards-grid cards-grid-3" id="news-grid"></div>
+
+    <p style="font-size:11px;color:#cbd5e1;text-align:center;margin-top:24px">内容来自第三方媒体，以原文语言呈现；点击标题跳转原文阅读</p>
+</main>
+
+<div id="main-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script>
+renderNav('news');
+renderFooter();
+
+let currentFeedKey = 'verge';
+
+function buildFeedTabs() {
+    document.getElementById('feed-tabs').innerHTML = Object.entries(RSS_FEEDS).map(([key, f]) =>
+        `<button class="filter-pill${key === currentFeedKey ? ' active' : ''}" onclick="selectFeed('${key}',this)">${f.label}</button>`
+    ).join('');
+}
+
+function selectFeed(key, btn) {
+    currentFeedKey = key;
+    document.querySelectorAll('#feed-tabs .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadNews();
+}
+
+function showSkeletons(n = 9) {
+    document.getElementById('news-grid').innerHTML = Array(n).fill(`
+        <div class="card" style="padding:20px">
+            <div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div>
+            <div class="skeleton" style="height:16px;margin-bottom:6px"></div>
+            <div class="skeleton" style="height:16px;width:85%;margin-bottom:14px"></div>
+            <div class="skeleton" style="height:12px;margin-bottom:5px"></div>
+            <div class="skeleton" style="height:12px;width:75%;margin-bottom:5px"></div>
+            <div class="skeleton" style="height:12px;width:55%"></div>
+        </div>`).join('');
+}
+
+function renderItems(items) {
+    const grid = document.getElementById('news-grid');
+    if (!items || items.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8">
+            <i class="ph ph-wifi-slash" style="font-size:48px;display:block;margin-bottom:12px"></i>
+            <p style="font-size:15px;font-weight:500;margin-bottom:6px">资讯获取失败</p>
+            <p style="font-size:13px">可能是网络问题，请稍后点击"刷新"重试</p>
+        </div>`;
+        return;
+    }
+    grid.innerHTML = items.map(item => {
+        const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric'}); } catch{return '近期';} })();
+        const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
+        const desc = item.description ? item.description.substring(0, 160) : '';
+        return `
+        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="card news-card" style="display:block">
+            <div class="news-meta">
+                <span class="news-source">${domain}</span>·<span>${date}</span>
+            </div>
+            <h3 class="line-clamp-2">${item.title}</h3>
+            <p class="line-clamp-3" style="margin-top:8px;font-size:12px;color:#64748b;line-height:1.7">${desc}${desc?'…':''}</p>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:12px;color:#4F46E5;font-weight:500;opacity:0" class="read-more">
+                阅读全文 <i class="ph ph-arrow-right"></i>
+            </div>
+        </a>`;
+    }).join('');
+
+    // Show read-more on hover via CSS
+    const style = document.createElement('style');
+    style.textContent = '.news-card:hover .read-more{opacity:1!important}';
+    if (!document.getElementById('news-hover-style')) { style.id='news-hover-style'; document.head.appendChild(style); }
+}
+
+async function loadNews(force = false) {
+    const status = document.getElementById('fetch-status');
+    status.textContent = '正在获取最新资讯…';
+    showSkeletons();
+    const icon = document.getElementById('refresh-icon');
+    icon.style.cssText = 'display:inline-block;animation:spin 1s linear infinite';
+    if (!document.getElementById('spin-style')) {
+        const s = document.createElement('style');
+        s.id = 'spin-style';
+        s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+        document.head.appendChild(s);
+    }
+
+    if (force) {
+        const cacheKey = 'rss_' + btoa(encodeURIComponent(RSS_FEEDS[currentFeedKey].url)).slice(0, 24);
+        localStorage.removeItem(cacheKey);
+    }
+
+    const items = await fetchRSSFeed(RSS_FEEDS[currentFeedKey].url, 12);
+    icon.style.cssText = '';
+    if (items) {
+        status.textContent = `已加载 ${items.length} 条资讯 · 来源：${RSS_FEEDS[currentFeedKey].label}`;
+    } else {
+        status.textContent = '获取失败，尝试备用资讯源…';
+        const fallbackKeys = Object.keys(RSS_FEEDS).filter(k => k !== currentFeedKey);
+        for (const key of fallbackKeys) {
+            const fb = await fetchRSSFeed(RSS_FEEDS[key].url, 6);
+            if (fb) { renderItems(fb); status.textContent = `备用资源加载成功 (${RSS_FEEDS[key].label})，共 ${fb.length} 条`; return; }
+        }
+    }
+    renderItems(items);
+}
+
+function refresh() { loadNews(true); }
+
+buildFeedTabs();
+loadNews();
+</script>
+</body>
+</html>

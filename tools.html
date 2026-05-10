@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 工具箱 · AI 教师培训中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main style="max-width:1280px;margin:0 auto;padding:40px 16px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>AI 工具箱</span></div>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+        <div>
+            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">精选 AI 工具箱</h1>
+            <p style="font-size:14px;color:#64748b;margin-top:4px">为教师场景精心筛选，覆盖备课、出题、创作全流程</p>
+        </div>
+        <div style="position:relative">
+            <i class="ph ph-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8"></i>
+            <input id="search" type="text" placeholder="搜索工具名称或描述…" oninput="renderTools()" style="padding:9px 14px 9px 36px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;width:240px;font-family:inherit;outline:none;transition:all 0.15s" onfocus="this.style.borderColor='#4F46E5';this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow=''">
+        </div>
+    </div>
+
+    <div class="filter-bar" id="filter-bar"></div>
+
+    <div style="font-size:13px;color:#94a3b8;margin-bottom:16px" id="count-label"></div>
+
+    <div class="cards-grid cards-grid-4" id="tools-grid"></div>
+
+    <div id="empty-state" style="display:none;text-align:center;padding:60px 20px;color:#94a3b8">
+        <i class="ph ph-magnifying-glass" style="font-size:48px;display:block;margin-bottom:12px"></i>
+        <p style="font-size:15px;font-weight:500">没有找到匹配的工具</p>
+        <p style="font-size:13px;margin-top:4px">换个关键词试试</p>
+    </div>
+</main>
+
+<div id="main-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script>
+renderNav('tools');
+renderFooter();
+
+const categories = [
+    { key:'all', label:'全部' },
+    { key:'teaching', label:'教学辅助' },
+    { key:'creation', label:'内容创作' },
+    { key:'search', label:'智能搜索' },
+    { key:'dev', label:'智能开发' }
+];
+let currentCat = 'all';
+
+document.getElementById('filter-bar').innerHTML = categories.map(c =>
+    `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
+).join('');
+
+function setCat(key, btn) {
+    currentCat = key;
+    document.querySelectorAll('#filter-bar .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTools();
+}
+
+function renderTools() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const tools = DB.tools.get();
+    const filtered = tools.filter(t => {
+        const matchCat = currentCat === 'all' || t.category === currentCat;
+        const matchQ = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q);
+        return matchCat && matchQ;
+    });
+
+    document.getElementById('count-label').textContent = `共 ${filtered.length} 个工具`;
+    document.getElementById('empty-state').style.display = filtered.length ? 'none' : 'block';
+    document.getElementById('tools-grid').innerHTML = filtered.map(t => `
+        <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column;position:relative">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+                <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
+                <div class="tool-card-arrow"><i class="ph-bold ph-arrow-up-right" style="font-size:11px"></i></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px">${t.name}</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.6;flex:1">${t.desc}</div>
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid #f8fafc">
+                <span style="font-size:11px;color:#94a3b8">${{teaching:'教学辅助',creation:'内容创作',search:'智能搜索',dev:'智能开发'}[t.category]||''}</span>
+            </div>
+        </a>`).join('');
+}
+
+renderTools();
+</script>
+</body>
+</html>
