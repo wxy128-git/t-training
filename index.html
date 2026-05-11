@@ -35,7 +35,7 @@
         <div class="stat-item"><strong id="stat-tools">14+</strong><span>精选 AI 工具</span></div>
         <div class="stat-item"><strong>每日</strong><span>资讯自动更新</span></div>
         <div class="stat-item"><strong>3 条</strong><span>学习路径</span></div>
-        <div class="stat-item"><strong id="stat-users">-</strong><span>注册教师</span></div>
+        <div class="stat-item"><strong id="stat-prompts">8+</strong><span>提示词模板</span></div>
     </div>
 </div>
 
@@ -43,6 +43,41 @@
 
     <!-- 公告 -->
     <div id="announcements-section"></div>
+
+    <!-- 功能快速入口 -->
+    <section>
+        <div class="section-header" style="margin-bottom:20px">
+            <h2>功能导航</h2>
+            <p>一站式 AI 教学服务平台，点击快速进入各功能</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;--cols:3" id="feature-nav">
+        <style>@media(max-width:640px){#feature-nav{grid-template-columns:1fr 1fr}}@media(max-width:400px){#feature-nav{grid-template-columns:1fr}}</style>
+            <a href="tools.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-wrench" style="color:#4F46E5;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">AI 工具箱</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">14+ 款精选工具</div></div>
+            </a>
+            <a href="paths.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-path" style="color:#10B981;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">学习路径</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">3 条进阶路径</div></div>
+            </a>
+            <a href="prompts.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-chat-text" style="color:#F59E0B;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">提示词库</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">官方 + 社区模板</div></div>
+            </a>
+            <a href="news.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-newspaper" style="color:#3B82F6;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">全球资讯</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">每日自动更新</div></div>
+            </a>
+            <a href="showcase.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#FDF4FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-shooting-star" style="color:#A855F7;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">案例展示</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">教师实践分享</div></div>
+            </a>
+            <a href="resources.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-palette" style="color:#E11D48;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">设计资源库</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">课件素材下载</div></div>
+            </a>
+        </div>
+    </section>
 
     <!-- 工具预览 -->
     <section>
@@ -53,7 +88,13 @@
             </div>
             <a href="tools.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看全部 <i class="ph ph-arrow-right"></i></a>
         </div>
-        <div class="cards-grid cards-grid-4" id="tools-preview"></div>
+        <div class="cards-grid cards-grid-4" id="tools-preview">
+            <!-- skeleton -->
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:36px;width:36px;border-radius:10px;margin-bottom:12px"></div><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:12px"></div><div class="skeleton" style="height:12px;width:80%;margin-top:4px"></div></div>
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:36px;width:36px;border-radius:10px;margin-bottom:12px"></div><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:12px"></div><div class="skeleton" style="height:12px;width:80%;margin-top:4px"></div></div>
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:36px;width:36px;border-radius:10px;margin-bottom:12px"></div><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:12px"></div><div class="skeleton" style="height:12px;width:80%;margin-top:4px"></div></div>
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:36px;width:36px;border-radius:10px;margin-bottom:12px"></div><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:12px"></div><div class="skeleton" style="height:12px;width:80%;margin-top:4px"></div></div>
+        </div>
     </section>
 
     <!-- 案例展示预览 -->
@@ -77,7 +118,11 @@
             </div>
             <a href="news.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看全部 <i class="ph ph-arrow-right"></i></a>
         </div>
-        <div class="cards-grid cards-grid-3" id="news-preview"></div>
+        <div class="cards-grid cards-grid-3" id="news-preview">
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:85%;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:5px"></div><div class="skeleton" style="height:12px;width:75%"></div></div>
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:85%;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:5px"></div><div class="skeleton" style="height:12px;width:75%"></div></div>
+            <div class="card" style="padding:20px"><div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:85%;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:5px"></div><div class="skeleton" style="height:12px;width:75%"></div></div>
+        </div>
     </section>
 
     <!-- 学习路径预览 -->
@@ -114,7 +159,7 @@
                 <input class="subscribe-input" type="email" id="main-sub-email" placeholder="输入您的邮箱地址">
                 <button class="subscribe-btn" onclick="mainSubscribe()">立即订阅</button>
             </div>
-            <p style="font-size:12px;opacity:.5;margin-top:14px;position:relative">已有 <span id="sub-count">—</span> 位教师订阅 · 随时可取消</p>
+            <p style="font-size:12px;opacity:.5;margin-top:14px;position:relative">每周一期 · 随时可取消</p>
         </div>
     </section>
 
@@ -126,51 +171,21 @@
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-async function mainSubscribe() {
-    const input = document.getElementById('main-sub-email');
-    const email = input.value.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('请输入有效邮箱地址');
-        return;
-    }
-    try {
-        const result = await DB.addSubscriber(email);
-        if (result === 'exists') {
-            showToast('该邮箱已订阅，感谢关注！');
-        } else {
-            input.value = '';
-            showToast('订阅成功，感谢关注！');
-            const subCountEl = document.getElementById('sub-count');
-            const cur = parseInt(subCountEl.textContent) || 0;
-            subCountEl.textContent = (cur + 1) + '+';
-        }
-    } catch(e) {
-        showToast('订阅失败，请稍后重试');
-    }
-}
+// ===== 立即渲染导航（不等待 auth）=====
+renderNav('index');
+renderFooter();
 
-function copyText(btn, encoded) {
-    navigator.clipboard.writeText(decodeURIComponent(encoded)).then(() => {
-        btn.className = 'copy-btn copied';
-        btn.innerHTML = '<i class="ph ph-check"></i>已复制';
-        showToast('提示词已复制到剪贴板');
-        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<i class="ph ph-copy"></i>复制'; }, 2000);
-    });
-}
-
-onAuthReady(async (user) => {
-    renderNav('index');
-    renderFooter();
-
-    const [tools, ann, paths, prompts, users, showcases, subscribers] = await Promise.all([
-        DB.getTools(), DB.getAnnouncements(), DB.getPaths(), DB.getPrompts(),
-        DB.getUsers(), DB.getShowcases('approved'), DB.getSubscribers()
-    ]);
-
+// ===== 立即开始加载所有公开数据（不等待 auth）=====
+Promise.all([
+    DB.getTools(),
+    DB.getAnnouncements(),
+    DB.getPaths(),
+    DB.getPrompts(),
+    DB.getShowcases('approved')
+]).then(([tools, ann, paths, prompts, showcases]) => {
     // Stats
-    document.getElementById('stat-users').textContent = users.length > 0 ? users.length + '+' : '—';
     document.getElementById('stat-tools').textContent = tools.length + '+';
-    document.getElementById('sub-count').textContent = subscribers.length > 0 ? subscribers.length + '+' : '—';
+    document.getElementById('stat-prompts').textContent = prompts.length + '+';
 
     // Announcements
     if (ann.length > 0) {
@@ -188,7 +203,7 @@ onAuthReady(async (user) => {
                 <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
                 <div class="tool-card-arrow"><i class="ph-bold ph-arrow-up-right" style="font-size:12px"></i></div>
             </div>
-            <h3 class="tool-card-title" style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">${t.name}</h3>
+            <h3 style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">${t.name}</h3>
             <p style="font-size:12px;color:#64748b;line-height:1.6">${t.desc}</p>
         </a>`).join('');
 
@@ -246,24 +261,53 @@ onAuthReady(async (user) => {
             </div>
             <p style="font-size:12px;color:#64748b;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${p.text}</p>
         </div>`).join('');
-
-    // News preview (3 items)
-    (async () => {
-        const container = document.getElementById('news-preview');
-        container.innerHTML = Array(3).fill(`<div class="card" style="padding:20px"><div class="skeleton" style="height:12px;width:40%;margin-bottom:10px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:80%;margin-bottom:12px"></div><div class="skeleton" style="height:12px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:70%"></div></div>`).join('');
-        const items = await fetchRSSFeed(RSS_FEEDS.verge.url, 3) || await fetchRSSFeed(RSS_FEEDS.techcrunch.url, 3);
-        if (!items) { container.innerHTML = `<div class="card" style="padding:40px;text-align:center;color:#94a3b8;grid-column:1/-1"><i class="ph ph-wifi-slash" style="font-size:36px;display:block;margin-bottom:8px"></i>资讯加载失败，<a href="news.html" style="color:#4F46E5">前往资讯页面</a>重试</div>`; return; }
-        container.innerHTML = items.slice(0, 3).map(item => {
-            const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
-            const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
-            return `<a href="${item.link}" target="_blank" rel="noopener" class="card news-card">
-                <div class="news-meta"><span class="news-source">${domain}</span>·<span>${date}</span></div>
-                <h3 class="line-clamp-2">${item.title}</h3>
-                <p class="line-clamp-3" style="margin-top:8px">${item.description.substring(0,120)}…</p>
-            </a>`;
-        }).join('');
-    })();
 });
+
+// ===== 资讯预览（独立加载，网络较慢不阻塞其他内容）=====
+(async () => {
+    const items = await fetchRSSFeed(RSS_FEEDS.verge.url, 3) || await fetchRSSFeed(RSS_FEEDS.techcrunch.url, 3);
+    const container = document.getElementById('news-preview');
+    if (!items) {
+        container.innerHTML = `<div class="card" style="padding:40px;text-align:center;color:#94a3b8;grid-column:1/-1"><i class="ph ph-wifi-slash" style="font-size:36px;display:block;margin-bottom:8px"></i>资讯加载失败，<a href="news.html" style="color:#4F46E5">前往资讯页面</a>重试</div>`;
+        return;
+    }
+    container.innerHTML = items.slice(0, 3).map(item => {
+        const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
+        const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
+        return `<a href="${item.link}" target="_blank" rel="noopener" class="card news-card">
+            <div class="news-meta"><span class="news-source">${domain}</span>·<span>${date}</span></div>
+            <h3 class="line-clamp-2">${item.title}</h3>
+            <p class="line-clamp-3" style="margin-top:8px">${(item.description||'').substring(0,120)}…</p>
+        </a>`;
+    }).join('');
+})();
+
+// ===== auth 就绪后仅更新导航状态（不重新加载数据）=====
+onAuthReady((user) => {
+    renderNav('index');
+    renderFooter();
+});
+
+// ===== 工具函数 =====
+async function mainSubscribe() {
+    const input = document.getElementById('main-sub-email');
+    const email = input.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('请输入有效邮箱地址'); return; }
+    try {
+        const result = await DB.addSubscriber(email);
+        if (result === 'exists') { showToast('该邮箱已订阅，感谢关注！'); }
+        else { input.value = ''; showToast('订阅成功，感谢关注！'); }
+    } catch { showToast('订阅失败，请稍后重试'); }
+}
+
+function copyText(btn, encoded) {
+    navigator.clipboard.writeText(decodeURIComponent(encoded)).then(() => {
+        btn.className = 'copy-btn copied';
+        btn.innerHTML = '<i class="ph ph-check"></i>已复制';
+        showToast('提示词已复制到剪贴板');
+        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<i class="ph ph-copy"></i>复制'; }, 2000);
+    });
+}
 </script>
 </body>
 </html>

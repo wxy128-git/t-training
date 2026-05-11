@@ -46,6 +46,8 @@
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
+renderNav('news');
+renderFooter();
 onAuthReady(user => { renderNav('news'); renderFooter(); });
 
 let currentFeedKey = 'jiqizhixin';

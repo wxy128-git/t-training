@@ -67,10 +67,11 @@ function startPath(btn) {
     if (firstStep) setTimeout(() => firstStep.scrollIntoView({ behavior:'smooth', block:'center' }), 100);
 }
 
-onAuthReady(async (user) => {
-    renderNav('paths');
-    renderFooter();
+renderNav('paths');
+renderFooter();
+onAuthReady((user) => { renderNav('paths'); renderFooter(); });
 
+(async () => {
     const paths = await DB.getPaths();
 
     // Nav cards
@@ -138,7 +139,7 @@ onAuthReady(async (user) => {
             if (el) el.scrollIntoView({ behavior: 'smooth' });
         }, 100);
     }
-});
+})();
 </script>
 </body>
 </html>

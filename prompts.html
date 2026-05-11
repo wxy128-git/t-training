@@ -276,16 +276,17 @@ document.getElementById('community-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('community-modal')) closeCommunityModal();
 });
 
-onAuthReady(async (user) => {
+renderNav('prompts');
+renderFooter();
+
+// Load official prompts immediately
+renderOfficial();
+
+onAuthReady((user) => {
     _pageUser = user;
     renderNav('prompts');
     renderFooter();
-
-    if (user) {
-        document.getElementById('community-submit-btn').style.display = 'flex';
-    }
-
-    await renderOfficial();
+    if (user) document.getElementById('community-submit-btn').style.display = 'flex';
 });
 </script>
 </body>

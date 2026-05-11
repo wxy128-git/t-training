@@ -141,12 +141,22 @@ function renderTools() {
     }).join('');
 }
 
-onAuthReady(async (user) => {
+renderNav('tools');
+renderFooter();
+
+// Load public data immediately — no auth needed
+Promise.all([DB.getTools(), DB.getToolRatings()]).then(([tools, ratings]) => {
+    _allTools = tools;
+    _ratingsMap = ratings;
+    renderTools();
+});
+
+// Re-render nav + tool ratings after auth resolves
+onAuthReady((user) => {
     _pageUser = user;
     renderNav('tools');
     renderFooter();
-    [_allTools, _ratingsMap] = await Promise.all([DB.getTools(), DB.getToolRatings()]);
-    renderTools();
+    if (_allTools.length) renderTools();
 });
 </script>
 </body>

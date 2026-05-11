@@ -205,18 +205,21 @@ document.getElementById('submit-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('submit-modal')) closeSubmitModal();
 });
 
-onAuthReady(async (user) => {
+renderNav('showcase');
+renderFooter();
+
+// Load showcases immediately
+DB.getShowcases('approved').then(list => {
+    _allShowcases = list;
+    renderShowcases();
+});
+
+onAuthReady((user) => {
     _currentUser = user;
     renderNav('showcase');
     renderFooter();
-
-    if (user) {
-        const btn = document.getElementById('submit-btn');
-        btn.style.display = 'flex';
-    }
-
-    _allShowcases = await DB.getShowcases('approved');
-    renderShowcases();
+    if (user) document.getElementById('submit-btn').style.display = 'flex';
+    if (_allShowcases.length) renderShowcases(); // re-render for like state
 });
 </script>
 </body>
