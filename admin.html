@@ -64,6 +64,7 @@
             <div class="sidebar-item" onclick="switchPanel('community-prompts',this)"><i class="ph ph-chats-circle"></i>社区提示词</div>
             <div class="sidebar-item" onclick="switchPanel('showcases',this)"><i class="ph ph-shooting-star"></i>案例审核</div>
             <div class="sidebar-item" onclick="switchPanel('subscribers',this)"><i class="ph ph-envelope-simple"></i>邮件订阅</div>
+            <div class="sidebar-item" onclick="switchPanel('articles-mgr',this)"><i class="ph ph-article"></i>文章管理</div>
             <div style="height:1px;background:#1e293b;margin:12px 8px"></div>
             <div class="sidebar-item" onclick="switchPanel('tools-mgr',this)"><i class="ph ph-wrench"></i>工具管理</div>
             <div class="sidebar-item" onclick="switchPanel('prompts-mgr',this)"><i class="ph ph-chat-text"></i>提示词管理</div>
@@ -138,6 +139,17 @@
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>邮箱</th><th>订阅时间</th><th>操作</th></tr></thead><tbody id="sub-tbody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Articles manager -->
+            <div class="panel" id="panel-articles-mgr">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h2 style="font-size:1.3rem;font-weight:800">文章管理</h2>
+                    <button onclick="openArticleModal(null)" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>发布文章</button>
+                </div>
+                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                    <div class="table-wrap"><table><thead><tr><th>标题</th><th>分类</th><th>类型</th><th>作者</th><th>状态</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="articles-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -289,12 +301,89 @@
     </div>
 </div>
 
+<!-- Article modal -->
+<div class="modal-admin" id="article-modal">
+    <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #f1f5f9;position:sticky;top:0;background:white;z-index:10">
+            <h3 style="font-size:16px;font-weight:700" id="article-modal-title">发布文章</h3>
+            <button onclick="closeModal('article-modal')" style="background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="article-edit-id">
+            <div class="form-group">
+                <label class="form-label">文章标题 *</label>
+                <input type="text" id="art-title" class="form-input" placeholder="例：5个让备课效率提升300%的AI技巧">
+            </div>
+            <div class="form-group">
+                <label class="form-label">摘要 * <span style="font-weight:400;color:#94a3b8">（显示在列表卡片上，建议60-120字）</span></label>
+                <textarea id="art-summary" class="form-input" rows="2" placeholder="一句话描述文章核心价值…" style="resize:vertical"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                    <label class="form-label">文章类型 *</label>
+                    <select id="art-type" class="form-input" onchange="toggleExternalUrl()">
+                        <option value="original">原创文章</option>
+                        <option value="external">外部链接</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">分类 *</label>
+                    <select id="art-cat" class="form-input">
+                        <option value="learning">学习指南</option>
+                        <option value="tools">工具推荐</option>
+                        <option value="case">教学案例</option>
+                        <option value="tips">实战技巧</option>
+                        <option value="news">行业动态</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" id="external-url-group" style="display:none">
+                <label class="form-label">外部链接 URL *</label>
+                <input type="url" id="art-url" class="form-input" placeholder="https://mp.weixin.qq.com/...">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                    <label class="form-label">作者</label>
+                    <input type="text" id="art-author" class="form-input" placeholder="例：AI教师培训中心" value="AI教师培训中心">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">封面 Emoji</label>
+                    <input type="text" id="art-emoji" class="form-input" placeholder="例：📚 ✍️ 🤖 💡" value="📝">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">封面颜色</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <div id="art-color-swatches" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+                    <input type="hidden" id="art-color" value="linear-gradient(135deg,#4F46E5,#7C3AED)">
+                </div>
+            </div>
+            <div class="form-group" id="content-group">
+                <label class="form-label">文章内容 * <span style="font-weight:400;color:#94a3b8">（支持 Markdown 格式：## 标题、**加粗**、> 引用、- 列表）</span></label>
+                <textarea id="art-content" class="form-input" rows="14" placeholder="在此输入文章正文（Markdown 格式）…&#10;&#10;## 第一章节&#10;&#10;正文内容…" style="resize:vertical;font-family:monospace;font-size:13px;line-height:1.6"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">发布状态</label>
+                <select id="art-status" class="form-input">
+                    <option value="published">立即发布</option>
+                    <option value="draft">保存草稿</option>
+                </select>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:8px">
+                <button class="btn-primary" onclick="saveArticle()" style="flex:1">保存</button>
+                <button onclick="closeModal('article-modal')" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
-let _adminCPs = [], _adminSCs = [], _adminSubs = [];
+let _adminCPs = [], _adminSCs = [], _adminSubs = [], _adminArticles = [];
 let _cpFilter = 'pending', _scFilter = 'pending';
 
 // ===== GATE =====
@@ -341,6 +430,7 @@ async function switchPanel(name, el) {
     if (name === 'community-prompts') await renderCPTable();
     if (name === 'showcases') await renderSCTable();
     if (name === 'subscribers') await renderSubsTable();
+    if (name === 'articles-mgr') await renderArticlesTable();
     if (name === 'tools-mgr') await renderToolsTable();
     if (name === 'prompts-mgr') await renderPromptsTable();
     if (name === 'paths-mgr') await renderPathsTable();
@@ -349,9 +439,9 @@ async function switchPanel(name, el) {
 
 // ===== INIT =====
 async function initAdmin() {
-    const [tools, prompts, users, ann, cps, scs, subs] = await Promise.all([
+    const [tools, prompts, users, ann, cps, scs, subs, articles] = await Promise.all([
         DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements(),
-        DB.getCommunityPrompts(), DB.getShowcases(), DB.getSubscribers()
+        DB.getCommunityPrompts(), DB.getShowcases(), DB.getSubscribers(), DB.getArticles()
     ]);
     const pendingCPs = cps.filter(p => p.status === 'pending').length;
     const pendingSCs = scs.filter(s => s.status === 'pending').length;
@@ -362,7 +452,8 @@ async function initAdmin() {
         { label:'平台公告', value: ann.length, icon:'ph-megaphone', color:'#EF4444' },
         { label:'待审提示词', value: pendingCPs, icon:'ph-chats-circle', color:'#8B5CF6' },
         { label:'待审案例', value: pendingSCs, icon:'ph-shooting-star', color:'#EC4899' },
-        { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3B82F6' }
+        { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3B82F6' },
+        { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#0D9488' }
     ].map(s => `
         <div class="stat-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -715,6 +806,128 @@ async function deleteUser(i) {
     await DB.deleteUser(u.uid);
     await renderUsersTable();
     showToast('用户已删除');
+}
+
+// ===== ARTICLES =====
+const ART_COVER_GRADIENTS = [
+    'linear-gradient(135deg,#4F46E5,#7C3AED)',
+    'linear-gradient(135deg,#10B981,#0D9488)',
+    'linear-gradient(135deg,#F59E0B,#EF4444)',
+    'linear-gradient(135deg,#3B82F6,#4F46E5)',
+    'linear-gradient(135deg,#EC4899,#8B5CF6)',
+    'linear-gradient(135deg,#06B6D4,#3B82F6)'
+];
+
+const ART_CAT_LABEL = { learning:'学习指南', tools:'工具推荐', case:'教学案例', tips:'实战技巧', news:'行业动态', other:'其他' };
+
+function toggleExternalUrl() {
+    const type = document.getElementById('art-type').value;
+    document.getElementById('external-url-group').style.display = type === 'external' ? '' : 'none';
+    document.getElementById('content-group').style.display = type === 'external' ? 'none' : '';
+}
+
+async function renderArticlesTable() {
+    _adminArticles = await DB.getArticles();
+    const tbody = document.getElementById('articles-tbody');
+    if (!_adminArticles.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">暂无文章，点击"发布文章"开始创建</td></tr>';
+        return;
+    }
+    tbody.innerHTML = _adminArticles.map(a => {
+        const date = (() => { try { return new Date(a.publishedAt || a.createdAt).toLocaleDateString('zh-CN'); } catch { return '—'; } })();
+        const statusBadge = a.status === 'published'
+            ? '<span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">已发布</span>'
+            : '<span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">草稿</span>';
+        const typeBadge = a.type === 'external'
+            ? '<span style="background:#eff6ff;color:#3b82f6;padding:2px 6px;border-radius:6px;font-size:11px">外链</span>'
+            : '<span style="background:#f0fdf4;color:#16a34a;padding:2px 6px;border-radius:6px;font-size:11px">原创</span>';
+        return `<tr>
+            <td style="font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</td>
+            <td style="color:#64748b">${ART_CAT_LABEL[a.category] || a.category}</td>
+            <td>${typeBadge}</td>
+            <td style="color:#64748b">${a.author || '编辑部'}</td>
+            <td>${statusBadge}</td>
+            <td style="color:#94a3b8;font-size:12px;white-space:nowrap">${date}</td>
+            <td style="white-space:nowrap">
+                <button class="edit-btn" onclick="editArticle('${a.id}')">编辑</button>
+                <button class="reject-btn" onclick="deleteArticleAdmin('${a.id}')">删除</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function openArticleModal(article) {
+    const isEdit = !!article;
+    document.getElementById('article-modal-title').textContent = isEdit ? '编辑文章' : '发布文章';
+    document.getElementById('article-edit-id').value = isEdit ? article.id : '';
+    document.getElementById('art-title').value = isEdit ? article.title : '';
+    document.getElementById('art-summary').value = isEdit ? (article.summary || '') : '';
+    document.getElementById('art-type').value = isEdit ? (article.type || 'original') : 'original';
+    document.getElementById('art-cat').value = isEdit ? (article.category || 'learning') : 'learning';
+    document.getElementById('art-url').value = isEdit ? (article.externalUrl || '') : '';
+    document.getElementById('art-author').value = isEdit ? (article.author || 'AI教师培训中心') : 'AI教师培训中心';
+    document.getElementById('art-emoji').value = isEdit ? (article.coverEmoji || '📝') : '📝';
+    document.getElementById('art-color').value = isEdit ? (article.coverColor || ART_COVER_GRADIENTS[0]) : ART_COVER_GRADIENTS[0];
+    document.getElementById('art-content').value = isEdit ? (article.content || '') : '';
+    document.getElementById('art-status').value = isEdit ? (article.status || 'published') : 'published';
+    toggleExternalUrl();
+
+    // Render color swatches
+    const selected = document.getElementById('art-color').value;
+    document.getElementById('art-color-swatches').innerHTML = ART_COVER_GRADIENTS.map((g, i) => `
+        <div onclick="selectArtColor('${g}',this)" title="配色${i+1}" style="width:36px;height:36px;border-radius:10px;cursor:pointer;background:${g};border:3px solid ${g === selected ? '#0f172a' : 'transparent'};transition:all 0.15s"></div>
+    `).join('');
+
+    openModal('article-modal');
+}
+
+function selectArtColor(gradient, el) {
+    document.getElementById('art-color').value = gradient;
+    document.querySelectorAll('#art-color-swatches div').forEach(d => d.style.borderColor = 'transparent');
+    el.style.borderColor = '#0f172a';
+}
+
+function editArticle(id) {
+    const a = _adminArticles.find(a => a.id === id);
+    if (a) openArticleModal(a);
+}
+
+async function saveArticle() {
+    const title = document.getElementById('art-title').value.trim();
+    const summary = document.getElementById('art-summary').value.trim();
+    const type = document.getElementById('art-type').value;
+    if (!title || !summary) { showToast('请填写标题和摘要'); return; }
+    if (type === 'external' && !document.getElementById('art-url').value.trim()) { showToast('请填写外部链接 URL'); return; }
+    if (type === 'original' && !document.getElementById('art-content').value.trim()) { showToast('请填写文章内容'); return; }
+
+    const data = {
+        title,
+        summary,
+        type,
+        category: document.getElementById('art-cat').value,
+        author: document.getElementById('art-author').value.trim() || 'AI教师培训中心',
+        coverEmoji: document.getElementById('art-emoji').value.trim() || '📝',
+        coverColor: document.getElementById('art-color').value,
+        status: document.getElementById('art-status').value,
+        externalUrl: type === 'external' ? document.getElementById('art-url').value.trim() : '',
+        content: type === 'original' ? document.getElementById('art-content').value.trim() : '',
+        publishedAt: new Date().toISOString()
+    };
+
+    try {
+        const editId = document.getElementById('article-edit-id').value;
+        editId ? await DB.updateArticle(editId, data) : await DB.addArticle(data);
+        closeModal('article-modal');
+        await renderArticlesTable();
+        showToast(editId ? '文章已更新' : '文章已发布');
+    } catch(e) { showToast('保存失败：' + e.message); }
+}
+
+async function deleteArticleAdmin(id) {
+    if (!confirm('确定删除这篇文章？')) return;
+    await DB.deleteArticle(id);
+    await renderArticlesTable();
+    showToast('已删除');
 }
 
 // ===== SEED DATABASE =====

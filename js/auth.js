@@ -74,7 +74,8 @@ function renderNav(currentPage) {
         { key:'news',      href:'news.html',     label:'全球资讯' },
         { key:'paths',     href:'paths.html',    label:'学习路径' },
         { key:'prompts',   href:'prompts.html',  label:'提示词库' },
-        { key:'showcase',  href:'showcase.html', label:'案例展示' },
+        { key:'showcase',  href:'showcase.html',  label:'案例展示' },
+        { key:'articles',  href:'articles.html',  label:'精选文章' },
         { key:'resources', href:'resources.html', label:'设计资源' }
     ];
     const user = _currentUser;
@@ -249,6 +250,7 @@ function renderFooter() {
                 <li><a href="paths.html">学习路径</a></li>
                 <li><a href="prompts.html">提示词库</a></li>
                 <li><a href="showcase.html">案例展示</a></li>
+                <li><a href="articles.html">精选文章</a></li>
             </ul></div>
             <div class="footer-col"><h4>关于平台</h4>
                 <p style="font-size:13px;color:#475569;line-height:1.8">本平台专为在职教师 AI 培训设计，持续收录全球优质 AI 教育资源，所有工具均经过实际教学场景验证。</p>

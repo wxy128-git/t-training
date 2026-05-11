@@ -275,6 +275,38 @@ const DB = {
         await db.collection('showcases').doc(id).delete();
     },
 
+    /* ===== 精选文章 ===== */
+    async getArticles(status = null) {
+        try {
+            let q = db.collection('articles').orderBy('publishedAt', 'desc');
+            if (status) q = q.where('status', '==', status);
+            const snap = await q.get();
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch(e) { console.warn('getArticles:', e.message); return []; }
+    },
+    async getArticle(id) {
+        try {
+            const doc = await db.collection('articles').doc(id).get();
+            if (!doc.exists) return null;
+            return { id: doc.id, ...doc.data() };
+        } catch(e) { return null; }
+    },
+    async addArticle(data) {
+        const doc = await db.collection('articles').add({
+            ...data,
+            readCount: 0,
+            publishedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString()
+        });
+        return doc.id;
+    },
+    async updateArticle(id, data) {
+        await db.collection('articles').doc(id).update({ ...data, updatedAt: new Date().toISOString() });
+    },
+    async deleteArticle(id) {
+        await db.collection('articles').doc(id).delete();
+    },
+
     /* ===== 邮件订阅 ===== */
     async addSubscriber(email) {
         const snap = await db.collection('subscribers').where('email', '==', email).get();

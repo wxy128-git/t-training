@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精选文章 · AI 教师培训中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main style="max-width:1200px;margin:0 auto;padding:40px 16px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>精选文章</span></div>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+        <div>
+            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">精选文章</h1>
+            <p style="font-size:14px;color:#64748b;margin-top:4px">AI 学习指南、工具推荐与一线教师的实战经验分享</p>
+        </div>
+        <div style="font-size:13px;color:#94a3b8" id="article-count"></div>
+    </div>
+
+    <div class="filter-bar" id="filter-bar">
+        <button class="filter-pill active" onclick="setFilter('all',this)">全部</button>
+        <button class="filter-pill" onclick="setFilter('learning',this)">学习指南</button>
+        <button class="filter-pill" onclick="setFilter('tools',this)">工具推荐</button>
+        <button class="filter-pill" onclick="setFilter('case',this)">教学案例</button>
+        <button class="filter-pill" onclick="setFilter('tips',this)">实战技巧</button>
+        <button class="filter-pill" onclick="setFilter('news',this)">行业动态</button>
+    </div>
+
+    <div class="cards-grid cards-grid-3" id="articles-grid" style="margin-top:20px"></div>
+</main>
+
+<div id="main-footer"></div>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script>
+const CAT_CONFIG = {
+    learning: { label:'学习指南', color:'#4F46E5', bg:'#EEF2FF' },
+    tools:    { label:'工具推荐', color:'#10B981', bg:'#F0FDF4' },
+    case:     { label:'教学案例', color:'#F59E0B', bg:'#FFFBEB' },
+    tips:     { label:'实战技巧', color:'#EC4899', bg:'#FDF2F8' },
+    news:     { label:'行业动态', color:'#3B82F6', bg:'#EFF6FF' },
+    other:    { label:'其他',     color:'#64748b', bg:'#F8FAFC' }
+};
+
+const COVER_GRADIENTS = [
+    'linear-gradient(135deg,#4F46E5,#7C3AED)',
+    'linear-gradient(135deg,#10B981,#0D9488)',
+    'linear-gradient(135deg,#F59E0B,#EF4444)',
+    'linear-gradient(135deg,#3B82F6,#4F46E5)',
+    'linear-gradient(135deg,#EC4899,#8B5CF6)',
+    'linear-gradient(135deg,#06B6D4,#3B82F6)'
+];
+
+let _articles = [];
+let _currentFilter = 'all';
+
+function setFilter(key, btn) {
+    _currentFilter = key;
+    document.querySelectorAll('#filter-bar .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderArticles();
+}
+
+function renderArticles() {
+    const list = _currentFilter === 'all'
+        ? _articles
+        : _articles.filter(a => a.category === _currentFilter);
+
+    document.getElementById('article-count').textContent = `共 ${list.length} 篇`;
+    const grid = document.getElementById('articles-grid');
+
+    if (!list.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#94a3b8">
+            <i class="ph ph-article" style="font-size:56px;display:block;margin-bottom:16px"></i>
+            <p style="font-size:16px;font-weight:600;margin-bottom:6px">暂无文章</p>
+            <p style="font-size:13px">敬请期待更多内容</p>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = list.map(a => {
+        const cat = CAT_CONFIG[a.category] || CAT_CONFIG.other;
+        const gradient = a.coverColor || COVER_GRADIENTS[Math.abs(a.id.charCodeAt(0)) % COVER_GRADIENTS.length];
+        const emoji = a.coverEmoji || '📝';
+        const date = (() => { try { return new Date(a.publishedAt).toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric'}); } catch{return '';} })();
+        const isExternal = a.type === 'external';
+        const href = isExternal ? a.externalUrl : `article.html?id=${a.id}`;
+        const target = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+        return `
+        <a href="${href}"${target} class="card article-card" style="text-decoration:none;display:flex;flex-direction:column">
+            <div class="article-cover" style="background:${gradient}">
+                <span style="font-size:52px;position:relative;z-index:1">${emoji}</span>
+                ${isExternal ? `<div style="position:absolute;top:10px;right:10px;z-index:1;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);padding:3px 8px;border-radius:8px;font-size:11px;color:white;display:flex;align-items:center;gap:3px"><i class="ph ph-arrow-up-right"></i>外链</div>` : ''}
+            </div>
+            <div class="article-body">
+                <span class="article-cat-tag" style="background:${cat.bg};color:${cat.color}">${cat.label}</span>
+                <div class="article-title">${a.title}</div>
+                <div class="article-summary">${a.summary}</div>
+                <div class="article-meta">
+                    <span style="display:flex;align-items:center;gap:4px"><i class="ph ph-user"></i>${a.author || '编辑部'}</span>
+                    <span style="display:flex;align-items:center;gap:4px"><i class="ph ph-calendar-blank"></i>${date}</span>
+                    ${a.readCount ? `<span style="display:flex;align-items:center;gap:4px;margin-left:auto"><i class="ph ph-eye"></i>${a.readCount}</span>` : ''}
+                </div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+// Skeleton loading
+document.getElementById('articles-grid').innerHTML = Array(6).fill(`
+    <div class="card article-card">
+        <div style="height:130px;background:#f1f5f9;border-radius:12px 12px 0 0"></div>
+        <div style="padding:18px">
+            <div class="skeleton" style="height:20px;width:60px;border-radius:999px;margin-bottom:12px"></div>
+            <div class="skeleton" style="height:16px;margin-bottom:6px"></div>
+            <div class="skeleton" style="height:16px;width:85%;margin-bottom:4px"></div>
+            <div class="skeleton" style="height:13px;margin-bottom:4px;margin-top:10px"></div>
+            <div class="skeleton" style="height:13px;width:75%"></div>
+        </div>
+    </div>`).join('');
+
+renderNav('articles');
+renderFooter();
+
+DB.getArticles('published').then(articles => {
+    _articles = articles;
+    renderArticles();
+});
+
+onAuthReady((user) => {
+    renderNav('articles');
+    renderFooter();
+});
+</script>
+</body>
+</html>

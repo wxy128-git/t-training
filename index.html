@@ -72,6 +72,10 @@
                 <div style="width:44px;height:44px;border-radius:12px;background:#FDF4FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-shooting-star" style="color:#A855F7;font-size:22px"></i></div>
                 <div><div style="font-size:14px;font-weight:700;color:#0f172a">案例展示</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">教师实践分享</div></div>
             </a>
+            <a href="articles.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
+                <div style="width:44px;height:44px;border-radius:12px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-article" style="color:#059669;font-size:22px"></i></div>
+                <div><div style="font-size:14px;font-weight:700;color:#0f172a">精选文章</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">AI学习与工具推荐</div></div>
+            </a>
             <a href="resources.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
                 <div style="width:44px;height:44px;border-radius:12px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-palette" style="color:#E11D48;font-size:22px"></i></div>
                 <div><div style="font-size:14px;font-weight:700;color:#0f172a">设计资源库</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">课件素材下载</div></div>
@@ -107,6 +111,18 @@
             <a href="showcase.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看全部 <i class="ph ph-arrow-right"></i></a>
         </div>
         <div class="cards-grid cards-grid-3" id="showcase-preview"></div>
+    </section>
+
+    <!-- 精选文章预览 -->
+    <section id="articles-section" style="display:none">
+        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+            <div>
+                <h2>精选文章</h2>
+                <p>AI 学习指南、工具推荐与实战经验</p>
+            </div>
+            <a href="articles.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看全部 <i class="ph ph-arrow-right"></i></a>
+        </div>
+        <div class="cards-grid cards-grid-3" id="articles-preview"></div>
     </section>
 
     <!-- 资讯预览 -->
@@ -181,8 +197,9 @@ Promise.all([
     DB.getAnnouncements(),
     DB.getPaths(),
     DB.getPrompts(),
-    DB.getShowcases('approved')
-]).then(([tools, ann, paths, prompts, showcases]) => {
+    DB.getShowcases('approved'),
+    DB.getArticles('published')
+]).then(([tools, ann, paths, prompts, showcases, articles]) => {
     // Stats
     document.getElementById('stat-tools').textContent = tools.length + '+';
     document.getElementById('stat-prompts').textContent = prompts.length + '+';
@@ -248,6 +265,38 @@ Promise.all([
                 <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#4F46E5;font-weight:500">查看详细路径 <i class="ph ph-arrow-right"></i></div>
             </div>
         </a>`).join('');
+
+    // Articles preview (3 items)
+    if (articles.length > 0) {
+        document.getElementById('articles-section').style.display = '';
+        const catColors = {learning:'#4F46E5',tools:'#10B981',case:'#F59E0B',tips:'#EC4899',news:'#3B82F6',other:'#64748b'};
+        const catLabels = {learning:'学习指南',tools:'工具推荐',case:'教学案例',tips:'实战技巧',news:'行业动态',other:'其他'};
+        const gradients = ['linear-gradient(135deg,#4F46E5,#7C3AED)','linear-gradient(135deg,#10B981,#0D9488)','linear-gradient(135deg,#F59E0B,#EF4444)'];
+        document.getElementById('articles-preview').innerHTML = articles.slice(0, 3).map((a, i) => {
+            const color = catColors[a.category] || '#64748b';
+            const label = catLabels[a.category] || '其他';
+            const gradient = a.coverColor || gradients[i % gradients.length];
+            const emoji = a.coverEmoji || '📝';
+            const href = a.type === 'external' ? a.externalUrl : `article.html?id=${a.id}`;
+            const target = a.type === 'external' ? ' target="_blank" rel="noopener noreferrer"' : '';
+            const date = (() => { try { return new Date(a.publishedAt).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
+            return `
+            <a href="${href}"${target} class="card article-card" style="text-decoration:none;display:flex;flex-direction:column">
+                <div class="article-cover" style="background:${gradient}">
+                    <span style="font-size:52px;position:relative;z-index:1">${emoji}</span>
+                </div>
+                <div class="article-body">
+                    <span class="article-cat-tag" style="background:${color}20;color:${color}">${label}</span>
+                    <div class="article-title">${a.title}</div>
+                    <div class="article-summary">${a.summary}</div>
+                    <div class="article-meta">
+                        <span>${a.author || '编辑部'}</span>
+                        <span style="margin-left:auto">${date}</span>
+                    </div>
+                </div>
+            </a>`;
+        }).join('');
+    }
 
     // Prompts preview (4 items)
     document.getElementById('prompts-preview').innerHTML = prompts.slice(0, 4).map(p => `
