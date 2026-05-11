@@ -23,6 +23,9 @@
         .modal-admin.active { display: flex; }
         .panel { display: none; }
         .panel.active { display: block; }
+        .approve-btn { color:#10B981;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px; }
+        .reject-btn  { color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px; }
+        .edit-btn    { color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px; }
         @media(max-width:768px) {
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; }
@@ -58,9 +61,13 @@
             <div style="color:#64748b;font-size:11px;font-weight:600;padding:8px 12px;letter-spacing:0.05em;margin-bottom:8px">管理后台</div>
             <div class="sidebar-item active" onclick="switchPanel('dashboard',this)"><i class="ph ph-squares-four"></i>概览</div>
             <div class="sidebar-item" onclick="switchPanel('announcements',this)"><i class="ph ph-megaphone"></i>公告管理</div>
+            <div class="sidebar-item" onclick="switchPanel('community-prompts',this)"><i class="ph ph-chats-circle"></i>社区提示词</div>
+            <div class="sidebar-item" onclick="switchPanel('showcases',this)"><i class="ph ph-shooting-star"></i>案例审核</div>
+            <div class="sidebar-item" onclick="switchPanel('subscribers',this)"><i class="ph ph-envelope-simple"></i>邮件订阅</div>
+            <div style="height:1px;background:#1e293b;margin:12px 8px"></div>
             <div class="sidebar-item" onclick="switchPanel('tools-mgr',this)"><i class="ph ph-wrench"></i>工具管理</div>
             <div class="sidebar-item" onclick="switchPanel('prompts-mgr',this)"><i class="ph ph-chat-text"></i>提示词管理</div>
-            <div class="sidebar-item" onclick="switchPanel('paths-mgr',this)"><i class="ph ph-path"></i>学习路径管理</div>
+            <div class="sidebar-item" onclick="switchPanel('paths-mgr',this)"><i class="ph ph-path"></i>学习路径</div>
             <div class="sidebar-item" onclick="switchPanel('users',this)"><i class="ph ph-users"></i>用户列表</div>
             <div style="margin-top:20px;padding:8px 12px">
                 <a href="index.html" style="font-size:13px;color:#475569;display:flex;align-items:center;gap:6px"><i class="ph ph-arrow-left"></i>返回网站</a>
@@ -73,7 +80,7 @@
             <!-- Dashboard -->
             <div class="panel active" id="panel-dashboard">
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:20px">概览</h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px" id="dash-stats"></div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:28px" id="dash-stats"></div>
                 <div style="background:white;border-radius:14px;padding:20px;border:1px solid #f1f5f9">
                     <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">数据库管理</h3>
                     <p style="font-size:13px;color:#64748b;margin-bottom:12px">数据已同步至 Firebase Firestore，所有注册用户均可看到最新内容。</p>
@@ -90,6 +97,47 @@
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table id="ann-table"><thead><tr><th>标题</th><th>内容</th><th>时间</th><th>操作</th></tr></thead><tbody id="ann-tbody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Community Prompts -->
+            <div class="panel" id="panel-community-prompts">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h2 style="font-size:1.3rem;font-weight:800">社区提示词审核</h2>
+                    <div style="display:flex;gap:8px">
+                        <button class="filter-pill active" id="cp-filter-pending" onclick="setCPFilter('pending',this)">待审核</button>
+                        <button class="filter-pill" id="cp-filter-approved" onclick="setCPFilter('approved',this)">已通过</button>
+                        <button class="filter-pill" id="cp-filter-all" onclick="setCPFilter('all',this)">全部</button>
+                    </div>
+                </div>
+                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                    <div class="table-wrap"><table><thead><tr><th>名称</th><th>作者</th><th>分类</th><th>内容摘要</th><th>点赞</th><th>状态</th><th>操作</th></tr></thead><tbody id="cp-tbody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Showcases -->
+            <div class="panel" id="panel-showcases">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h2 style="font-size:1.3rem;font-weight:800">案例展示审核</h2>
+                    <div style="display:flex;gap:8px">
+                        <button class="filter-pill active" id="sc-filter-pending" onclick="setSCFilter('pending',this)">待审核</button>
+                        <button class="filter-pill" id="sc-filter-approved" onclick="setSCFilter('approved',this)">已通过</button>
+                        <button class="filter-pill" id="sc-filter-all" onclick="setSCFilter('all',this)">全部</button>
+                    </div>
+                </div>
+                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                    <div class="table-wrap"><table><thead><tr><th>标题</th><th>作者</th><th>学科</th><th>工具</th><th>描述摘要</th><th>状态</th><th>操作</th></tr></thead><tbody id="sc-tbody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Subscribers -->
+            <div class="panel" id="panel-subscribers">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h2 style="font-size:1.3rem;font-weight:800">邮件订阅列表</h2>
+                    <span id="sub-count-label" style="font-size:13px;color:#94a3b8"></span>
+                </div>
+                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                    <div class="table-wrap"><table><thead><tr><th>邮箱</th><th>订阅时间</th><th>操作</th></tr></thead><tbody id="sub-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -140,7 +188,7 @@
                     <span style="font-size:13px;color:#94a3b8" id="user-count"></span>
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
-                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>邮箱</th><th>单位</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -246,6 +294,8 @@
 <script src="js/auth.js"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
+let _adminCPs = [], _adminSCs = [], _adminSubs = [];
+let _cpFilter = 'pending', _scFilter = 'pending';
 
 // ===== GATE =====
 async function gateLogin() {
@@ -253,37 +303,29 @@ async function gateLogin() {
     const pwd = document.getElementById('gate-pwd').value;
     const btn = document.getElementById('gate-btn');
     const err = document.getElementById('gate-err');
-    btn.disabled = true;
-    btn.textContent = '登录中…';
-    err.style.display = 'none';
+    btn.disabled = true; btn.textContent = '登录中…'; err.style.display = 'none';
 
-    // Listen for auth state update BEFORE calling login
     const waitForAuth = new Promise(resolve => {
         document.addEventListener('authChanged', resolve, { once: true });
     });
 
     const result = await Auth.login(email, pwd);
     if (!result.ok) {
-        err.textContent = result.msg;
-        err.style.display = '';
-        btn.disabled = false;
-        btn.textContent = '进入管理后台';
+        err.textContent = result.msg; err.style.display = '';
+        btn.disabled = false; btn.textContent = '进入管理后台';
         return;
     }
 
     await waitForAuth;
 
     if (!Auth.isAdmin()) {
-        err.textContent = '该账号没有管理员权限';
-        err.style.display = '';
+        err.textContent = '该账号没有管理员权限'; err.style.display = '';
         await Auth.logout();
-        btn.disabled = false;
-        btn.textContent = '进入管理后台';
+        btn.disabled = false; btn.textContent = '进入管理后台';
         return;
     }
 
-    btn.disabled = false;
-    btn.textContent = '进入管理后台';
+    btn.disabled = false; btn.textContent = '进入管理后台';
     document.getElementById('login-gate').style.display = 'none';
     document.getElementById('admin-app').style.display = 'block';
     await initAdmin();
@@ -296,6 +338,9 @@ async function switchPanel(name, el) {
     document.getElementById('panel-' + name).classList.add('active');
     el.classList.add('active');
     if (name === 'announcements') await renderAnnTable();
+    if (name === 'community-prompts') await renderCPTable();
+    if (name === 'showcases') await renderSCTable();
+    if (name === 'subscribers') await renderSubsTable();
     if (name === 'tools-mgr') await renderToolsTable();
     if (name === 'prompts-mgr') await renderPromptsTable();
     if (name === 'paths-mgr') await renderPathsTable();
@@ -304,14 +349,20 @@ async function switchPanel(name, el) {
 
 // ===== INIT =====
 async function initAdmin() {
-    const [tools, prompts, users, ann] = await Promise.all([
-        DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements()
+    const [tools, prompts, users, ann, cps, scs, subs] = await Promise.all([
+        DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements(),
+        DB.getCommunityPrompts(), DB.getShowcases(), DB.getSubscribers()
     ]);
+    const pendingCPs = cps.filter(p => p.status === 'pending').length;
+    const pendingSCs = scs.filter(s => s.status === 'pending').length;
     document.getElementById('dash-stats').innerHTML = [
         { label:'注册用户', value: users.length, icon:'ph-users', color:'#4F46E5' },
         { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#10B981' },
         { label:'提示词模板', value: prompts.length, icon:'ph-chat-text', color:'#F59E0B' },
-        { label:'平台公告', value: ann.length, icon:'ph-megaphone', color:'#EF4444' }
+        { label:'平台公告', value: ann.length, icon:'ph-megaphone', color:'#EF4444' },
+        { label:'待审提示词', value: pendingCPs, icon:'ph-chats-circle', color:'#8B5CF6' },
+        { label:'待审案例', value: pendingSCs, icon:'ph-shooting-star', color:'#EC4899' },
+        { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3B82F6' }
     ].map(s => `
         <div class="stat-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -337,8 +388,8 @@ async function renderAnnTable() {
             <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.content}</td>
             <td style="color:#94a3b8;white-space:nowrap">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</td>
             <td>
-                <button onclick="editAnn('${a.id}')" style="color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">编辑</button>
-                <button onclick="deleteAnn('${a.id}')" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button>
+                <button class="edit-btn" onclick="editAnn('${a.id}')">编辑</button>
+                <button class="reject-btn" onclick="deleteAnn('${a.id}')">删除</button>
             </td>
         </tr>`).join('');
 }
@@ -362,23 +413,122 @@ async function saveAnn() {
     if (!title || !content) { showToast('请填写标题和内容'); return; }
     const id = document.getElementById('ann-edit-id').value;
     try {
-        if (id) {
-            await DB.updateAnnouncement(id, title, content);
-        } else {
-            await DB.addAnnouncement(title, content);
-        }
+        id ? await DB.updateAnnouncement(id, title, content) : await DB.addAnnouncement(title, content);
         closeModal('ann-modal');
         await renderAnnTable();
         showToast('公告已保存');
-    } catch(e) {
-        showToast('保存失败：' + e.message);
-    }
+    } catch(e) { showToast('保存失败：' + e.message); }
 }
 
 async function deleteAnn(id) {
     if (!confirm('确定删除这条公告？')) return;
     await DB.deleteAnnouncement(id);
     await renderAnnTable();
+    showToast('已删除');
+}
+
+// ===== COMMUNITY PROMPTS =====
+function setCPFilter(f, btn) {
+    _cpFilter = f;
+    document.querySelectorAll('#panel-community-prompts .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCPTable();
+}
+
+async function renderCPTable() {
+    _adminCPs = await DB.getCommunityPrompts();
+    const list = _cpFilter === 'all' ? _adminCPs : _adminCPs.filter(p => p.status === _cpFilter);
+    const statusLabel = { pending:'<span class="badge-pending">待审核</span>', approved:'<span class="badge-community">已通过</span>' };
+    document.getElementById('cp-tbody').innerHTML = list.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">暂无数据</td></tr>'
+        : list.map(p => `
+        <tr>
+            <td style="font-weight:600;max-width:120px">${p.label}</td>
+            <td style="color:#64748b">${p.authorName || '—'}</td>
+            <td style="color:#64748b">${p.category}</td>
+            <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${p.text}</td>
+            <td style="color:#F59E0B;text-align:center">♥ ${p.likes || 0}</td>
+            <td>${statusLabel[p.status] || p.status}</td>
+            <td style="white-space:nowrap">
+                ${p.status !== 'approved' ? `<button class="approve-btn" onclick="approveCommunityPrompt('${p.id}')">通过</button>` : ''}
+                <button class="reject-btn" onclick="deleteCommunityPrompt('${p.id}')">删除</button>
+            </td>
+        </tr>`).join('');
+}
+
+async function approveCommunityPrompt(id) {
+    await DB.approveCommunityPrompt(id);
+    await renderCPTable();
+    showToast('已通过审核');
+}
+
+async function deleteCommunityPrompt(id) {
+    if (!confirm('确定删除这条社区提示词？')) return;
+    await DB.deleteCommunityPrompt(id);
+    await renderCPTable();
+    showToast('已删除');
+}
+
+// ===== SHOWCASES =====
+function setSCFilter(f, btn) {
+    _scFilter = f;
+    document.querySelectorAll('#panel-showcases .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSCTable();
+}
+
+async function renderSCTable() {
+    _adminSCs = await DB.getShowcases();
+    const list = _scFilter === 'all' ? _adminSCs : _adminSCs.filter(s => s.status === _scFilter);
+    const statusLabel = { pending:'<span class="badge-pending">待审核</span>', approved:'<span class="badge-community">已通过</span>' };
+    document.getElementById('sc-tbody').innerHTML = list.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">暂无数据</td></tr>'
+        : list.map(s => `
+        <tr>
+            <td style="font-weight:600;max-width:160px">${s.title}</td>
+            <td style="color:#64748b">${s.authorName || '—'}</td>
+            <td style="color:#64748b">${s.subject || '—'}</td>
+            <td style="color:#4F46E5;font-size:12px">${s.tool || '—'}</td>
+            <td style="color:#64748b;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${s.description}</td>
+            <td>${statusLabel[s.status] || s.status}</td>
+            <td style="white-space:nowrap">
+                ${s.status !== 'approved' ? `<button class="approve-btn" onclick="approveShowcase('${s.id}')">通过</button>` : ''}
+                <button class="reject-btn" onclick="deleteShowcase('${s.id}')">删除</button>
+            </td>
+        </tr>`).join('');
+}
+
+async function approveShowcase(id) {
+    await DB.approveShowcase(id);
+    await renderSCTable();
+    showToast('案例已通过审核，将公开展示');
+}
+
+async function deleteShowcase(id) {
+    if (!confirm('确定删除这个案例？')) return;
+    await DB.deleteShowcase(id);
+    await renderSCTable();
+    showToast('已删除');
+}
+
+// ===== SUBSCRIBERS =====
+async function renderSubsTable() {
+    _adminSubs = await DB.getSubscribers();
+    document.getElementById('sub-count-label').textContent = `共 ${_adminSubs.length} 位订阅者`;
+    document.getElementById('sub-tbody').innerHTML = _adminSubs.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:32px">暂无订阅者</td></tr>'
+        : _adminSubs.map((s, i) => `
+        <tr>
+            <td style="font-weight:500">${s.email}</td>
+            <td style="color:#94a3b8;font-size:12px">${new Date(s.subscribedAt).toLocaleDateString('zh-CN')}</td>
+            <td><button class="reject-btn" onclick="deleteSub('${s.id}')">删除</button></td>
+        </tr>`).join('');
+}
+
+async function deleteSub(id) {
+    if (!confirm('确定删除该订阅？')) return;
+    await DB.deleteSubscriber(id);
+    await renderSubsTable();
     showToast('已删除');
 }
 
@@ -392,8 +542,8 @@ async function renderToolsTable() {
             <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</td>
             <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="${t.url}" target="_blank" style="color:#4F46E5;font-size:12px">${t.url}</a></td>
             <td>
-                <button onclick="editTool(${i})" style="color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">编辑</button>
-                <button onclick="deleteTool(${i})" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button>
+                <button class="edit-btn" onclick="editTool(${i})">编辑</button>
+                <button class="reject-btn" onclick="deleteTool(${i})">删除</button>
             </td>
         </tr>`).join('');
 }
@@ -460,8 +610,8 @@ async function renderPromptsTable() {
             <td><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:999px;font-size:11px">${p.category}</span></td>
             <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${p.text}</td>
             <td>
-                <button onclick="editPrompt(${i})" style="color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">编辑</button>
-                <button onclick="deletePrompt(${i})" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button>
+                <button class="edit-btn" onclick="editPrompt(${i})">编辑</button>
+                <button class="reject-btn" onclick="deletePrompt(${i})">删除</button>
             </td>
         </tr>`).join('');
 }
@@ -523,7 +673,7 @@ async function renderPathsTable() {
             <td>${p.level}</td>
             <td>${p.duration}</td>
             <td>${p.steps.length} 步</td>
-            <td><button onclick="deletePath(${i})" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button></td>
+            <td><button class="reject-btn" onclick="deletePath(${i})">删除</button></td>
         </tr>`).join('');
 }
 
@@ -552,10 +702,10 @@ async function renderUsersTable() {
         : _adminUsers.map((u, i) => `
         <tr>
             <td style="font-weight:600">${u.name}</td>
-            <td style="color:#64748b">${u.email}</td>
+            <td style="color:#64748b">${u.email || (u.phone ? '手机:' + u.phone : '—')}</td>
             <td style="color:#64748b">${u.school || '—'}</td>
             <td style="color:#94a3b8;font-size:12px">${new Date(u.joinedAt).toLocaleDateString('zh-CN')}</td>
-            <td><button onclick="deleteUser(${i})" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button></td>
+            <td><button class="reject-btn" onclick="deleteUser(${i})">删除</button></td>
         </tr>`).join('');
 }
 
@@ -575,9 +725,7 @@ async function seedDatabase() {
         await DB.seedDatabase();
         showToast('数据库已初始化');
         await initAdmin();
-    } catch(e) {
-        showToast('初始化失败：' + e.message);
-    }
+    } catch(e) { showToast('初始化失败：' + e.message); }
 }
 
 // Close modal on overlay click

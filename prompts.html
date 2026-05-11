@@ -7,10 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .tab-switcher { display:flex; gap:0; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; background:#f8fafc; width:fit-content; margin-bottom:24px; }
+        .tab-switch-btn { padding:10px 24px; font-size:14px; font-weight:500; border:none; background:transparent; cursor:pointer; color:#64748b; transition:all 0.15s; font-family:inherit; }
+        .tab-switch-btn.active { background:white; color:#4F46E5; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.08); border-radius:10px; margin:4px; }
+        .community-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+    </style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -18,15 +24,82 @@
 <main style="max-width:1100px;margin:0 auto;padding:40px 16px">
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>提示词库</span></div>
 
-    <div style="margin-bottom:28px">
+    <div style="margin-bottom:24px">
         <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">教学提示词库</h1>
         <p style="font-size:14px;color:#64748b;margin-top:4px">即用模板，一键复制。将 <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">[ ]</code> 中的内容替换为你的实际信息后使用</p>
     </div>
 
-    <div class="filter-bar" id="filter-bar"></div>
+    <!-- Tab switcher -->
+    <div class="tab-switcher">
+        <button class="tab-switch-btn active" id="tab-official" onclick="switchTab('official')">
+            <i class="ph ph-shield-check" style="margin-right:4px"></i>官方模板
+        </button>
+        <button class="tab-switch-btn" id="tab-community" onclick="switchTab('community')">
+            <i class="ph ph-users" style="margin-right:4px"></i>社区分享
+        </button>
+    </div>
 
-    <div class="cards-grid cards-grid-2" id="prompts-grid" style="margin-top:4px"></div>
+    <!-- Official tab -->
+    <div id="section-official">
+        <div class="filter-bar" id="filter-bar"></div>
+        <div class="cards-grid cards-grid-2" id="prompts-grid" style="margin-top:4px"></div>
+    </div>
+
+    <!-- Community tab -->
+    <div id="section-community" style="display:none">
+        <div class="community-header">
+            <p style="font-size:14px;color:#64748b">来自教师同行的实战提示词，点赞支持优质内容</p>
+            <button id="community-submit-btn" style="display:none;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" onclick="openCommunityModal()">
+                <i class="ph ph-plus"></i> 投稿提示词
+            </button>
+        </div>
+        <div id="community-pending-notice" style="display:none;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:13px;color:#92400e;margin-bottom:16px">
+            <i class="ph ph-clock"></i> 您有待审核的提示词，管理员审核通过后将公开展示。
+        </div>
+        <div class="cards-grid cards-grid-2" id="community-grid"></div>
+    </div>
 </main>
+
+<!-- Community submit modal -->
+<div class="modal-overlay" id="community-modal">
+    <div class="modal-box" style="max-width:580px" onclick="event.stopPropagation()">
+        <div class="modal-tabs">
+            <span style="font-size:16px;font-weight:700;color:#0f172a;padding:0 4px">投稿社区提示词</span>
+            <button onclick="closeCommunityModal()" style="margin-left:auto;padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                    <label class="form-label">提示词名称 *</label>
+                    <input type="text" id="cp-label" class="form-input" placeholder="例：课堂分层提问">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">分类</label>
+                    <select id="cp-cat" class="form-input">
+                        <option value="teaching">教学设计</option>
+                        <option value="advanced">进阶技巧</option>
+                        <option value="communication">沟通协作</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">提示词内容 *</label>
+                <textarea id="cp-text" class="form-input" rows="7" placeholder="在此粘贴您的完整提示词，建议用 [  ] 标注可替换变量…" style="resize:vertical;font-family:monospace;font-size:13px"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">使用说明（可选）</label>
+                <input type="text" id="cp-note" class="form-input" placeholder="简单说明适用场景或使用技巧">
+            </div>
+            <div id="cp-err" class="form-error" style="display:none"></div>
+            <div style="margin-top:20px;display:flex;gap:8px">
+                <button class="btn-primary" id="cp-submit-btn" onclick="submitCommunityPrompt()" style="flex:1">提交</button>
+                <button onclick="closeCommunityModal()" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
+            </div>
+            <p style="font-size:12px;color:#94a3b8;margin-top:10px;text-align:center">提交后由管理员审核，通过后对所有教师可见</p>
+        </div>
+    </div>
+</div>
 
 <div id="main-footer"></div>
 
@@ -34,8 +107,6 @@
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-// init below
-
 const cats = [
     { key:'all', label:'全部' },
     { key:'teaching', label:'教学设计' },
@@ -43,6 +114,8 @@ const cats = [
     { key:'communication', label:'沟通协作' }
 ];
 let currentCat = 'all';
+let _currentTab = 'official';
+let _pageUser = null;
 
 document.getElementById('filter-bar').innerHTML = cats.map(c =>
     `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
@@ -52,7 +125,16 @@ function setCat(key, btn) {
     currentCat = key;
     document.querySelectorAll('#filter-bar .filter-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    render();
+    renderOfficial();
+}
+
+function switchTab(tab) {
+    _currentTab = tab;
+    document.getElementById('tab-official').className = 'tab-switch-btn' + (tab === 'official' ? ' active' : '');
+    document.getElementById('tab-community').className = 'tab-switch-btn' + (tab === 'community' ? ' active' : '');
+    document.getElementById('section-official').style.display = tab === 'official' ? '' : 'none';
+    document.getElementById('section-community').style.display = tab === 'community' ? '' : 'none';
+    if (tab === 'community') renderCommunity();
 }
 
 function copyPrompt(btn, text) {
@@ -65,7 +147,7 @@ function copyPrompt(btn, text) {
 }
 
 let _allPrompts = [];
-async function render() {
+async function renderOfficial() {
     if (!_allPrompts.length) _allPrompts = await DB.getPrompts();
     const filtered = currentCat === 'all' ? _allPrompts : _allPrompts.filter(p => p.category === currentCat);
     document.getElementById('prompts-grid').innerHTML = filtered.map(p => `
@@ -84,10 +166,126 @@ async function render() {
         </div>`).join('');
 }
 
+let _communityPrompts = [];
+async function renderCommunity() {
+    const grid = document.getElementById('community-grid');
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8"><i class="ph ph-spinner" style="font-size:32px;display:block;margin-bottom:8px"></i>加载中…</div>`;
+    _communityPrompts = await DB.getCommunityPrompts('approved');
+
+    // Check if user has pending submissions
+    if (_pageUser) {
+        const allUserPrompts = await DB.getCommunityPrompts();
+        const hasPending = allUserPrompts.some(p => p.authorId === _pageUser.uid && p.status === 'pending');
+        document.getElementById('community-pending-notice').style.display = hasPending ? '' : 'none';
+    }
+
+    if (!_communityPrompts.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8">
+            <i class="ph ph-chat-dots" style="font-size:48px;display:block;margin-bottom:12px"></i>
+            <p style="font-size:15px;font-weight:600;margin-bottom:6px">社区提示词库还是空的</p>
+            <p style="font-size:13px">成为第一个投稿的教师吧！</p>
+        </div>`;
+        return;
+    }
+    const uid = _pageUser?.uid;
+    grid.innerHTML = _communityPrompts.map(p => {
+        const isLiked = p.likedBy?.includes(uid);
+        const date = (() => { try { return new Date(p.createdAt).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
+        return `
+        <div class="card prompt-card">
+            <div class="prompt-card-header">
+                <div class="prompt-card-title">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0">${p.authorName?.charAt(0) || '?'}</div>
+                    <div>
+                        <div style="font-size:13px;font-weight:700;color:#0f172a">${p.label}</div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:1px">${p.authorName || '匿名'} · ${date}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                    <button class="copy-btn" onclick="copyPrompt(this,${JSON.stringify(p.text)})"><i class="ph ph-copy"></i>复制</button>
+                    <button class="like-btn${isLiked ? ' liked' : ''}" onclick="toggleLike(this,'${p.id}')">
+                        <i class="ph${isLiked ? '-fill' : ''} ph-heart"></i> ${p.likes || 0}
+                    </button>
+                </div>
+            </div>
+            ${p.note ? `<div style="margin-bottom:10px;font-size:12px;color:#64748b;font-style:italic"><i class="ph ph-info"></i> ${p.note}</div>` : ''}
+            <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#374151;line-height:1.8;font-family:monospace;white-space:pre-wrap;word-break:break-all">${p.text}</div>
+            <div style="margin-top:10px">
+                <span class="badge-community">${{teaching:'教学设计',advanced:'进阶技巧',communication:'沟通协作',other:'其他'}[p.category] || p.category}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function toggleLike(btn, promptId) {
+    if (!_pageUser) { showAuthModal('login'); return; }
+    const liked = await DB.likeCommunityPrompt(promptId, _pageUser.uid);
+    const icon = btn.querySelector('i');
+    const countMatch = btn.textContent.match(/\d+/);
+    let count = countMatch ? parseInt(countMatch[0]) : 0;
+    if (liked) {
+        btn.classList.add('liked');
+        icon.className = 'ph-fill ph-heart';
+        count++;
+    } else {
+        btn.classList.remove('liked');
+        icon.className = 'ph ph-heart';
+        count = Math.max(0, count - 1);
+    }
+    btn.innerHTML = `<i class="${icon.className}"></i> ${count}`;
+}
+
+function openCommunityModal() {
+    if (!_pageUser) { showAuthModal('register'); return; }
+    document.getElementById('community-modal').classList.add('active');
+}
+
+function closeCommunityModal() {
+    document.getElementById('community-modal').classList.remove('active');
+    ['cp-label','cp-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cp-text').value = '';
+    document.getElementById('cp-err').style.display = 'none';
+}
+
+async function submitCommunityPrompt() {
+    const label = document.getElementById('cp-label').value.trim();
+    const text = document.getElementById('cp-text').value.trim();
+    const err = document.getElementById('cp-err');
+    const btn = document.getElementById('cp-submit-btn');
+    err.style.display = 'none';
+    if (!label || !text) { err.textContent = '请填写名称和内容'; err.style.display = ''; return; }
+    btn.disabled = true; btn.textContent = '提交中…';
+    try {
+        await DB.submitCommunityPrompt(_pageUser.uid, _pageUser.name, {
+            label,
+            text,
+            note: document.getElementById('cp-note').value.trim(),
+            category: document.getElementById('cp-cat').value
+        });
+        closeCommunityModal();
+        showToast('投稿成功，等待管理员审核');
+        document.getElementById('community-pending-notice').style.display = '';
+    } catch(e) {
+        err.textContent = '投稿失败：' + e.message;
+        err.style.display = '';
+    }
+    btn.disabled = false; btn.textContent = '提交';
+}
+
+document.getElementById('community-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('community-modal')) closeCommunityModal();
+});
+
 onAuthReady(async (user) => {
+    _pageUser = user;
     renderNav('prompts');
     renderFooter();
-    await render();
+
+    if (user) {
+        document.getElementById('community-submit-btn').style.display = 'flex';
+    }
+
+    await renderOfficial();
 });
 </script>
 </body>

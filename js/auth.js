@@ -1,17 +1,27 @@
 /* ===== Auth 操作（Firebase） ===== */
+
+function parseIdentifier(val) {
+    const cleaned = val.replace(/\s/g, '');
+    if (/^1[3-9]\d{9}$/.test(cleaned)) {
+        return { authEmail: `tel_${cleaned}@xylaoshi.tel`, isPhone: true, phone: cleaned };
+    }
+    return { authEmail: cleaned, isPhone: false, phone: null };
+}
+
 const Auth = {
     getCurrentUser() { return _currentUser; },
     isAdmin() { return _currentUser?.isAdmin === true; },
 
-    async login(email, password) {
+    async login(identifier, password) {
+        const { authEmail } = parseIdentifier(identifier);
         try {
-            await auth.signInWithEmailAndPassword(email, password);
+            await auth.signInWithEmailAndPassword(authEmail, password);
             return { ok: true };
         } catch(e) {
             const msgs = {
                 'auth/user-not-found': '账号不存在，请先注册',
                 'auth/wrong-password': '密码错误',
-                'auth/invalid-credential': '邮箱或密码错误',
+                'auth/invalid-credential': '账号或密码错误',
                 'auth/invalid-email': '邮箱格式不正确',
                 'auth/too-many-requests': '尝试次数过多，请稍后再试',
                 'auth/user-disabled': '该账号已被停用'
@@ -20,19 +30,28 @@ const Auth = {
         }
     },
 
-    async register(name, email, school, password) {
-        if (!name || !email || !password) return { ok: false, msg: '请填写所有必填项' };
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, msg: '请输入有效邮箱' };
+    async register(name, identifier, school, password) {
+        if (!name || !identifier || !password) return { ok: false, msg: '请填写所有必填项' };
+        const { authEmail, isPhone, phone } = parseIdentifier(identifier);
+        if (isPhone && !/^1[3-9]\d{9}$/.test(phone)) return { ok: false, msg: '请输入有效手机号' };
+        if (!isPhone && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail)) return { ok: false, msg: '请输入有效邮箱或手机号' };
         if (password.length < 6) return { ok: false, msg: '密码至少 6 位' };
         try {
-            const cred = await auth.createUserWithEmailAndPassword(email, password);
-            const userData = { name, email, school: school || '', isAdmin: email === ADMIN_EMAIL, joinedAt: new Date().toISOString() };
+            const cred = await auth.createUserWithEmailAndPassword(authEmail, password);
+            const userData = {
+                name,
+                email: isPhone ? '' : authEmail,
+                phone: phone || '',
+                school: school || '',
+                isAdmin: authEmail === ADMIN_EMAIL,
+                joinedAt: new Date().toISOString()
+            };
             await db.collection('users').doc(cred.user.uid).set(userData);
             _currentUser = { uid: cred.user.uid, ...userData };
             return { ok: true };
         } catch(e) {
             const msgs = {
-                'auth/email-already-in-use': '该邮箱已被注册，请直接登录',
+                'auth/email-already-in-use': '该账号已被注册，请直接登录',
                 'auth/weak-password': '密码强度不足，请使用更复杂的密码',
                 'auth/invalid-email': '邮箱格式不正确'
             };
@@ -50,11 +69,12 @@ const Auth = {
 /* ===== 共享导航渲染 ===== */
 function renderNav(currentPage) {
     const pages = [
-        { key:'index',     href:'index.html',     label:'首页' },
-        { key:'tools',     href:'tools.html',     label:'AI工具' },
-        { key:'news',      href:'news.html',      label:'全球资讯' },
-        { key:'paths',     href:'paths.html',     label:'学习路径' },
-        { key:'prompts',   href:'prompts.html',   label:'提示词库' },
+        { key:'index',     href:'index.html',    label:'首页' },
+        { key:'tools',     href:'tools.html',    label:'AI工具' },
+        { key:'news',      href:'news.html',     label:'全球资讯' },
+        { key:'paths',     href:'paths.html',    label:'学习路径' },
+        { key:'prompts',   href:'prompts.html',  label:'提示词库' },
+        { key:'showcase',  href:'showcase.html', label:'案例展示' },
         { key:'resources', href:'resources.html', label:'设计资源' }
     ];
     const user = _currentUser;
@@ -113,7 +133,7 @@ function showAuthModal(tab) {
                 <button onclick="closeAuthModal()" style="padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
             </div>
             <div id="form-li" class="modal-body">
-                <div class="form-group"><label class="form-label">邮箱</label><input type="email" id="li-email" class="form-input" placeholder="your@email.com"></div>
+                <div class="form-group"><label class="form-label">邮箱或手机号</label><input type="text" id="li-email" class="form-input" placeholder="your@email.com 或 13800138000"></div>
                 <div class="form-group"><label class="form-label">密码</label><input type="password" id="li-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
                 <div id="li-err" class="form-error" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="li-btn" onclick="handleLogin()">登录</button></div>
@@ -124,7 +144,7 @@ function showAuthModal(tab) {
                     <div class="form-group"><label class="form-label">姓名 *</label><input type="text" id="rg-name" class="form-input" placeholder="您的姓名"></div>
                     <div class="form-group"><label class="form-label">学校/单位</label><input type="text" id="rg-school" class="form-input" placeholder="所在单位"></div>
                 </div>
-                <div class="form-group"><label class="form-label">邮箱 *</label><input type="email" id="rg-email" class="form-input" placeholder="your@email.com"></div>
+                <div class="form-group"><label class="form-label">邮箱或手机号 *</label><input type="text" id="rg-email" class="form-input" placeholder="your@email.com 或 13800138000"></div>
                 <div class="form-group"><label class="form-label">密码 *</label><input type="password" id="rg-pwd" class="form-input" placeholder="至少 6 位"></div>
                 <div id="rg-err" class="form-error" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="rg-btn" onclick="handleRegister()">创建账号</button></div>
@@ -149,13 +169,13 @@ function switchAuthTab(tab) {
 }
 
 async function handleLogin() {
-    const email = document.getElementById('li-email').value.trim();
+    const identifier = document.getElementById('li-email').value.trim();
     const pwd = document.getElementById('li-pwd').value;
     const err = document.getElementById('li-err');
     const btn = document.getElementById('li-btn');
     err.style.display = 'none';
     btn.disabled = true; btn.textContent = '登录中…';
-    const result = await Auth.login(email, pwd);
+    const result = await Auth.login(identifier, pwd);
     btn.disabled = false; btn.textContent = '登录';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
     closeAuthModal();
@@ -163,15 +183,15 @@ async function handleLogin() {
 }
 
 async function handleRegister() {
-    const name   = document.getElementById('rg-name').value.trim();
-    const email  = document.getElementById('rg-email').value.trim();
-    const school = document.getElementById('rg-school').value.trim();
-    const pwd    = document.getElementById('rg-pwd').value;
-    const err    = document.getElementById('rg-err');
-    const btn    = document.getElementById('rg-btn');
+    const name      = document.getElementById('rg-name').value.trim();
+    const identifier = document.getElementById('rg-email').value.trim();
+    const school    = document.getElementById('rg-school').value.trim();
+    const pwd       = document.getElementById('rg-pwd').value;
+    const err       = document.getElementById('rg-err');
+    const btn       = document.getElementById('rg-btn');
     err.style.display = 'none';
     btn.disabled = true; btn.textContent = '注册中…';
-    const result = await Auth.register(name, email, school, pwd);
+    const result = await Auth.register(name, identifier, school, pwd);
     btn.disabled = false; btn.textContent = '创建账号';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
     closeAuthModal();
@@ -184,6 +204,28 @@ function showToast(msg) {
     if (!t) { t = document.createElement('div'); t.id = 'site-toast'; t.className = 'toast'; document.body.appendChild(t); }
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ===== Footer 订阅 ===== */
+async function footerSubscribe() {
+    const input = document.getElementById('footer-sub-email');
+    if (!input) return;
+    const email = input.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('请输入有效邮箱地址');
+        return;
+    }
+    try {
+        const result = await DB.addSubscriber(email);
+        if (result === 'exists') {
+            showToast('该邮箱已订阅，感谢关注！');
+        } else {
+            input.value = '';
+            showToast('订阅成功，每周精选将发送至您的邮箱');
+        }
+    } catch(e) {
+        showToast('订阅失败，请稍后重试');
+    }
 }
 
 /* ===== Footer ===== */
@@ -201,12 +243,23 @@ function renderFooter() {
                 <p>为在职教师提供 AI 工具导航、前沿资讯与系统学习路径的综合平台</p>
             </div>
             <div class="footer-col"><h4>功能导航</h4><ul>
-                <li><a href="index.html">首页</a></li><li><a href="tools.html">AI 工具箱</a></li>
-                <li><a href="news.html">全球资讯</a></li><li><a href="paths.html">学习路径</a></li>
-                <li><a href="prompts.html">提示词库</a></li><li><a href="resources.html">设计资源库</a></li>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="tools.html">AI 工具箱</a></li>
+                <li><a href="news.html">全球资讯</a></li>
+                <li><a href="paths.html">学习路径</a></li>
+                <li><a href="prompts.html">提示词库</a></li>
+                <li><a href="showcase.html">案例展示</a></li>
             </ul></div>
             <div class="footer-col"><h4>关于平台</h4>
-                <p style="font-size:13px;color:#475569;line-height:1.7">本平台专为在职教师 AI 培训设计，持续收录全球优质 AI 教育资源，所有工具均经过实际教学场景验证。</p>
+                <p style="font-size:13px;color:#475569;line-height:1.8">本平台专为在职教师 AI 培训设计，持续收录全球优质 AI 教育资源，所有工具均经过实际教学场景验证。</p>
+                <p style="font-size:13px;color:#475569;margin-top:8px">欢迎教师分享 AI 教学案例，共建社区智识库。</p>
+            </div>
+            <div class="footer-col"><h4>订阅动态</h4>
+                <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">订阅每周 AI 教育精选，第一时间获取新工具与案例推荐</p>
+                <div class="subscribe-form">
+                    <input class="subscribe-input" type="email" id="footer-sub-email" placeholder="输入您的邮箱">
+                    <button class="subscribe-btn" onclick="footerSubscribe()">订阅</button>
+                </div>
             </div>
         </div>
         <div class="footer-bottom">© 2025 AI 教师培训中心 · 保留所有权利</div>

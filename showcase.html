@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优秀案例展示 · AI 教师培训中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .showcase-empty { text-align:center; padding:80px 20px; color:#94a3b8; grid-column:1/-1; }
+        .showcase-empty i { font-size:56px; display:block; margin-bottom:16px; }
+    </style>
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main style="max-width:1200px;margin:0 auto;padding:40px 16px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>案例展示</span></div>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+        <div>
+            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">优秀案例展示</h1>
+            <p style="font-size:14px;color:#64748b;margin-top:4px">来自一线教师的 AI 教学实践案例，分享经验，共同成长</p>
+        </div>
+        <button id="submit-btn" onclick="openSubmitModal()" style="display:none;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
+            <i class="ph ph-plus"></i> 提交我的案例
+        </button>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar" id="filter-bar">
+        <button class="filter-pill active" onclick="setFilter('all',this)">全部</button>
+        <button class="filter-pill" onclick="setFilter('teaching',this)">教学设计</button>
+        <button class="filter-pill" onclick="setFilter('creation',this)">内容创作</button>
+        <button class="filter-pill" onclick="setFilter('assessment',this)">评估反馈</button>
+        <button class="filter-pill" onclick="setFilter('management',this)">班级管理</button>
+        <button class="filter-pill" onclick="setFilter('communication',this)">家校沟通</button>
+    </div>
+
+    <div id="showcase-grid" class="cards-grid cards-grid-3" style="margin-top:24px"></div>
+</main>
+
+<!-- Submit Modal -->
+<div class="modal-overlay" id="submit-modal">
+    <div class="modal-box" style="max-width:600px" onclick="event.stopPropagation()">
+        <div class="modal-tabs">
+            <span style="font-size:16px;font-weight:700;color:#0f172a;padding:0 4px">提交教学案例</span>
+            <button onclick="closeSubmitModal()" style="margin-left:auto;padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">案例标题 *</label>
+                <input type="text" id="sc-title" class="form-input" placeholder="例：用 Gamma 一键生成《唐诗三百首》专题 PPT">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                    <label class="form-label">学科/年级</label>
+                    <input type="text" id="sc-subject" class="form-input" placeholder="例：初中语文 / 小学数学">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">使用工具</label>
+                    <input type="text" id="sc-tool" class="form-input" placeholder="例：Gamma、快出题">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">分类 *</label>
+                <select id="sc-cat" class="form-input">
+                    <option value="teaching">教学设计</option>
+                    <option value="creation">内容创作</option>
+                    <option value="assessment">评估反馈</option>
+                    <option value="management">班级管理</option>
+                    <option value="communication">家校沟通</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">案例描述 *</label>
+                <textarea id="sc-desc" class="form-input" rows="5" placeholder="请描述你的使用场景、具体做法、遇到的挑战以及最终效果（建议200字以上）…" style="resize:vertical"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">效果/收获</label>
+                <input type="text" id="sc-result" class="form-input" placeholder="例：备课时间缩短60%，学生参与度显著提升">
+            </div>
+            <div id="sc-err" class="form-error" style="display:none"></div>
+            <div style="margin-top:20px;display:flex;gap:8px">
+                <button class="btn-primary" id="sc-submit-btn" onclick="submitShowcase()" style="flex:1">提交审核</button>
+                <button onclick="closeSubmitModal()" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
+            </div>
+            <p style="font-size:12px;color:#94a3b8;margin-top:12px;text-align:center">提交后将由管理员审核，通过后公开展示</p>
+        </div>
+    </div>
+</div>
+
+<div id="main-footer"></div>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script>
+const CAT_LABELS = {
+    teaching:'教学设计', creation:'内容创作',
+    assessment:'评估反馈', management:'班级管理', communication:'家校沟通'
+};
+const CAT_COLORS = {
+    teaching:'#4F46E5', creation:'#EC4899',
+    assessment:'#10B981', management:'#F59E0B', communication:'#3B82F6'
+};
+
+let _allShowcases = [];
+let _currentFilter = 'all';
+let _currentUser = null;
+
+function setFilter(key, btn) {
+    _currentFilter = key;
+    document.querySelectorAll('#filter-bar .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderShowcases();
+}
+
+function renderShowcases() {
+    const list = _currentFilter === 'all' ? _allShowcases : _allShowcases.filter(s => s.category === _currentFilter);
+    const grid = document.getElementById('showcase-grid');
+    if (!list.length) {
+        grid.innerHTML = `<div class="showcase-empty">
+            <i class="ph ph-shooting-star"></i>
+            <p style="font-size:16px;font-weight:600;margin-bottom:6px">暂无案例</p>
+            <p style="font-size:13px">成为第一个分享经验的教师吧！</p>
+        </div>`;
+        return;
+    }
+    const uid = _currentUser?.uid;
+    grid.innerHTML = list.map(s => {
+        const catColor = CAT_COLORS[s.category] || '#64748b';
+        const catLabel = CAT_LABELS[s.category] || s.category;
+        const date = (() => { try { return new Date(s.createdAt).toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric'}); } catch{return '';} })();
+        return `
+        <div class="showcase-card">
+            <div class="showcase-card-body">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                    <span class="showcase-tag" style="background:${catColor}20;color:${catColor}">${catLabel}</span>
+                    <span style="font-size:11px;color:#94a3b8">${date}</span>
+                </div>
+                <h3 style="font-size:15px;font-weight:700;color:#0f172a;line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${s.title}</h3>
+                ${s.tool ? `<div style="font-size:12px;color:#4F46E5;margin-bottom:8px;display:flex;align-items:center;gap:4px"><i class="ph ph-wrench"></i>${s.tool}</div>` : ''}
+                <p style="font-size:13px;color:#64748b;line-height:1.7;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden">${s.description}</p>
+                ${s.result ? `<div style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#15803d;display:flex;align-items:flex-start;gap:6px"><i class="ph ph-check-circle" style="flex-shrink:0;margin-top:1px"></i>${s.result}</div>` : ''}
+                <div style="margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">${s.authorName?.charAt(0) || '?'}</div>
+                        <div>
+                            <div style="font-size:12px;font-weight:600;color:#374151">${s.authorName || '匿名教师'}</div>
+                            ${s.subject ? `<div style="font-size:11px;color:#94a3b8">${s.subject}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openSubmitModal() {
+    if (!_currentUser) { showAuthModal('register'); return; }
+    document.getElementById('submit-modal').classList.add('active');
+}
+
+function closeSubmitModal() {
+    document.getElementById('submit-modal').classList.remove('active');
+    ['sc-title','sc-subject','sc-tool','sc-result'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('sc-desc').value = '';
+    const err = document.getElementById('sc-err');
+    err.style.display = 'none';
+}
+
+async function submitShowcase() {
+    const title = document.getElementById('sc-title').value.trim();
+    const desc = document.getElementById('sc-desc').value.trim();
+    const err = document.getElementById('sc-err');
+    const btn = document.getElementById('sc-submit-btn');
+    err.style.display = 'none';
+    if (!title || !desc) { err.textContent = '请填写案例标题和描述'; err.style.display = ''; return; }
+    btn.disabled = true; btn.textContent = '提交中…';
+    try {
+        await DB.submitShowcase(_currentUser.uid, _currentUser.name, {
+            title,
+            description: desc,
+            subject: document.getElementById('sc-subject').value.trim(),
+            tool: document.getElementById('sc-tool').value.trim(),
+            result: document.getElementById('sc-result').value.trim(),
+            category: document.getElementById('sc-cat').value
+        });
+        closeSubmitModal();
+        showToast('案例已提交，等待管理员审核');
+    } catch(e) {
+        err.textContent = '提交失败：' + e.message;
+        err.style.display = '';
+    }
+    btn.disabled = false; btn.textContent = '提交审核';
+}
+
+document.getElementById('submit-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('submit-modal')) closeSubmitModal();
+});
+
+onAuthReady(async (user) => {
+    _currentUser = user;
+    renderNav('showcase');
+    renderFooter();
+
+    if (user) {
+        const btn = document.getElementById('submit-btn');
+        btn.style.display = 'flex';
+    }
+
+    _allShowcases = await DB.getShowcases('approved');
+    renderShowcases();
+});
+</script>
+</body>
+</html>

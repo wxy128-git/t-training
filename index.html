@@ -56,6 +56,18 @@
         <div class="cards-grid cards-grid-4" id="tools-preview"></div>
     </section>
 
+    <!-- 案例展示预览 -->
+    <section id="showcase-section" style="display:none">
+        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+            <div>
+                <h2>教师优秀案例</h2>
+                <p>一线教师的 AI 教学实践，真实经验共享</p>
+            </div>
+            <a href="showcase.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看全部 <i class="ph ph-arrow-right"></i></a>
+        </div>
+        <div class="cards-grid cards-grid-3" id="showcase-preview"></div>
+    </section>
+
     <!-- 资讯预览 -->
     <section>
         <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
@@ -92,6 +104,20 @@
         <div class="cards-grid cards-grid-2" id="prompts-preview"></div>
     </section>
 
+    <!-- 邮件订阅 -->
+    <section class="subscribe-section">
+        <div style="max-width:560px;margin:0 auto">
+            <i class="ph ph-envelope-simple" style="font-size:40px;opacity:.9;display:block;margin-bottom:16px"></i>
+            <h2>订阅每周 AI 教育精选</h2>
+            <p>每周精选 3-5 个最有价值的 AI 工具与教学案例，直达您的邮箱，不错过重要更新</p>
+            <div class="subscribe-form">
+                <input class="subscribe-input" type="email" id="main-sub-email" placeholder="输入您的邮箱地址">
+                <button class="subscribe-btn" onclick="mainSubscribe()">立即订阅</button>
+            </div>
+            <p style="font-size:12px;opacity:.5;margin-top:14px;position:relative">已有 <span id="sub-count">—</span> 位教师订阅 · 随时可取消</p>
+        </div>
+    </section>
+
 </main>
 
 <div id="main-footer"></div>
@@ -100,17 +126,51 @@
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
+async function mainSubscribe() {
+    const input = document.getElementById('main-sub-email');
+    const email = input.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('请输入有效邮箱地址');
+        return;
+    }
+    try {
+        const result = await DB.addSubscriber(email);
+        if (result === 'exists') {
+            showToast('该邮箱已订阅，感谢关注！');
+        } else {
+            input.value = '';
+            showToast('订阅成功，感谢关注！');
+            const subCountEl = document.getElementById('sub-count');
+            const cur = parseInt(subCountEl.textContent) || 0;
+            subCountEl.textContent = (cur + 1) + '+';
+        }
+    } catch(e) {
+        showToast('订阅失败，请稍后重试');
+    }
+}
+
+function copyText(btn, encoded) {
+    navigator.clipboard.writeText(decodeURIComponent(encoded)).then(() => {
+        btn.className = 'copy-btn copied';
+        btn.innerHTML = '<i class="ph ph-check"></i>已复制';
+        showToast('提示词已复制到剪贴板');
+        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<i class="ph ph-copy"></i>复制'; }, 2000);
+    });
+}
+
 onAuthReady(async (user) => {
     renderNav('index');
     renderFooter();
 
-    const [tools, ann, paths, prompts, users] = await Promise.all([
-        DB.getTools(), DB.getAnnouncements(), DB.getPaths(), DB.getPrompts(), DB.getUsers()
+    const [tools, ann, paths, prompts, users, showcases, subscribers] = await Promise.all([
+        DB.getTools(), DB.getAnnouncements(), DB.getPaths(), DB.getPrompts(),
+        DB.getUsers(), DB.getShowcases('approved'), DB.getSubscribers()
     ]);
 
     // Stats
     document.getElementById('stat-users').textContent = users.length > 0 ? users.length + '+' : '—';
     document.getElementById('stat-tools').textContent = tools.length + '+';
+    document.getElementById('sub-count').textContent = subscribers.length > 0 ? subscribers.length + '+' : '—';
 
     // Announcements
     if (ann.length > 0) {
@@ -131,6 +191,30 @@ onAuthReady(async (user) => {
             <h3 class="tool-card-title" style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">${t.name}</h3>
             <p style="font-size:12px;color:#64748b;line-height:1.6">${t.desc}</p>
         </a>`).join('');
+
+    // Showcase preview (3 items)
+    if (showcases.length > 0) {
+        document.getElementById('showcase-section').style.display = '';
+        const catColors = {teaching:'#4F46E5',creation:'#EC4899',assessment:'#10B981',management:'#F59E0B',communication:'#3B82F6'};
+        const catLabels = {teaching:'教学设计',creation:'内容创作',assessment:'评估反馈',management:'班级管理',communication:'家校沟通'};
+        document.getElementById('showcase-preview').innerHTML = showcases.slice(0, 3).map(s => {
+            const color = catColors[s.category] || '#64748b';
+            return `
+            <a href="showcase.html" class="card showcase-card" style="display:block;text-decoration:none">
+                <div class="showcase-card-body">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                        <span class="showcase-tag" style="background:${color}20;color:${color}">${catLabels[s.category]||s.category}</span>
+                    </div>
+                    <h3 style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${s.title}</h3>
+                    <p style="font-size:12px;color:#64748b;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${s.description}</p>
+                    <div style="margin-top:12px;display:flex;align-items:center;gap:6px">
+                        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${s.authorName?.charAt(0)||'?'}</div>
+                        <span style="font-size:12px;color:#64748b">${s.authorName||'匿名教师'}</span>
+                    </div>
+                </div>
+            </a>`;
+        }).join('');
+    }
 
     // Paths preview
     document.getElementById('paths-preview').innerHTML = paths.map(p => `
@@ -180,16 +264,6 @@ onAuthReady(async (user) => {
         }).join('');
     })();
 });
-</script>
-<script>
-function copyText(btn, encoded) {
-    navigator.clipboard.writeText(decodeURIComponent(encoded)).then(() => {
-        btn.className = 'copy-btn copied';
-        btn.innerHTML = '<i class="ph ph-check"></i>已复制';
-        showToast('提示词已复制到剪贴板');
-        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<i class="ph ph-copy"></i>复制'; }, 2000);
-    });
-}
 </script>
 </body>
 </html>

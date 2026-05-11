@@ -7,10 +7,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .tool-rating-row { display:flex; align-items:center; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid #f8fafc; }
+        .tool-star { font-size:14px; cursor:pointer; color:#e2e8f0; transition:color 0.1s; line-height:1; }
+        .tool-star.on, .tool-star:hover ~ .tool-star-reset, .star-filled { color:#F59E0B; }
+        .rating-group:hover .tool-star { color:#F59E0B; }
+        .rating-group .tool-star:hover ~ .tool-star { color:#e2e8f0 !important; }
+        .rating-avg { font-size:11px; color:#94a3b8; margin-left:2px; }
+        .rate-hint { font-size:11px; color:#94a3b8; margin-left:4px; cursor:pointer; }
+        .rate-hint:hover { color:#4F46E5; }
+    </style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -57,6 +67,8 @@ const categories = [
 ];
 let currentCat = 'all';
 let _allTools = [];
+let _ratingsMap = {};
+let _pageUser = null;
 
 document.getElementById('filter-bar').innerHTML = categories.map(c =>
     `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
@@ -69,10 +81,36 @@ function setCat(key, btn) {
     renderTools();
 }
 
+function renderStars(toolId, avg, count, userRating) {
+    const filled = Math.round(avg || 0);
+    const starsHtml = [1,2,3,4,5].map(n =>
+        `<span class="tool-star${n <= filled ? ' on' : ''}" data-n="${n}" onclick="rateTool(event,'${toolId}',${n})">★</span>`
+    ).join('');
+    const ratingText = count > 0 ? `${avg} (${count}人)` : '';
+    const hint = _pageUser && !userRating ? `<span class="rate-hint" onclick="rateTool(event,'${toolId}',0)">点击评分</span>` : '';
+    const myRating = userRating ? `<span style="font-size:11px;color:#F59E0B;margin-left:2px">我评了${userRating}星</span>` : hint;
+    return `<div class="tool-rating-row">
+        <div class="rating-group" style="display:flex;align-items:center;gap:1px">${starsHtml}</div>
+        ${ratingText ? `<span class="rating-avg">${ratingText}</span>` : ''}
+        ${myRating}
+    </div>`;
+}
+
+async function rateTool(e, toolId, n) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!_pageUser) { showAuthModal('login'); return; }
+    if (n === 0) return;
+    await DB.rateToolByUser(toolId, _pageUser.uid, n);
+    // Refresh rating data
+    _ratingsMap = await DB.getToolRatings();
+    renderTools();
+    showToast(`已为该工具评分 ${n} 星`);
+}
+
 function renderTools() {
     const q = document.getElementById('search').value.toLowerCase();
-    const tools = _allTools;
-    const filtered = tools.filter(t => {
+    const filtered = _allTools.filter(t => {
         const matchCat = currentCat === 'all' || t.category === currentCat;
         const matchQ = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q);
         return matchCat && matchQ;
@@ -80,7 +118,14 @@ function renderTools() {
 
     document.getElementById('count-label').textContent = `共 ${filtered.length} 个工具`;
     document.getElementById('empty-state').style.display = filtered.length ? 'none' : 'block';
-    document.getElementById('tools-grid').innerHTML = filtered.map(t => `
+
+    const catLabels = {teaching:'教学辅助',creation:'内容创作',search:'智能搜索',dev:'智能开发'};
+    document.getElementById('tools-grid').innerHTML = filtered.map(t => {
+        const rData = _ratingsMap[t.id];
+        const avg = rData?.avg || 0;
+        const count = rData?.count || 0;
+        const userRating = _pageUser ? (rData?.ratings?.[_pageUser.uid] || 0) : 0;
+        return `
         <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column;position:relative">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
                 <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
@@ -88,16 +133,19 @@ function renderTools() {
             </div>
             <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px">${t.name}</div>
             <div style="font-size:12px;color:#64748b;line-height:1.6;flex:1">${t.desc}</div>
-            <div style="margin-top:12px;padding-top:10px;border-top:1px solid #f8fafc">
-                <span style="font-size:11px;color:#94a3b8">${{teaching:'教学辅助',creation:'内容创作',search:'智能搜索',dev:'智能开发'}[t.category]||''}</span>
+            ${renderStars(t.id, avg, count, userRating)}
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f8fafc">
+                <span style="font-size:11px;color:#94a3b8">${catLabels[t.category]||''}</span>
             </div>
-        </a>`).join('');
+        </a>`;
+    }).join('');
 }
 
 onAuthReady(async (user) => {
+    _pageUser = user;
     renderNav('tools');
     renderFooter();
-    _allTools = await DB.getTools();
+    [_allTools, _ratingsMap] = await Promise.all([DB.getTools(), DB.getToolRatings()]);
     renderTools();
 });
 </script>

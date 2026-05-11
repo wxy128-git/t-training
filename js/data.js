@@ -189,6 +189,107 @@ const DB = {
         DEFAULT_PROMPTS.forEach((item, i) => batch.set(db.collection('prompts').doc(item.id), { ...item, order: i }));
         DEFAULT_PATHS.forEach((item, i) => batch.set(db.collection('paths').doc(item.id), { ...item, order: i }));
         await batch.commit();
+    },
+
+    /* ===== 社区提示词 ===== */
+    async getCommunityPrompts(status = null) {
+        try {
+            let q = db.collection('community_prompts').orderBy('createdAt', 'desc');
+            if (status) q = q.where('status', '==', status);
+            const snap = await q.get();
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch(e) { console.warn('getCommunityPrompts:', e.message); return []; }
+    },
+    async submitCommunityPrompt(userId, userName, data) {
+        const item = { ...data, authorId: userId, authorName: userName, status: 'pending', likes: 0, likedBy: [], createdAt: new Date().toISOString() };
+        await db.collection('community_prompts').add(item);
+    },
+    async likeCommunityPrompt(promptId, userId) {
+        const ref = db.collection('community_prompts').doc(promptId);
+        const doc = await ref.get();
+        if (!doc.exists) return false;
+        const d = doc.data();
+        const likedBy = d.likedBy || [];
+        if (likedBy.includes(userId)) {
+            await ref.update({ likes: Math.max(0, (d.likes || 0) - 1), likedBy: likedBy.filter(id => id !== userId) });
+            return false;
+        } else {
+            await ref.update({ likes: (d.likes || 0) + 1, likedBy: [...likedBy, userId] });
+            return true;
+        }
+    },
+    async approveCommunityPrompt(id) {
+        await db.collection('community_prompts').doc(id).update({ status: 'approved' });
+    },
+    async deleteCommunityPrompt(id) {
+        await db.collection('community_prompts').doc(id).delete();
+    },
+
+    /* ===== 工具评分 ===== */
+    async getToolRatings() {
+        try {
+            const snap = await db.collection('tool_ratings').get();
+            const result = {};
+            snap.docs.forEach(d => { result[d.id] = d.data(); });
+            return result;
+        } catch(e) { return {}; }
+    },
+    async rateToolByUser(toolId, userId, rating) {
+        const ref = db.collection('tool_ratings').doc(toolId);
+        const doc = await ref.get();
+        if (doc.exists) {
+            const d = doc.data();
+            const ratings = { ...(d.ratings || {}), [userId]: rating };
+            const vals = Object.values(ratings);
+            const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10;
+            await ref.update({ ratings, avg, count: vals.length });
+        } else {
+            await ref.set({ ratings: { [userId]: rating }, avg: rating, count: 1 });
+        }
+    },
+    async getUserToolRating(toolId, userId) {
+        try {
+            const doc = await db.collection('tool_ratings').doc(toolId).get();
+            if (!doc.exists) return null;
+            return doc.data().ratings?.[userId] || null;
+        } catch { return null; }
+    },
+
+    /* ===== 优秀案例 ===== */
+    async getShowcases(status = null) {
+        try {
+            let q = db.collection('showcases').orderBy('createdAt', 'desc');
+            if (status) q = q.where('status', '==', status);
+            const snap = await q.get();
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch(e) { console.warn('getShowcases:', e.message); return []; }
+    },
+    async submitShowcase(userId, userName, data) {
+        const item = { ...data, authorId: userId, authorName: userName, status: 'pending', createdAt: new Date().toISOString() };
+        await db.collection('showcases').add(item);
+    },
+    async approveShowcase(id) {
+        await db.collection('showcases').doc(id).update({ status: 'approved' });
+    },
+    async deleteShowcase(id) {
+        await db.collection('showcases').doc(id).delete();
+    },
+
+    /* ===== 邮件订阅 ===== */
+    async addSubscriber(email) {
+        const snap = await db.collection('subscribers').where('email', '==', email).get();
+        if (!snap.empty) return 'exists';
+        await db.collection('subscribers').add({ email, subscribedAt: new Date().toISOString() });
+        return 'ok';
+    },
+    async getSubscribers() {
+        try {
+            const snap = await db.collection('subscribers').orderBy('subscribedAt', 'desc').get();
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch(e) { return []; }
+    },
+    async deleteSubscriber(id) {
+        await db.collection('subscribers').doc(id).delete();
     }
 };
 
