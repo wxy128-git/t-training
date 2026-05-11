@@ -174,6 +174,13 @@ async function fetchRSSFeed(rssUrl, count = 6) {
 
     const save = (items) => { localStorage.setItem(cacheKey, JSON.stringify({ items, ts: Date.now() })); return items; };
 
+    // 策略0：Netlify 服务端代理（同域，无跨域问题，优先）
+    try {
+        const r = await get(`/.netlify/functions/rss-proxy?url=${encodeURIComponent(rssUrl)}`);
+        const d = await r.json();
+        if (d.contents) { const items = parseXML(d.contents); if (items.length) return save(items); }
+    } catch {}
+
     // 策略1：allorigins.win
     try {
         const r = await get(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
