@@ -56,6 +56,17 @@ function toggleStep(row) {
     if (!isOpen) { detail.classList.add('open'); row.classList.add('expanded'); }
 }
 
+function startPath(btn) {
+    const section = btn.closest('section');
+    section.querySelectorAll('.step-detail').forEach(d => d.classList.add('open'));
+    section.querySelectorAll('.step-row').forEach(r => r.classList.add('expanded'));
+    btn.innerHTML = '<i class="ph ph-check-circle"></i> 已展开全部步骤，点击各步骤可折叠';
+    btn.style.opacity = '0.85';
+    btn.onclick = null;
+    const firstStep = section.querySelector('.step-row');
+    if (firstStep) setTimeout(() => firstStep.scrollIntoView({ behavior:'smooth', block:'center' }), 100);
+}
+
 onAuthReady(async (user) => {
     renderNav('paths');
     renderFooter();
@@ -114,8 +125,8 @@ onAuthReady(async (user) => {
                         <div style="padding:10px 16px 14px 66px;font-size:13px;color:#64748b;line-height:1.7;background:#fafafa;border-radius:0 0 8px 8px">${s.detail}</div>
                     </div>`).join('')}
                 </div>
-                <button onclick="showAuthModal('register')" style="margin-top:20px;padding:12px 24px;background:${p.gradient};color:white;font-size:14px;font-weight:600;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.15s;width:100%" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-                    加入学习，开始这条路径
+                <button onclick="startPath(this)" style="margin-top:20px;padding:12px 24px;background:${p.gradient};color:white;font-size:14px;font-weight:600;border:none;border-radius:12px;cursor:pointer;transition:opacity 0.15s;width:100%" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                    展开全部步骤，开始学习 →
                 </button>
             </div>
         </div>
