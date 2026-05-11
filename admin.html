@@ -7,6 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 64px); }
@@ -30,7 +33,7 @@
 <div id="main-nav"></div>
 
 <!-- Login gate -->
-<div id="login-gate" style="display:none;min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;background:#f8fafc">
+<div id="login-gate" style="min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;background:#f8fafc">
     <div style="background:white;border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:0 20px 60px -10px rgba(0,0,0,0.15)">
         <div style="text-align:center;margin-bottom:28px">
             <div style="width:56px;height:56px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
@@ -42,7 +45,7 @@
         <div class="form-group"><label class="form-label">管理员邮箱</label><input type="email" id="gate-email" class="form-input" placeholder="admin@xylaoshi.com" value="admin@xylaoshi.com"></div>
         <div class="form-group"><label class="form-label">密码</label><input type="password" id="gate-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')gateLogin()"></div>
         <div id="gate-err" class="form-error" style="display:none;margin-bottom:12px"></div>
-        <button class="btn-primary" onclick="gateLogin()">进入管理后台</button>
+        <button class="btn-primary" id="gate-btn" onclick="gateLogin()">进入管理后台</button>
         <p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px"><a href="index.html" style="color:#4F46E5">← 返回网站首页</a></p>
     </div>
 </div>
@@ -72,10 +75,10 @@
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:20px">概览</h2>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px" id="dash-stats"></div>
                 <div style="background:white;border-radius:14px;padding:20px;border:1px solid #f1f5f9">
-                    <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">管理员账号信息</h3>
-                    <p style="font-size:13px;color:#64748b">邮箱：<strong>admin@xylaoshi.com</strong></p>
-                    <p style="font-size:13px;color:#64748b;margin-top:6px">默认密码：<strong>Admin@2025</strong>（请妥善保管）</p>
-                    <p style="font-size:12px;color:#f59e0b;margin-top:8px"><i class="ph ph-warning"></i> 该账号为前端存储，数据保存在浏览器本地。未来可对接后端服务升级。</p>
+                    <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">数据库管理</h3>
+                    <p style="font-size:13px;color:#64748b;margin-bottom:12px">数据已同步至 Firebase Firestore，所有注册用户均可看到最新内容。</p>
+                    <button onclick="seedDatabase()" style="padding:10px 20px;background:#10B981;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px"><i class="ph ph-database"></i>初始化数据库（写入默认工具和提示词）</button>
+                    <p style="font-size:12px;color:#94a3b8;margin-top:8px"><i class="ph ph-info"></i> 仅在 Firestore 为空时需要执行，已有数据将被覆盖</p>
                 </div>
             </div>
 
@@ -83,7 +86,7 @@
             <div class="panel" id="panel-announcements">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                     <h2 style="font-size:1.3rem;font-weight:800">公告管理</h2>
-                    <button onclick="openAnnModal()" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增公告</button>
+                    <button onclick="openAnnModal(null)" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增公告</button>
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table id="ann-table"><thead><tr><th>标题</th><th>内容</th><th>时间</th><th>操作</th></tr></thead><tbody id="ann-tbody"></tbody></table></div>
@@ -96,7 +99,7 @@
                     <h2 style="font-size:1.3rem;font-weight:800">工具管理</h2>
                     <div style="display:flex;gap:8px">
                         <button onclick="openToolModal()" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>添加工具</button>
-                        <button onclick="if(confirm('确定恢复默认工具列表？所有自定义修改将丢失。')){ DB.tools.reset(); renderToolsTable(); showToast('已恢复默认'); }" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
+                        <button onclick="resetTools()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                     </div>
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
@@ -110,7 +113,7 @@
                     <h2 style="font-size:1.3rem;font-weight:800">提示词管理</h2>
                     <div style="display:flex;gap:8px">
                         <button onclick="openPromptModal()" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>添加提示词</button>
-                        <button onclick="if(confirm('恢复默认提示词？')){ DB.prompts.reset(); renderPromptsTable(); showToast('已恢复默认'); }" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
+                        <button onclick="resetPrompts()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                     </div>
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
@@ -122,7 +125,7 @@
             <div class="panel" id="panel-paths-mgr">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                     <h2 style="font-size:1.3rem;font-weight:800">学习路径管理</h2>
-                    <button onclick="if(confirm('恢复默认路径？')){ DB.paths.reset(); renderPathsTable(); showToast('已恢复默认'); }" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
+                    <button onclick="resetPaths()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                 </div>
                 <p style="font-size:13px;color:#64748b;margin-bottom:16px">当前版本支持查看和删除学习路径。编辑路径步骤请直接修改 <code>js/data.js</code> 文件中的 DEFAULT_PATHS 数据。</p>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
@@ -238,59 +241,72 @@
     </div>
 </div>
 
+<script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-renderNav('admin');
+let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 
 // ===== GATE =====
-function gateLogin() {
+async function gateLogin() {
     const email = document.getElementById('gate-email').value.trim();
     const pwd = document.getElementById('gate-pwd').value;
-    const result = Auth.login(email, pwd);
-    if (!result.ok || !result.user.isAdmin) {
-        const err = document.getElementById('gate-err');
-        err.textContent = result.ok ? '该账号没有管理员权限' : result.msg;
+    const btn = document.getElementById('gate-btn');
+    const err = document.getElementById('gate-err');
+    btn.disabled = true;
+    btn.textContent = '登录中…';
+    err.style.display = 'none';
+
+    // Listen for auth state update BEFORE calling login
+    const waitForAuth = new Promise(resolve => {
+        document.addEventListener('authChanged', resolve, { once: true });
+    });
+
+    const result = await Auth.login(email, pwd);
+    if (!result.ok) {
+        err.textContent = result.msg;
         err.style.display = '';
+        btn.disabled = false;
+        btn.textContent = '进入管理后台';
         return;
     }
+
+    await waitForAuth;
+
+    if (!Auth.isAdmin()) {
+        err.textContent = '该账号没有管理员权限';
+        err.style.display = '';
+        await Auth.logout();
+        btn.disabled = false;
+        btn.textContent = '进入管理后台';
+        return;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '进入管理后台';
     document.getElementById('login-gate').style.display = 'none';
     document.getElementById('admin-app').style.display = 'block';
-    initAdmin();
-}
-
-function checkAuth() {
-    if (Auth.isAdmin()) {
-        document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('admin-app').style.display = 'block';
-        initAdmin();
-    } else {
-        document.getElementById('login-gate').style.display = 'flex';
-        document.getElementById('admin-app').style.display = 'none';
-    }
+    await initAdmin();
 }
 
 // ===== PANEL SWITCHING =====
-function switchPanel(name, el) {
+async function switchPanel(name, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
     document.getElementById('panel-' + name).classList.add('active');
     el.classList.add('active');
-    // Render relevant data
-    if (name === 'announcements') renderAnnTable();
-    if (name === 'tools-mgr') renderToolsTable();
-    if (name === 'prompts-mgr') renderPromptsTable();
-    if (name === 'paths-mgr') renderPathsTable();
-    if (name === 'users') renderUsersTable();
+    if (name === 'announcements') await renderAnnTable();
+    if (name === 'tools-mgr') await renderToolsTable();
+    if (name === 'prompts-mgr') await renderPromptsTable();
+    if (name === 'paths-mgr') await renderPathsTable();
+    if (name === 'users') await renderUsersTable();
 }
 
 // ===== INIT =====
-function initAdmin() {
-    // Dashboard stats
-    const tools = DB.tools.get();
-    const prompts = DB.prompts.get();
-    const users = DB.users.get();
-    const ann = DB.announcements.get();
+async function initAdmin() {
+    const [tools, prompts, users, ann] = await Promise.all([
+        DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements()
+    ]);
     document.getElementById('dash-stats').innerHTML = [
         { label:'注册用户', value: users.length, icon:'ph-users', color:'#4F46E5' },
         { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#10B981' },
@@ -311,62 +327,68 @@ function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 // ===== ANNOUNCEMENTS =====
-function renderAnnTable() {
-    const ann = DB.announcements.get();
-    document.getElementById('ann-tbody').innerHTML = ann.length === 0
+async function renderAnnTable() {
+    _adminAnn = await DB.getAnnouncements();
+    document.getElementById('ann-tbody').innerHTML = _adminAnn.length === 0
         ? '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:32px">暂无公告</td></tr>'
-        : ann.map((a, i) => `
+        : _adminAnn.map(a => `
         <tr>
             <td style="font-weight:600;max-width:150px">${a.title}</td>
             <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.content}</td>
             <td style="color:#94a3b8;white-space:nowrap">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</td>
             <td>
-                <button onclick="editAnn(${i})" style="color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">编辑</button>
-                <button onclick="deleteAnn(${i})" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button>
+                <button onclick="editAnn('${a.id}')" style="color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">编辑</button>
+                <button onclick="deleteAnn('${a.id}')" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px">删除</button>
             </td>
         </tr>`).join('');
 }
 
-function openAnnModal(idx) {
-    document.getElementById('ann-modal-title').textContent = idx !== undefined ? '编辑公告' : '新增公告';
-    document.getElementById('ann-edit-id').value = idx !== undefined ? idx : '';
-    document.getElementById('ann-title').value = idx !== undefined ? DB.announcements.get()[idx].title : '';
-    document.getElementById('ann-content').value = idx !== undefined ? DB.announcements.get()[idx].content : '';
+function openAnnModal(ann) {
+    document.getElementById('ann-modal-title').textContent = ann ? '编辑公告' : '新增公告';
+    document.getElementById('ann-edit-id').value = ann ? ann.id : '';
+    document.getElementById('ann-title').value = ann ? ann.title : '';
+    document.getElementById('ann-content').value = ann ? ann.content : '';
     openModal('ann-modal');
 }
 
-function editAnn(i) { openAnnModal(i); }
+function editAnn(id) {
+    const a = _adminAnn.find(a => a.id === id);
+    if (a) openAnnModal(a);
+}
 
-function saveAnn() {
+async function saveAnn() {
     const title = document.getElementById('ann-title').value.trim();
     const content = document.getElementById('ann-content').value.trim();
     if (!title || !content) { showToast('请填写标题和内容'); return; }
-    const ann = DB.announcements.get();
-    const idx = document.getElementById('ann-edit-id').value;
-    if (idx !== '') { ann[parseInt(idx)] = { ...ann[parseInt(idx)], title, content }; }
-    else { ann.unshift({ title, content, createdAt: new Date().toISOString() }); }
-    DB.announcements.set(ann);
-    closeModal('ann-modal');
-    renderAnnTable();
-    showToast('公告已保存');
+    const id = document.getElementById('ann-edit-id').value;
+    try {
+        if (id) {
+            await DB.updateAnnouncement(id, title, content);
+        } else {
+            await DB.addAnnouncement(title, content);
+        }
+        closeModal('ann-modal');
+        await renderAnnTable();
+        showToast('公告已保存');
+    } catch(e) {
+        showToast('保存失败：' + e.message);
+    }
 }
 
-function deleteAnn(i) {
+async function deleteAnn(id) {
     if (!confirm('确定删除这条公告？')) return;
-    const ann = DB.announcements.get();
-    ann.splice(i, 1);
-    DB.announcements.set(ann);
-    renderAnnTable();
+    await DB.deleteAnnouncement(id);
+    await renderAnnTable();
     showToast('已删除');
 }
 
 // ===== TOOLS =====
-function renderToolsTable() {
-    const tools = DB.tools.get();
-    document.getElementById('tools-tbody').innerHTML = tools.map((t, i) => `
+async function renderToolsTable() {
+    _adminTools = await DB.getTools();
+    document.getElementById('tools-tbody').innerHTML = _adminTools.map((t, i) => `
         <tr>
             <td style="font-weight:600">${t.name}</td>
-            <td><span style="background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:999px;font-size:11px">${{teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]}</span></td>
+            <td><span style="background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:999px;font-size:11px">${{teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]||t.category}</span></td>
             <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</td>
             <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="${t.url}" target="_blank" style="color:#4F46E5;font-size:12px">${t.url}</a></td>
             <td>
@@ -385,7 +407,7 @@ function openToolModal() {
 }
 
 function editTool(i) {
-    const t = DB.tools.get()[i];
+    const t = _adminTools[i];
     document.getElementById('tool-modal-title').textContent = '编辑工具';
     document.getElementById('tool-edit-id').value = i;
     document.getElementById('tool-name').value = t.name;
@@ -396,36 +418,43 @@ function editTool(i) {
     openModal('tool-modal');
 }
 
-function saveTool() {
+async function saveTool() {
     const name = document.getElementById('tool-name').value.trim();
     const url = document.getElementById('tool-url').value.trim();
     const desc = document.getElementById('tool-desc').value.trim();
     if (!name || !url || !desc) { showToast('请填写名称、链接和描述'); return; }
     const colorVal = document.getElementById('tool-color').value;
     const [color, bg] = colorVal.split(' ');
-    const tools = DB.tools.get();
+    const tools = [..._adminTools];
     const idx = document.getElementById('tool-edit-id').value;
-    const item = { name, url, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, id: idx !== '' ? tools[parseInt(idx)].id : Date.now() };
+    const item = { name, url, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, id: idx !== '' ? tools[parseInt(idx)].id : ('t' + Date.now()) };
     if (idx !== '') { tools[parseInt(idx)] = item; } else { tools.push(item); }
-    DB.tools.set(tools);
+    await DB.setTools(tools);
     closeModal('tool-modal');
-    renderToolsTable();
+    await renderToolsTable();
     showToast('工具已保存');
 }
 
-function deleteTool(i) {
+async function deleteTool(i) {
     if (!confirm('确定删除这个工具？')) return;
-    const tools = DB.tools.get();
+    const tools = [..._adminTools];
     tools.splice(i, 1);
-    DB.tools.set(tools);
-    renderToolsTable();
+    await DB.setTools(tools);
+    await renderToolsTable();
     showToast('已删除');
 }
 
+async function resetTools() {
+    if (!confirm('确定恢复默认工具列表？所有自定义修改将丢失。')) return;
+    await DB.setTools(DEFAULT_TOOLS);
+    await renderToolsTable();
+    showToast('已恢复默认');
+}
+
 // ===== PROMPTS =====
-function renderPromptsTable() {
-    const prompts = DB.prompts.get();
-    document.getElementById('prompts-tbody').innerHTML = prompts.map((p, i) => `
+async function renderPromptsTable() {
+    _adminPrompts = await DB.getPrompts();
+    document.getElementById('prompts-tbody').innerHTML = _adminPrompts.map((p, i) => `
         <tr>
             <td style="font-weight:600">${p.label}</td>
             <td><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:999px;font-size:11px">${p.category}</span></td>
@@ -446,7 +475,7 @@ function openPromptModal() {
 }
 
 function editPrompt(i) {
-    const p = DB.prompts.get()[i];
+    const p = _adminPrompts[i];
     document.getElementById('prompt-modal-title').textContent = '编辑提示词';
     document.getElementById('prompt-edit-id').value = i;
     document.getElementById('prompt-label').value = p.label;
@@ -455,33 +484,40 @@ function editPrompt(i) {
     openModal('prompt-modal');
 }
 
-function savePrompt() {
+async function savePrompt() {
     const label = document.getElementById('prompt-label').value.trim();
     const text = document.getElementById('prompt-text').value.trim();
     if (!label || !text) { showToast('请填写名称和内容'); return; }
-    const prompts = DB.prompts.get();
+    const prompts = [..._adminPrompts];
     const idx = document.getElementById('prompt-edit-id').value;
-    const item = { label, text, category: document.getElementById('prompt-cat').value, icon:'ph-chat-text', color:'text-indigo-500', bg:'bg-indigo-50', id: idx !== '' ? prompts[parseInt(idx)].id : Date.now() };
+    const item = { label, text, category: document.getElementById('prompt-cat').value, icon:'ph-chat-text', color:'text-indigo-500', bg:'bg-indigo-50', id: idx !== '' ? prompts[parseInt(idx)].id : ('p' + Date.now()) };
     if (idx !== '') { prompts[parseInt(idx)] = item; } else { prompts.push(item); }
-    DB.prompts.set(prompts);
+    await DB.setPrompts(prompts);
     closeModal('prompt-modal');
-    renderPromptsTable();
+    await renderPromptsTable();
     showToast('提示词已保存');
 }
 
-function deletePrompt(i) {
+async function deletePrompt(i) {
     if (!confirm('确定删除？')) return;
-    const prompts = DB.prompts.get();
+    const prompts = [..._adminPrompts];
     prompts.splice(i, 1);
-    DB.prompts.set(prompts);
-    renderPromptsTable();
+    await DB.setPrompts(prompts);
+    await renderPromptsTable();
     showToast('已删除');
 }
 
+async function resetPrompts() {
+    if (!confirm('确定恢复默认提示词？所有自定义修改将丢失。')) return;
+    await DB.setPrompts(DEFAULT_PROMPTS);
+    await renderPromptsTable();
+    showToast('已恢复默认');
+}
+
 // ===== PATHS =====
-function renderPathsTable() {
-    const paths = DB.paths.get();
-    document.getElementById('paths-tbody').innerHTML = paths.map((p, i) => `
+async function renderPathsTable() {
+    _adminPaths = await DB.getPaths();
+    document.getElementById('paths-tbody').innerHTML = _adminPaths.map((p, i) => `
         <tr>
             <td style="font-weight:600">${p.title}</td>
             <td>${p.level}</td>
@@ -491,22 +527,29 @@ function renderPathsTable() {
         </tr>`).join('');
 }
 
-function deletePath(i) {
+async function deletePath(i) {
     if (!confirm('确定删除此学习路径？')) return;
-    const paths = DB.paths.get();
+    const paths = [..._adminPaths];
     paths.splice(i, 1);
-    DB.paths.set(paths);
-    renderPathsTable();
+    await DB.setPaths(paths);
+    await renderPathsTable();
     showToast('已删除');
 }
 
+async function resetPaths() {
+    if (!confirm('确定恢复默认学习路径？')) return;
+    await DB.setPaths(DEFAULT_PATHS);
+    await renderPathsTable();
+    showToast('已恢复默认');
+}
+
 // ===== USERS =====
-function renderUsersTable() {
-    const users = DB.users.get();
-    document.getElementById('user-count').textContent = `共 ${users.length} 位注册用户`;
-    document.getElementById('users-tbody').innerHTML = users.length === 0
+async function renderUsersTable() {
+    _adminUsers = await DB.getUsers();
+    document.getElementById('user-count').textContent = `共 ${_adminUsers.length} 位注册用户`;
+    document.getElementById('users-tbody').innerHTML = _adminUsers.length === 0
         ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">暂无注册用户</td></tr>'
-        : users.map((u, i) => `
+        : _adminUsers.map((u, i) => `
         <tr>
             <td style="font-weight:600">${u.name}</td>
             <td style="color:#64748b">${u.email}</td>
@@ -516,13 +559,25 @@ function renderUsersTable() {
         </tr>`).join('');
 }
 
-function deleteUser(i) {
-    if (!confirm('确定删除该用户？')) return;
-    const users = DB.users.get();
-    users.splice(i, 1);
-    DB.users.set(users);
-    renderUsersTable();
+async function deleteUser(i) {
+    if (!confirm('确定删除该用户？此操作不可撤销。')) return;
+    const u = _adminUsers[i];
+    await DB.deleteUser(u.uid);
+    await renderUsersTable();
     showToast('用户已删除');
+}
+
+// ===== SEED DATABASE =====
+async function seedDatabase() {
+    if (!confirm('确定初始化数据库？将用默认数据写入工具、提示词和学习路径（已有数据将被覆盖）。')) return;
+    try {
+        showToast('正在初始化，请稍候…');
+        await DB.seedDatabase();
+        showToast('数据库已初始化');
+        await initAdmin();
+    } catch(e) {
+        showToast('初始化失败：' + e.message);
+    }
 }
 
 // Close modal on overlay click
@@ -530,7 +585,17 @@ document.querySelectorAll('.modal-admin').forEach(m => {
     m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); });
 });
 
-checkAuth();
+onAuthReady(async (user) => {
+    renderNav('admin');
+    if (Auth.isAdmin()) {
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('admin-app').style.display = 'block';
+        await initAdmin();
+    } else {
+        document.getElementById('login-gate').style.display = 'flex';
+        document.getElementById('admin-app').style.display = 'none';
+    }
+});
 </script>
 </body>
 </html>

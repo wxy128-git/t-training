@@ -7,6 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .step-detail { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
@@ -41,16 +44,26 @@
 
 <div id="main-footer"></div>
 
+<script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-renderNav('paths');
-renderFooter();
+function toggleStep(row) {
+    const detail = row.nextElementSibling;
+    const isOpen = detail.classList.contains('open');
+    row.closest('section').querySelectorAll('.step-detail').forEach(d => d.classList.remove('open'));
+    row.closest('section').querySelectorAll('.step-row').forEach(r => r.classList.remove('expanded'));
+    if (!isOpen) { detail.classList.add('open'); row.classList.add('expanded'); }
+}
 
-const paths = DB.paths.get();
+onAuthReady(async (user) => {
+    renderNav('paths');
+    renderFooter();
 
-// Nav cards
-document.getElementById('path-nav-cards').innerHTML = paths.map(p => `
+    const paths = await DB.getPaths();
+
+    // Nav cards
+    document.getElementById('path-nav-cards').innerHTML = paths.map(p => `
     <a href="#${p.slug}" style="text-decoration:none">
         <div style="background:${p.gradient};border-radius:16px;padding:20px;color:white;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 30px -6px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
             <i class="ph-fill ${p.icon}" style="font-size:24px;display:block;margin-bottom:8px"></i>
@@ -60,11 +73,10 @@ document.getElementById('path-nav-cards').innerHTML = paths.map(p => `
         </div>
     </a>`).join('');
 
-// Detailed sections
-document.getElementById('paths-detail').innerHTML = paths.map(p => `
+    // Detailed sections
+    document.getElementById('paths-detail').innerHTML = paths.map(p => `
     <section id="${p.slug}" style="scroll-margin-top:80px">
         <div style="border-radius:20px;overflow:hidden;box-shadow:0 4px 24px -4px rgba(0,0,0,0.08)">
-            <!-- Header -->
             <div style="background:${p.gradient};padding:32px;color:white">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
                     <div>
@@ -83,14 +95,11 @@ document.getElementById('paths-detail').innerHTML = paths.map(p => `
                         <div style="margin-top:8px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:999px;font-size:12px">${p.level}水平</div>
                     </div>
                 </div>
-                <!-- Related resources -->
                 <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.2)">
                     <div style="font-size:12px;opacity:.7;margin-bottom:8px">推荐配合使用的工具：</div>
                     <div>${p.resources.map(r => `<span class="resource-chip"><i class="ph ph-arrow-up-right"></i>${r}</span>`).join('')}</div>
                 </div>
             </div>
-
-            <!-- Steps -->
             <div style="background:white;padding:28px">
                 <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px">学习步骤 <span style="font-size:13px;font-weight:400;color:#94a3b8">（点击展开详情）</span></h3>
                 <div>
@@ -112,22 +121,13 @@ document.getElementById('paths-detail').innerHTML = paths.map(p => `
         </div>
     </section>`).join('');
 
-function toggleStep(row) {
-    const detail = row.nextElementSibling;
-    const isOpen = detail.classList.contains('open');
-    // Close all in this section
-    row.closest('section').querySelectorAll('.step-detail').forEach(d => d.classList.remove('open'));
-    row.closest('section').querySelectorAll('.step-row').forEach(r => r.classList.remove('expanded'));
-    if (!isOpen) { detail.classList.add('open'); row.classList.add('expanded'); }
-}
-
-// Scroll to hash on load
-if (location.hash) {
-    setTimeout(() => {
-        const el = document.querySelector(location.hash);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-}
+    if (location.hash) {
+        setTimeout(() => {
+            const el = document.querySelector(location.hash);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+});
 </script>
 </body>
 </html>

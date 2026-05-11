@@ -7,6 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -41,12 +44,10 @@
 
 <div id="main-footer"></div>
 
+<script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-renderNav('tools');
-renderFooter();
-
 const categories = [
     { key:'all', label:'全部' },
     { key:'teaching', label:'教学辅助' },
@@ -55,6 +56,7 @@ const categories = [
     { key:'dev', label:'智能开发' }
 ];
 let currentCat = 'all';
+let _allTools = [];
 
 document.getElementById('filter-bar').innerHTML = categories.map(c =>
     `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
@@ -69,7 +71,7 @@ function setCat(key, btn) {
 
 function renderTools() {
     const q = document.getElementById('search').value.toLowerCase();
-    const tools = DB.tools.get();
+    const tools = _allTools;
     const filtered = tools.filter(t => {
         const matchCat = currentCat === 'all' || t.category === currentCat;
         const matchQ = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q);
@@ -92,7 +94,12 @@ function renderTools() {
         </a>`).join('');
 }
 
-renderTools();
+onAuthReady(async (user) => {
+    renderNav('tools');
+    renderFooter();
+    _allTools = await DB.getTools();
+    renderTools();
+});
 </script>
 </body>
 </html>

@@ -8,6 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -93,89 +96,90 @@
 
 <div id="main-footer"></div>
 
+<script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-renderNav('index');
-renderFooter();
+onAuthReady(async (user) => {
+    renderNav('index');
+    renderFooter();
 
-// Stats
-const users = DB.users.get();
-document.getElementById('stat-users').textContent = users.length > 0 ? users.length + '+' : '—';
-document.getElementById('stat-tools').textContent = DB.tools.get().length + '+';
+    const [tools, ann, paths, prompts, users] = await Promise.all([
+        DB.getTools(), DB.getAnnouncements(), DB.getPaths(), DB.getPrompts(), DB.getUsers()
+    ]);
 
-// Announcements
-const ann = DB.announcements.get();
-if (ann.length > 0) {
-    document.getElementById('announcements-section').innerHTML = `
-        <section>
-            <div class="section-header"><h2>📢 平台公告</h2></div>
-            ${ann.map(a => `<div class="announcement"><strong>${a.title}</strong><p>${a.content}</p><small style="color:#6366f1;font-size:11px">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</small></div>`).join('')}
-        </section>`;
-}
+    // Stats
+    document.getElementById('stat-users').textContent = users.length > 0 ? users.length + '+' : '—';
+    document.getElementById('stat-tools').textContent = tools.length + '+';
 
-// Tools preview (4 items)
-const tools = DB.tools.get().slice(0, 8);
-document.getElementById('tools-preview').innerHTML = tools.map(t => `
-    <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
-            <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
-            <div class="tool-card-arrow"><i class="ph-bold ph-arrow-up-right" style="font-size:12px"></i></div>
-        </div>
-        <h3 class="tool-card-title" style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">${t.name}</h3>
-        <p style="font-size:12px;color:#64748b;line-height:1.6">${t.desc}</p>
-    </a>`).join('');
+    // Announcements
+    if (ann.length > 0) {
+        document.getElementById('announcements-section').innerHTML = `
+            <section>
+                <div class="section-header"><h2>📢 平台公告</h2></div>
+                ${ann.map(a => `<div class="announcement"><strong>${a.title}</strong><p>${a.content}</p><small style="color:#6366f1;font-size:11px">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</small></div>`).join('')}
+            </section>`;
+    }
 
-// News preview (3 items, using The Verge as most reliable)
-(async () => {
-    const container = document.getElementById('news-preview');
-    container.innerHTML = Array(3).fill(`<div class="card" style="padding:20px"><div class="skeleton" style="height:12px;width:40%;margin-bottom:10px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:80%;margin-bottom:12px"></div><div class="skeleton" style="height:12px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:70%"></div></div>`).join('');
-
-    const items = await fetchRSSFeed(RSS_FEEDS.verge.url, 3) || await fetchRSSFeed(RSS_FEEDS.techcrunch.url, 3);
-    if (!items) { container.innerHTML = `<div class="card" style="padding:40px;text-align:center;color:#94a3b8;grid-column:1/-1"><i class="ph ph-wifi-slash" style="font-size:36px;display:block;margin-bottom:8px"></i>资讯加载失败，<a href="news.html" style="color:#4F46E5">前往资讯页面</a>重试</div>`; return; }
-    container.innerHTML = items.slice(0,3).map(item => {
-        const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
-        const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
-        return `<a href="${item.link}" target="_blank" rel="noopener" class="card news-card">
-            <div class="news-meta"><span class="news-source">${domain}</span>·<span>${date}</span></div>
-            <h3 class="line-clamp-2">${item.title}</h3>
-            <p class="line-clamp-3" style="margin-top:8px">${item.description.substring(0,120)}…</p>
-        </a>`;
-    }).join('');
-})();
-
-// Paths preview
-const paths = DB.paths.get();
-document.getElementById('paths-preview').innerHTML = paths.map(p => `
-    <a href="paths.html#${p.slug}" class="card path-card" style="display:block">
-        <div class="path-card-head" style="background:${p.gradient}">
-            <i class="ph-fill ${p.icon}" style="font-size:28px;display:block;margin-bottom:10px"></i>
-            <h3 style="font-size:18px;font-weight:700;margin-bottom:4px">${p.title}</h3>
-            <p style="opacity:.75;font-size:13px">${p.subtitle}</p>
-            <div style="margin-top:10px;font-size:12px;opacity:.6;display:flex;align-items:center;gap:6px">
-                <i class="ph ph-clock"></i>${p.duration}
-                <span style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:999px;margin-left:4px">${p.level}</span>
+    // Tools preview (8 items)
+    document.getElementById('tools-preview').innerHTML = tools.slice(0, 8).map(t => `
+        <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+                <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
+                <div class="tool-card-arrow"><i class="ph-bold ph-arrow-up-right" style="font-size:12px"></i></div>
             </div>
-        </div>
-        <div class="path-card-body">
-            <p style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:16px">${p.desc}</p>
-            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#4F46E5;font-weight:500">查看详细路径 <i class="ph ph-arrow-right"></i></div>
-        </div>
-    </a>`).join('');
+            <h3 class="tool-card-title" style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">${t.name}</h3>
+            <p style="font-size:12px;color:#64748b;line-height:1.6">${t.desc}</p>
+        </a>`).join('');
 
-// Prompts preview (4 items)
-const prompts = DB.prompts.get().slice(0, 4);
-document.getElementById('prompts-preview').innerHTML = prompts.map(p => `
-    <div class="card prompt-card">
-        <div class="prompt-card-header">
-            <div class="prompt-card-title">
-                <div class="prompt-icon ${p.bg} ${p.color}"><i class="ph-fill ${p.icon}"></i></div>
-                <strong style="font-size:14px;color:#0f172a">${p.label}</strong>
+    // Paths preview
+    document.getElementById('paths-preview').innerHTML = paths.map(p => `
+        <a href="paths.html#${p.slug}" class="card path-card" style="display:block">
+            <div class="path-card-head" style="background:${p.gradient}">
+                <i class="ph-fill ${p.icon}" style="font-size:28px;display:block;margin-bottom:10px"></i>
+                <h3 style="font-size:18px;font-weight:700;margin-bottom:4px">${p.title}</h3>
+                <p style="opacity:.75;font-size:13px">${p.subtitle}</p>
+                <div style="margin-top:10px;font-size:12px;opacity:.6;display:flex;align-items:center;gap:6px">
+                    <i class="ph ph-clock"></i>${p.duration}
+                    <span style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:999px;margin-left:4px">${p.level}</span>
+                </div>
             </div>
-            <button class="copy-btn" onclick="copyText(this,'${encodeURIComponent(p.text)}')"><i class="ph ph-copy"></i>复制</button>
-        </div>
-        <p style="font-size:12px;color:#64748b;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${p.text}</p>
-    </div>`).join('');
+            <div class="path-card-body">
+                <p style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:16px">${p.desc}</p>
+                <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#4F46E5;font-weight:500">查看详细路径 <i class="ph ph-arrow-right"></i></div>
+            </div>
+        </a>`).join('');
+
+    // Prompts preview (4 items)
+    document.getElementById('prompts-preview').innerHTML = prompts.slice(0, 4).map(p => `
+        <div class="card prompt-card">
+            <div class="prompt-card-header">
+                <div class="prompt-card-title">
+                    <div class="prompt-icon ${p.bg} ${p.color}"><i class="ph-fill ${p.icon}"></i></div>
+                    <strong style="font-size:14px;color:#0f172a">${p.label}</strong>
+                </div>
+                <button class="copy-btn" onclick="copyText(this,'${encodeURIComponent(p.text)}')"><i class="ph ph-copy"></i>复制</button>
+            </div>
+            <p style="font-size:12px;color:#64748b;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${p.text}</p>
+        </div>`).join('');
+
+    // News preview (3 items)
+    (async () => {
+        const container = document.getElementById('news-preview');
+        container.innerHTML = Array(3).fill(`<div class="card" style="padding:20px"><div class="skeleton" style="height:12px;width:40%;margin-bottom:10px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:80%;margin-bottom:12px"></div><div class="skeleton" style="height:12px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:70%"></div></div>`).join('');
+        const items = await fetchRSSFeed(RSS_FEEDS.verge.url, 3) || await fetchRSSFeed(RSS_FEEDS.techcrunch.url, 3);
+        if (!items) { container.innerHTML = `<div class="card" style="padding:40px;text-align:center;color:#94a3b8;grid-column:1/-1"><i class="ph ph-wifi-slash" style="font-size:36px;display:block;margin-bottom:8px"></i>资讯加载失败，<a href="news.html" style="color:#4F46E5">前往资讯页面</a>重试</div>`; return; }
+        container.innerHTML = items.slice(0, 3).map(item => {
+            const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
+            const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
+            return `<a href="${item.link}" target="_blank" rel="noopener" class="card news-card">
+                <div class="news-meta"><span class="news-source">${domain}</span>·<span>${date}</span></div>
+                <h3 class="line-clamp-2">${item.title}</h3>
+                <p class="line-clamp-3" style="margin-top:8px">${item.description.substring(0,120)}…</p>
+            </a>`;
+        }).join('');
+    })();
+});
 </script>
 <script>
 function copyText(btn, encoded) {
