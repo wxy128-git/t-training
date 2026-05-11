@@ -142,46 +142,68 @@ const DB = {
     }
 };
 
-/* ===== RSS 抓取（保持不变） ===== */
+/* ===== RSS 抓取（三重代理策略） ===== */
 async function fetchRSSFeed(rssUrl, count = 6) {
     const cacheKey = 'rss_' + btoa(encodeURIComponent(rssUrl)).slice(0, 24);
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-        const { items, ts } = JSON.parse(cached);
-        if (Date.now() - ts < 30 * 60 * 1000) return items;
+        try {
+            const { items, ts } = JSON.parse(cached);
+            if (Date.now() - ts < 30 * 60 * 1000) return items;
+        } catch {}
     }
+
     const parseXML = (xmlStr) => {
-        const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
-        return Array.from(xml.querySelectorAll('item')).slice(0, count).map(item => ({
-            title: item.querySelector('title')?.textContent?.trim() || '',
-            link: (() => { const l = item.querySelector('link'); return l ? (l.textContent || l.nextSibling?.textContent || '').trim() : ''; })(),
-            description: (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g, '').trim(),
-            pubDate: item.querySelector('pubDate')?.textContent?.trim() || ''
-        })).filter(i => i.title && i.link);
+        try {
+            const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
+            return Array.from(xml.querySelectorAll('item')).slice(0, count).map(item => ({
+                title: item.querySelector('title')?.textContent?.trim() || '',
+                link: (() => { const l = item.querySelector('link'); return l ? (l.textContent || l.nextSibling?.textContent || '').trim() : ''; })(),
+                description: (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g, '').trim(),
+                pubDate: item.querySelector('pubDate')?.textContent?.trim() || ''
+            })).filter(i => i.title && i.link);
+        } catch { return []; }
     };
-    try {
+
+    const get = async (url, ms = 7000) => {
         const ctrl = new AbortController();
-        setTimeout(() => ctrl.abort(), 9000);
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, { signal: ctrl.signal });
-        const data = await res.json();
-        if (data.contents) {
-            const items = parseXML(data.contents);
-            if (items.length > 0) { localStorage.setItem(cacheKey, JSON.stringify({ items, ts: Date.now() })); return items; }
-        }
-    } catch {}
+        const timer = setTimeout(() => ctrl.abort(), ms);
+        try { const r = await fetch(url, { signal: ctrl.signal }); clearTimeout(timer); return r; }
+        finally { clearTimeout(timer); }
+    };
+
+    const save = (items) => { localStorage.setItem(cacheKey, JSON.stringify({ items, ts: Date.now() })); return items; };
+
+    // 策略1：allorigins.win
     try {
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=${count}`);
-        const data = await res.json();
-        if (data.status === 'ok' && data.items?.length) {
-            const items = data.items.map(i => ({ title: i.title, link: i.link, description: (i.description || '').replace(/<[^>]*>/g, '').trim(), pubDate: i.pubDate })).filter(i => i.title && i.link);
-            localStorage.setItem(cacheKey, JSON.stringify({ items, ts: Date.now() }));
-            return items;
+        const r = await get(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
+        const d = await r.json();
+        if (d.contents) { const items = parseXML(d.contents); if (items.length) return save(items); }
+    } catch {}
+
+    // 策略2：corsproxy.io
+    try {
+        const r = await get(`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`);
+        const text = await r.text();
+        if (text) { const items = parseXML(text); if (items.length) return save(items); }
+    } catch {}
+
+    // 策略3：rss2json API
+    try {
+        const r = await get(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=${count}`);
+        const d = await r.json();
+        if (d.status === 'ok' && d.items?.length) {
+            const items = d.items.map(i => ({ title: i.title, link: i.link, description: (i.description || '').replace(/<[^>]*>/g, '').trim(), pubDate: i.pubDate })).filter(i => i.title && i.link);
+            return save(items);
         }
     } catch {}
+
     return null;
 }
 
 const RSS_FEEDS = {
+    jiqizhixin: { url: 'https://www.jiqizhixin.com/rss',                                  label: '机器之心 · 国内AI' },
+    qbitai:     { url: 'https://www.qbitai.com/rss',                                      label: '量子位 · 前沿速递' },
     verge:      { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/rss.xml', label: 'The Verge · AI动态' },
     techcrunch: { url: 'https://techcrunch.com/category/artificial-intelligence/feed/',   label: 'TechCrunch · 科技前沿' },
     edsurge:    { url: 'https://edsurge.com/news.rss',                                    label: 'EdSurge · 教育科技' },

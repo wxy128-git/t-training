@@ -46,10 +46,9 @@
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
-renderNav('news');
-renderFooter();
+onAuthReady(user => { renderNav('news'); renderFooter(); });
 
-let currentFeedKey = 'verge';
+let currentFeedKey = 'jiqizhixin';
 
 function buildFeedTabs() {
     document.getElementById('feed-tabs').innerHTML = Object.entries(RSS_FEEDS).map(([key, f]) =>
@@ -132,12 +131,7 @@ async function loadNews(force = false) {
     if (items) {
         status.textContent = `已加载 ${items.length} 条资讯 · 来源：${RSS_FEEDS[currentFeedKey].label}`;
     } else {
-        status.textContent = '获取失败，尝试备用资讯源…';
-        const fallbackKeys = Object.keys(RSS_FEEDS).filter(k => k !== currentFeedKey);
-        for (const key of fallbackKeys) {
-            const fb = await fetchRSSFeed(RSS_FEEDS[key].url, 6);
-            if (fb) { renderItems(fb); status.textContent = `备用资源加载成功 (${RSS_FEEDS[key].label})，共 ${fb.length} 条`; return; }
-        }
+        status.textContent = '获取失败 · 请换选其他资讯源，或稍后点击"刷新"重试';
     }
     renderItems(items);
 }
