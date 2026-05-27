@@ -443,7 +443,7 @@ tr:hover td { background: #fafafa; }
 .assistant-launcher {
     position: fixed;
     right: 22px;
-    bottom: 22px;
+    bottom: 96px;
     z-index: 420;
     width: 104px;
     height: 92px;
@@ -803,7 +803,7 @@ tr:hover td { background: #fafafa; }
 .contact-submit:disabled { opacity: 0.62; cursor: not-allowed; }
 .contact-note { margin: 12px 0 0; color: #94a3b8; font-size: 12px; line-height: 1.6; }
 @media(max-width:640px){
-    .assistant-launcher { right: 14px; bottom: 14px; width: 84px; height: 76px; }
+    .assistant-launcher { right: 14px; bottom: 88px; width: 84px; height: 76px; }
     .assistant-mascot { width: 68px; height: 64px; border-radius: 20px 20px 23px 23px; }
     .mascot-ear { top: -8px; width: 20px; height: 22px; }
     .mascot-screen { width: 52px; height: 42px; border-radius: 15px 15px 17px 17px; }

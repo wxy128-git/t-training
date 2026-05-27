@@ -61,6 +61,49 @@
         setTimeout(() => node.classList.remove('show'), 2200);
     }
 
+    function getCurrentUser() {
+        try {
+            if (typeof Auth !== 'undefined') return Auth.getCurrentUser();
+        } catch {
+            return null;
+        }
+        try {
+            return typeof _currentUser !== 'undefined' ? _currentUser : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function isAuthReady() {
+        try {
+            return typeof _authReady !== 'undefined' && _authReady;
+        } catch {
+            return false;
+        }
+    }
+
+    function promptRegister() {
+        toast('请先注册或登录后再留言');
+        if (typeof showAuthModal === 'function') {
+            setTimeout(() => showAuthModal('register'), 80);
+        }
+    }
+
+    function requireRegisteredUser(onReady) {
+        const user = getCurrentUser();
+        if (user) return user;
+        if (typeof onAuthReady === 'function' && !isAuthReady()) {
+            toast('正在确认登录状态...');
+            onAuthReady(readyUser => {
+                if (readyUser) onReady?.(readyUser);
+                else promptRegister();
+            });
+            return null;
+        }
+        promptRegister();
+        return null;
+    }
+
     function addMessage(content, type = 'bot', html = false) {
         const wrap = document.createElement('div');
         wrap.className = `assistant-message ${type}`;
@@ -297,6 +340,7 @@
                 <form class="contact-form" name="contact" method="POST">
                     <input type="hidden" name="form-name" value="contact">
                     <p style="display:none"><label>不要填写：<input name="bot-field"></label></p>
+                    <input type="hidden" name="userId" value="">
                     <div class="contact-grid">
                         <div>
                             <label for="contact-name">姓名</label>
@@ -330,8 +374,24 @@
         contactForm.addEventListener('submit', submitContact);
     }
 
+    function prefillContactForm(user) {
+        if (!contactForm || !user) return;
+        const contactValue = user.email || user.phone || '';
+        if (contactForm.elements.name && !contactForm.elements.name.value) {
+            contactForm.elements.name.value = user.name || '';
+        }
+        if (contactForm.elements.contact && !contactForm.elements.contact.value) {
+            contactForm.elements.contact.value = contactValue;
+        }
+        if (contactForm.elements.userId) contactForm.elements.userId.value = user.uid || '';
+        if (contactForm.elements.page) contactForm.elements.page.value = location.href;
+    }
+
     function openContactModal() {
+        const user = requireRegisteredUser(() => openContactModal());
+        if (!user) return;
         if (!contactModal) buildContactModal();
+        prefillContactForm(user);
         contactModal.classList.add('open');
         contactModal.setAttribute('aria-hidden', 'false');
         setTimeout(() => contactModal.querySelector('#contact-name')?.focus(), 80);
@@ -345,6 +405,13 @@
 
     async function submitContact(event) {
         event.preventDefault();
+        const user = getCurrentUser();
+        if (!user) {
+            closeContactModal();
+            promptRegister();
+            return;
+        }
+        prefillContactForm(user);
         const message = contactForm.message.value.trim();
         if (!message) {
             toast('请先填写留言内容');
