@@ -56,7 +56,6 @@
     <section class="contact-band" aria-labelledby="contact-band-title">
         <div class="contact-band-icon"><i class="ph-fill ph-envelope-simple"></i></div>
         <div class="contact-band-copy">
-            <span>资源共建</span>
             <h2 id="contact-band-title">有想交流的 AI 教学问题，直接给我留言</h2>
             <p>欢迎留下具体需求、使用反馈或学校AI应用中的具体困惑</p>
         </div>
@@ -278,12 +277,12 @@ Promise.all([
     document.getElementById('paths-preview').innerHTML = paths.map(p => `
         <a href="paths.html#${p.slug}" class="card path-card" style="display:block">
             <div class="path-card-head" style="background:${p.gradient}">
-                <i class="ph-fill ${p.icon}" style="font-size:28px;display:block;margin-bottom:10px"></i>
-                <h3 style="font-size:18px;font-weight:700;margin-bottom:4px">${p.title}</h3>
-                <p style="opacity:.75;font-size:13px">${p.subtitle}</p>
-                <div style="margin-top:10px;font-size:12px;opacity:.6;display:flex;align-items:center;gap:6px">
+                <i class="path-card-icon ph ${p.slug === 'starter' ? 'ph-rocket-launch' : p.icon}" aria-hidden="true"></i>
+                <h3>${p.title}</h3>
+                <p>${p.subtitle}</p>
+                <div class="path-card-meta">
                     <i class="ph ph-clock"></i>${p.duration}
-                    <span style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:999px;margin-left:4px">${p.level}</span>
+                    <span>${p.level}</span>
                 </div>
             </div>
             <div class="path-card-body">

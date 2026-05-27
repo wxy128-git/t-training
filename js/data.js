@@ -28,7 +28,7 @@ const DEFAULT_PROMPTS = [
 ];
 
 const DEFAULT_PATHS = [
-    { id:'path1', slug:"starter", title:"AI 入门基础", subtitle:"零基础快速上手AI工具", icon:"ph-seedling",
+    { id:'path1', slug:"starter", title:"AI 入门基础", subtitle:"零基础快速上手AI工具", icon:"ph-rocket-launch",
       gradient:"linear-gradient(135deg,#10B981,#0D9488)", duration:"约 2 周", level:"入门",
       desc:"从零开始了解人工智能，掌握基础提示词技巧，快速上手主流AI工具，为AI教学应用打下扎实基础。",
       steps:[

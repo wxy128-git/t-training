@@ -15,6 +15,9 @@
         .step-chevron { margin-left: auto; color: #cbd5e1; transition: transform 0.2s; flex-shrink: 0; }
         .step-row.expanded .step-chevron { transform: rotate(180deg); }
         .resource-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.2); border-radius: 999px; font-size: 12px; margin: 3px; }
+        .path-nav-card { min-height: 112px; border-radius: 16px; padding: 20px; color: white; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .path-nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 24px; line-height: 1; }
+        .path-detail-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 32px; line-height: 1; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -47,7 +50,47 @@
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
 <script>
+function pathIcon(path) {
+    return path.slug === 'starter' ? 'ph-rocket-launch' : path.icon;
+}
+
+function getPathUser() {
+    try {
+        return typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
+    } catch {
+        return null;
+    }
+}
+
+function isPathAuthReady() {
+    try {
+        return typeof _authReady !== 'undefined' && _authReady;
+    } catch {
+        return false;
+    }
+}
+
+function promptPathLogin() {
+    if (typeof showToast === 'function') showToast('请先登录后开始学习路径');
+    if (typeof showAuthModal === 'function') setTimeout(() => showAuthModal('login'), 80);
+}
+
+function requirePathLogin(onReady) {
+    if (getPathUser()) return true;
+    if (typeof onAuthReady === 'function' && !isPathAuthReady()) {
+        if (typeof showToast === 'function') showToast('正在确认登录状态...');
+        onAuthReady(user => {
+            if (user) onReady?.();
+            else promptPathLogin();
+        });
+        return false;
+    }
+    promptPathLogin();
+    return false;
+}
+
 function toggleStep(row) {
+    if (!requirePathLogin(() => toggleStep(row))) return;
     const detail = row.nextElementSibling;
     const isOpen = detail.classList.contains('open');
     row.closest('section').querySelectorAll('.step-detail').forEach(d => d.classList.remove('open'));
@@ -56,6 +99,7 @@ function toggleStep(row) {
 }
 
 function startPath(btn) {
+    if (!requirePathLogin(() => startPath(btn))) return;
     const section = btn.closest('section');
     section.querySelectorAll('.step-detail').forEach(d => d.classList.add('open'));
     section.querySelectorAll('.step-row').forEach(r => r.classList.add('expanded'));
@@ -76,8 +120,8 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     // Nav cards
     document.getElementById('path-nav-cards').innerHTML = paths.map(p => `
     <a href="#${p.slug}" style="text-decoration:none">
-        <div style="background:${p.gradient};border-radius:16px;padding:20px;color:white;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 30px -6px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-            <i class="ph-fill ${p.icon}" style="font-size:24px;display:block;margin-bottom:8px"></i>
+        <div class="path-nav-card" style="background:${p.gradient}" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 30px -6px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <i class="path-nav-icon ph-bold ${pathIcon(p)}" aria-hidden="true"></i>
             <div style="font-weight:700;font-size:15px;margin-bottom:4px">${p.title}</div>
             <div style="opacity:.75;font-size:12px">${p.duration}</div>
             <div style="margin-top:8px;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:999px;font-size:11px;display:inline-block">${p.level}</div>
@@ -92,7 +136,7 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
                     <div>
                         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-                            <i class="ph-fill ${p.icon}" style="font-size:32px"></i>
+                            <i class="path-detail-icon ph-bold ${pathIcon(p)}" aria-hidden="true"></i>
                             <div>
                                 <h2 style="font-size:1.4rem;font-weight:800">${p.title}</h2>
                                 <div style="opacity:.75;font-size:13px">${p.subtitle}</div>

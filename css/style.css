@@ -310,7 +310,29 @@ tr:hover td { background: #fafafa; }
 
 /* ===== Path card ===== */
 .path-card { overflow: hidden; }
-.path-card-head { padding: 28px; color: white; }
+.path-card-head {
+    min-height: 128px;
+    padding: 28px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.path-card-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.path-card-head h3 { margin: 0 0 4px; font-size: 18px; font-weight: 700; }
+.path-card-head p { margin: 0; opacity: .75; font-size: 13px; }
+.path-card-meta { margin-top: 10px; font-size: 12px; opacity: .6; display: flex; align-items: center; gap: 6px; }
+.path-card-meta span { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 999px; margin-left: 4px; }
 .path-card-body { padding: 24px; }
 
 /* ===== Showcase card ===== */
