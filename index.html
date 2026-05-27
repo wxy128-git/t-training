@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 教师培训中心</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="preload" as="image" href="assets/hero-ai-training.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/hero-teacher-workspace.jpg" fetchpriority="high">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="contact">
+    <input name="bot-field">
+    <input name="name">
+    <input name="contact">
+    <textarea name="message"></textarea>
+    <input name="page">
+</form>
 <div id="main-nav"></div>
 
 <!-- Hero -->
@@ -43,6 +51,19 @@
 
     <!-- 公告 -->
     <div id="announcements-section"></div>
+
+    <section class="contact-band" aria-labelledby="contact-band-title">
+        <div class="contact-band-icon"><i class="ph-fill ph-envelope-simple"></i></div>
+        <div class="contact-band-copy">
+            <span>培训合作与资源共建</span>
+            <h2 id="contact-band-title">有想交流的 AI 教学问题，直接给我留言</h2>
+            <p>欢迎留下培训需求、资源推荐、使用反馈或学校 AI 应用中的具体困惑。</p>
+        </div>
+        <button type="button" class="contact-band-button" data-contact-trigger>
+            <i class="ph ph-paper-plane-tilt"></i>
+            写留言
+        </button>
+    </section>
 
     <!-- 功能快速入口 -->
     <section class="home-section">
@@ -189,6 +210,7 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/assistant.js"></script>
 <script>
 // ===== 立即渲染导航（不等待 auth）=====
 renderNav('index');

@@ -82,6 +82,7 @@ function renderNav(currentPage) {
     const navLinks = pages.map(p =>
         `<a href="${p.href}" class="nav-link${p.key === currentPage ? ' active' : ''}">${p.label}</a>`
     ).join('');
+    const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
     const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
     const authHtml = user
         ? `<div style="display:flex;align-items:center;gap:8px">
@@ -103,11 +104,11 @@ function renderNav(currentPage) {
                 <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
                 <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Training Hub</span></div>
             </a>
-            <nav class="site-nav" id="dn" style="display:none">${navLinks}${adminLink}</nav>
+            <nav class="site-nav" id="dn" style="display:none">${navLinks}${contactLink}${adminLink}</nav>
             <div class="auth-area">${authHtml}</div>
         </div>
         <div id="mn" style="border-top:1px solid #f1f5f9;overflow-x:auto">
-            <div style="display:flex;padding:0 16px;gap:2px;min-width:max-content">${navLinks}${adminLink}</div>
+            <div style="display:flex;padding:0 16px;gap:2px;min-width:max-content">${navLinks}${contactLink}${adminLink}</div>
         </div>
     </header>`;
 
@@ -251,6 +252,7 @@ function renderFooter() {
                 <li><a href="prompts.html">提示词库</a></li>
                 <li><a href="showcase.html">案例展示</a></li>
                 <li><a href="articles.html">精选文章</a></li>
+                <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
             <div class="footer-col"><h4>关于平台</h4>
                 <p style="font-size:13px;color:#475569;line-height:1.8">本平台专为在职教师 AI 培训设计，持续收录全球优质 AI 教育资源，所有工具均经过实际教学场景验证。</p>
