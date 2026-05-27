@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 教师培训中心</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/hero-ai-training.jpg" fetchpriority="high">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -19,12 +14,17 @@
 <!-- Hero -->
 <section class="hero">
     <div class="hero-content">
-        <div class="hero-badge"><span class="hero-badge-dot"></span>持续更新 · 每日同步全球 AI 教育动态</div>
-        <h1>赋能教育<br>探索 AI 新边界</h1>
-        <p>为在职教师打造的 AI 学习与实践平台<br>汇聚优质工具、前沿资讯与结构化学习路径</p>
+        <div class="hero-badge"><span class="hero-badge-dot"></span>面向中小学教师的 AI 学习资源中心</div>
+        <h1>AI 教师培训中心</h1>
+        <p>把讲座后的灵感继续落到日常教学里：这里汇聚 AI 工具、提示词模板、学习路径、优秀案例与前沿资讯，方便老师们按需查找、持续练习、共同分享。</p>
         <div class="hero-btns">
-            <a href="tools.html" class="btn-hero-primary">探索工具箱</a>
-            <button class="btn-hero-secondary" onclick="showAuthModal('register')">免费注册</button>
+            <a href="paths.html" class="btn-hero-primary"><i class="ph ph-map-trifold"></i>开始学习路径</a>
+            <a href="tools.html" class="btn-hero-secondary"><i class="ph ph-wrench"></i>浏览工具箱</a>
+        </div>
+        <div class="hero-highlights">
+            <a href="prompts.html"><strong>8+</strong><span>即用提示词</span></a>
+            <a href="tools.html"><strong>14+</strong><span>精选 AI 工具</span></a>
+            <a href="showcase.html"><strong>共创</strong><span>教师实践案例</span></a>
         </div>
     </div>
 </section>
@@ -39,53 +39,52 @@
     </div>
 </div>
 
-<main style="max-width:1280px;margin:0 auto;padding:48px 16px;display:flex;flex-direction:column;gap:56px">
+<main class="home-main">
 
     <!-- 公告 -->
     <div id="announcements-section"></div>
 
     <!-- 功能快速入口 -->
-    <section>
-        <div class="section-header" style="margin-bottom:20px">
+    <section class="home-section">
+        <div class="section-header compact">
             <h2>功能导航</h2>
-            <p>一站式 AI 教学服务平台，点击快速进入各功能</p>
+            <p>培训之后最常用的入口，按真实教学任务快速进入</p>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;--cols:3" id="feature-nav">
-        <style>@media(max-width:640px){#feature-nav{grid-template-columns:1fr 1fr}}@media(max-width:400px){#feature-nav{grid-template-columns:1fr}}</style>
-            <a href="tools.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-wrench" style="color:#4F46E5;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">AI 工具箱</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">14+ 款精选工具</div></div>
+        <div class="feature-grid" id="feature-nav">
+            <a href="tools.html" class="feature-card">
+                <div class="feature-icon feature-tools"><i class="ph-fill ph-wrench"></i></div>
+                <div><div class="feature-title">AI 工具箱</div><div class="feature-desc">备课、出题、课件、图像、数字人</div></div>
             </a>
-            <a href="paths.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-path" style="color:#10B981;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">学习路径</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">3 条进阶路径</div></div>
+            <a href="paths.html" class="feature-card">
+                <div class="feature-icon feature-paths"><i class="ph-fill ph-path"></i></div>
+                <div><div class="feature-title">学习路径</div><div class="feature-desc">从入门到教学应用、创作进阶</div></div>
             </a>
-            <a href="prompts.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-chat-text" style="color:#F59E0B;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">提示词库</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">官方 + 社区模板</div></div>
+            <a href="prompts.html" class="feature-card">
+                <div class="feature-icon feature-prompts"><i class="ph-fill ph-chat-text"></i></div>
+                <div><div class="feature-title">提示词库</div><div class="feature-desc">教案、出题、评语、沟通模板</div></div>
             </a>
-            <a href="news.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-newspaper" style="color:#3B82F6;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">全球资讯</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">每日自动更新</div></div>
+            <a href="news.html" class="feature-card">
+                <div class="feature-icon feature-news"><i class="ph-fill ph-newspaper"></i></div>
+                <div><div class="feature-title">全球资讯</div><div class="feature-desc">AI 与教育科技动态聚合</div></div>
             </a>
-            <a href="showcase.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#FDF4FF;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-shooting-star" style="color:#A855F7;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">案例展示</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">教师实践分享</div></div>
+            <a href="showcase.html" class="feature-card">
+                <div class="feature-icon feature-showcase"><i class="ph-fill ph-shooting-star"></i></div>
+                <div><div class="feature-title">案例展示</div><div class="feature-desc">一线教师的真实实践分享</div></div>
             </a>
-            <a href="articles.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-article" style="color:#059669;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">精选文章</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">AI学习与工具推荐</div></div>
+            <a href="articles.html" class="feature-card">
+                <div class="feature-icon feature-articles"><i class="ph-fill ph-article"></i></div>
+                <div><div class="feature-title">精选文章</div><div class="feature-desc">AI 学习指南与工具推荐</div></div>
             </a>
-            <a href="resources.html" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;background:white;border-radius:16px;border:1px solid #e2e8f0;transition:all 0.2s" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 8px 24px -4px rgba(79,70,229,0.12)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='';this.style.transform=''">
-                <div style="width:44px;height:44px;border-radius:12px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ph-fill ph-palette" style="color:#E11D48;font-size:22px"></i></div>
-                <div><div style="font-size:14px;font-weight:700;color:#0f172a">设计资源库</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">课件素材下载</div></div>
+            <a href="resources.html" class="feature-card">
+                <div class="feature-icon feature-resources"><i class="ph-fill ph-palette"></i></div>
+                <div><div class="feature-title">设计资源库</div><div class="feature-desc">课件图片、图标、抠图与配色</div></div>
             </a>
         </div>
     </section>
 
     <!-- 工具预览 -->
-    <section>
-        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <section class="home-section">
+        <div class="section-header section-header-row">
             <div>
                 <h2>精选 AI 工具箱</h2>
                 <p>为教师场景精心筛选，覆盖教学全流程</p>
@@ -102,8 +101,8 @@
     </section>
 
     <!-- 案例展示预览 -->
-    <section id="showcase-section" style="display:none">
-        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <section class="home-section" id="showcase-section" style="display:none">
+        <div class="section-header section-header-row">
             <div>
                 <h2>教师优秀案例</h2>
                 <p>一线教师的 AI 教学实践，真实经验共享</p>
@@ -114,8 +113,8 @@
     </section>
 
     <!-- 精选文章预览 -->
-    <section id="articles-section" style="display:none">
-        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <section class="home-section" id="articles-section" style="display:none">
+        <div class="section-header section-header-row">
             <div>
                 <h2>精选文章</h2>
                 <p>AI 学习指南、工具推荐与实战经验</p>
@@ -126,8 +125,8 @@
     </section>
 
     <!-- 资讯预览 -->
-    <section>
-        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <section class="home-section">
+        <div class="section-header section-header-row">
             <div>
                 <h2>全球 AI 教育资讯</h2>
                 <p>来自顶尖媒体的 AI 动态，自动聚合</p>
@@ -142,8 +141,8 @@
     </section>
 
     <!-- 学习路径预览 -->
-    <section>
-        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <section class="home-section">
+        <div class="section-header section-header-row">
             <div>
                 <h2>结构化学习路径</h2>
                 <p>从零基础到进阶创作，系统掌握 AI 教学</p>
@@ -154,8 +153,8 @@
     </section>
 
     <!-- 提示词预览 -->
-    <section>
-        <div class="section-header" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <section class="home-section">
+        <div class="section-header section-header-row">
             <div>
                 <h2>教学提示词速查</h2>
                 <p>即用模板，复制即用，将 [ ] 替换为具体内容</p>
@@ -183,6 +182,10 @@
 
 <div id="main-footer"></div>
 
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/auth.js"></script>

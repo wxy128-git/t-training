@@ -194,10 +194,13 @@ const DB = {
     /* ===== 社区提示词 ===== */
     async getCommunityPrompts(status = null) {
         try {
-            let q = db.collection('community_prompts').orderBy('createdAt', 'desc');
+            let q = db.collection('community_prompts');
             if (status) q = q.where('status', '==', status);
+            else q = q.orderBy('createdAt', 'desc');
             const snap = await q.get();
-            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            return snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         } catch(e) { console.warn('getCommunityPrompts:', e.message); return []; }
     },
     async submitCommunityPrompt(userId, userName, data) {
@@ -258,10 +261,13 @@ const DB = {
     /* ===== 优秀案例 ===== */
     async getShowcases(status = null) {
         try {
-            let q = db.collection('showcases').orderBy('createdAt', 'desc');
+            let q = db.collection('showcases');
             if (status) q = q.where('status', '==', status);
+            else q = q.orderBy('createdAt', 'desc');
             const snap = await q.get();
-            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            return snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         } catch(e) { console.warn('getShowcases:', e.message); return []; }
     },
     async submitShowcase(userId, userName, data) {
@@ -278,10 +284,13 @@ const DB = {
     /* ===== 精选文章 ===== */
     async getArticles(status = null) {
         try {
-            let q = db.collection('articles').orderBy('publishedAt', 'desc');
+            let q = db.collection('articles');
             if (status) q = q.where('status', '==', status);
+            else q = q.orderBy('publishedAt', 'desc');
             const snap = await q.get();
-            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            return snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
         } catch(e) { console.warn('getArticles:', e.message); return []; }
     },
     async getArticle(id) {
@@ -329,10 +338,12 @@ const DB = {
 async function fetchRSSFeed(rssUrl, count = 6) {
     const cacheKey = 'rss_' + btoa(encodeURIComponent(rssUrl)).slice(0, 24);
     const cached = localStorage.getItem(cacheKey);
+    let staleItems = null;
     if (cached) {
         try {
             const { items, ts } = JSON.parse(cached);
             if (Date.now() - ts < 30 * 60 * 1000) return items;
+            if (Array.isArray(items) && items.length) staleItems = items;
         } catch {}
     }
 
@@ -348,45 +359,65 @@ async function fetchRSSFeed(rssUrl, count = 6) {
         } catch { return []; }
     };
 
-    const get = async (url, ms = 7000) => {
+    const get = async (url, ms = 5500) => {
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), ms);
-        try { const r = await fetch(url, { signal: ctrl.signal }); clearTimeout(timer); return r; }
+        try {
+            const r = await fetch(url, { signal: ctrl.signal });
+            clearTimeout(timer);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r;
+        }
         finally { clearTimeout(timer); }
     };
 
     const save = (items) => { localStorage.setItem(cacheKey, JSON.stringify({ items, ts: Date.now() })); return items; };
+    const requireItems = async (loader) => {
+        const items = await loader();
+        if (items?.length) return items;
+        throw new Error('empty feed');
+    };
 
-    // 策略0：Netlify 服务端代理（同域，无跨域问题，优先）
-    try {
+    const netlifyLoader = async () => {
         const r = await get(`/.netlify/functions/rss-proxy?url=${encodeURIComponent(rssUrl)}`);
         const d = await r.json();
-        if (d.contents) { const items = parseXML(d.contents); if (items.length) return save(items); }
-    } catch {}
-
-    // 策略1：allorigins.win
-    try {
+        return d.contents ? parseXML(d.contents) : [];
+    };
+    const allOriginsLoader = async () => {
         const r = await get(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
         const d = await r.json();
-        if (d.contents) { const items = parseXML(d.contents); if (items.length) return save(items); }
-    } catch {}
-
-    // 策略2：corsproxy.io
-    try {
+        return d.contents ? parseXML(d.contents) : [];
+    };
+    const corsProxyLoader = async () => {
         const r = await get(`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`);
         const text = await r.text();
-        if (text) { const items = parseXML(text); if (items.length) return save(items); }
-    } catch {}
-
-    // 策略3：rss2json API
-    try {
+        return text ? parseXML(text) : [];
+    };
+    const rss2jsonLoader = async () => {
         const r = await get(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=${count}`);
         const d = await r.json();
-        if (d.status === 'ok' && d.items?.length) {
-            const items = d.items.map(i => ({ title: i.title, link: i.link, description: (i.description || '').replace(/<[^>]*>/g, '').trim(), pubDate: i.pubDate })).filter(i => i.title && i.link);
-            return save(items);
-        }
+        if (d.status !== 'ok' || !d.items?.length) return [];
+        return d.items.map(i => ({
+            title: i.title,
+            link: i.link,
+            description: (i.description || '').replace(/<[^>]*>/g, '').trim(),
+            pubDate: i.pubDate
+        })).filter(i => i.title && i.link);
+    };
+
+    try {
+        const primaryLoaders = [allOriginsLoader];
+        if (location.hostname.includes('netlify')) primaryLoaders.unshift(netlifyLoader);
+        const items = await Promise.any(primaryLoaders.map(loader => requireItems(loader)));
+        return save(items);
     } catch {}
+
+    try {
+        const items = await Promise.any([corsProxyLoader, rss2jsonLoader].map(loader => requireItems(loader)));
+        return save(items);
+    } catch {
+        if (staleItems) return staleItems;
+    }
 
     return null;
 }
