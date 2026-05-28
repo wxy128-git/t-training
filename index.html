@@ -44,16 +44,6 @@
     </div>
 </section>
 
-<!-- Stats -->
-<div class="stats-bar">
-    <div class="stats-inner">
-        <div class="stat-item"><strong id="stat-tools">14+</strong><span>精选 AI 工具</span></div>
-        <div class="stat-item"><strong>每日</strong><span>资讯自动更新</span></div>
-        <div class="stat-item"><strong>3 条</strong><span>学习路径</span></div>
-        <div class="stat-item"><strong id="stat-prompts">8+</strong><span>提示词模板</span></div>
-    </div>
-</div>
-
 <main class="home-main">
 
     <!-- 公告 -->
@@ -151,19 +141,31 @@
         <div class="cards-grid cards-grid-3" id="articles-preview"></div>
     </section>
 
-    <!-- 资讯预览 -->
+    <!-- 教学技巧预览 -->
     <section class="home-section">
         <div class="section-header section-header-row">
             <div>
-                <h2>全球 AI 教育资讯</h2>
-                <p>来自顶尖媒体的 AI 动态，自动聚合</p>
+                <h2>AI 教学使用技巧</h2>
+                <p>把 AI 用到备课、出题、课件与评价中的实用方法</p>
             </div>
-            <a href="news.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看全部 <i class="ph ph-arrow-right"></i></a>
+            <a href="articles.html" style="font-size:13px;color:#4F46E5;font-weight:500;white-space:nowrap">查看更多 <i class="ph ph-arrow-right"></i></a>
         </div>
-        <div class="cards-grid cards-grid-3" id="news-preview">
-            <div class="card" style="padding:20px"><div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:85%;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:5px"></div><div class="skeleton" style="height:12px;width:75%"></div></div>
-            <div class="card" style="padding:20px"><div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:85%;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:5px"></div><div class="skeleton" style="height:12px;width:75%"></div></div>
-            <div class="card" style="padding:20px"><div class="skeleton" style="height:11px;width:35%;margin-bottom:12px"></div><div class="skeleton" style="height:16px;margin-bottom:6px"></div><div class="skeleton" style="height:16px;width:85%;margin-bottom:10px"></div><div class="skeleton" style="height:12px;margin-bottom:5px"></div><div class="skeleton" style="height:12px;width:75%"></div></div>
+        <div class="cards-grid cards-grid-3">
+            <a href="article.html?id=tip-classroom-profile" class="card news-card">
+                <div class="news-meta"><span class="news-source">备课</span>·<span>提示词</span></div>
+                <h3 class="line-clamp-2">先把“课堂画像”交给 AI</h3>
+                <p class="line-clamp-3" style="margin-top:8px">提问前写清年级、学科、学生基础、课时长度和课堂目标，AI 给出的教案会更贴近真实教学。</p>
+            </a>
+            <a href="article.html?id=tip-question-design" class="card news-card">
+                <div class="news-meta"><span class="news-source">出题</span>·<span>质量检查</span></div>
+                <h3 class="line-clamp-2">让 AI 先定难度比例，再生成题目</h3>
+                <p class="line-clamp-3" style="margin-top:8px">出题时先说明基础题、提高题、拓展题比例，并要求附答案解析，最后由教师抽查知识点和表述。</p>
+            </a>
+            <a href="article.html?id=tip-courseware-workflow" class="card news-card">
+                <div class="news-meta"><span class="news-source">课件</span>·<span>素材</span></div>
+                <h3 class="line-clamp-2">课件先搭结构，再补真实素材</h3>
+                <p class="line-clamp-3" style="margin-top:8px">可以让 AI 生成课件大纲和页面逻辑，重点页再加入课堂照片、例题、板书和本校情境，避免模板化。</p>
+            </a>
         </div>
     </section>
 
@@ -214,7 +216,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
-<script src="js/data.js"></script>
+<script src="js/data.js?v=20260528-tips"></script>
 <script src="js/auth.js"></script>
 <script src="js/assistant.js"></script>
 <script>
@@ -231,10 +233,6 @@ Promise.all([
     DB.getShowcases('approved'),
     DB.getArticles('published')
 ]).then(([tools, ann, paths, prompts, showcases, articles]) => {
-    // Stats
-    document.getElementById('stat-tools').textContent = tools.length + '+';
-    document.getElementById('stat-prompts').textContent = prompts.length + '+';
-
     // Announcements
     if (ann.length > 0) {
         document.getElementById('announcements-section').innerHTML = `
@@ -343,25 +341,6 @@ Promise.all([
         </div>`).join('');
 });
 
-// ===== 资讯预览（独立加载，网络较慢不阻塞其他内容）=====
-(async () => {
-    const items = await fetchRSSFeed(RSS_FEEDS.verge.url, 3) || await fetchRSSFeed(RSS_FEEDS.techcrunch.url, 3);
-    const container = document.getElementById('news-preview');
-    if (!items) {
-        container.innerHTML = `<div class="card" style="padding:40px;text-align:center;color:#94a3b8;grid-column:1/-1"><i class="ph ph-wifi-slash" style="font-size:36px;display:block;margin-bottom:8px"></i>资讯加载失败，<a href="news.html" style="color:#4F46E5">前往资讯页面</a>重试</div>`;
-        return;
-    }
-    container.innerHTML = items.slice(0, 3).map(item => {
-        const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
-        const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
-        return `<a href="${item.link}" target="_blank" rel="noopener" class="card news-card">
-            <div class="news-meta"><span class="news-source">${domain}</span>·<span>${date}</span></div>
-            <h3 class="line-clamp-2">${item.title}</h3>
-            <p class="line-clamp-3" style="margin-top:8px">${(item.description||'').substring(0,120)}…</p>
-        </a>`;
-    }).join('');
-})();
-
 // ===== auth 就绪后仅更新导航状态（不重新加载数据）=====
 onAuthReady((user) => {
     renderNav('index');
@@ -370,6 +349,7 @@ onAuthReady((user) => {
 
 // ===== 工具函数 =====
 async function mainSubscribe() {
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后订阅动态')) return;
     const input = document.getElementById('main-sub-email');
     const email = input.value.trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('请输入有效邮箱地址'); return; }
@@ -381,6 +361,7 @@ async function mainSubscribe() {
 }
 
 function copyText(btn, encoded) {
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后复制提示词')) return;
     navigator.clipboard.writeText(decodeURIComponent(encoded)).then(() => {
         btn.className = 'copy-btn copied';
         btn.innerHTML = '<i class="ph ph-check"></i>已复制';

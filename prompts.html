@@ -104,7 +104,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
-<script src="js/data.js"></script>
+<script src="js/data.js?v=20260528-tips"></script>
 <script src="js/auth.js"></script>
 <script>
 const cats = [
@@ -129,6 +129,7 @@ function setCat(key, btn) {
 }
 
 function switchTab(tab) {
+    if (tab === 'community' && typeof requireLogin === 'function' && !requireLogin(() => switchTab(tab), '请先登录后查看社区分享')) return;
     _currentTab = tab;
     document.getElementById('tab-official').className = 'tab-switch-btn' + (tab === 'official' ? ' active' : '');
     document.getElementById('tab-community').className = 'tab-switch-btn' + (tab === 'community' ? ' active' : '');
@@ -138,6 +139,7 @@ function switchTab(tab) {
 }
 
 function copyPrompt(btn, text) {
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后复制提示词')) return;
     navigator.clipboard.writeText(text).then(() => {
         btn.className = 'copy-btn copied';
         btn.innerHTML = '<i class="ph ph-check"></i>已复制';

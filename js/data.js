@@ -110,6 +110,265 @@ const DEFAULT_PATHS = [
       resources:["飞象老师","海绵音乐","飞影数字人","即梦AI","anygen.io","Coze","秘塔搜索"] }
 ];
 
+const DEFAULT_ARTICLES = [
+    {
+        id: 'tip-classroom-profile',
+        title: '给 AI 一张课堂画像：备课提问的 5 个关键信息',
+        summary: '把年级、学科、学生基础、课时长度和课堂目标说清楚，AI 才能给出贴近真实课堂的教案初稿。',
+        category: 'tips',
+        type: 'original',
+        status: 'published',
+        author: 'AI教师培训中心',
+        coverEmoji: '🧭',
+        coverColor: 'linear-gradient(135deg,#0D9488,#10B981)',
+        readCount: 128,
+        publishedAt: '2026-05-28T08:00:00.000Z',
+        createdAt: '2026-05-28T08:00:00.000Z',
+        content: `# 给 AI 一张课堂画像：备课提问的 5 个关键信息
+
+很多老师第一次用 AI 备课时，会直接问：“帮我写一份教案。”AI 往往也能写出一份看起来完整的文本，但问题是：它常常不像你的课堂。
+
+真正好用的提问，不是让 AI 猜你的教学情境，而是先把课堂画像交给它。
+
+## 1. 先说清楚学生是谁
+
+至少交代四件事：年级、学科、班级基础、常见困难。
+
+例如：
+
+“我教的是七年级语文，班里学生阅读速度差异较大，部分学生能概括情节，但不太会分析人物心理。”
+
+这类信息会影响 AI 对活动难度、提问层次和课堂节奏的判断。
+
+## 2. 说明这节课真正要达成什么
+
+不要只写“讲《春》”，最好写成可观察的学习结果。
+
+可以这样描述：
+
+“本课希望学生能找出文中描写春景的关键词句，并能用自己的话说出作者表达的情感。”
+
+目标越具体，AI 给出的流程越不容易空泛。
+
+## 3. 告诉 AI 课堂限制
+
+包括课时长度、已有资源、课堂环境、是否需要小组活动。
+
+例如：
+
+“这节课 40 分钟，没有多媒体互动设备，但可以使用投影和学习单。”
+
+AI 会据此减少不现实的活动设计。
+
+## 4. 要求输出可直接使用的结构
+
+建议固定输出格式：
+
+- 教学目标
+- 教学重难点
+- 课堂流程表
+- 教师提问
+- 学生可能回答
+- 板书设计
+- 课后作业
+
+如果你希望它写得更像教案，可以补一句：
+
+“请用一线教师备课时可以直接修改的语言，不要写成论文式表述。”
+
+## 5. 最后让 AI 自查
+
+生成教案后，再追问一句：
+
+“请检查这份教案中是否存在目标与活动不匹配、时间分配不合理、提问过难或过浅的问题，并提出修改建议。”
+
+这一轮自查很有价值。AI 第一次生成的是初稿，第二次反思往往能帮你发现结构问题。
+
+## 可直接复制的提示词
+
+你是一位有经验的中小学[学科]教师。请基于以下课堂画像，为我设计一节[课题]的教案：
+
+- 年级：[年级]
+- 学生基础：[学生已有基础]
+- 常见困难：[学生容易卡住的地方]
+- 课时长度：[例如40分钟]
+- 课堂条件：[设备、材料、小组活动条件]
+- 学习目标：[希望学生课后能够做到什么]
+
+请输出：教学目标、教学重难点、课堂流程表、关键提问、学生可能回答、板书设计和课后作业。语言要贴近一线教师备课，不要空泛。最后请附上你对这份教案的自查建议。`
+    },
+    {
+        id: 'tip-question-design',
+        title: '用 AI 出题前，先把难度和答案标准说清楚',
+        summary: 'AI 可以快速出题，但教师要先给出知识点、题型、难度比例和答案要求，再进行人工抽查。',
+        category: 'tips',
+        type: 'original',
+        status: 'published',
+        author: 'AI教师培训中心',
+        coverEmoji: '📝',
+        coverColor: 'linear-gradient(135deg,#3B82F6,#4F46E5)',
+        readCount: 96,
+        publishedAt: '2026-05-27T08:00:00.000Z',
+        createdAt: '2026-05-27T08:00:00.000Z',
+        content: `# 用 AI 出题前，先把难度和答案标准说清楚
+
+AI 很适合帮老师生成练习题、单元检测题和分层作业。但它有一个明显问题：如果要求不清楚，它会出得“像题”，却未必真正适合你的学生。
+
+所以，用 AI 出题前，教师要先定规则。
+
+## 1. 先明确知识点边界
+
+不要只说“出几道分数题”，而要说清楚具体范围。
+
+例如：
+
+“围绕小学五年级数学‘异分母分数加减法’出题，不涉及分数乘除法。”
+
+边界越清楚，越能避免超纲或跑题。
+
+## 2. 先定难度比例
+
+推荐使用三层结构：
+
+- 基础题：检查概念和基本方法
+- 提高题：加入一步变式或生活情境
+- 拓展题：需要综合判断或解释理由
+
+例如：
+
+“请生成 10 道题，其中基础题 6 道、提高题 3 道、拓展题 1 道。”
+
+这样生成的练习更容易用于分层教学。
+
+## 3. 一定要求附答案和解析
+
+只要让 AI 出题，就要同时要求：
+
+- 每题参考答案
+- 简要解析
+- 对应知识点
+- 难度标签
+
+这会让后续审核更快，也方便你筛题。
+
+## 4. 让 AI 做一次质量自检
+
+题目生成后，可以继续追问：
+
+“请检查这些题目是否存在答案错误、表述不清、难度重复、知识点覆盖不均衡的问题，并列出需要修改的题号。”
+
+这一步不能替代教师审核，但能减少明显问题。
+
+## 5. 教师最后要重点查什么
+
+人工检查时建议看四点：
+
+- 是否符合本节课目标
+- 是否超纲
+- 答案是否唯一或评分标准是否清楚
+- 题目语言是否适合学生年龄
+
+AI 出题的价值不是让老师完全不看题，而是把“从零开始写题”的时间省下来，让老师把精力放在选题、改题和诊断学生上。
+
+## 可直接复制的提示词
+
+请为[年级][学科]“[知识点]”设计[数量]道练习题，要求：
+
+1. 题型包括：[选择题/填空题/解答题/应用题]
+2. 难度比例：基础题[数量]道、提高题[数量]道、拓展题[数量]道
+3. 不涉及：[写出不希望出现的超纲内容]
+4. 每道题请附：参考答案、简要解析、对应知识点、难度标签
+5. 题目语言要适合[年级]学生，情境尽量贴近日常生活
+
+生成后，请再检查一遍是否有答案错误、表述不清或难度重复的问题。`
+    },
+    {
+        id: 'tip-courseware-workflow',
+        title: '课件先搭结构，再补真实素材：AI 做课件的正确顺序',
+        summary: '不要让 AI 一步生成最终课件。先用 AI 搭逻辑，再由教师补例题、课堂照片、板书和本校情境。',
+        category: 'tips',
+        type: 'original',
+        status: 'published',
+        author: 'AI教师培训中心',
+        coverEmoji: '🎞️',
+        coverColor: 'linear-gradient(135deg,#F59E0B,#EF4444)',
+        readCount: 112,
+        publishedAt: '2026-05-26T08:00:00.000Z',
+        createdAt: '2026-05-26T08:00:00.000Z',
+        content: `# 课件先搭结构，再补真实素材：AI 做课件的正确顺序
+
+AI 生成课件很快，但快并不等于好。很多 AI 课件的问题是：画面漂亮，课堂不真实；页数很多，重点不突出。
+
+更稳妥的做法是：先让 AI 搭结构，再由教师补真实素材。
+
+## 1. 先让 AI 生成“课件骨架”
+
+不要一开始就追求完整 PPT，可以先让 AI 输出页面结构。
+
+例如：
+
+“请为小学四年级科学《声音的传播》设计 10 页课件大纲，每页包括标题、核心内容、教师讲解要点和课堂活动。”
+
+这一步的目标是确定逻辑，而不是美化。
+
+## 2. 把每一页都绑定教学动作
+
+一页课件最好对应一个明确动作：
+
+- 导入问题
+- 概念解释
+- 实验观察
+- 例题讲解
+- 小组讨论
+- 巩固练习
+- 课堂小结
+
+如果一页只有漂亮图片，没有教学动作，课堂上就容易空转。
+
+## 3. 重点页必须补真实素材
+
+AI 适合生成大纲、文案和部分示意图，但这些内容最好由教师再补充：
+
+- 本班学生熟悉的生活情境
+- 真实课堂照片或实验照片
+- 教材例题和校本材料
+- 你自己的板书逻辑
+- 学生常见错误样例
+
+这些真实素材会让课件从“通用模板”变成“你的课堂”。
+
+## 4. AI 生成图片要注意核验
+
+AI 图片可以用于情境创设、故事插图和活动海报，但在科学、历史、地理等学科中，要特别注意事实准确性。
+
+建议原则：
+
+- 知识性图片优先使用真实资料图
+- 创意性图片可以用 AI 生成
+- 涉及人物、地图、实验步骤时必须人工核验
+
+## 5. 最后用 AI 检查节奏
+
+课件初稿完成后，可以把页面结构发给 AI：
+
+“请检查这份课件是否存在页面过多、讲授时间过长、互动不足、练习与目标不匹配的问题。”
+
+它会帮你从课堂节奏角度做一次复盘。
+
+## 可直接复制的提示词
+
+请为[年级][学科]《[课题]》设计一份课件大纲，要求：
+
+1. 共[页数]页，每页包括：页面标题、核心内容、教师讲解要点、学生任务
+2. 每页都要对应明确教学动作，避免只有装饰性内容
+3. 至少设计 2 个课堂互动环节和 1 个即时练习
+4. 标出哪些页面建议补充真实照片、例题、板书或学生错误样例
+5. 最后检查课件节奏是否适合[课时长度]分钟课堂
+
+请先输出结构大纲，不要直接写成完整讲稿。`
+    }
+];
+
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
     async getTools() {
@@ -188,6 +447,7 @@ const DB = {
         DEFAULT_TOOLS.forEach((item, i) => batch.set(db.collection('tools').doc(item.id), { ...item, order: i }));
         DEFAULT_PROMPTS.forEach((item, i) => batch.set(db.collection('prompts').doc(item.id), { ...item, order: i }));
         DEFAULT_PATHS.forEach((item, i) => batch.set(db.collection('paths').doc(item.id), { ...item, order: i }));
+        DEFAULT_ARTICLES.forEach((item, i) => batch.set(db.collection('articles').doc(item.id), { ...item, order: i }));
         await batch.commit();
     },
 
@@ -288,17 +548,27 @@ const DB = {
             if (status) q = q.where('status', '==', status);
             else q = q.orderBy('publishedAt', 'desc');
             const snap = await q.get();
-            return snap.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
-        } catch(e) { console.warn('getArticles:', e.message); return []; }
+            if (!snap.empty) {
+                const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const existingIds = new Set(items.map(item => item.id));
+                const fallbackItems = DEFAULT_ARTICLES.filter(item => !existingIds.has(item.id));
+                return [...items, ...fallbackItems]
+                    .filter(item => !status || item.status === status)
+                    .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
+            }
+        } catch(e) { console.warn('getArticles:', e.message); }
+        const fallback = JSON.parse(JSON.stringify(DEFAULT_ARTICLES));
+        const list = status ? fallback.filter(a => a.status === status) : fallback;
+        return list.sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
     },
     async getArticle(id) {
         try {
             const doc = await db.collection('articles').doc(id).get();
-            if (!doc.exists) return null;
+            if (!doc.exists) return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
             return { id: doc.id, ...doc.data() };
-        } catch(e) { return null; }
+        } catch(e) {
+            return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
+        }
     },
     async addArticle(data) {
         const doc = await db.collection('articles').add({

@@ -7,16 +7,6 @@
     <meta name="description" content="为中小学教师筛选的 AI 工具箱，覆盖备课、出题、课件制作、图像生成、数字人、搜索与教学资源创作。">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .tool-rating-row { display:flex; align-items:center; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid #f8fafc; }
-        .tool-star { font-size:14px; cursor:pointer; color:#e2e8f0; transition:color 0.1s; line-height:1; }
-        .tool-star.on, .tool-star:hover ~ .tool-star-reset, .star-filled { color:#F59E0B; }
-        .rating-group:hover .tool-star { color:#F59E0B; }
-        .rating-group .tool-star:hover ~ .tool-star { color:#e2e8f0 !important; }
-        .rating-avg { font-size:11px; color:#94a3b8; margin-left:2px; }
-        .rate-hint { font-size:11px; color:#94a3b8; margin-left:4px; cursor:pointer; }
-        .rate-hint:hover { color:#4F46E5; }
-    </style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -55,7 +45,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
-<script src="js/data.js"></script>
+<script src="js/data.js?v=20260528-tips"></script>
 <script src="js/auth.js"></script>
 <script>
 const categories = [
@@ -67,8 +57,6 @@ const categories = [
 ];
 let currentCat = 'all';
 let _allTools = [];
-let _ratingsMap = {};
-let _pageUser = null;
 
 document.getElementById('filter-bar').innerHTML = categories.map(c =>
     `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
@@ -79,33 +67,6 @@ function setCat(key, btn) {
     document.querySelectorAll('#filter-bar .filter-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderTools();
-}
-
-function renderStars(toolId, avg, count, userRating) {
-    const filled = Math.round(avg || 0);
-    const starsHtml = [1,2,3,4,5].map(n =>
-        `<span class="tool-star${n <= filled ? ' on' : ''}" data-n="${n}" onclick="rateTool(event,'${toolId}',${n})">★</span>`
-    ).join('');
-    const ratingText = count > 0 ? `${avg} (${count}人)` : '';
-    const hint = _pageUser && !userRating ? `<span class="rate-hint" onclick="rateTool(event,'${toolId}',0)">点击评分</span>` : '';
-    const myRating = userRating ? `<span style="font-size:11px;color:#F59E0B;margin-left:2px">我评了${userRating}星</span>` : hint;
-    return `<div class="tool-rating-row">
-        <div class="rating-group" style="display:flex;align-items:center;gap:1px">${starsHtml}</div>
-        ${ratingText ? `<span class="rating-avg">${ratingText}</span>` : ''}
-        ${myRating}
-    </div>`;
-}
-
-async function rateTool(e, toolId, n) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!_pageUser) { showAuthModal('login'); return; }
-    if (n === 0) return;
-    await DB.rateToolByUser(toolId, _pageUser.uid, n);
-    // Refresh rating data
-    _ratingsMap = await DB.getToolRatings();
-    renderTools();
-    showToast(`已为该工具评分 ${n} 星`);
 }
 
 function renderTools() {
@@ -120,12 +81,7 @@ function renderTools() {
     document.getElementById('empty-state').style.display = filtered.length ? 'none' : 'block';
 
     const catLabels = {teaching:'教学辅助',creation:'内容创作',search:'智能搜索',dev:'智能开发'};
-    document.getElementById('tools-grid').innerHTML = filtered.map(t => {
-        const rData = _ratingsMap[t.id];
-        const avg = rData?.avg || 0;
-        const count = rData?.count || 0;
-        const userRating = _pageUser ? (rData?.ratings?.[_pageUser.uid] || 0) : 0;
-        return `
+    document.getElementById('tools-grid').innerHTML = filtered.map(t => `
         <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column;position:relative">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
                 <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
@@ -133,30 +89,25 @@ function renderTools() {
             </div>
             <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px">${t.name}</div>
             <div style="font-size:12px;color:#64748b;line-height:1.6;flex:1">${t.desc}</div>
-            ${renderStars(t.id, avg, count, userRating)}
             <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f8fafc">
                 <span style="font-size:11px;color:#94a3b8">${catLabels[t.category]||''}</span>
             </div>
-        </a>`;
-    }).join('');
+        </a>`).join('');
 }
 
 renderNav('tools');
 renderFooter();
 
-// Load public data immediately — no auth needed
-Promise.all([DB.getTools(), DB.getToolRatings()]).then(([tools, ratings]) => {
+// Load public data immediately
+DB.getTools().then(tools => {
     _allTools = tools;
-    _ratingsMap = ratings;
     renderTools();
 });
 
-// Re-render nav + tool ratings after auth resolves
+// Re-render nav after auth resolves
 onAuthReady((user) => {
-    _pageUser = user;
     renderNav('tools');
     renderFooter();
-    if (_allTools.length) renderTools();
 });
 </script>
 <script src="js/assistant.js"></script>

@@ -66,6 +66,96 @@ const Auth = {
     }
 };
 
+/* ===== 登录门禁 ===== */
+const PROTECTED_PAGE_NAMES = new Set([
+    'tools.html',
+    'news.html',
+    'paths.html',
+    'prompts.html',
+    'showcase.html',
+    'articles.html',
+    'article.html',
+    'resources.html',
+    'admin.html'
+]);
+
+function promptLoginRequired(message = '请先登录后使用该功能') {
+    showToast(message);
+    if (typeof showAuthModal === 'function') {
+        setTimeout(() => showAuthModal('login'), 80);
+    }
+}
+
+function requireLogin(onReady, message = '请先登录后使用该功能') {
+    const user = Auth.getCurrentUser();
+    if (user) {
+        if (typeof onReady === 'function') onReady(user);
+        return user;
+    }
+    if (typeof onAuthReady === 'function' && !_authReady) {
+        showToast('正在确认登录状态...');
+        onAuthReady(readyUser => {
+            if (readyUser) {
+                if (typeof onReady === 'function') onReady(readyUser);
+            } else {
+                promptLoginRequired(message);
+            }
+        });
+        return null;
+    }
+    promptLoginRequired(message);
+    return null;
+}
+
+function pageNameFromUrl(url) {
+    const path = url.pathname.replace(/\/+$/, '');
+    const last = path.split('/').pop() || 'index.html';
+    if (!last || last === '/') return 'index.html';
+    return last.includes('.') ? last : `${last}.html`;
+}
+
+function isProtectedHref(href) {
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return false;
+    let url;
+    try {
+        url = new URL(href, location.href);
+    } catch {
+        return false;
+    }
+    if (['mailto:', 'tel:'].includes(url.protocol)) return false;
+    if (url.origin !== location.origin) return true;
+    return PROTECTED_PAGE_NAMES.has(pageNameFromUrl(url));
+}
+
+function openAfterLogin(anchor) {
+    const href = anchor.href;
+    const opensNewTab = anchor.target === '_blank';
+    requireLogin(() => {
+        if (opensNewTab) window.open(href, '_blank', 'noopener');
+        else location.href = href;
+    });
+}
+
+document.addEventListener('click', event => {
+    const anchor = event.target.closest?.('a[href]');
+    if (!anchor || !isProtectedHref(anchor.getAttribute('href'))) return;
+    if (Auth.getCurrentUser()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    openAfterLogin(anchor);
+}, true);
+
+onAuthReady(user => {
+    if (user) return;
+    const currentPage = pageNameFromUrl(new URL(location.href));
+    if (PROTECTED_PAGE_NAMES.has(currentPage)) {
+        promptLoginRequired('请先登录后使用该页面功能');
+    }
+});
+
+window.requireLogin = requireLogin;
+globalThis.requireLogin = requireLogin;
+
 /* ===== 共享导航渲染 ===== */
 function renderNav(currentPage) {
     const pages = [
@@ -210,6 +300,7 @@ function showToast(msg) {
 
 /* ===== Footer 订阅 ===== */
 async function footerSubscribe() {
+    if (!requireLogin(null, '请先登录后订阅动态')) return;
     const input = document.getElementById('footer-sub-email');
     if (!input) return;
     const email = input.value.trim();

@@ -104,6 +104,24 @@
         return null;
     }
 
+    function requireAssistantLogin(onReady) {
+        const user = getCurrentUser();
+        if (user) return user;
+        if (typeof requireLogin === 'function') {
+            return requireLogin(onReady, '请先登录后使用智能助教');
+        }
+        if (typeof onAuthReady === 'function' && !isAuthReady()) {
+            toast('正在确认登录状态...');
+            onAuthReady(readyUser => {
+                if (readyUser) onReady?.(readyUser);
+                else promptRegister();
+            });
+            return null;
+        }
+        promptRegister();
+        return null;
+    }
+
     function addMessage(content, type = 'bot', html = false) {
         const wrap = document.createElement('div');
         wrap.className = `assistant-message ${type}`;
@@ -230,6 +248,7 @@
     }
 
     function sendQuestion(question) {
+        if (!requireAssistantLogin(() => sendQuestion(question))) return;
         const text = question.trim();
         if (!text) return;
         addMessage(text, 'user');
@@ -238,6 +257,7 @@
     }
 
     function openAssistant() {
+        if (!requireAssistantLogin(() => openAssistant())) return;
         assistantPanel.classList.add('open');
         assistantPanel.setAttribute('aria-hidden', 'false');
         setTimeout(() => assistantInput.focus(), 80);
