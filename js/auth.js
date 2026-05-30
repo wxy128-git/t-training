@@ -52,8 +52,10 @@ function getStoredProxyAuthSession() {
 }
 
 function shouldUseAuthProxyFirst() {
-    const localHosts = new Set(['localhost', '127.0.0.1', '::1']);
-    return location.protocol === 'https:' && !localHosts.has(location.hostname);
+    // Proxy login skips the Firebase JS SDK, leaving auth.currentUser null,
+    // so Firestore writes get rejected even though the UI shows "logged in".
+    // Always go through the JS SDK; proxy stays as a network-failure fallback.
+    return false;
 }
 
 function shouldTryFirebaseAfterProxy(error) {
