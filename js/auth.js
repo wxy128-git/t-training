@@ -16,6 +16,41 @@ function rememberUserProfile(uid, data) {
     }
 }
 
+function rememberProxyAuthSession(authData) {
+    try {
+        const expiresIn = Number(authData.expiresIn || 3600);
+        localStorage.setItem(window.PROXY_AUTH_SESSION_KEY, JSON.stringify({
+            idToken: authData.idToken || '',
+            refreshToken: authData.refreshToken || '',
+            expiresAt: Date.now() + Math.max(300, expiresIn - 60) * 1000,
+            user: authData.user
+        }));
+    } catch {
+        // Login still counts for the current page even if storage is unavailable.
+    }
+}
+
+function forgetProxyAuthSession() {
+    try {
+        localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
+    } catch {}
+}
+
+async function callAuthProxy(action, payload) {
+    const response = await fetch('/.netlify/functions/auth-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...payload })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false) throw new Error(data.msg || '认证代理请求失败');
+    rememberProxyAuthSession(data);
+    if (data.user?.uid) rememberUserProfile(data.user.uid, data.user);
+    _currentUser = data.user;
+    document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
+    return { ok: true, viaProxy: true };
+}
+
 const Auth = {
     getCurrentUser() { return _currentUser; },
     isAdmin() { return _currentUser?.isAdmin === true; },
@@ -34,6 +69,13 @@ const Auth = {
                 'auth/too-many-requests': '尝试次数过多，请稍后再试',
                 'auth/user-disabled': '该账号已被停用'
             };
+            if (e.code === 'auth/network-request-failed') {
+                try {
+                    return await callAuthProxy('login', { email: authEmail, password });
+                } catch(proxyError) {
+                    return { ok: false, msg: `登录失败：${proxyError.message}` };
+                }
+            }
             return { ok: false, msg: msgs[e.code] || ('登录失败：' + e.message) };
         }
     },
@@ -44,16 +86,16 @@ const Auth = {
         if (isPhone && !/^1[3-9]\d{9}$/.test(phone)) return { ok: false, msg: '请输入有效手机号' };
         if (!isPhone && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail)) return { ok: false, msg: '请输入有效邮箱或手机号' };
         if (password.length < 6) return { ok: false, msg: '密码至少 6 位' };
+        const userData = {
+            name,
+            email: isPhone ? '' : authEmail,
+            phone: phone || '',
+            school: school || '',
+            isAdmin: authEmail === ADMIN_EMAIL,
+            joinedAt: new Date().toISOString()
+        };
         try {
             const cred = await auth.createUserWithEmailAndPassword(authEmail, password);
-            const userData = {
-                name,
-                email: isPhone ? '' : authEmail,
-                phone: phone || '',
-                school: school || '',
-                isAdmin: authEmail === ADMIN_EMAIL,
-                joinedAt: new Date().toISOString()
-            };
             try {
                 await cred.user.updateProfile({ displayName: name });
             } catch(e) {
@@ -78,12 +120,20 @@ const Auth = {
                 'auth/too-many-requests': '注册请求过于频繁，请稍后再试',
                 'auth/unauthorized-domain': '当前访问域名未加入 Firebase 授权域名，请在 Firebase Authentication 中添加该域名'
             };
+            if (e.code === 'auth/network-request-failed') {
+                try {
+                    return await callAuthProxy('register', { email: authEmail, password, profile: userData });
+                } catch(proxyError) {
+                    return { ok: false, msg: `注册失败：${proxyError.message}` };
+                }
+            }
             return { ok: false, msg: msgs[e.code] || ('注册失败：' + e.message) };
         }
     },
 
     async logout() {
-        await auth.signOut();
+        forgetProxyAuthSession();
+        try { await auth.signOut(); } catch {}
         _currentUser = null;
         location.reload();
     }

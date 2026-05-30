@@ -11,7 +11,8 @@
 
 ## Latest Deployment
 
-- Latest deployment includes registration hardening: Firebase Auth account creation is no longer blocked by a failed Firestore profile write.
+- Latest deployment includes Firebase Auth network-failure fallback through a Netlify Function.
+- Previous registration hardening kept Firebase Auth account creation from being blocked by a failed Firestore profile write.
 - Deployment flow remains GitHub `main` push followed by Netlify auto-deploy.
 
 ## Completed In Recent Work
@@ -31,7 +32,8 @@
 - AI teaching assistant widget and contact module are already present.
 - Registration flow now saves the display name to Firebase Auth first, caches the profile locally, then tries to merge the Firestore user document without blocking account creation.
 - `firebase-config.js` now falls back to Firebase Auth/local cached profile data if Firestore cannot read the `users` document.
-- Auth-related scripts use a `v=20260530-auth` query string to avoid stale browser cache.
+- `netlify/functions/auth-proxy.js` handles login/register fallback when browser-side Firebase Auth reports `auth/network-request-failed`.
+- Auth-related scripts use a `v=20260530-auth-proxy` query string to avoid stale browser cache.
 - `AGENTS.md` is intentionally kept as a handoff note for future sessions.
 
 ## Auth Notes

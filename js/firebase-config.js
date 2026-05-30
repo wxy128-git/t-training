@@ -11,6 +11,7 @@ const FIREBASE_CONFIG = {
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db   = firebase.firestore();
+window.PROXY_AUTH_SESSION_KEY = window.PROXY_AUTH_SESSION_KEY || 'xylaoshiProxyAuthSession';
 
 // ===== 全局 Auth 状态 =====
 let _currentUser = null;
@@ -23,6 +24,22 @@ function getStoredUserProfile(uid) {
         return JSON.parse(localStorage.getItem(`userProfile_${uid}`) || '{}');
     } catch {
         return {};
+    }
+}
+
+function getProxyAuthUser() {
+    try {
+        const raw = localStorage.getItem(window.PROXY_AUTH_SESSION_KEY);
+        if (!raw) return null;
+        const session = JSON.parse(raw);
+        if (!session?.user) return null;
+        if (session.expiresAt && Date.now() > session.expiresAt) {
+            localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
+            return null;
+        }
+        return { ...session.user, isProxyAuth: true };
+    } catch {
+        return null;
     }
 }
 
@@ -56,7 +73,7 @@ auth.onAuthStateChanged(async (fbUser) => {
             _currentUser = fallback;
         }
     } else {
-        _currentUser = null;
+        _currentUser = getProxyAuthUser();
     }
 
     // 通知等待初始化的回调
