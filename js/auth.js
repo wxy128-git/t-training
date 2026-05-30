@@ -36,14 +36,34 @@ function forgetProxyAuthSession() {
     } catch {}
 }
 
+function shouldUseAuthProxyFirst() {
+    const localHosts = new Set(['localhost', '127.0.0.1', '::1']);
+    return location.protocol === 'https:' && !localHosts.has(location.hostname);
+}
+
+function shouldTryFirebaseAfterProxy(error) {
+    return error?.isNetworkError || error?.status === 404 || error?.status >= 500;
+}
+
 async function callAuthProxy(action, payload) {
-    const response = await fetch('/.netlify/functions/auth-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, ...payload })
-    });
+    let response;
+    try {
+        response = await fetch('/.netlify/functions/auth-proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, ...payload })
+        });
+    } catch(error) {
+        error.isNetworkError = true;
+        throw error;
+    }
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || data.ok === false) throw new Error(data.msg || '认证代理请求失败');
+    if (!response.ok || data.ok === false) {
+        const error = new Error(data.msg || '认证代理请求失败');
+        error.code = data.code || 'AUTH_PROXY_ERROR';
+        error.status = response.status;
+        throw error;
+    }
     rememberProxyAuthSession(data);
     if (data.user?.uid) rememberUserProfile(data.user.uid, data.user);
     _currentUser = data.user;
@@ -57,6 +77,16 @@ const Auth = {
 
     async login(identifier, password) {
         const { authEmail } = parseIdentifier(identifier);
+        if (shouldUseAuthProxyFirst()) {
+            try {
+                return await callAuthProxy('login', { email: authEmail, password });
+            } catch(proxyError) {
+                if (!shouldTryFirebaseAfterProxy(proxyError)) {
+                    return { ok: false, msg: `登录失败：${proxyError.message}` };
+                }
+                console.warn('authProxyLogin:', proxyError.message);
+            }
+        }
         try {
             await auth.signInWithEmailAndPassword(authEmail, password);
             return { ok: true };
@@ -94,6 +124,16 @@ const Auth = {
             isAdmin: authEmail === ADMIN_EMAIL,
             joinedAt: new Date().toISOString()
         };
+        if (shouldUseAuthProxyFirst()) {
+            try {
+                return await callAuthProxy('register', { email: authEmail, password, profile: userData });
+            } catch(proxyError) {
+                if (!shouldTryFirebaseAfterProxy(proxyError)) {
+                    return { ok: false, msg: `注册失败：${proxyError.message}` };
+                }
+                console.warn('authProxyRegister:', proxyError.message);
+            }
+        }
         try {
             const cred = await auth.createUserWithEmailAndPassword(authEmail, password);
             try {
