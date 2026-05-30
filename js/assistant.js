@@ -376,7 +376,7 @@
                         <textarea id="contact-message" name="message" required placeholder="请写下您想交流的问题、资源建议或培训需求"></textarea>
                     </div>
                     <input type="hidden" name="page" value="${escapeHtml(location.href)}">
-                    <p class="contact-note">提交后会进入 Netlify 表单后台，站长可在 Netlify 后台查看。</p>
+                    <p class="contact-note">提交后管理员可在后台查看您的留言并尽快回复。</p>
                     <div class="contact-actions">
                         <button type="button" class="contact-secondary">取消</button>
                         <button type="submit" class="contact-submit">提交留言</button>
@@ -443,11 +443,17 @@
         submitButton.disabled = true;
         submitButton.textContent = '提交中...';
         try {
-            const body = new URLSearchParams(new FormData(contactForm));
-            await fetch('/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: body.toString()
+            const data = Object.fromEntries(new FormData(contactForm).entries());
+            await db.collection('contact_messages').add({
+                name: data.name || user.name || '',
+                contact: data.contact || user.email || user.phone || '',
+                message,
+                page: data.page || location.href,
+                userId: user.uid || '',
+                userEmail: user.email || '',
+                userPhone: user.phone || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                handled: false
             });
             contactForm.reset();
             closeContactModal();

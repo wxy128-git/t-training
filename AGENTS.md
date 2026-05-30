@@ -4,16 +4,19 @@
 
 - Project: `t-training`, a static teacher AI training website for sharing AI tools, prompts, learning paths, teaching cases, articles, design resources, and teacher feedback.
 - Local path: `/Users/wangxingyu/C-C/t-training`
-- Production site: `https://xylaoshi.netlify.app/index.html`
+- Production site: `https://xylaoshi.pages.dev/`
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
-- Deployment: push to GitHub `main`, Netlify auto-deploys the static site.
+- Deployment: push to GitHub `main`, Cloudflare Pages auto-deploys the static site and `functions/` directory.
 - Firebase is used for authentication and Firestore-backed data.
+- Migrated off Netlify on 2026-05-30 after the Netlify team credit limit was exceeded. Legacy `netlify/functions/` files are kept as a reference snapshot but are no longer wired up.
 
 ## Latest Deployment
 
-- Latest deployment includes Firebase Auth proxy-first login/register on production, with browser Firebase Auth as fallback.
-- Previous registration hardening kept Firebase Auth account creation from being blocked by a failed Firestore profile write.
-- Deployment flow remains GitHub `main` push followed by Netlify auto-deploy.
+- 2026-05-30: Migrated hosting and functions from Netlify to Cloudflare Pages. New host is `xylaoshi.pages.dev`.
+- Netlify Functions (`netlify/functions/*.js`) were rewritten as Cloudflare Pages Functions in `functions/api/*.js` (auth-proxy, admin-users, rss-proxy). Frontend calls now use `/api/...` paths.
+- `admin-users.js` had to swap Node's `crypto.createSign` and `Buffer` for Web Crypto API + atob/TextEncoder because Cloudflare Workers do not expose Node built-ins.
+- Contact form was previously a Netlify Forms submission; it now writes to Firestore collection `contact_messages` (fields: name, contact, message, page, userId, userEmail, userPhone, createdAt, handled). Admin UI to browse this collection has not been built yet.
+- Deployment flow: push to GitHub `main` → Cloudflare Pages auto-deploys.
 
 ## Completed In Recent Work
 
@@ -32,8 +35,8 @@
 - AI teaching assistant widget and contact module are already present.
 - Registration flow now saves the display name to Firebase Auth first, caches the profile locally, then tries to merge the Firestore user document without blocking account creation.
 - `firebase-config.js` now falls back to Firebase Auth/local cached profile data if Firestore cannot read the `users` document.
-- `netlify/functions/auth-proxy.js` handles login/register when browser-side Firebase Auth is slow or unreachable.
-- `netlify/functions/admin-users.js` handles full admin user deletion, including orphaned Auth accounts by email or phone.
+- `functions/api/auth-proxy.js` (formerly `netlify/functions/auth-proxy.js`) handles login/register when browser-side Firebase Auth is slow or unreachable.
+- `functions/api/admin-users.js` (formerly `netlify/functions/admin-users.js`) handles full admin user deletion, including orphaned Auth accounts by email or phone.
 - Auth-related scripts use a `v=20260530-admin-delete` query string to avoid stale browser cache.
 - `AGENTS.md` is intentionally kept as a handoff note for future sessions.
 
@@ -41,7 +44,7 @@
 
 - Admin email configured in code: `admin@xylaoshi.com`
 - Password is not stored in the repo. Reset it through Firebase Authentication if forgotten.
-- Full admin deletion requires a Firebase service account in Netlify environment variables, using `FIREBASE_SERVICE_ACCOUNT` / `FIREBASE_ADMIN_CREDENTIALS` / `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` plus `FIREBASE_PRIVATE_KEY`.
+- Full admin deletion requires a Firebase service account configured as Cloudflare Pages environment variables (Settings → Variables and Secrets, Type: Secret). Accepted variable names: `FIREBASE_SERVICE_ACCOUNT` / `FIREBASE_ADMIN_CREDENTIALS` / `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` plus `FIREBASE_PRIVATE_KEY`. As of 2026-05-30 these are NOT yet set on Cloudflare; the delete-user endpoint will return 501 until they are. Other admin operations still work without them.
 
 ## Current Behavior To Remember
 

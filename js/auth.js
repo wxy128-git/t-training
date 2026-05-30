@@ -63,7 +63,7 @@ function shouldTryFirebaseAfterProxy(error) {
 async function callAuthProxy(action, payload) {
     let response;
     try {
-        response = await fetch('/.netlify/functions/auth-proxy', {
+        response = await fetch('/api/auth-proxy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action, ...payload })

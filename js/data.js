@@ -648,8 +648,8 @@ async function fetchRSSFeed(rssUrl, count = 6) {
         throw new Error('empty feed');
     };
 
-    const netlifyLoader = async () => {
-        const r = await get(`/.netlify/functions/rss-proxy?url=${encodeURIComponent(rssUrl)}`);
+    const selfProxyLoader = async () => {
+        const r = await get(`/api/rss-proxy?url=${encodeURIComponent(rssUrl)}`);
         const d = await r.json();
         return d.contents ? parseXML(d.contents) : [];
     };
@@ -677,7 +677,9 @@ async function fetchRSSFeed(rssUrl, count = 6) {
 
     try {
         const primaryLoaders = [allOriginsLoader];
-        if (location.hostname.includes('netlify')) primaryLoaders.unshift(netlifyLoader);
+        const host = location.hostname;
+        const hasOwnProxy = host !== 'localhost' && host !== '127.0.0.1' && host !== '';
+        if (hasOwnProxy) primaryLoaders.unshift(selfProxyLoader);
         const items = await Promise.any(primaryLoaders.map(loader => requireItems(loader)));
         return save(items);
     } catch {}

@@ -811,14 +811,14 @@ async function renderUsersTable() {
 
 async function callDeleteUserFunction(payload) {
     const adminIdToken = await Auth.getIdToken();
-    const response = await fetch('/.netlify/functions/admin-users', {
+    const response = await fetch('/api/admin-users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'deleteUser', adminIdToken, ...payload })
     });
     const data = await response.json().catch(() => ({}));
     if (response.status === 404) {
-        throw new Error('当前预览未启用 Netlify Functions，请在部署后的站点或 netlify dev 中执行完整删除');
+        throw new Error('当前预览未启用 Functions，请在已部署站点或本地 Pages 调试环境中执行完整删除');
     }
     if (!response.ok || data.ok === false) {
         throw new Error(data.msg || '用户删除失败');
