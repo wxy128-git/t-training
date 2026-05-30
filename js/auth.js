@@ -1,11 +1,19 @@
 /* ===== Auth 操作（Firebase） ===== */
 
 function parseIdentifier(val) {
-    const cleaned = val.replace(/\s/g, '');
+    const cleaned = String(val || '').replace(/\s/g, '');
     if (/^1[3-9]\d{9}$/.test(cleaned)) {
         return { authEmail: `tel_${cleaned}@xylaoshi.tel`, isPhone: true, phone: cleaned };
     }
-    return { authEmail: cleaned, isPhone: false, phone: null };
+    return { authEmail: cleaned.toLowerCase(), isPhone: false, phone: null };
+}
+
+function rememberUserProfile(uid, data) {
+    try {
+        localStorage.setItem(`userProfile_${uid}`, JSON.stringify(data));
+    } catch {
+        // localStorage may be unavailable in private browsing; registration should still continue.
+    }
 }
 
 const Auth = {
@@ -46,14 +54,29 @@ const Auth = {
                 isAdmin: authEmail === ADMIN_EMAIL,
                 joinedAt: new Date().toISOString()
             };
-            await db.collection('users').doc(cred.user.uid).set(userData);
+            try {
+                await cred.user.updateProfile({ displayName: name });
+            } catch(e) {
+                console.warn('updateProfile:', e.message);
+            }
+            rememberUserProfile(cred.user.uid, userData);
+            try {
+                await db.collection('users').doc(cred.user.uid).set(userData, { merge: true });
+            } catch(e) {
+                console.warn('saveUserProfile:', e.message);
+            }
             _currentUser = { uid: cred.user.uid, ...userData };
+            document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
             return { ok: true };
         } catch(e) {
             const msgs = {
                 'auth/email-already-in-use': '该账号已被注册，请直接登录',
                 'auth/weak-password': '密码强度不足，请使用更复杂的密码',
-                'auth/invalid-email': '邮箱格式不正确'
+                'auth/invalid-email': '邮箱格式不正确',
+                'auth/network-request-failed': '网络连接异常，请检查网络后重试',
+                'auth/operation-not-allowed': 'Firebase 未开启邮箱/密码注册，请在 Firebase Authentication 中启用 Email/Password',
+                'auth/too-many-requests': '注册请求过于频繁，请稍后再试',
+                'auth/unauthorized-domain': '当前访问域名未加入 Firebase 授权域名，请在 Firebase Authentication 中添加该域名'
             };
             return { ok: false, msg: msgs[e.code] || ('注册失败：' + e.message) };
         }

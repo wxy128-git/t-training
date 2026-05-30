@@ -18,15 +18,42 @@ let _authReady   = false;
 const _readyCallbacks = [];
 const ADMIN_EMAIL = 'admin@xylaoshi.com';
 
+function getStoredUserProfile(uid) {
+    try {
+        return JSON.parse(localStorage.getItem(`userProfile_${uid}`) || '{}');
+    } catch {
+        return {};
+    }
+}
+
+function authUserFallbackProfile(fbUser) {
+    const rawEmail = fbUser.email || '';
+    const phoneMatch = rawEmail.match(/^tel_(1[3-9]\d{9})@xylaoshi\.tel$/);
+    const stored = getStoredUserProfile(fbUser.uid);
+    const phone = phoneMatch ? phoneMatch[1] : (stored.phone || '');
+    const email = phoneMatch ? '' : rawEmail;
+    const name = fbUser.displayName || stored.name || (phone ? `手机用户${phone.slice(-4)}` : (email.split('@')[0] || '教师用户'));
+    return {
+        uid: fbUser.uid,
+        name,
+        email,
+        phone,
+        school: stored.school || '',
+        isAdmin: rawEmail === ADMIN_EMAIL,
+        joinedAt: stored.joinedAt || ''
+    };
+}
+
 auth.onAuthStateChanged(async (fbUser) => {
     if (fbUser) {
+        const fallback = authUserFallbackProfile(fbUser);
         try {
             const snap = await db.collection('users').doc(fbUser.uid).get();
             _currentUser = snap.exists
-                ? { uid: fbUser.uid, ...snap.data() }
-                : { uid: fbUser.uid, email: fbUser.email, name: fbUser.email.split('@')[0], isAdmin: false };
+                ? { ...fallback, ...snap.data(), uid: fbUser.uid, isAdmin: fallback.isAdmin || snap.data().isAdmin === true }
+                : fallback;
         } catch {
-            _currentUser = { uid: fbUser.uid, email: fbUser.email, name: fbUser.email.split('@')[0], isAdmin: false };
+            _currentUser = fallback;
         }
     } else {
         _currentUser = null;
