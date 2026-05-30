@@ -285,18 +285,10 @@ export async function onRequestPost({ request, env }) {
             authDeleted
         });
     } catch(error) {
-        const sa = env.FIREBASE_SERVICE_ACCOUNT || '';
         return jsonResponse(error.statusCode || 500, {
             ok: false,
             msg: error.message || '删除用户失败',
-            code: error.code || 'ADMIN_USERS_ERROR',
-            // TEMP DEBUG — remove once credentials work
-            debug: {
-                hasServiceAccount: !!env.FIREBASE_SERVICE_ACCOUNT,
-                serviceAccountLength: sa.length,
-                serviceAccountStart: sa.slice(0, 40),
-                envKeys: Object.keys(env || {}).sort()
-            }
+            code: error.code || 'ADMIN_USERS_ERROR'
         });
     }
 }
