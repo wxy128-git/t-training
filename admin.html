@@ -194,6 +194,16 @@
                     <h2 style="font-size:1.3rem;font-weight:800">用户列表</h2>
                     <span style="font-size:13px;color:#94a3b8" id="user-count"></span>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px">
+                    <div>
+                        <div style="font-size:15px;font-weight:800;color:#0f172a">清理认证账号</div>
+                        <p style="font-size:12.5px;color:#64748b;margin-top:4px;line-height:1.6">如果用户资料已删，但重新注册仍提示账号存在，可输入邮箱或手机号清理 Firebase Authentication 账号。</p>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;min-width:360px">
+                        <input id="auth-delete-identifier" class="form-input" placeholder="邮箱或手机号" style="height:40px">
+                        <button id="auth-delete-btn" class="reject-btn" onclick="deleteUserByIdentifier()" style="height:40px;white-space:nowrap">清理账号</button>
+                    </div>
+                </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
                 </div>
@@ -377,9 +387,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260530-auth-fast"></script>
+<script src="js/firebase-config.js?v=20260530-admin-delete"></script>
 <script src="js/data.js?v=20260528-tips"></script>
-<script src="js/auth.js?v=20260530-auth-fast"></script>
+<script src="js/auth.js?v=20260530-admin-delete"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSCs = [], _adminSubs = [], _adminArticles = [];
@@ -799,12 +809,60 @@ async function renderUsersTable() {
         </tr>`).join('');
 }
 
+async function callDeleteUserFunction(payload) {
+    const adminIdToken = await Auth.getIdToken();
+    const response = await fetch('/.netlify/functions/admin-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteUser', adminIdToken, ...payload })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 404) {
+        throw new Error('当前预览未启用 Netlify Functions，请在部署后的站点或 netlify dev 中执行完整删除');
+    }
+    if (!response.ok || data.ok === false) {
+        throw new Error(data.msg || '用户删除失败');
+    }
+    return data;
+}
+
 async function deleteUser(i) {
-    if (!confirm('确定删除该用户？此操作不可撤销。')) return;
     const u = _adminUsers[i];
-    await DB.deleteUser(u.uid);
-    await renderUsersTable();
-    showToast('用户已删除');
+    if (!u) return;
+    const account = u.email || (u.phone ? `手机号 ${u.phone}` : u.uid);
+    if (!confirm(`确定彻底删除 ${account}？\n\n此操作会同时删除 Firebase Authentication 账号和用户资料，删除后可用同一邮箱/手机号重新注册。`)) return;
+    try {
+        await callDeleteUserFunction({ uid: u.uid });
+        await renderUsersTable();
+        showToast('用户已彻底删除');
+    } catch(error) {
+        showToast(error.message || '用户删除失败');
+    }
+}
+
+async function deleteUserByIdentifier() {
+    const input = document.getElementById('auth-delete-identifier');
+    const btn = document.getElementById('auth-delete-btn');
+    const identifier = input.value.trim();
+    if (!identifier) {
+        showToast('请输入邮箱或手机号');
+        return;
+    }
+    if (!confirm(`确定清理 ${identifier} 的认证账号？\n\n清理后，这个邮箱或手机号可以重新注册。`)) return;
+
+    btn.disabled = true;
+    btn.textContent = '清理中...';
+    try {
+        await callDeleteUserFunction({ identifier });
+        input.value = '';
+        await renderUsersTable();
+        showToast('认证账号已清理，可重新注册');
+    } catch(error) {
+        showToast(error.message || '认证账号清理失败');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '清理账号';
+    }
 }
 
 // ===== ARTICLES =====

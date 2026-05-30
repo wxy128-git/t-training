@@ -33,13 +33,15 @@
 - Registration flow now saves the display name to Firebase Auth first, caches the profile locally, then tries to merge the Firestore user document without blocking account creation.
 - `firebase-config.js` now falls back to Firebase Auth/local cached profile data if Firestore cannot read the `users` document.
 - `netlify/functions/auth-proxy.js` handles login/register when browser-side Firebase Auth is slow or unreachable.
-- Auth-related scripts use a `v=20260530-auth-fast` query string to avoid stale browser cache.
+- `netlify/functions/admin-users.js` handles full admin user deletion, including orphaned Auth accounts by email or phone.
+- Auth-related scripts use a `v=20260530-admin-delete` query string to avoid stale browser cache.
 - `AGENTS.md` is intentionally kept as a handoff note for future sessions.
 
 ## Auth Notes
 
 - Admin email configured in code: `admin@xylaoshi.com`
 - Password is not stored in the repo. Reset it through Firebase Authentication if forgotten.
+- Full admin deletion requires a Firebase service account in Netlify environment variables, using `FIREBASE_SERVICE_ACCOUNT` / `FIREBASE_ADMIN_CREDENTIALS` / `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` plus `FIREBASE_PRIVATE_KEY`.
 
 ## Current Behavior To Remember
 

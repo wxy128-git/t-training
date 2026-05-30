@@ -36,6 +36,21 @@ function forgetProxyAuthSession() {
     } catch {}
 }
 
+function getStoredProxyAuthSession() {
+    try {
+        const raw = localStorage.getItem(window.PROXY_AUTH_SESSION_KEY);
+        if (!raw) return null;
+        const session = JSON.parse(raw);
+        if (!session?.idToken || (session.expiresAt && Date.now() > session.expiresAt)) {
+            localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
+            return null;
+        }
+        return session;
+    } catch {
+        return null;
+    }
+}
+
 function shouldUseAuthProxyFirst() {
     const localHosts = new Set(['localhost', '127.0.0.1', '::1']);
     return location.protocol === 'https:' && !localHosts.has(location.hostname);
@@ -74,6 +89,12 @@ async function callAuthProxy(action, payload) {
 const Auth = {
     getCurrentUser() { return _currentUser; },
     isAdmin() { return _currentUser?.isAdmin === true; },
+    async getIdToken() {
+        if (auth.currentUser) return auth.currentUser.getIdToken(true);
+        const proxySession = getStoredProxyAuthSession();
+        if (proxySession?.idToken) return proxySession.idToken;
+        throw new Error('登录状态已过期，请重新登录');
+    },
 
     async login(identifier, password) {
         const { authEmail } = parseIdentifier(identifier);
