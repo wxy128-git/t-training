@@ -7,23 +7,39 @@
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 64px); }
-        .admin-sidebar { background: #0f172a; padding: 20px 12px; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
-        .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 14px; color: #94a3b8; cursor: pointer; transition: all 0.15s; margin-bottom: 4px; }
-        .sidebar-item:hover { background: #1e293b; color: #e2e8f0; }
-        .sidebar-item.active { background: #4F46E5; color: white; }
-        .admin-content { padding: 28px; background: #f8fafc; }
-        .stat-card { background: white; border-radius: 14px; padding: 20px 24px; border: 1px solid #f1f5f9; }
-        .modal-admin { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 500; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px; }
+        .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); }
+        .admin-sidebar { background: var(--ink); padding: 24px 14px; position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: var(--r-sm);
+            font-size: 14px; color: rgba(250,247,240,0.6);
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+            margin-bottom: 4px;
+            position: relative;
+        }
+        .sidebar-item:hover { background: rgba(250,247,240,0.06); color: var(--soft); }
+        .sidebar-item.active { background: rgba(192,57,43,0.18); color: var(--soft); font-weight: 600; }
+        .sidebar-item.active::before {
+            content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+            width: 3px; background: var(--brand); border-radius: 2px;
+        }
+        .admin-content { padding: 36px; background: var(--soft); }
+        .stat-card { background: var(--paper); border-radius: var(--r-md); padding: 22px 26px; border: 1px solid var(--line); transition: border-color 0.15s, box-shadow 0.15s; }
+        .stat-card:hover { border-color: var(--ink); box-shadow: var(--shadow-sm); }
+        .modal-admin { display: none; position: fixed; inset: 0; background: rgba(26,22,18,0.55); z-index: 500; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; }
         .modal-admin.active { display: flex; }
         .panel { display: none; }
         .panel.active { display: block; }
-        .approve-btn { color:#10B981;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px; }
-        .reject-btn  { color:#ef4444;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px; }
-        .edit-btn    { color:#4F46E5;background:none;border:none;cursor:pointer;font-size:13px;padding:4px 8px; }
+        .approve-btn { color: var(--success); background: none; border: none; cursor: pointer; font-size: 13px; padding: 5px 10px; font-weight: 500; transition: color 0.15s; }
+        .approve-btn:hover { color: #1f4f37; }
+        .reject-btn  { color: var(--brand); background: none; border: none; cursor: pointer; font-size: 13px; padding: 5px 10px; font-weight: 500; transition: color 0.15s; }
+        .reject-btn:hover { color: var(--brand-dark); }
+        .edit-btn    { color: var(--ink); background: none; border: none; cursor: pointer; font-size: 13px; padding: 5px 10px; font-weight: 500; transition: color 0.15s; }
+        .edit-btn:hover { color: var(--brand); }
         @media(max-width:768px) {
             .admin-layout { grid-template-columns: 1fr; }
-            .admin-sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; }
+            .admin-sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; padding: 14px; }
+            .admin-content { padding: 24px 18px; }
         }
     </style>
 </head>
@@ -31,20 +47,21 @@
 <div id="main-nav"></div>
 
 <!-- Login gate -->
-<div id="login-gate" style="min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;background:#f8fafc">
-    <div style="background:white;border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:0 20px 60px -10px rgba(0,0,0,0.15)">
-        <div style="text-align:center;margin-bottom:28px">
-            <div style="width:56px;height:56px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-                <i class="ph-fill ph-shield-check" style="color:white;font-size:24px"></i>
+<div id="login-gate" style="min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;background:var(--soft);padding:24px">
+    <div style="background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:44px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-md)">
+        <div style="text-align:center;margin-bottom:32px">
+            <div style="width:56px;height:56px;background:var(--brand);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(150,43,31,0.28);position:relative">
+                <div style="position:absolute;inset:3px;border:1px solid rgba(255,255,255,0.28);border-radius:5px"></div>
+                <i class="ph-fill ph-shield-check" style="color:var(--soft);font-size:24px;position:relative"></i>
             </div>
-            <h2 style="font-size:1.3rem;font-weight:800;color:#0f172a">管理员登录</h2>
-            <p style="font-size:13px;color:#64748b;margin-top:4px">仅限平台管理员访问</p>
+            <h2 style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--ink);letter-spacing:-0.02em">管理员登录</h2>
+            <p style="font-size:13px;color:var(--muted);margin-top:8px">仅限平台管理员访问</p>
         </div>
         <div class="form-group"><label class="form-label">管理员邮箱</label><input type="email" id="gate-email" class="form-input" placeholder="admin@xylaoshi.com" value="admin@xylaoshi.com"></div>
         <div class="form-group"><label class="form-label">密码</label><input type="password" id="gate-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')gateLogin()"></div>
         <div id="gate-err" class="form-error" style="display:none;margin-bottom:12px"></div>
         <button class="btn-primary" id="gate-btn" onclick="gateLogin()">进入管理后台</button>
-        <p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px"><a href="index.html" style="color:#4F46E5">← 返回网站首页</a></p>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:18px"><a href="index.html" style="color:var(--brand);font-weight:500">← 返回网站首页</a></p>
     </div>
 </div>
 
@@ -90,7 +107,7 @@
             <div class="panel" id="panel-announcements">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                     <h2 style="font-size:1.3rem;font-weight:800">公告管理</h2>
-                    <button onclick="openAnnModal(null)" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增公告</button>
+                    <button onclick="openAnnModal(null)" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增公告</button>
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table id="ann-table"><thead><tr><th>标题</th><th>内容</th><th>时间</th><th>操作</th></tr></thead><tbody id="ann-tbody"></tbody></table></div>
@@ -153,7 +170,7 @@
             <div class="panel" id="panel-articles-mgr">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                     <h2 style="font-size:1.3rem;font-weight:800">文章管理</h2>
-                    <button onclick="openArticleModal(null)" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>发布文章</button>
+                    <button onclick="openArticleModal(null)" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>发布文章</button>
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>标题</th><th>分类</th><th>类型</th><th>作者</th><th>状态</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="articles-tbody"></tbody></table></div>
@@ -165,7 +182,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                     <h2 style="font-size:1.3rem;font-weight:800">工具管理</h2>
                     <div style="display:flex;gap:8px">
-                        <button onclick="openToolModal()" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>添加工具</button>
+                        <button onclick="openToolModal()" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>添加工具</button>
                         <button onclick="resetTools()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                     </div>
                 </div>
@@ -179,7 +196,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                     <h2 style="font-size:1.3rem;font-weight:800">提示词管理</h2>
                     <div style="display:flex;gap:8px">
-                        <button onclick="openPromptModal()" style="padding:8px 16px;background:#4F46E5;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>添加提示词</button>
+                        <button onclick="openPromptModal()" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>添加提示词</button>
                         <button onclick="resetPrompts()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                     </div>
                 </div>
@@ -373,7 +390,7 @@
                 <label class="form-label">封面颜色</label>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                     <div id="art-color-swatches" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-                    <input type="hidden" id="art-color" value="linear-gradient(135deg,#4F46E5,#7C3AED)">
+                    <input type="hidden" id="art-color" value="linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)">
                 </div>
             </div>
             <div class="form-group" id="content-group">
@@ -470,15 +487,15 @@ async function initAdmin() {
     const pendingSCs = scs.filter(s => s.status === 'pending').length;
     const pendingMsgs = msgs.filter(m => !m.handled).length;
     document.getElementById('dash-stats').innerHTML = [
-        { label:'注册用户', value: users.length, icon:'ph-users', color:'#4F46E5' },
-        { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#10B981' },
-        { label:'提示词模板', value: prompts.length, icon:'ph-chat-text', color:'#F59E0B' },
-        { label:'平台公告', value: ann.length, icon:'ph-megaphone', color:'#EF4444' },
-        { label:'待审提示词', value: pendingCPs, icon:'ph-chats-circle', color:'#8B5CF6' },
-        { label:'待审案例', value: pendingSCs, icon:'ph-shooting-star', color:'#EC4899' },
-        { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3B82F6' },
-        { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#0D9488' },
-        { label:'待处理留言', value: pendingMsgs, icon:'ph-chat-circle-text', color:'#F97316' }
+        { label:'注册用户', value: users.length, icon:'ph-users', color:'#574a3d' },
+        { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#2d6a4f' },
+        { label:'提示词模板', value: prompts.length, icon:'ph-chat-text', color:'#b08642' },
+        { label:'平台公告', value: ann.length, icon:'ph-megaphone', color:'#c0392b' },
+        { label:'待审提示词', value: pendingCPs, icon:'ph-chats-circle', color:'#2c5282' },
+        { label:'待审案例', value: pendingSCs, icon:'ph-shooting-star', color:'#a05a3e' },
+        { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3a5070' },
+        { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#2d4a3a' },
+        { label:'待处理留言', value: pendingMsgs, icon:'ph-chat-circle-text', color:'#962b1f' }
     ].map(s => `
         <div class="stat-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -604,7 +621,7 @@ async function renderSCTable() {
             <td style="font-weight:600;max-width:160px">${s.title}</td>
             <td style="color:#64748b">${s.authorName || '—'}</td>
             <td style="color:#64748b">${s.subject || '—'}</td>
-            <td style="color:#4F46E5;font-size:12px">${s.tool || '—'}</td>
+            <td style="color:var(--brand);font-size:12px">${s.tool || '—'}</td>
             <td style="color:#64748b;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${s.description}</td>
             <td>${statusLabel[s.status] || s.status}</td>
             <td style="white-space:nowrap">
@@ -711,9 +728,9 @@ async function renderToolsTable() {
     document.getElementById('tools-tbody').innerHTML = _adminTools.map((t, i) => `
         <tr>
             <td style="font-weight:600">${t.name}</td>
-            <td><span style="background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:999px;font-size:11px">${{teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]||t.category}</span></td>
+            <td><span style="background:#fbe8e4;color:var(--brand);padding:2px 8px;border-radius:999px;font-size:11px">${{teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]||t.category}</span></td>
             <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</td>
-            <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="${t.url}" target="_blank" style="color:#4F46E5;font-size:12px">${t.url}</a></td>
+            <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="${t.url}" target="_blank" style="color:var(--brand);font-size:12px">${t.url}</a></td>
             <td>
                 <button class="edit-btn" onclick="editTool(${i})">编辑</button>
                 <button class="reject-btn" onclick="deleteTool(${i})">删除</button>
@@ -940,12 +957,12 @@ async function deleteUserByIdentifier() {
 
 // ===== ARTICLES =====
 const ART_COVER_GRADIENTS = [
-    'linear-gradient(135deg,#4F46E5,#7C3AED)',
-    'linear-gradient(135deg,#10B981,#0D9488)',
-    'linear-gradient(135deg,#F59E0B,#EF4444)',
-    'linear-gradient(135deg,#3B82F6,#4F46E5)',
-    'linear-gradient(135deg,#EC4899,#8B5CF6)',
-    'linear-gradient(135deg,#06B6D4,#3B82F6)'
+    'linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)',
+    'linear-gradient(135deg,#574a3d 0%,#2b241d 100%)',
+    'linear-gradient(135deg,#c0392b 0%,#7a2218 100%)',
+    'linear-gradient(135deg,#3a5070 0%,#22344d 100%)',
+    'linear-gradient(135deg,#a05a3e 0%,#6e3a26 100%)',
+    'linear-gradient(135deg,#1e3a32 0%,#0f221d 100%)'
 ];
 
 const ART_CAT_LABEL = { learning:'学习指南', tools:'工具推荐', case:'教学案例', tips:'实战技巧', news:'行业动态', other:'其他' };
