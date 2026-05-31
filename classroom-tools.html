@@ -267,6 +267,135 @@
         body.ct-fullscreen .assistant-launcher { display: none !important; }
         body.ct-fullscreen .ct-page { max-width: none; padding: 16px 20px; }
         body.ct-fullscreen .ct-balls-stage { height: calc(100vh - 140px); }
+        body.ct-fullscreen .ct-wb-stage { height: calc(100vh - 200px); }
+
+        /* Groups */
+        .ct-groups-wrap { display: grid; grid-template-columns: 1fr 1.6fr; gap: 32px; }
+        @media (max-width: 820px) { .ct-groups-wrap { grid-template-columns: 1fr; } }
+        .ct-groups-left { display: flex; flex-direction: column; gap: 14px; }
+        .ct-groups-controls { display: flex; flex-direction: column; gap: 14px; }
+        .ct-groups-mode { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; padding: 3px; background: var(--paper); width: fit-content; }
+        .ct-groups-mode button {
+            padding: 7px 16px; font-size: 13px; font-weight: 500;
+            background: transparent; color: var(--muted); border: none;
+            border-radius: 999px; cursor: pointer; font-family: inherit;
+            transition: background 0.15s, color 0.15s;
+        }
+        .ct-groups-mode button:hover { color: var(--ink); }
+        .ct-groups-mode button.active { background: var(--ink); color: var(--soft); font-weight: 600; }
+        .ct-groups-right { background: var(--soft); border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; min-height: 360px; }
+        .ct-groups-meta { font-size: 13px; color: var(--muted); margin-bottom: 18px; font-weight: 500; }
+        .ct-groups-result { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+        .ct-group-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px 18px; }
+        .ct-group-head { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 700; margin-bottom: 12px; }
+        .ct-group-num { font-family: var(--font-mono); font-size: 12px; opacity: 0.7; }
+        .ct-group-body { display: flex; flex-wrap: wrap; gap: 6px; }
+        .ct-group-chip { padding: 4px 12px; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); }
+
+        /* Seating */
+        .ct-seating-wrap { display: flex; flex-direction: column; gap: 18px; }
+        .ct-seating-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .ct-seating-stage {
+            background: var(--paper); border: 1px solid var(--line);
+            border-radius: var(--r-md); padding: 28px 24px;
+        }
+        .ct-seating-front {
+            text-align: center; font-size: 12.5px; font-weight: 600;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--muted); padding: 10px;
+            background: var(--soft); border-radius: var(--r-sm);
+            margin-bottom: 28px;
+            border: 1px dashed var(--line);
+        }
+        .ct-seating-grid { display: grid; gap: 8px; }
+        .ct-seat {
+            aspect-ratio: 7/5;
+            background: var(--soft); border: 1px solid var(--line);
+            border-radius: var(--r-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12.5px; font-weight: 500; color: var(--ink);
+            text-align: center; padding: 4px; cursor: pointer;
+            transition: border-color 0.15s, background 0.15s, transform 0.15s;
+            user-select: none;
+        }
+        .ct-seat:hover { border-color: var(--ink); }
+        .ct-seat.selected { background: var(--brand); color: var(--soft); border-color: var(--brand); transform: scale(1.05); }
+        .ct-seat.empty { background: transparent; color: var(--subtle); border-style: dashed; }
+        .ct-seat span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+        .ct-seating-hint { font-size: 12.5px; color: var(--muted); margin: 16px 0 0; text-align: center; }
+        @media print {
+            body * { visibility: hidden; }
+            .ct-seating-stage, .ct-seating-stage * { visibility: visible; }
+            .ct-seating-stage { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+        }
+
+        /* Applause */
+        .ct-applause-wrap { padding: 12px 0; }
+        .ct-applause-intro { text-align: center; font-size: 14px; color: var(--muted); margin: 0 0 28px; }
+        .ct-applause-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+        .ct-sound-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; padding: 26px 16px;
+            background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md);
+            cursor: pointer; font-family: inherit;
+            transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+            min-height: 130px;
+        }
+        .ct-sound-btn:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .ct-sound-btn.playing { background: var(--brand); border-color: var(--brand); color: var(--soft); transform: scale(0.97); }
+        .ct-sound-btn i { font-size: 32px; color: var(--brand); transition: color 0.15s; }
+        .ct-sound-btn.playing i { color: var(--soft); }
+        .ct-sound-btn span { font-size: 15px; font-weight: 700; color: var(--ink); }
+        .ct-sound-btn.playing span { color: var(--soft); }
+        .ct-sound-btn em { font-style: normal; font-size: 11.5px; color: var(--muted); font-weight: 500; }
+        .ct-sound-btn.playing em { color: rgba(250,247,240,0.85); }
+
+        /* Whiteboard */
+        .ct-wb-wrap { display: flex; flex-direction: column; gap: 14px; }
+        .ct-wb-toolbar {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            padding: 12px 16px;
+            background: var(--paper); border: 1px solid var(--line);
+            border-radius: var(--r-md);
+        }
+        .ct-wb-colors, .ct-wb-sizes { display: inline-flex; gap: 6px; padding: 4px; background: var(--soft); border-radius: var(--r-sm); }
+        .ct-wb-colors button {
+            width: 26px; height: 26px; border-radius: 50%;
+            border: 2px solid transparent; cursor: pointer; padding: 0;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .ct-wb-colors button:hover { transform: scale(1.12); }
+        .ct-wb-colors button.active { border-color: var(--ink); }
+        .ct-wb-sizes button {
+            width: 26px; height: 26px;
+            display: flex; align-items: center; justify-content: center;
+            border: none; background: transparent; cursor: pointer;
+            border-radius: 50%; padding: 0;
+            transition: background 0.15s;
+        }
+        .ct-wb-sizes button:hover { background: var(--paper); }
+        .ct-wb-sizes button.active { background: var(--paper); box-shadow: inset 0 0 0 1px var(--ink); }
+        .ct-wb-sizes button span { display: inline-block; background: var(--ink); border-radius: 50%; }
+        .ct-wb-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 8px 14px; font-size: 13px; font-weight: 500;
+            background: var(--paper); color: var(--text);
+            border: 1px solid var(--line); border-radius: var(--r-sm);
+            cursor: pointer; font-family: inherit;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .ct-wb-btn:hover { border-color: var(--ink); color: var(--ink); }
+        .ct-wb-btn.active { background: var(--brand); color: var(--soft); border-color: var(--brand); }
+        .ct-wb-stage {
+            position: relative; width: 100%;
+            height: 64vh; min-height: 480px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.04);
+        }
+        #wb-canvas { display: block; cursor: crosshair; touch-action: none; }
     </style>
 </head>
 <body>
@@ -304,6 +433,30 @@
                 <div class="ct-tool-desc">麦克风驱动的弹跳可视化。声音越大、小球弹得越高。可切换小球、表情、数字、气泡四种主题。</div>
                 <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
             </div>
+            <div class="ct-tool-card" data-tool="groups">
+                <div class="ct-tool-icon" style="background:#e7ede8;color:#2d6a4f"><i class="ph-fill ph-users-three"></i></div>
+                <div class="ct-tool-name">随机分组</div>
+                <div class="ct-tool-desc">输入花名册和组数，自动公平打散为若干小组。可指定每组人数或组总数。</div>
+                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
+            </div>
+            <div class="ct-tool-card" data-tool="seating">
+                <div class="ct-tool-icon" style="background:#fbf2dd;color:#b08642"><i class="ph-fill ph-grid-four"></i></div>
+                <div class="ct-tool-name">座位表</div>
+                <div class="ct-tool-desc">按指定行列生成座位表，自动安排花名册并可一键洗牌、点击两个座位互换。</div>
+                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
+            </div>
+            <div class="ct-tool-card" data-tool="applause">
+                <div class="ct-tool-icon" style="background:#fbe8e4;color:#c0392b"><i class="ph-fill ph-hands-clapping"></i></div>
+                <div class="ct-tool-name">课堂音效</div>
+                <div class="ct-tool-desc">鼓掌、欢呼、上下课铃、计时结束、提示音——课堂常用音效一键播放。</div>
+                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
+            </div>
+            <div class="ct-tool-card" data-tool="whiteboard">
+                <div class="ct-tool-icon" style="background:#e6eef7;color:#2c5282"><i class="ph-fill ph-pen-nib"></i></div>
+                <div class="ct-tool-name">简易白板</div>
+                <div class="ct-tool-desc">投影时随手批注、画重点。多色画笔、橡皮、清空、撤销、保存为图片。</div>
+                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
+            </div>
         </div>
     </div>
 
@@ -335,10 +488,14 @@ let _activeTool = null;
 let _toolCleanup = null;
 
 const TOOLS = {
-    countdown: { title: '倒计时', mount: mountCountdown },
-    picker:    { title: '随机点名', mount: mountPicker },
-    wheel:     { title: '转盘抽奖', mount: mountWheel },
-    balls:     { title: '音浪小球', mount: mountBalls }
+    countdown:  { title: '倒计时',     mount: mountCountdown },
+    picker:     { title: '随机点名',   mount: mountPicker },
+    wheel:      { title: '转盘抽奖',   mount: mountWheel },
+    balls:      { title: '音浪小球',   mount: mountBalls },
+    groups:     { title: '随机分组',   mount: mountGroups },
+    seating:    { title: '座位表',     mount: mountSeating },
+    applause:   { title: '课堂音效',   mount: mountApplause },
+    whiteboard: { title: '简易白板',   mount: mountWhiteboard }
 };
 
 document.querySelectorAll('.ct-tool-card').forEach(card => {
@@ -1132,6 +1289,467 @@ function mountBalls(root) {
         if (raf) cancelAnimationFrame(raf);
         disableMic();
         window.removeEventListener('resize', onWindowResize);
+        if (ro) ro.disconnect();
+    };
+}
+
+/* ============== 5. 随机分组 ============== */
+function mountGroups(root) {
+    const stored = localStorage.getItem('ctGroupsRoster') || '李明 张伟 王芳 刘洋 陈静 周琪\n赵磊 黄敏 吴昊 郑思宇 孙逸 朱可\n林楠 苏睿 钱晓 沈灵';
+    root.innerHTML = `
+        <div class="ct-groups-wrap">
+            <div class="ct-groups-left">
+                <label class="ct-input-label" style="font-weight:500">花名册（每行/空格/逗号分隔）</label>
+                <textarea class="ct-textarea" id="gp-names" style="min-height:200px"></textarea>
+                <div class="ct-groups-controls">
+                    <div class="ct-groups-mode">
+                        <button class="active" data-mode="groupCount">指定组数</button>
+                        <button data-mode="perGroup">指定每组人数</button>
+                    </div>
+                    <div class="ct-input-group" style="justify-content:flex-start">
+                        <span class="ct-input-label" id="gp-mode-label">组数</span>
+                        <input type="number" class="ct-num-input" id="gp-num" min="2" max="40" value="4">
+                    </div>
+                    <button class="ct-btn-primary" id="gp-go">随机分组</button>
+                </div>
+            </div>
+            <div class="ct-groups-right">
+                <div class="ct-groups-meta" id="gp-meta">点击「随机分组」开始</div>
+                <div class="ct-groups-result" id="gp-result"></div>
+            </div>
+        </div>`;
+
+    const textarea = root.querySelector('#gp-names');
+    const numInput = root.querySelector('#gp-num');
+    const modeLabel = root.querySelector('#gp-mode-label');
+    const meta = root.querySelector('#gp-meta');
+    const result = root.querySelector('#gp-result');
+    const modeWrap = root.querySelector('.ct-groups-mode');
+    textarea.value = stored;
+    let mode = 'groupCount';
+
+    function parse() {
+        return textarea.value.split(/[\s,，;；、\n]+/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function distribute() {
+        const names = parse();
+        if (!names.length) { meta.textContent = '请先输入花名册'; return; }
+        const num = Math.max(1, Math.floor(Number(numInput.value) || 1));
+        const shuffled = shuffle([...names]);
+        let groups;
+        if (mode === 'groupCount') {
+            const g = Math.min(num, names.length);
+            groups = Array.from({length: g}, () => []);
+            shuffled.forEach((name, i) => groups[i % g].push(name));
+        } else {
+            const per = num;
+            const g = Math.ceil(names.length / per);
+            groups = Array.from({length: g}, (_, i) => shuffled.slice(i * per, (i + 1) * per));
+        }
+        meta.textContent = `共 ${names.length} 人 · 分为 ${groups.length} 组`;
+        const tones = ['#c0392b','#2c5282','#2d6a4f','#b08642','#574a3d','#962b1f','#3a5070','#a05a3e','#7a2218','#1e3a32'];
+        result.innerHTML = groups.map((g, i) => {
+            const tone = tones[i % tones.length];
+            return `<div class="ct-group-card">
+                <div class="ct-group-head" style="color:${tone}">
+                    <span class="ct-group-num">${String(i+1).padStart(2,'0')}</span>
+                    第 ${i+1} 组 · ${g.length} 人
+                </div>
+                <div class="ct-group-body">${g.map(n => `<span class="ct-group-chip">${escapeHtml(n)}</span>`).join('')}</div>
+            </div>`;
+        }).join('');
+        localStorage.setItem('ctGroupsRoster', textarea.value);
+    }
+
+    function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    modeWrap.addEventListener('click', ev => {
+        const btn = ev.target.closest('button[data-mode]');
+        if (!btn) return;
+        modeWrap.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mode = btn.dataset.mode;
+        modeLabel.textContent = mode === 'groupCount' ? '组数' : '每组人数';
+    });
+
+    root.querySelector('#gp-go').addEventListener('click', distribute);
+    textarea.addEventListener('input', () => localStorage.setItem('ctGroupsRoster', textarea.value));
+    return () => {};
+}
+
+/* ============== 6. 座位表 ============== */
+function mountSeating(root) {
+    const stored = localStorage.getItem('ctSeatingRoster') || '李明 张伟 王芳 刘洋 陈静 周琪 赵磊 黄敏 吴昊 郑思宇 孙逸 朱可 林楠 苏睿 钱晓 沈灵 罗梦 程依然 郭嘉 何文博 蒋宇辰 唐青云 韦星 余思';
+    root.innerHTML = `
+        <div class="ct-seating-wrap">
+            <div class="ct-seating-controls">
+                <div class="ct-input-group" style="justify-content:flex-start">
+                    <span class="ct-input-label">排数</span>
+                    <input type="number" class="ct-num-input" id="st-rows" min="1" max="20" value="6">
+                    <span class="ct-input-label">列数</span>
+                    <input type="number" class="ct-num-input" id="st-cols" min="1" max="20" value="6">
+                </div>
+                <button class="ct-btn-primary" id="st-shuffle">随机排座</button>
+                <button class="ct-btn-secondary" id="st-print">打印 / PDF</button>
+            </div>
+            <details style="background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 18px">
+                <summary style="font-size:13.5px;font-weight:500;color:var(--ink);cursor:pointer">花名册（点击展开）</summary>
+                <textarea class="ct-textarea" id="st-names" style="min-height:120px;margin-top:12px"></textarea>
+                <p style="font-size:12px;color:var(--muted);margin:8px 0 0">空格/逗号/换行分隔。修改后点击「随机排座」生效。</p>
+            </details>
+            <div class="ct-seating-stage">
+                <div class="ct-seating-front">讲台</div>
+                <div class="ct-seating-grid" id="st-grid"></div>
+                <p class="ct-seating-hint">点击两个座位互换 · 选中后再点别处取消</p>
+            </div>
+        </div>`;
+
+    const namesArea = root.querySelector('#st-names');
+    const rowsInput = root.querySelector('#st-rows');
+    const colsInput = root.querySelector('#st-cols');
+    const grid = root.querySelector('#st-grid');
+    namesArea.value = stored;
+
+    let rows = 6, cols = 6;
+    let layout = [];   // 1D array of names or null
+    let selectedIdx = null;
+
+    function parse() {
+        return namesArea.value.split(/[\s,，;；、\n]+/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function generate() {
+        rows = Math.max(1, Math.min(20, Math.floor(Number(rowsInput.value) || 6)));
+        cols = Math.max(1, Math.min(20, Math.floor(Number(colsInput.value) || 6)));
+        const total = rows * cols;
+        const names = shuffle(parse());
+        layout = Array.from({length: total}, (_, i) => names[i] || null);
+        selectedIdx = null;
+        render();
+        localStorage.setItem('ctSeatingRoster', namesArea.value);
+    }
+
+    function render() {
+        grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+        grid.innerHTML = layout.map((n, i) => {
+            const empty = !n ? ' empty' : '';
+            const sel = i === selectedIdx ? ' selected' : '';
+            return `<div class="ct-seat${empty}${sel}" data-idx="${i}">${n ? `<span>${escapeHtml(n)}</span>` : '<i class="ph ph-armchair"></i>'}</div>`;
+        }).join('');
+    }
+
+    function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    grid.addEventListener('click', ev => {
+        const seat = ev.target.closest('.ct-seat');
+        if (!seat) return;
+        const idx = Number(seat.dataset.idx);
+        if (selectedIdx === null) {
+            selectedIdx = idx;
+        } else if (selectedIdx === idx) {
+            selectedIdx = null;
+        } else {
+            [layout[idx], layout[selectedIdx]] = [layout[selectedIdx], layout[idx]];
+            selectedIdx = null;
+        }
+        render();
+    });
+
+    root.querySelector('#st-shuffle').addEventListener('click', generate);
+    root.querySelector('#st-print').addEventListener('click', () => window.print());
+    namesArea.addEventListener('input', () => localStorage.setItem('ctSeatingRoster', namesArea.value));
+
+    generate();
+    return () => {};
+}
+
+/* ============== 7. 课堂音效 ============== */
+function mountApplause(root) {
+    root.innerHTML = `
+        <div class="ct-applause-wrap">
+            <p class="ct-applause-intro">点击任意按钮播放对应音效。可投影到大屏使用，营造课堂氛围。</p>
+            <div class="ct-applause-grid">
+                <button class="ct-sound-btn" data-sound="applause"><i class="ph-fill ph-hands-clapping"></i><span>掌声</span><em>鼓掌欢迎</em></button>
+                <button class="ct-sound-btn" data-sound="cheer"><i class="ph-fill ph-confetti"></i><span>欢呼</span><em>庆祝时刻</em></button>
+                <button class="ct-sound-btn" data-sound="bell"><i class="ph-fill ph-bell-ringing"></i><span>上课铃</span><em>清脆铃声</em></button>
+                <button class="ct-sound-btn" data-sound="chime"><i class="ph-fill ph-musical-notes"></i><span>提示音</span><em>注意听讲</em></button>
+                <button class="ct-sound-btn" data-sound="timeup"><i class="ph-fill ph-alarm"></i><span>时间到</span><em>限时结束</em></button>
+                <button class="ct-sound-btn" data-sound="drumroll"><i class="ph-fill ph-drum"></i><span>鼓点</span><em>悬念预热</em></button>
+                <button class="ct-sound-btn" data-sound="correct"><i class="ph-fill ph-check-circle"></i><span>答对了</span><em>积极反馈</em></button>
+                <button class="ct-sound-btn" data-sound="wrong"><i class="ph-fill ph-x-circle"></i><span>再想想</span><em>温和提示</em></button>
+            </div>
+        </div>`;
+
+    let ctx = null;
+    function ac() { return ctx || (ctx = new (window.AudioContext || window.webkitAudioContext)()); }
+
+    function envelope(g, a, p, d, t, gain) {
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gain, t + a);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.0001, gain * 0.4), t + a + p);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + a + p + d);
+    }
+
+    function tone(freq, t, dur, gain, type='sine') {
+        const c = ac();
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type; o.frequency.setValueAtTime(freq, t);
+        o.connect(g); g.connect(c.destination);
+        envelope(g, 0.01, dur * 0.3, dur * 0.6, t, gain);
+        o.start(t); o.stop(t + dur + 0.1);
+    }
+
+    function noise(t, dur, gain, filterFreq=2000) {
+        const c = ac();
+        const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        const src = c.createBufferSource(); src.buffer = buf;
+        const flt = c.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = filterFreq;
+        const g = c.createGain();
+        src.connect(flt); flt.connect(g); g.connect(c.destination);
+        envelope(g, 0.01, dur * 0.4, dur * 0.5, t, gain);
+        src.start(t); src.stop(t + dur + 0.1);
+    }
+
+    const sounds = {
+        applause: () => {
+            const t0 = ac().currentTime;
+            // 12 sharp claps, varied
+            for (let i = 0; i < 20; i++) {
+                noise(t0 + i * 0.1 + Math.random() * 0.04, 0.12, 0.16 + Math.random() * 0.06, 2200);
+            }
+        },
+        cheer: () => {
+            const t0 = ac().currentTime;
+            // rising chord + crowd
+            [261.6, 329.6, 392, 523.2].forEach((f, i) => tone(f, t0 + i * 0.08, 0.9, 0.12, 'triangle'));
+            for (let i = 0; i < 10; i++) noise(t0 + 0.2 + i * 0.08, 0.18, 0.08, 1800);
+        },
+        bell: () => {
+            const t0 = ac().currentTime;
+            [880, 1320, 1760].forEach((f, i) => {
+                const c = ac(); const o = c.createOscillator(); const g = c.createGain();
+                o.type = 'sine'; o.frequency.value = f;
+                o.connect(g); g.connect(c.destination);
+                const t = t0 + i * 0.05;
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(0.22 / (i + 1), t + 0.01);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+                o.start(t); o.stop(t + 2);
+            });
+        },
+        chime: () => {
+            const t0 = ac().currentTime;
+            [523.25, 659.25, 784].forEach((f, i) => tone(f, t0 + i * 0.13, 0.5, 0.18, 'sine'));
+        },
+        timeup: () => {
+            const t0 = ac().currentTime;
+            for (let i = 0; i < 4; i++) tone(880, t0 + i * 0.35, 0.22, 0.25, 'square');
+        },
+        drumroll: () => {
+            const t0 = ac().currentTime;
+            for (let i = 0; i < 28; i++) noise(t0 + i * 0.05, 0.06, 0.14, 400);
+            tone(220, t0 + 1.5, 0.4, 0.3, 'sawtooth');
+        },
+        correct: () => {
+            const t0 = ac().currentTime;
+            [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, t0 + i * 0.09, 0.25, 0.18, 'triangle'));
+        },
+        wrong: () => {
+            const t0 = ac().currentTime;
+            [349.23, 311.13, 277.18].forEach((f, i) => tone(f, t0 + i * 0.18, 0.32, 0.18, 'sawtooth'));
+        }
+    };
+
+    root.querySelectorAll('.ct-sound-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const fn = sounds[btn.dataset.sound];
+            if (fn) {
+                fn();
+                btn.classList.add('playing');
+                setTimeout(() => btn.classList.remove('playing'), 600);
+            }
+        });
+    });
+
+    return () => { if (ctx) ctx.close().catch(()=>{}); ctx = null; };
+}
+
+/* ============== 8. 简易白板 ============== */
+function mountWhiteboard(root) {
+    root.innerHTML = `
+        <div class="ct-wb-wrap">
+            <div class="ct-wb-toolbar">
+                <div class="ct-wb-colors">
+                    <button data-color="#1a1612" class="active" style="background:#1a1612"></button>
+                    <button data-color="#c0392b" style="background:#c0392b"></button>
+                    <button data-color="#2c5282" style="background:#2c5282"></button>
+                    <button data-color="#2d6a4f" style="background:#2d6a4f"></button>
+                    <button data-color="#b08642" style="background:#b08642"></button>
+                    <button data-color="#7c3aed" style="background:#7c3aed"></button>
+                </div>
+                <div class="ct-wb-sizes">
+                    <button data-size="2"><span style="width:4px;height:4px"></span></button>
+                    <button data-size="4" class="active"><span style="width:8px;height:8px"></span></button>
+                    <button data-size="8"><span style="width:14px;height:14px"></span></button>
+                    <button data-size="16"><span style="width:20px;height:20px"></span></button>
+                </div>
+                <button class="ct-wb-btn" id="wb-eraser"><i class="ph ph-eraser"></i> 橡皮</button>
+                <button class="ct-wb-btn" id="wb-undo"><i class="ph ph-arrow-counter-clockwise"></i> 撤销</button>
+                <button class="ct-wb-btn" id="wb-clear"><i class="ph ph-trash"></i> 清空</button>
+                <button class="ct-wb-btn" id="wb-save"><i class="ph ph-download"></i> 保存</button>
+            </div>
+            <div class="ct-wb-stage">
+                <canvas id="wb-canvas"></canvas>
+            </div>
+        </div>`;
+
+    const stage = root.querySelector('.ct-wb-stage');
+    const canvas = root.querySelector('#wb-canvas');
+    const ctx = canvas.getContext('2d');
+    let dpr = window.devicePixelRatio || 1;
+    let drawing = false;
+    let lastX = 0, lastY = 0;
+    let color = '#1a1612';
+    let size = 4;
+    let erasing = false;
+    let snapshots = [];
+
+    function resize() {
+        const w = stage.clientWidth, h = stage.clientHeight;
+        // preserve content via temporary copy
+        const tmp = document.createElement('canvas');
+        tmp.width = canvas.width; tmp.height = canvas.height;
+        tmp.getContext('2d').drawImage(canvas, 0, 0);
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(tmp, 0, 0, tmp.width / dpr, tmp.height / dpr, 0, 0, w, h);
+    }
+
+    function snap() {
+        try {
+            const data = canvas.toDataURL('image/png');
+            snapshots.push(data);
+            if (snapshots.length > 40) snapshots.shift();
+        } catch {}
+    }
+
+    function getXY(ev) {
+        const rect = canvas.getBoundingClientRect();
+        const t = ev.touches ? ev.touches[0] : ev;
+        return [t.clientX - rect.left, t.clientY - rect.top];
+    }
+
+    function start(ev) {
+        ev.preventDefault();
+        snap();
+        drawing = true;
+        [lastX, lastY] = getXY(ev);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+    }
+
+    function move(ev) {
+        if (!drawing) return;
+        ev.preventDefault();
+        const [x, y] = getXY(ev);
+        ctx.strokeStyle = erasing ? '#ffffff' : color;
+        ctx.lineWidth = erasing ? size * 4 : size;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        [lastX, lastY] = [x, y];
+    }
+
+    function end() { drawing = false; }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
+    canvas.addEventListener('touchend', end);
+
+    root.querySelectorAll('.ct-wb-colors button').forEach(b => {
+        b.addEventListener('click', () => {
+            root.querySelectorAll('.ct-wb-colors button').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            color = b.dataset.color;
+            erasing = false;
+            root.querySelector('#wb-eraser').classList.remove('active');
+        });
+    });
+    root.querySelectorAll('.ct-wb-sizes button').forEach(b => {
+        b.addEventListener('click', () => {
+            root.querySelectorAll('.ct-wb-sizes button').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            size = Number(b.dataset.size);
+        });
+    });
+    root.querySelector('#wb-eraser').addEventListener('click', (ev) => {
+        erasing = !erasing;
+        ev.currentTarget.classList.toggle('active', erasing);
+    });
+    root.querySelector('#wb-undo').addEventListener('click', () => {
+        if (!snapshots.length) return;
+        const data = snapshots.pop();
+        const img = new Image();
+        img.onload = () => {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, stage.clientWidth, stage.clientHeight);
+            ctx.drawImage(img, 0, 0, stage.clientWidth, stage.clientHeight);
+        };
+        img.src = data;
+    });
+    root.querySelector('#wb-clear').addEventListener('click', () => {
+        if (!confirm('清空白板？此操作不可撤销。')) return;
+        snap();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, stage.clientWidth, stage.clientHeight);
+    });
+    root.querySelector('#wb-save').addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.download = `whiteboard-${new Date().toISOString().slice(0,16).replace(/[T:]/g,'-')}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+    });
+
+    const onResize = () => resize();
+    resize();
+    window.addEventListener('resize', onResize);
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') {
+        ro = new ResizeObserver(onResize);
+        ro.observe(stage);
+    }
+
+    return () => {
+        window.removeEventListener('resize', onResize);
+        window.removeEventListener('mouseup', end);
         if (ro) ro.disconnect();
     };
 }
