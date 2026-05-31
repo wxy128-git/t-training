@@ -15,36 +15,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header-inner">
-        <a href="index.html" class="site-logo">
-            <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
-            <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Training Hub</span></div>
-        </a>
-        <nav class="site-nav resources-desktop-nav">
-            <a href="index.html" class="nav-link">首页</a>
-            <a href="tools.html" class="nav-link">AI工具</a>
-            <a href="news.html" class="nav-link">全球资讯</a>
-            <a href="paths.html" class="nav-link">学习路径</a>
-            <a href="prompts.html" class="nav-link">提示词库</a>
-            <a href="showcase.html" class="nav-link">案例展示</a>
-            <a href="articles.html" class="nav-link">精选文章</a>
-            <a href="resources.html" class="nav-link active">设计资源</a>
-            <button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>
-        </nav>
-    </div>
-    <div class="resources-mobile-nav">
-        <div>
-            <a href="index.html" class="nav-link">首页</a>
-            <a href="tools.html" class="nav-link">AI工具</a>
-            <a href="news.html" class="nav-link">全球资讯</a>
-            <a href="paths.html" class="nav-link">学习路径</a>
-            <a href="prompts.html" class="nav-link">提示词库</a>
-            <a href="resources.html" class="nav-link active">设计资源</a>
-            <button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>
-        </div>
-    </div>
-</header>
+<div id="main-nav"></div>
 
 <main class="resource-page">
     <section class="resource-hero">
@@ -67,9 +38,7 @@
     </div>
 </main>
 
-<footer class="site-footer compact-footer">
-    <div class="footer-bottom">© 2025 AI 教师培训中心 · 设计资源库</div>
-</footer>
+<div id="main-footer"></div>
 
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 <script>
@@ -201,7 +170,12 @@ document.getElementById('searchInput').addEventListener('input', event => {
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260530-admin-delete"></script>
-<script src="js/auth.js?v=20260530-admin-delete"></script>
+<script src="js/auth.js?v=20260601-hamburger"></script>
+<script>
+renderNav('resources');
+renderFooter();
+onAuthReady(() => { renderNav('resources'); renderFooter(); });
+</script>
 <script src="js/assistant.js"></script>
 </body>
 </html>

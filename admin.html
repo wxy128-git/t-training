@@ -95,7 +95,7 @@
             <div class="panel active" id="panel-dashboard">
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:20px">概览</h2>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:28px" id="dash-stats"></div>
-                <div style="background:white;border-radius:14px;padding:20px;border:1px solid #f1f5f9">
+                <div style="background:var(--paper);border-radius:var(--r-md);padding:22px;border:1px solid var(--line)">
                     <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">数据库管理</h3>
                     <p style="font-size:13px;color:#64748b;margin-bottom:12px">数据已同步至 Firebase Firestore，所有注册用户均可看到最新内容。</p>
                     <button onclick="seedDatabase()" style="padding:10px 20px;background:#10B981;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px"><i class="ph ph-database"></i>初始化数据库（写入默认工具和提示词）</button>
@@ -109,7 +109,7 @@
                     <h2 style="font-size:1.3rem;font-weight:800">公告管理</h2>
                     <button onclick="openAnnModal(null)" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增公告</button>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table id="ann-table"><thead><tr><th>标题</th><th>内容</th><th>时间</th><th>操作</th></tr></thead><tbody id="ann-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
                         <button class="filter-pill" id="cp-filter-all" onclick="setCPFilter('all',this)">全部</button>
                     </div>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>名称</th><th>作者</th><th>分类</th><th>内容摘要</th><th>点赞</th><th>状态</th><th>操作</th></tr></thead><tbody id="cp-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -139,7 +139,7 @@
                         <button class="filter-pill" id="sc-filter-all" onclick="setSCFilter('all',this)">全部</button>
                     </div>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>标题</th><th>作者</th><th>学科</th><th>工具</th><th>描述摘要</th><th>状态</th><th>操作</th></tr></thead><tbody id="sc-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -150,7 +150,7 @@
                     <h2 style="font-size:1.3rem;font-weight:800">邮件订阅列表</h2>
                     <span id="sub-count-label" style="font-size:13px;color:#94a3b8"></span>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>邮箱</th><th>订阅时间</th><th>操作</th></tr></thead><tbody id="sub-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                     <h2 style="font-size:1.3rem;font-weight:800">联系留言</h2>
                     <span id="msg-count-label" style="font-size:13px;color:#94a3b8"></span>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>姓名</th><th>联系方式</th><th>留言内容</th><th>来源</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead><tbody id="msg-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -172,7 +172,7 @@
                     <h2 style="font-size:1.3rem;font-weight:800">文章管理</h2>
                     <button onclick="openArticleModal(null)" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ph ph-plus"></i>发布文章</button>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>标题</th><th>分类</th><th>类型</th><th>作者</th><th>状态</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="articles-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -186,7 +186,7 @@
                         <button onclick="resetTools()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                     </div>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>名称</th><th>分类</th><th>描述</th><th>URL</th><th>操作</th></tr></thead><tbody id="tools-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -200,7 +200,7 @@
                         <button onclick="resetPrompts()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                     </div>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>名称</th><th>分类</th><th>提示词内容</th><th>操作</th></tr></thead><tbody id="prompts-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
                     <button onclick="resetPaths()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;cursor:pointer;background:white;font-family:inherit">恢复默认</button>
                 </div>
                 <p style="font-size:13px;color:#64748b;margin-bottom:16px">当前版本支持查看和删除学习路径。编辑路径步骤请直接修改 <code>js/data.js</code> 文件中的 DEFAULT_PATHS 数据。</p>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>路径名称</th><th>级别</th><th>时长</th><th>步骤数</th><th>操作</th></tr></thead><tbody id="paths-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -233,7 +233,7 @@
                         <button id="auth-delete-btn" class="reject-btn" onclick="deleteUserByIdentifier()" style="height:40px;white-space:nowrap">清理账号</button>
                     </div>
                 </div>
-                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
                 </div>
             </div>
@@ -418,7 +418,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260530-admin-delete"></script>
 <script src="js/data.js?v=20260528-tips"></script>
-<script src="js/auth.js?v=20260530-admin-delete"></script>
+<script src="js/auth.js?v=20260601-hamburger"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSCs = [], _adminSubs = [], _adminArticles = [];

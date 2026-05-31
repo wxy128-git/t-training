@@ -324,28 +324,63 @@ function renderNav(currentPage) {
     const el = document.getElementById('main-nav');
     if (!el) return;
     el.innerHTML = `
-    <style>.hm{} @media(max-width:640px){.hm{display:none}}</style>
     <header class="site-header">
         <div class="site-header-inner">
             <a href="index.html" class="site-logo">
                 <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
                 <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Training Hub</span></div>
             </a>
-            <nav class="site-nav" id="dn" style="display:none">${navLinks}${contactLink}${adminLink}</nav>
-            <div class="auth-area">${authHtml}</div>
+            <nav class="site-nav">${navLinks}${contactLink}${adminLink}</nav>
+            <div class="auth-area">
+                ${authHtml}
+                <button class="nav-hamburger" aria-label="打开菜单" onclick="openNavDrawer()"><i class="ph ph-list"></i></button>
+            </div>
         </div>
-        <div id="mn" style="border-top:1px solid #f1f5f9;overflow-x:auto">
-            <div style="display:flex;padding:0 16px;gap:2px;min-width:max-content">${navLinks}${contactLink}${adminLink}</div>
+    </header>
+    <div class="nav-drawer" id="nav-drawer" onclick="if(event.target===this)closeNavDrawer()">
+        <div class="nav-drawer-panel">
+            <div class="nav-drawer-head">
+                <div class="nav-drawer-brand">
+                    <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:15px"></i></div>
+                    <strong>AI 教师培训中心</strong>
+                </div>
+                <button class="nav-drawer-close" aria-label="关闭菜单" onclick="closeNavDrawer()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="nav-drawer-kicker">导航</div>
+            ${navLinks}
+            <div class="nav-drawer-kicker">其他</div>
+            ${contactLink}
+            ${adminLink}
         </div>
-    </header>`;
-
-    const mq = window.matchMedia('(min-width:768px)');
-    const tog = e => {
-        document.getElementById('dn').style.display = e.matches ? 'flex' : 'none';
-        document.getElementById('mn').style.display = e.matches ? 'none' : 'block';
-    };
-    tog(mq); mq.addEventListener('change', tog);
+    </div>`;
 }
+
+function openNavDrawer() {
+    const d = document.getElementById('nav-drawer');
+    if (!d) return;
+    d.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeNavDrawer() {
+    const d = document.getElementById('nav-drawer');
+    if (!d) return;
+    d.classList.remove('open');
+    document.body.style.overflow = '';
+}
+// Close drawer when a nav link inside it is clicked
+document.addEventListener('click', (ev) => {
+    const drawer = document.getElementById('nav-drawer');
+    if (!drawer || !drawer.classList.contains('open')) return;
+    const link = ev.target.closest('.nav-drawer-panel a.nav-link, .nav-drawer-panel button.nav-link');
+    if (link) closeNavDrawer();
+});
+// ESC closes
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+        const d = document.getElementById('nav-drawer');
+        if (d?.classList.contains('open')) closeNavDrawer();
+    }
+});
 
 /* ===== Auth 弹窗 ===== */
 function showAuthModal(tab) {

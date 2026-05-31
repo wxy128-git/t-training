@@ -46,8 +46,19 @@
         .ct-tool-hint { font-size: 11.5px; color: var(--brand); font-weight: 500; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
 
         /* Tool stage */
-        .ct-stage { display: none; min-height: calc(100vh - 200px); }
-        .ct-stage.active { display: flex; flex-direction: column; }
+        #ct-home, .ct-stage { transition: opacity 0.26s cubic-bezier(.2,.7,.2,1), transform 0.26s cubic-bezier(.2,.7,.2,1); }
+        #ct-home.leaving { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+        .ct-stage { display: none; min-height: calc(100vh - 200px); opacity: 0; transform: translateY(8px); }
+        .ct-stage.active { display: flex; flex-direction: column; opacity: 1; transform: translateY(0); }
+        .ct-stage.entering { opacity: 0; transform: translateY(8px); }
+        #ct-stage-content > * { animation: ct-stage-fade 0.32s cubic-bezier(.2,.7,.2,1) both; }
+        @keyframes ct-stage-fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #ct-home, .ct-stage, #ct-stage-content > * { transition: none !important; animation: none !important; transform: none !important; }
+        }
         .ct-stage-bar {
             display: flex; align-items: center; justify-content: space-between;
             padding-bottom: 20px; margin-bottom: 24px;
@@ -484,7 +495,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260530-admin-delete"></script>
-<script src="js/auth.js?v=20260531-classroom"></script>
+<script src="js/auth.js?v=20260601-hamburger"></script>
 <script>
 renderNav('classroom');
 renderFooter();
@@ -513,23 +524,44 @@ function openTool(key) {
     if (!tool) return;
     if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
     _activeTool = key;
-    document.getElementById('ct-home').style.display = 'none';
-    document.getElementById('ct-stage').classList.add('active');
-    document.getElementById('ct-stage-title').textContent = tool.title;
+    const home = document.getElementById('ct-home');
+    const stage = document.getElementById('ct-stage');
+    const title = document.getElementById('ct-stage-title');
     const container = document.getElementById('ct-stage-content');
-    container.innerHTML = '';
-    _toolCleanup = tool.mount(container) || null;
+
+    // animate home out, then mount the tool and fade stage in
+    home.classList.add('leaving');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    location.hash = '#' + key;
+
+    setTimeout(() => {
+        home.style.display = 'none';
+        home.classList.remove('leaving');
+        title.textContent = tool.title;
+        container.innerHTML = '';
+        stage.classList.add('active');
+        // ensure browser commits the hidden state before mounting + revealing
+        stage.classList.add('entering');
+        _toolCleanup = tool.mount(container) || null;
+        requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('entering')));
+        location.hash = '#' + key;
+    }, 240);
 }
 
 function ctBack() {
-    if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
-    _activeTool = null;
-    document.getElementById('ct-home').style.display = '';
-    document.getElementById('ct-stage').classList.remove('active');
-    if (document.body.classList.contains('ct-fullscreen')) ctToggleFullscreen();
-    history.replaceState(null, '', location.pathname);
+    const home = document.getElementById('ct-home');
+    const stage = document.getElementById('ct-stage');
+    stage.classList.add('entering');           // fade stage out
+    setTimeout(() => {
+        if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
+        _activeTool = null;
+        stage.classList.remove('active');
+        stage.classList.remove('entering');
+        home.style.display = '';
+        home.classList.add('leaving');
+        requestAnimationFrame(() => requestAnimationFrame(() => home.classList.remove('leaving')));
+        if (document.body.classList.contains('ct-fullscreen')) ctToggleFullscreen();
+        history.replaceState(null, '', location.pathname);
+    }, 220);
 }
 
 function ctToggleFullscreen() {
