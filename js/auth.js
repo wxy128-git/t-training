@@ -297,6 +297,7 @@ function renderNav(currentPage) {
     const pages = [
         { key:'index',     href:'index.html',    label:'首页' },
         { key:'tools',     href:'tools.html',    label:'AI工具' },
+        { key:'classroom', href:'classroom-tools.html', label:'课堂工具' },
         { key:'news',      href:'news.html',     label:'全球资讯' },
         { key:'paths',     href:'paths.html',    label:'学习路径' },
         { key:'prompts',   href:'prompts.html',  label:'提示词库' },
