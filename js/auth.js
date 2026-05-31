@@ -396,6 +396,26 @@ function switchAuthTab(tab) {
     ['tab-li','tab-rg'].forEach((id,i) => { const el=document.getElementById(id); if(el) el.className='modal-tab'+((i===0)===isLogin?' active':''); });
 }
 
+function showWelcomeOverlay(kind, name) {
+    const greeting = kind === 'register' ? '欢迎加入' : '欢迎回来';
+    const subtitle = kind === 'register'
+        ? '账号创建成功，正在为您准备个性化内容…'
+        : '正在为您加载最新内容…';
+    const overlay = document.createElement('div');
+    overlay.className = 'welcome-overlay';
+    overlay.innerHTML = `
+        <div class="welcome-card">
+            <div class="welcome-avatar">${(name || '教师').slice(0, 1).toUpperCase()}</div>
+            <div class="welcome-greeting">${greeting}</div>
+            <div class="welcome-name">${name || '教师用户'}</div>
+            <div class="welcome-subtitle">${subtitle}</div>
+            <div class="welcome-spinner" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('show'));
+    setTimeout(() => location.reload(), 1700);
+}
+
 async function handleLogin() {
     const identifier = document.getElementById('li-email').value.trim();
     const pwd = document.getElementById('li-pwd').value;
@@ -407,7 +427,7 @@ async function handleLogin() {
     btn.disabled = false; btn.textContent = '登录';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
     closeAuthModal();
-    location.reload();
+    showWelcomeOverlay('login', Auth.getCurrentUser()?.name);
 }
 
 async function handleRegister() {
@@ -423,7 +443,7 @@ async function handleRegister() {
     btn.disabled = false; btn.textContent = '创建账号';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
     closeAuthModal();
-    location.reload();
+    showWelcomeOverlay('register', name);
 }
 
 /* ===== Toast ===== */
