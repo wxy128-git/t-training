@@ -1844,3 +1844,53 @@ tr:hover td { background: var(--soft); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: padding-box; border: 2px solid transparent; }
+
+/* ===== Mobile / tablet polish ===== */
+@media (max-width: 980px) {
+    /* Nav cannot fit 8 items at this width — let it scroll horizontally */
+    .site-nav {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        max-width: calc(100vw - 280px);
+        margin-right: 8px;
+    }
+    .site-nav::-webkit-scrollbar { display: none; }
+    .nav-link { flex-shrink: 0; padding: 8px 12px; font-size: 13px; }
+}
+@media (max-width: 720px) {
+    .site-header-inner { height: 60px; padding: 0 16px; gap: 10px; }
+    .site-logo-icon { width: 34px; height: 34px; }
+    .site-logo-text strong { font-size: 13.5px; }
+    .site-logo-text span { display: none; }
+    .site-nav { max-width: calc(100vw - 190px); }
+    .auth-area { gap: 6px; }
+    .btn-login { padding: 7px 12px; font-size: 12.5px; }
+    .btn-register { padding: 8px 14px; font-size: 12.5px; }
+    .user-avatar { width: 32px; height: 32px; font-size: 13px; }
+    /* section header layout breaks when h2 and "查看全部" both want a line */
+    .section-header-row { align-items: flex-start; flex-direction: column; gap: 12px; }
+    .section-header { padding-top: 32px; margin-bottom: 28px; }
+    .section-header.compact { margin-bottom: 18px; }
+    /* contact band stacks vertically on phone */
+    .contact-band { padding: 22px; gap: 16px; }
+    /* subscribe section tighter */
+    .subscribe-section { padding: 44px 22px; }
+    .subscribe-section::before { display: none; }
+    /* announcement label badge */
+    .announcement { padding: 14px 16px; }
+}
+@media (max-width: 560px) {
+    .hero { padding: 56px 18px 48px; }
+    .hero h1 { font-size: 38px; letter-spacing: -0.025em; }
+    .hero p { font-size: 15.5px; margin-bottom: 28px; }
+    .hero-btns { gap: 10px; }
+    .btn-hero-primary, .btn-hero-secondary { padding: 13px 22px; font-size: 14px; }
+    .home-main { padding: 36px 18px 60px; gap: 48px; }
+    .feature-card { padding: 18px 20px; }
+    .feature-card::before { top: 14px; right: 18px; font-size: 10px; }
+    .stat-item strong { font-size: 1.55rem; }
+    /* classroom-tools control bar wraps onto multiple rows nicely */
+    .ct-stage-bar { gap: 8px; padding-bottom: 14px; margin-bottom: 18px; }
+    .ct-stage-title { font-size: 18px; flex-basis: 100%; order: -1; }
+}
