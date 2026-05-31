@@ -964,49 +964,61 @@ tr:hover td { background: var(--soft); }
 .path-card { overflow: hidden; }
 .path-card-head {
     min-height: 140px;
-    padding: 30px;
-    color: white;
+    padding: 28px;
+    color: var(--ink);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     position: relative;
 }
+.path-card-head::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--brand);
+}
 .path-card-head::after {
     content: ''; position: absolute; left: 0; right: 0; bottom: 0;
-    height: 1px; background: rgba(255,255,255,0.16);
+    height: 1px; background: rgba(26,22,18,0.08);
 }
 .path-card-icon {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 14px;
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1;
     flex-shrink: 0;
+    color: var(--brand);
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(26,22,18,0.08);
+    border-radius: var(--r-sm);
 }
 .path-card-head h3 {
     margin: 0 0 6px;
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 19px;
     font-weight: 700;
     letter-spacing: -0.015em;
+    color: var(--ink);
 }
-.path-card-head p { margin: 0; opacity: .8; font-size: 13.5px; line-height: 1.65; }
+.path-card-head p { margin: 0; color: var(--text-soft); font-size: 13.5px; line-height: 1.65; }
 .path-card-meta {
-    margin-top: 12px;
+    margin-top: 14px;
     font-size: 12px;
-    opacity: .8;
+    color: var(--muted);
     display: flex; align-items: center; gap: 6px;
 }
 .path-card-meta span {
-    background: rgba(255,255,255,0.16);
-    padding: 2px 9px;
+    background: rgba(255,255,255,0.78);
+    color: var(--ink);
+    padding: 3px 10px;
     border-radius: 999px;
     margin-left: 4px;
+    border: 1px solid rgba(26,22,18,0.08);
+    font-weight: 500;
 }
-.path-card-body { padding: 26px; }
+.path-card-body { padding: 22px 28px 26px; }
 
 /* ===== Showcase card ===== */
 .showcase-card { padding: 0; overflow: hidden; }

@@ -98,7 +98,10 @@ function renderTools() {
 renderNav('tools');
 renderFooter();
 
-// Load public data immediately
+// Render defaults synchronously so the page is never blank, then
+// replace with live Firestore data once it arrives.
+_allTools = (typeof DEFAULT_TOOLS !== 'undefined') ? JSON.parse(JSON.stringify(DEFAULT_TOOLS)) : [];
+renderTools();
 DB.getTools().then(tools => {
     _allTools = tools;
     renderTools();
