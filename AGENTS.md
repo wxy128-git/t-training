@@ -8,14 +8,14 @@
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
 - Deployment: push to GitHub `main`, Cloudflare Pages auto-deploys the static site and `functions/` directory.
 - Firebase is used for authentication and Firestore-backed data.
-- Migrated off Netlify on 2026-05-30 after the Netlify team credit limit was exceeded. Legacy `netlify/functions/` files are kept as a reference snapshot but are no longer wired up.
+- Migrated off Netlify on 2026-05-30 after the Netlify team credit limit was exceeded. The legacy `netlify/functions/` directory was removed on 2026-05-31 once the Cloudflare deployment was confirmed stable.
 
 ## Latest Deployment
 
 - 2026-05-30: Migrated hosting and functions from Netlify to Cloudflare Pages. New host is `xylaoshi.pages.dev`.
 - Netlify Functions (`netlify/functions/*.js`) were rewritten as Cloudflare Pages Functions in `functions/api/*.js` (auth-proxy, admin-users, rss-proxy). Frontend calls now use `/api/...` paths.
 - `admin-users.js` had to swap Node's `crypto.createSign` and `Buffer` for Web Crypto API + atob/TextEncoder because Cloudflare Workers do not expose Node built-ins.
-- Contact form was previously a Netlify Forms submission; it now writes to Firestore collection `contact_messages` (fields: name, contact, message, page, userId, userEmail, userPhone, createdAt, handled). Admin UI to browse this collection has not been built yet.
+- Contact form was previously a Netlify Forms submission; it now writes to Firestore collection `contact_messages` (fields: name, contact, message, page, userId, userEmail, userPhone, createdAt, handled). An admin panel ("联系留言") was added on 2026-05-31 to browse, toggle handled state, and delete messages.
 - Deployment flow: push to GitHub `main` → Cloudflare Pages auto-deploys.
 
 ## Completed In Recent Work
@@ -44,7 +44,7 @@
 
 - Admin email configured in code: `admin@xylaoshi.com`
 - Password is not stored in the repo. Reset it through Firebase Authentication if forgotten.
-- Full admin deletion requires a Firebase service account configured as Cloudflare Pages environment variables (Settings → Variables and Secrets, Type: Secret). Accepted variable names: `FIREBASE_SERVICE_ACCOUNT` / `FIREBASE_ADMIN_CREDENTIALS` / `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` plus `FIREBASE_PRIVATE_KEY`. As of 2026-05-30 these are NOT yet set on Cloudflare; the delete-user endpoint will return 501 until they are. Other admin operations still work without them.
+- Full admin deletion requires a Firebase service account configured as Cloudflare Pages environment variables (Settings → Variables and Secrets, Type: Secret). Accepted variable names: `FIREBASE_SERVICE_ACCOUNT` / `FIREBASE_ADMIN_CREDENTIALS` / `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` plus `FIREBASE_PRIVATE_KEY`. `FIREBASE_SERVICE_ACCOUNT` was wired up on 2026-05-31. Watch out for leading whitespace in the Name field — CF does not auto-trim, which silently breaks reads.
 
 ## Current Behavior To Remember
 

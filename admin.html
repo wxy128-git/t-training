@@ -59,6 +59,7 @@
             <div class="sidebar-item" onclick="switchPanel('community-prompts',this)"><i class="ph ph-chats-circle"></i>社区提示词</div>
             <div class="sidebar-item" onclick="switchPanel('showcases',this)"><i class="ph ph-shooting-star"></i>案例审核</div>
             <div class="sidebar-item" onclick="switchPanel('subscribers',this)"><i class="ph ph-envelope-simple"></i>邮件订阅</div>
+            <div class="sidebar-item" onclick="switchPanel('messages',this)"><i class="ph ph-chat-circle-text"></i>联系留言</div>
             <div class="sidebar-item" onclick="switchPanel('articles-mgr',this)"><i class="ph ph-article"></i>文章管理</div>
             <div style="height:1px;background:#1e293b;margin:12px 8px"></div>
             <div class="sidebar-item" onclick="switchPanel('tools-mgr',this)"><i class="ph ph-wrench"></i>工具管理</div>
@@ -134,6 +135,17 @@
                 </div>
                 <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>邮箱</th><th>订阅时间</th><th>操作</th></tr></thead><tbody id="sub-tbody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Contact messages -->
+            <div class="panel" id="panel-messages">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h2 style="font-size:1.3rem;font-weight:800">联系留言</h2>
+                    <span id="msg-count-label" style="font-size:13px;color:#94a3b8"></span>
+                </div>
+                <div style="background:white;border-radius:14px;border:1px solid #f1f5f9;overflow:hidden">
+                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>联系方式</th><th>留言内容</th><th>来源</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead><tbody id="msg-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -439,6 +451,7 @@ async function switchPanel(name, el) {
     if (name === 'community-prompts') await renderCPTable();
     if (name === 'showcases') await renderSCTable();
     if (name === 'subscribers') await renderSubsTable();
+    if (name === 'messages') await renderMessagesTable();
     if (name === 'articles-mgr') await renderArticlesTable();
     if (name === 'tools-mgr') await renderToolsTable();
     if (name === 'prompts-mgr') await renderPromptsTable();
@@ -448,12 +461,14 @@ async function switchPanel(name, el) {
 
 // ===== INIT =====
 async function initAdmin() {
-    const [tools, prompts, users, ann, cps, scs, subs, articles] = await Promise.all([
+    const [tools, prompts, users, ann, cps, scs, subs, articles, msgs] = await Promise.all([
         DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements(),
-        DB.getCommunityPrompts(), DB.getShowcases(), DB.getSubscribers(), DB.getArticles()
+        DB.getCommunityPrompts(), DB.getShowcases(), DB.getSubscribers(), DB.getArticles(),
+        DB.getMessages()
     ]);
     const pendingCPs = cps.filter(p => p.status === 'pending').length;
     const pendingSCs = scs.filter(s => s.status === 'pending').length;
+    const pendingMsgs = msgs.filter(m => !m.handled).length;
     document.getElementById('dash-stats').innerHTML = [
         { label:'注册用户', value: users.length, icon:'ph-users', color:'#4F46E5' },
         { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#10B981' },
@@ -462,7 +477,8 @@ async function initAdmin() {
         { label:'待审提示词', value: pendingCPs, icon:'ph-chats-circle', color:'#8B5CF6' },
         { label:'待审案例', value: pendingSCs, icon:'ph-shooting-star', color:'#EC4899' },
         { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3B82F6' },
-        { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#0D9488' }
+        { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#0D9488' },
+        { label:'待处理留言', value: pendingMsgs, icon:'ph-chat-circle-text', color:'#F97316' }
     ].map(s => `
         <div class="stat-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -629,6 +645,63 @@ async function deleteSub(id) {
     if (!confirm('确定删除该订阅？')) return;
     await DB.deleteSubscriber(id);
     await renderSubsTable();
+    showToast('已删除');
+}
+
+// ===== CONTACT MESSAGES =====
+function escapeHTML(str) {
+    return String(str || '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+}
+
+function formatMessageTime(value) {
+    if (!value) return '—';
+    const date = typeof value?.toDate === 'function' ? value.toDate() : new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleString('zh-CN', { hour12: false });
+}
+
+async function renderMessagesTable() {
+    const msgs = await DB.getMessages();
+    const pending = msgs.filter(m => !m.handled).length;
+    document.getElementById('msg-count-label').textContent = `共 ${msgs.length} 条 · ${pending} 条待处理`;
+    document.getElementById('msg-tbody').innerHTML = msgs.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">暂无留言</td></tr>'
+        : msgs.map(m => {
+            const sourcePage = (() => {
+                try {
+                    return m.page ? new URL(m.page).pathname.replace(/^\//, '') || '/' : '—';
+                } catch { return '—'; }
+            })();
+            const statusBadge = m.handled
+                ? '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11px;font-weight:600">已处理</span>'
+                : '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#fef3c7;color:#a16207;font-size:11px;font-weight:600">待处理</span>';
+            const toggleLabel = m.handled ? '标记未处理' : '标记已处理';
+            return `
+            <tr>
+                <td style="font-weight:500">${escapeHTML(m.name) || '匿名'}</td>
+                <td style="font-size:12px;color:#475569">${escapeHTML(m.contact) || '—'}</td>
+                <td style="max-width:360px;white-space:pre-wrap;line-height:1.6">${escapeHTML(m.message)}</td>
+                <td style="font-size:12px;color:#94a3b8">${escapeHTML(sourcePage)}</td>
+                <td style="font-size:12px;color:#94a3b8;white-space:nowrap">${formatMessageTime(m.createdAt)}</td>
+                <td>${statusBadge}</td>
+                <td style="white-space:nowrap">
+                    <button class="approve-btn" onclick="toggleMessageHandled('${m.id}', ${!m.handled})">${toggleLabel}</button>
+                    <button class="reject-btn" onclick="deleteMessage('${m.id}')">删除</button>
+                </td>
+            </tr>`;
+        }).join('');
+}
+
+async function toggleMessageHandled(id, handled) {
+    await DB.updateMessage(id, { handled });
+    await renderMessagesTable();
+    showToast(handled ? '已标记为已处理' : '已标记为待处理');
+}
+
+async function deleteMessage(id) {
+    if (!confirm('确定删除这条留言？')) return;
+    await DB.deleteMessage(id);
+    await renderMessagesTable();
     showToast('已删除');
 }
 

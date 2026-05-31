@@ -601,6 +601,20 @@ const DB = {
     },
     async deleteSubscriber(id) {
         await db.collection('subscribers').doc(id).delete();
+    },
+
+    /* ===== 联系留言 ===== */
+    async getMessages() {
+        try {
+            const snap = await db.collection('contact_messages').orderBy('createdAt', 'desc').get();
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch(e) { console.warn('getMessages:', e.message); return []; }
+    },
+    async updateMessage(id, data) {
+        await db.collection('contact_messages').doc(id).update(data);
+    },
+    async deleteMessage(id) {
+        await db.collection('contact_messages').doc(id).delete();
     }
 };
 
