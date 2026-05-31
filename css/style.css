@@ -964,22 +964,22 @@ tr:hover td { background: var(--soft); }
 /* ===== Path card ===== */
 .path-card { overflow: hidden; }
 .path-card-head {
-    min-height: 140px;
+    min-height: 150px;
     padding: 28px;
-    color: var(--ink);
+    color: white;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     position: relative;
-}
-.path-card-head::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 4px; background: var(--brand);
+    overflow: hidden;
 }
 .path-card-head::after {
-    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
-    height: 1px; background: rgba(26,22,18,0.08);
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 55% 50% at 92% 12%, rgba(255,255,255,0.14), transparent 70%),
+        radial-gradient(ellipse 40% 50% at 5% 95%, rgba(255,255,255,0.06), transparent 70%);
 }
+.path-card-head > * { position: relative; }
 .path-card-icon {
     width: 42px;
     height: 42px;
@@ -990,33 +990,33 @@ tr:hover td { background: var(--soft); }
     font-size: 24px;
     line-height: 1;
     flex-shrink: 0;
-    color: var(--brand);
-    background: rgba(255,255,255,0.7);
-    border: 1px solid rgba(26,22,18,0.08);
+    color: white;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
     border-radius: var(--r-sm);
 }
 .path-card-head h3 {
     margin: 0 0 6px;
     font-family: var(--font-display);
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.015em;
-    color: var(--ink);
+    color: white;
 }
-.path-card-head p { margin: 0; color: var(--text-soft); font-size: 13.5px; line-height: 1.65; }
+.path-card-head p { margin: 0; color: rgba(255,255,255,0.78); font-size: 13.5px; line-height: 1.65; }
 .path-card-meta {
     margin-top: 14px;
     font-size: 12px;
-    color: var(--muted);
+    color: rgba(255,255,255,0.72);
     display: flex; align-items: center; gap: 6px;
 }
 .path-card-meta span {
-    background: rgba(255,255,255,0.78);
-    color: var(--ink);
+    background: rgba(255,255,255,0.18);
+    color: white;
     padding: 3px 10px;
     border-radius: 999px;
     margin-left: 4px;
-    border: 1px solid rgba(26,22,18,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
     font-weight: 500;
 }
 .path-card-body { padding: 22px 28px 26px; }
