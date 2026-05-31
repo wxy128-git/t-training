@@ -11,15 +11,16 @@
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1200px;margin:0 auto;padding:40px 16px">
+<main style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>精选文章</span></div>
 
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px">
         <div>
-            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">精选文章</h1>
-            <p style="font-size:14px;color:#64748b;margin-top:4px">AI 学习指南、工具推荐与一线教师的实战经验分享</p>
+            <div style="font-family:var(--font-display);font-style:italic;font-size:14px;color:var(--brand);font-variation-settings:'opsz' 144;margin-bottom:10px">Articles · 精选文章</div>
+            <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:500;font-variation-settings:'opsz' 144,'SOFT' 60;color:var(--ink);letter-spacing:-0.025em;line-height:1.1;margin:0">精选<span style="font-style:italic;color:var(--brand);font-variation-settings:'opsz' 144,'SOFT' 100">文章</span></h1>
+            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7">AI 学习指南、工具推荐与一线教师的实战经验分享。</p>
         </div>
-        <div style="font-size:13px;color:#94a3b8" id="article-count"></div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:14px;color:var(--muted);font-variation-settings:'opsz' 144" id="article-count"></div>
     </div>
 
     <div class="filter-bar" id="filter-bar">
@@ -45,21 +46,21 @@
 <script src="js/auth.js?v=20260530-admin-delete"></script>
 <script>
 const CAT_CONFIG = {
-    learning: { label:'学习指南', color:'#4F46E5', bg:'#EEF2FF' },
-    tools:    { label:'工具推荐', color:'#10B981', bg:'#F0FDF4' },
-    case:     { label:'教学案例', color:'#F59E0B', bg:'#FFFBEB' },
-    tips:     { label:'实战技巧', color:'#EC4899', bg:'#FDF2F8' },
-    news:     { label:'行业动态', color:'#3B82F6', bg:'#EFF6FF' },
-    other:    { label:'其他',     color:'#64748b', bg:'#F8FAFC' }
+    learning: { label:'学习指南', color:'#2d4a3a', bg:'#e7ede8' },
+    tools:    { label:'工具推荐', color:'#2c5282', bg:'#e6eef7' },
+    case:     { label:'教学案例', color:'#b08642', bg:'#fbf2dd' },
+    tips:     { label:'实战技巧', color:'#c0392b', bg:'#fbe8e4' },
+    news:     { label:'行业动态', color:'#574a3d', bg:'#efe9d9' },
+    other:    { label:'其他',     color:'#8a7d6d', bg:'#f5f0e4' }
 };
 
 const COVER_GRADIENTS = [
-    'linear-gradient(135deg,#4F46E5,#7C3AED)',
-    'linear-gradient(135deg,#10B981,#0D9488)',
-    'linear-gradient(135deg,#F59E0B,#EF4444)',
-    'linear-gradient(135deg,#3B82F6,#4F46E5)',
-    'linear-gradient(135deg,#EC4899,#8B5CF6)',
-    'linear-gradient(135deg,#06B6D4,#3B82F6)'
+    'linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)',
+    'linear-gradient(135deg,#574a3d 0%,#2b241d 100%)',
+    'linear-gradient(135deg,#c0392b 0%,#7a2218 100%)',
+    'linear-gradient(135deg,#3a5070 0%,#22344d 100%)',
+    'linear-gradient(135deg,#a05a3e 0%,#6e3a26 100%)',
+    'linear-gradient(135deg,#1e3a32 0%,#0f221d 100%)'
 ];
 
 let _articles = [];
