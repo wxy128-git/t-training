@@ -833,6 +833,16 @@ function mountBalls(root) {
         const m = v => Math.max(0, Math.round(v * (1 - amt)));
         return `rgb(${m(r)}, ${m(g)}, ${m(b)})`;
     }
+    function rgbaFromHex(hex, alpha, lightenAmt) {
+        const c = hex.replace('#','');
+        let r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+        if (lightenAmt) {
+            r = Math.min(255, Math.round(r + (255 - r) * lightenAmt));
+            g = Math.min(255, Math.round(g + (255 - g) * lightenAmt));
+            b = Math.min(255, Math.round(b + (255 - b) * lightenAmt));
+        }
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
 
     function makeBall(i, w, h) {
         const baseR = Math.max(20, Math.min(58, Math.sqrt((w * h) / (ballCount * 11))));
@@ -1017,22 +1027,23 @@ function mountBalls(root) {
             ctx.fill();
         } else if (theme === 'bubble') {
             const grad = ctx.createRadialGradient(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.1, b.x, b.y, b.r);
-            grad.addColorStop(0, 'rgba(255,255,255,0.6)');
-            grad.addColorStop(0.55, lighten(b.color, 0.45) + '55');
-            grad.addColorStop(1, b.color + '38');
+            grad.addColorStop(0,    'rgba(255, 255, 255, 0.7)');
+            grad.addColorStop(0.55, rgbaFromHex(b.color, 0.33, 0.45));
+            grad.addColorStop(1,    rgbaFromHex(b.color, 0.22));
             ctx.fillStyle = grad;
             ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = lighten(b.color, 0.45);
-            ctx.globalAlpha = 0.6; ctx.lineWidth = 1.5;
+            ctx.strokeStyle = rgbaFromHex(b.color, 0.7, 0.45);
+            ctx.lineWidth = 1.5;
             ctx.stroke();
-            ctx.globalAlpha = 1;
+            // big shimmer
             ctx.beginPath();
             ctx.arc(b.x - b.r * 0.4, b.y - b.r * 0.42, b.r * 0.22, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.fill();
+            // small shimmer
             ctx.beginPath();
-            ctx.arc(b.x - b.r * 0.55, b.y - b.r * 0.15, b.r * 0.08, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.arc(b.x - b.r * 0.55, b.y - b.r * 0.15, b.r * 0.09, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
             ctx.fill();
         } else if (theme === 'emoji') {
             ctx.font = `${Math.round(b.r * 1.7)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
@@ -1067,7 +1078,8 @@ function mountBalls(root) {
     }
 
     function loop() {
-        step(); render();
+        try { step(); render(); }
+        catch (e) { console.warn('soundwave-balls render error:', e); }
         raf = requestAnimationFrame(loop);
     }
 
