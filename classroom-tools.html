@@ -835,14 +835,24 @@ function mountBalls(root) {
     }
 
     function makeBall(i, w, h) {
-        const baseR = Math.max(18, Math.min(54, Math.sqrt((w * h) / (ballCount * 11))));
-        const r = baseR * (0.82 + Math.random() * 0.36);
+        const baseR = Math.max(20, Math.min(58, Math.sqrt((w * h) / (ballCount * 11))));
+        // mix size buckets: 38% small, 44% medium, 18% large — strong visual variance
+        const roll = Math.random();
+        let sizeMul;
+        if (roll < 0.38)      sizeMul = 0.45 + Math.random() * 0.25; // 0.45 – 0.70
+        else if (roll < 0.82) sizeMul = 0.80 + Math.random() * 0.30; // 0.80 – 1.10
+        else                  sizeMul = 1.25 + Math.random() * 0.55; // 1.25 – 1.80
+        const r = baseR * sizeMul;
+        // physical mass ~ area: bigger ball is harder to push for the same audio impulse
+        const mass = sizeMul * sizeMul;
         return {
-            x: r + Math.random() * (w - r * 2),
-            y: r + Math.random() * (h * 0.5),
+            x: r + Math.random() * Math.max(1, w - r * 2),
+            y: r + Math.random() * Math.max(1, h * 0.5),
             vx: (Math.random() - 0.5) * 2,
             vy: 0,
             r,
+            mass,
+            sizeMul,
             color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
             emoji: EMOJIS[i % EMOJIS.length],
             number: i + 1
@@ -852,6 +862,18 @@ function mountBalls(root) {
     function rebuild() {
         const w = stage.clientWidth, h = stage.clientHeight;
         balls = Array.from({length: ballCount}, (_, i) => makeBall(i, w, h));
+    }
+
+    // Resize canvas and clamp existing balls into the new bounds —
+    // used by both window resize and fullscreen toggle, so balls
+    // don't get stranded outside the visible stage.
+    function syncCanvas() {
+        resize();
+        const w = stage.clientWidth, h = stage.clientHeight;
+        for (const b of balls) {
+            b.x = Math.min(w - b.r, Math.max(b.r, b.x));
+            b.y = Math.min(h - b.r, Math.max(b.r, b.y));
+        }
     }
 
     async function enableMic() {
@@ -909,9 +931,11 @@ function mountBalls(root) {
             for (const b of balls) {
                 const groundDist = (h - (b.y + b.r));
                 const groundBias = Math.max(0.25, 1 - groundDist / (h * 0.5));
-                const push = impulse * 22 * groundBias;
-                b.vy -= push * (0.6 + Math.random() * 0.5);
-                b.vx += (Math.random() - 0.5) * impulse * 6;
+                // F = m·a, so a = F / m. Bigger balls react less to the same
+                // audio impulse than small ones — tiny balls leap, large ones bounce.
+                const accel = (impulse * 26 * groundBias) / b.mass;
+                b.vy -= accel * (0.65 + Math.random() * 0.45);
+                b.vx += ((Math.random() - 0.5) * impulse * 7) / b.mass;
             }
         }
 
@@ -938,15 +962,25 @@ function mountBalls(root) {
                 const minD = a.r + b.r;
                 if (d2 < minD * minD && d2 > 0.01) {
                     const d = Math.sqrt(d2);
-                    const overlap = (minD - d) / 2;
+                    const overlap = (minD - d);
                     const nx = dx / d, ny = dy / d;
-                    a.x -= nx * overlap; a.y -= ny * overlap;
-                    b.x += nx * overlap; b.y += ny * overlap;
+                    // separate proportionally to inverse mass so large balls move less
+                    const totalMass = a.mass + b.mass;
+                    const aShare = b.mass / totalMass;
+                    const bShare = a.mass / totalMass;
+                    a.x -= nx * overlap * aShare; a.y -= ny * overlap * aShare;
+                    b.x += nx * overlap * bShare; b.y += ny * overlap * bShare;
+                    // mass-weighted elastic collision along the contact normal
                     const av = a.vx * nx + a.vy * ny;
                     const bv = b.vx * nx + b.vy * ny;
-                    const diff = (bv - av) * 0.92;
-                    a.vx += diff * nx; a.vy += diff * ny;
-                    b.vx -= diff * nx; b.vy -= diff * ny;
+                    if (av > bv) {
+                        const e = 0.86; // restitution
+                        const jImp = (1 + e) * (av - bv) / (1 / a.mass + 1 / b.mass);
+                        a.vx -= (jImp / a.mass) * nx;
+                        a.vy -= (jImp / a.mass) * ny;
+                        b.vx += (jImp / b.mass) * nx;
+                        b.vy += (jImp / b.mass) * ny;
+                    }
                 }
             }
         }
@@ -1069,16 +1103,24 @@ function mountBalls(root) {
         theme = btn.dataset.theme;
     });
 
-    const onResize = () => { resize(); rebuild(); };
+    const onWindowResize = () => syncCanvas();
     resize();
     rebuild();
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onWindowResize);
+    // ResizeObserver also picks up fullscreen toggles (CSS-only size change)
+    // that don't fire a window resize event.
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') {
+        ro = new ResizeObserver(() => syncCanvas());
+        ro.observe(stage);
+    }
     if (!raf) loop();
 
     return () => {
         if (raf) cancelAnimationFrame(raf);
         disableMic();
-        window.removeEventListener('resize', onResize);
+        window.removeEventListener('resize', onWindowResize);
+        if (ro) ro.disconnect();
     };
 }
 </script>
