@@ -203,10 +203,20 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
 (async () => {
     const paths = await DB.getPaths();
 
+    // Force the editorial palette, ignoring any legacy gradient that
+    // may still live in Firestore.
+    const PATH_PALETTE = {
+        starter: 'linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)',
+        teacher: 'linear-gradient(135deg,#574a3d 0%,#2b241d 100%)',
+        creator: 'linear-gradient(135deg,#c0392b 0%,#7a2218 100%)'
+    };
+    const PATH_FALLBACK = ['linear-gradient(135deg,#3a5070 0%,#22344d 100%)','linear-gradient(135deg,#a05a3e 0%,#6e3a26 100%)','linear-gradient(135deg,#1e3a32 0%,#0f221d 100%)'];
+    const grad = (p, i) => PATH_PALETTE[p.slug] || PATH_FALLBACK[i % PATH_FALLBACK.length];
+
     // Nav cards
     document.getElementById('path-nav-cards').innerHTML = paths.map((p, i) => `
     <a href="#${p.slug}" style="text-decoration:none">
-        <div class="path-nav-card" style="background:${p.gradient}">
+        <div class="path-nav-card" style="background:${grad(p, i)}">
             <div class="path-nav-number">No. ${String(i+1).padStart(2,'0')}</div>
             <i class="path-nav-icon ph-bold ${pathIcon(p)}" aria-hidden="true"></i>
             <div class="path-nav-title">${p.title}</div>
@@ -219,7 +229,7 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     document.getElementById('paths-detail').innerHTML = paths.map((p, i) => `
     <section id="${p.slug}" style="scroll-margin-top:80px">
         <div class="path-detail">
-            <div class="path-detail-head" style="background:${p.gradient}">
+            <div class="path-detail-head" style="background:${grad(p, i)}">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px">
                     <div>
                         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
@@ -257,7 +267,7 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
                         <div class="step-detail-inner">${s.detail}</div>
                     </div>`).join('')}
                 </div>
-                <button onclick="startPath(this)" class="path-start-btn" style="background:${p.gradient}">
+                <button onclick="startPath(this)" class="path-start-btn" style="background:${grad(p, i)}">
                     展开全部步骤，开始学习 →
                 </button>
             </div>
