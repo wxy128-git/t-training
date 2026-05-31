@@ -8,21 +8,27 @@
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .tab-switcher { display:flex; gap:0; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; background:#f8fafc; width:fit-content; margin-bottom:24px; }
-        .tab-switch-btn { padding:10px 24px; font-size:14px; font-weight:500; border:none; background:transparent; cursor:pointer; color:#64748b; transition:all 0.15s; font-family:inherit; }
-        .tab-switch-btn.active { background:white; color:#4F46E5; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.08); border-radius:10px; margin:4px; }
-        .community-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+        .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
+        .page-title { font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
+        .page-title em { font-style: italic; color: var(--brand); }
+        .page-sub { font-size: 14.5px; color: var(--muted); margin-top: 14px; line-height: 1.75; max-width: 600px; }
+        .tab-switcher { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--paper); width: fit-content; margin-bottom: 32px; padding: 4px; }
+        .tab-switch-btn { padding: 9px 22px; font-size: 13.5px; font-weight: 500; border: none; background: transparent; cursor: pointer; color: var(--muted); transition: background 0.15s, color 0.15s; font-family: inherit; border-radius: 999px; }
+        .tab-switch-btn:hover { color: var(--ink); }
+        .tab-switch-btn.active { background: var(--ink); color: var(--soft); font-weight: 600; }
+        .community-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
     </style>
 </head>
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1100px;margin:0 auto;padding:40px 16px">
+<main style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>提示词库</span></div>
 
-    <div style="margin-bottom:24px">
-        <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">教学提示词库</h1>
-        <p style="font-size:14px;color:#64748b;margin-top:4px">即用模板，一键复制。将 <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">[ ]</code> 中的内容替换为你的实际信息后使用</p>
+    <div style="margin-bottom:36px">
+        <div class="page-kicker">Prompts · 教学提示词库</div>
+        <h1 class="page-title">即用<em>提示词</em>模板</h1>
+        <p class="page-sub">把 <code style="background:var(--soft-2);padding:2px 8px;border-radius:6px;font-family:var(--font-mono);font-size:13px">[ ]</code> 里的内容替换成你的实际信息，复制即用。</p>
     </div>
 
     <!-- Tab switcher -->
@@ -44,12 +50,12 @@
     <!-- Community tab -->
     <div id="section-community" style="display:none">
         <div class="community-header">
-            <p style="font-size:14px;color:#64748b">来自教师同行的实战提示词，点赞支持优质内容</p>
-            <button id="community-submit-btn" style="display:none;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" onclick="openCommunityModal()">
+            <p style="font-size:14px;color:var(--muted);margin:0">来自教师同行的实战提示词，点赞支持优质内容</p>
+            <button id="community-submit-btn" style="display:none;align-items:center;gap:6px;padding:10px 20px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s" onclick="openCommunityModal()" onmouseover="this.style.background='var(--brand)';this.style.borderColor='var(--brand)'" onmouseout="this.style.background='var(--ink)';this.style.borderColor='var(--ink)'">
                 <i class="ph ph-plus"></i> 投稿提示词
             </button>
         </div>
-        <div id="community-pending-notice" style="display:none;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:13px;color:#92400e;margin-bottom:16px">
+        <div id="community-pending-notice" style="display:none;padding:14px 18px;background:#fbf2dd;border:1px solid #ecd9a3;border-radius:var(--r-md);font-size:13px;color:#7a5a1c;margin-bottom:20px">
             <i class="ph ph-clock"></i> 您有待审核的提示词，管理员审核通过后将公开展示。
         </div>
         <div class="cards-grid cards-grid-2" id="community-grid"></div>
@@ -60,8 +66,8 @@
 <div class="modal-overlay" id="community-modal">
     <div class="modal-box" style="max-width:580px" onclick="event.stopPropagation()">
         <div class="modal-tabs">
-            <span style="font-size:16px;font-weight:700;color:#0f172a;padding:0 4px">投稿社区提示词</span>
-            <button onclick="closeCommunityModal()" style="margin-left:auto;padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
+            <span style="font-size:16px;font-weight:700;color:var(--ink);padding:0 4px">投稿社区提示词</span>
+            <button onclick="closeCommunityModal()" style="margin-left:auto;padding:0 16px;color:var(--subtle);background:none;border:none;cursor:pointer;font-size:22px;transition:color 0.15s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--subtle)'">×</button>
         </div>
         <div class="modal-body">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -197,10 +203,10 @@ async function renderCommunity() {
         <div class="card prompt-card">
             <div class="prompt-card-header">
                 <div class="prompt-card-title">
-                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0">${p.authorName?.charAt(0) || '?'}</div>
+                    <div style="width:36px;height:36px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--soft);flex-shrink:0;box-shadow:0 2px 6px rgba(150,43,31,0.22)">${p.authorName?.charAt(0) || '?'}</div>
                     <div>
-                        <div style="font-size:13px;font-weight:700;color:#0f172a">${p.label}</div>
-                        <div style="font-size:11px;color:#94a3b8;margin-top:1px">${p.authorName || '匿名'} · ${date}</div>
+                        <div style="font-size:14px;font-weight:700;color:var(--ink)">${p.label}</div>
+                        <div style="font-size:11.5px;color:var(--subtle);margin-top:2px">${p.authorName || '匿名'} · ${date}</div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
@@ -210,8 +216,8 @@ async function renderCommunity() {
                     </button>
                 </div>
             </div>
-            ${p.note ? `<div style="margin-bottom:10px;font-size:12px;color:#64748b;font-style:italic"><i class="ph ph-info"></i> ${p.note}</div>` : ''}
-            <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#374151;line-height:1.8;font-family:monospace;white-space:pre-wrap;word-break:break-all">${p.text}</div>
+            ${p.note ? `<div style="margin-bottom:10px;font-size:12.5px;color:var(--muted);font-style:italic"><i class="ph ph-info"></i> ${p.note}</div>` : ''}
+            <div style="background:var(--soft);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:14px 16px;font-size:13px;color:var(--text);line-height:1.85;font-family:var(--font-mono);white-space:pre-wrap;word-break:break-all">${p.text}</div>
             <div style="margin-top:10px">
                 <span class="badge-community">${{teaching:'教学设计',advanced:'进阶技巧',communication:'沟通协作',other:'其他'}[p.category] || p.category}</span>
             </div>

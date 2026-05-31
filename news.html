@@ -11,15 +11,16 @@
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1280px;margin:0 auto;padding:40px 16px">
+<main style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>全球资讯</span></div>
 
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px">
         <div>
-            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">全球 AI 教育资讯</h1>
-            <p style="font-size:14px;color:#64748b;margin-top:4px">来自顶尖媒体的 AI 与教育动态，双引擎自动抓取 · 30分钟本地缓存</p>
+            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500">News · 全球 AI 教育资讯</div>
+            <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.1;margin:0">顶尖媒体的<span style="font-style:italic;color:var(--brand)">每日精选</span></h1>
+            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7">双引擎自动抓取 · 30 分钟本地缓存。点击标题跳转原文阅读。</p>
         </div>
-        <button id="refresh-btn" onclick="refresh()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;color:#4F46E5;border:1px solid #c7d2fe;border-radius:10px;background:white;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='#EEF2FF'" onmouseout="this.style.background='white'">
+        <button id="refresh-btn" onclick="refresh()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;font-size:13.5px;color:var(--text);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);cursor:pointer;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
             <i class="ph ph-arrows-clockwise" id="refresh-icon"></i> 刷新
         </button>
     </div>
@@ -28,12 +29,12 @@
     <div class="filter-bar" id="feed-tabs"></div>
 
     <!-- Status -->
-    <div id="fetch-status" style="font-size:12px;color:#94a3b8;margin-bottom:16px"></div>
+    <div id="fetch-status" style="font-size:12px;color:var(--subtle);margin-bottom:20px"></div>
 
     <!-- Grid -->
     <div class="cards-grid cards-grid-3" id="news-grid"></div>
 
-    <p style="font-size:11px;color:#cbd5e1;text-align:center;margin-top:24px">内容来自第三方媒体，以原文语言呈现；点击标题跳转原文阅读</p>
+    <p style="font-size:11.5px;color:var(--subtle);text-align:center;margin-top:36px">内容来自第三方媒体，以原文语言呈现；点击标题跳转原文阅读</p>
 </main>
 
 <div id="main-footer"></div>
@@ -97,8 +98,8 @@ function renderItems(items) {
                 <span class="news-source">${domain}</span>·<span>${date}</span>
             </div>
             <h3 class="line-clamp-2">${item.title}</h3>
-            <p class="line-clamp-3" style="margin-top:8px;font-size:12px;color:#64748b;line-height:1.7">${desc}${desc?'…':''}</p>
-            <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:12px;color:#4F46E5;font-weight:500;opacity:0" class="read-more">
+            <p class="line-clamp-3" style="margin-top:10px;font-size:13px;color:var(--muted);line-height:1.75">${desc}${desc?'…':''}</p>
+            <div style="margin-top:14px;display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--brand);font-weight:600;opacity:0" class="read-more">
                 阅读全文 <i class="ph ph-arrow-right"></i>
             </div>
         </a>`;
