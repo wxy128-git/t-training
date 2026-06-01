@@ -29,7 +29,7 @@ const DEFAULT_PROMPTS = [
 
 const DEFAULT_PATHS = [
     { id:'path1', slug:"starter", title:"AI 入门基础", subtitle:"零基础快速上手AI工具", icon:"ph-rocket-launch",
-      gradient:"linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)", duration:"约 2 周", level:"入门",
+      gradient:"linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)", duration:"约 2 周", level:"入门",
       desc:"从零开始了解人工智能，掌握基础提示词技巧，快速上手主流AI工具，为AI教学应用打下扎实基础。",
       steps:[
           { name:"理解AI与大语言模型的本质",
@@ -54,7 +54,7 @@ const DEFAULT_PATHS = [
       resources:["PrompterHub - 学习提示词技巧","Prompt123 - 中文提示词宝库","AI好记 - 分析优质课例"] },
 
     { id:'path2', slug:"teacher", title:"AI 教学应用", subtitle:"将AI工具融入日常教学全流程", icon:"ph-chalkboard-teacher",
-      gradient:"linear-gradient(135deg,#574a3d 0%,#2b241d 100%)", duration:"约 4 周", level:"进阶",
+      gradient:"linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)", duration:"约 4 周", level:"进阶",
       desc:"系统学习如何将AI工具嵌入备课、出题、评价、辅导、沟通各环节，大幅提升教学质量与工作效率。",
       steps:[
           { name:"AI智能出题与自动组卷",
@@ -82,7 +82,7 @@ const DEFAULT_PATHS = [
       resources:["快出题","AI好记","棒棒糖AI","Gamma - PPT生成","即梦AI - 视频生成"] },
 
     { id:'path3', slug:"creator", title:"AI 创作进阶", subtitle:"用AI打造沉浸式教学体验", icon:"ph-sparkle",
-      gradient:"linear-gradient(135deg,#c0392b 0%,#7a2218 100%)", duration:"约 6 周", level:"高级",
+      gradient:"linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)", duration:"约 6 周", level:"高级",
       desc:"掌握AI生成动画、音乐、数字人、绘本等高级创作技能，从内容消费者升级为内容创作者，搭建专属AI教学生态。",
       steps:[
           { name:"AI生成教学动画与微课视频",
@@ -120,7 +120,7 @@ const DEFAULT_ARTICLES = [
         status: 'published',
         author: 'AI教师培训中心',
         coverEmoji: '🧭',
-        coverColor: 'linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)',
+        coverColor: 'linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)',
         readCount: 128,
         publishedAt: '2026-05-28T08:00:00.000Z',
         createdAt: '2026-05-28T08:00:00.000Z',
@@ -206,7 +206,7 @@ AI 会据此减少不现实的活动设计。
         status: 'published',
         author: 'AI教师培训中心',
         coverEmoji: '📝',
-        coverColor: 'linear-gradient(135deg,#574a3d 0%,#2b241d 100%)',
+        coverColor: 'linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)',
         readCount: 96,
         publishedAt: '2026-05-27T08:00:00.000Z',
         createdAt: '2026-05-27T08:00:00.000Z',
@@ -291,7 +291,7 @@ AI 出题的价值不是让老师完全不看题，而是把“从零开始写�
         status: 'published',
         author: 'AI教师培训中心',
         coverEmoji: '🎞️',
-        coverColor: 'linear-gradient(135deg,#c0392b 0%,#7a2218 100%)',
+        coverColor: 'linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)',
         readCount: 112,
         publishedAt: '2026-05-26T08:00:00.000Z',
         createdAt: '2026-05-26T08:00:00.000Z',

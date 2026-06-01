@@ -206,11 +206,11 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     // Force the editorial palette, ignoring any legacy gradient that
     // may still live in Firestore.
     const PATH_PALETTE = {
-        starter: 'linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)',
-        teacher: 'linear-gradient(135deg,#574a3d 0%,#2b241d 100%)',
-        creator: 'linear-gradient(135deg,#c0392b 0%,#7a2218 100%)'
+        starter: 'linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)',
+        teacher: 'linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)',
+        creator: 'linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)'
     };
-    const PATH_FALLBACK = ['linear-gradient(135deg,#3a5070 0%,#22344d 100%)','linear-gradient(135deg,#a05a3e 0%,#6e3a26 100%)','linear-gradient(135deg,#1e3a32 0%,#0f221d 100%)'];
+    const PATH_FALLBACK = ['linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)','linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)','linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)'];
     const grad = (p, i) => PATH_PALETTE[p.slug] || PATH_FALLBACK[i % PATH_FALLBACK.length];
 
     // Nav cards

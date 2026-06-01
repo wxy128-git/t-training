@@ -252,11 +252,11 @@ Promise.all([
     // Paths preview — force the editorial palette, ignoring any
     // legacy gradient that may still live in Firestore.
     const PATH_PALETTE = {
-        starter: 'linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)',
-        teacher: 'linear-gradient(135deg,#574a3d 0%,#2b241d 100%)',
-        creator: 'linear-gradient(135deg,#c0392b 0%,#7a2218 100%)'
+        starter: 'linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)',
+        teacher: 'linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)',
+        creator: 'linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)'
     };
-    const PATH_FALLBACK = ['linear-gradient(135deg,#3a5070 0%,#22344d 100%)','linear-gradient(135deg,#a05a3e 0%,#6e3a26 100%)','linear-gradient(135deg,#1e3a32 0%,#0f221d 100%)'];
+    const PATH_FALLBACK = ['linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)','linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)','linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)'];
     document.getElementById('paths-preview').innerHTML = paths.map((p, i) => `
         <a href="paths.html#${p.slug}" class="card path-card" style="display:block">
             <div class="path-card-head" style="background:${PATH_PALETTE[p.slug] || PATH_FALLBACK[i % PATH_FALLBACK.length]}">
@@ -277,13 +277,23 @@ Promise.all([
     // Articles preview (3 items)
     if (articles.length > 0) {
         document.getElementById('articles-section').style.display = '';
-        const catColors = {learning:'#2d4a3a',tools:'#2c5282',case:'#b08642',tips:'#c0392b',news:'#574a3d',other:'#8a7d6d'};
+        const catColors = {learning:'#1f2f4a',tools:'#1f3a3e',case:'#332945',tips:'#3d242a',news:'#2c2f3a',other:'#252830'};
         const catLabels = {learning:'学习指南',tools:'工具推荐',case:'教学案例',tips:'实战技巧',news:'行业动态',other:'其他'};
-        const gradients = ['linear-gradient(135deg,#3d5c4a 0%,#2d4a3a 100%)','linear-gradient(135deg,#574a3d 0%,#2b241d 100%)','linear-gradient(135deg,#c0392b 0%,#7a2218 100%)'];
+        // Cool-tone covers to contrast the warm path family above; force the palette
+        // so legacy coverColor values in Firestore don't surface old warm colors.
+        const ARTICLE_GRADIENTS = [
+            'linear-gradient(135deg,#1f2f4a 0%,#101a2e 100%)',
+            'linear-gradient(135deg,#1f3a3e 0%,#102225 100%)',
+            'linear-gradient(135deg,#332945 0%,#1c1530 100%)',
+            'linear-gradient(135deg,#2c2f3a 0%,#181a22 100%)',
+            'linear-gradient(135deg,#3d242a 0%,#231016 100%)',
+            'linear-gradient(135deg,#252830 0%,#14171d 100%)'
+        ];
+        const articleGradient = (a, i) => ARTICLE_GRADIENTS[(Math.abs(String(a.id || i).charCodeAt(0)) + i) % ARTICLE_GRADIENTS.length];
         document.getElementById('articles-preview').innerHTML = articles.slice(0, 3).map((a, i) => {
-            const color = catColors[a.category] || '#64748b';
+            const color = catColors[a.category] || '#252830';
             const label = catLabels[a.category] || '其他';
-            const gradient = a.coverColor || gradients[i % gradients.length];
+            const gradient = articleGradient(a, i);
             const emoji = a.coverEmoji || '📝';
             const href = a.type === 'external' ? a.externalUrl : `article.html?id=${a.id}`;
             const target = a.type === 'external' ? ' target="_blank" rel="noopener noreferrer"' : '';
