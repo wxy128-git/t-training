@@ -369,6 +369,82 @@ AI 图片可以用于情境创设、故事插图和活动海报，但在科学�
     }
 ];
 
+const DEFAULT_RESOURCES = [
+    {
+        id: "photos",
+        title: "免费高清图库",
+        icon: "ph-image",
+        color: "text-rose-500",
+        bg: "bg-rose-50",
+        items: [
+            { name: "Unsplash", desc: "全球最大免费图库，数百万张高质量照片，完全开放商用", url: "https://unsplash.com", itemIcon: "ph-camera-plus" },
+            { name: "Pexels", desc: "精选摄影作品与视频素材，可按颜色、方向快速筛选", url: "https://pexels.com", itemIcon: "ph-video-camera" },
+            { name: "Pixabay", desc: "超过460万张图片与视频，支持中文搜索，无版权限制", url: "https://pixabay.com", itemIcon: "ph-globe" },
+            { name: "Picjumbo", desc: "精心策展的图片集合，每日更新，风格独特", url: "https://picjumbo.com", itemIcon: "ph-aperture" },
+            { name: "Life of Pix", desc: "摄影师社区贡献，强调自然与人文主题", url: "https://lifeofpix.com", itemIcon: "ph-users-three" },
+            { name: "Burst", desc: "专注商业场景的免费图库，按行业与主题分类", url: "https://burst.shopify.com", itemIcon: "ph-storefront" }
+        ]
+    },
+    {
+        id: "pngs",
+        title: "免抠 PNG 素材库",
+        icon: "ph-selection-inverse",
+        color: "text-amber-500",
+        bg: "bg-amber-50",
+        items: [
+            { name: "Cleanpng", desc: "海量透明PNG素材库，素材质量高，支持高分辨率下载", url: "https://cleanpng.com", itemIcon: "ph-bounding-box" },
+            { name: "StickPNG", desc: "充满活力的创意社区，超过70,000张透明背景PNG素材", url: "https://stickpng.com", itemIcon: "ph-sticker" },
+            { name: "PNGTree", desc: "提供部分免费下载额度，素材质量高", url: "https://pngtree.com", itemIcon: "ph-tree" },
+            { name: "PNGimg", desc: "超11万张免费透明背景PNG素材，无需注册即可下载", url: "https://pngimg.com", itemIcon: "ph-image-square" }
+        ]
+    },
+    {
+        id: "vectors",
+        title: "免费矢量图标库",
+        icon: "ph-bezier-curve",
+        color: "text-emerald-500",
+        bg: "bg-emerald-50",
+        items: [
+            { name: "Iconfinder", desc: "数百万个图标可选，提供免费与付费，支持SVG/PNG输出", url: "https://www.iconfinder.com", itemIcon: "ph-list-magnifying-glass" },
+            { name: "Iconpark", desc: "开源图标库，支持在线修改图标与多种格式输出", url: "https://iconpark.oceanengine.com/", itemIcon: "ph-shapes" },
+            { name: "Iconfont", desc: "阿里妈妈打造的矢量图标管理、交流平台", url: "https://www.iconfont.cn", itemIcon: "ph-sketch-logo" },
+            { name: "IconMonstr", desc: "简洁的单色图标集，完全免费，无需注册，可直接下载SVG", url: "https://iconmonstr.com", itemIcon: "ph-circles-three-plus" }
+        ]
+    },
+    {
+        id: "ai-remove",
+        title: "智能抠图平台",
+        icon: "ph-scissors",
+        color: "text-blue-500",
+        bg: "bg-blue-50",
+        items: [
+            { name: "BgSub", desc: "完全自动化、免费的抠图平台，支持离线使用", url: "https://bgsub.cn", itemIcon: "ph-magic-wand" },
+            { name: "趣作图", desc: "发丝级AI自动抠图，支持批量物品、批量人像抠图", url: "https://quzuotu.com", itemIcon: "ph-person-simple" },
+            { name: "Pixian", desc: "智能去除人像背景，下载高清版可能需要付费", url: "https://pixian.ai", itemIcon: "ph-crop" }
+        ]
+    },
+    {
+        id: "aigc",
+        title: "AIGC 应用平台",
+        icon: "ph-robot",
+        color: "text-violet-500",
+        bg: "bg-violet-50",
+        items: [
+            { name: "AI好记", desc: "可以分析优质公开课的AI工具", url: "https://aihaoji.com/zh?utm_source=invite&utm_content=MCHihFWN", itemIcon: "ph-book-open-text" },
+            { name: "快出题", desc: "可以快速出题组卷的效率工具", url: "https://kuaichuti.net/", itemIcon: "ph-exam" },
+            { name: "棒棒糖AI", desc: "辅助教研、听课、评课、议课", url: "https://bbt.etah-tech.com/publish/login?key=5SiCv0QgJ40=", itemIcon: "ph-chalkboard" },
+            { name: "Nano banana", desc: "功能强大的图片生成工具 (Gemini)", url: "https://gemini.google.com/app?hl=zh-cn", itemIcon: "ph-palette" },
+            { name: "Gamma", desc: "PPT视觉效果表现优秀的生成工具", url: "https://gamma.app/signup?r=qelbuujfixnt8t6", itemIcon: "ph-file-ppt" },
+            { name: "秘塔搜索", desc: "能够辅助建立知识库的专题研究功能", url: "https://metaso.cn/", itemIcon: "ph-magnifying-glass-plus" },
+            { name: "海绵音乐", desc: "可以快速生成歌曲的AI音乐工具", url: "https://www.haimian.com/", itemIcon: "ph-music-notes" },
+            { name: "飞象老师", desc: "快速生成高质量教学动画", url: "https://www.feixianglaoshi.com/", itemIcon: "ph-airplane-takeoff" },
+            { name: "即梦AI", desc: "可以生成数字人的AI视频工具", url: "https://jimeng.jianying.com/ai-tool/home/?utm_medium=bingpc&utm_source=pinzhuan&utm_campaign=button", itemIcon: "ph-film-strip" },
+            { name: "Coze", desc: "扣子 - 下一代 AI 智能体开发平台", url: "https://www.coze.cn/home", itemIcon: "ph-brain" },
+            { name: "飞影数字人", desc: "专业的数字人生成官网", url: "https://hifly.cc/i/GXyeDnoyGPc", itemIcon: "ph-user-circle" }
+        ]
+    }
+];
+
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
     async getTools() {
@@ -448,6 +524,7 @@ const DB = {
         DEFAULT_PROMPTS.forEach((item, i) => batch.set(db.collection('prompts').doc(item.id), { ...item, order: i }));
         DEFAULT_PATHS.forEach((item, i) => batch.set(db.collection('paths').doc(item.id), { ...item, order: i }));
         DEFAULT_ARTICLES.forEach((item, i) => batch.set(db.collection('articles').doc(item.id), { ...item, order: i }));
+        DEFAULT_RESOURCES.forEach((cat, i) => batch.set(db.collection('resource_categories').doc(cat.id), { ...cat, order: i }));
         await batch.commit();
     },
 
@@ -615,6 +692,30 @@ const DB = {
     },
     async deleteMessage(id) {
         await db.collection('contact_messages').doc(id).delete();
+    },
+
+    /* ===== 设计资源 ===== */
+    async getResources() {
+        try {
+            const snap = await db.collection('resource_categories').orderBy('order').get();
+            if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch(e) { console.warn('getResources:', e.message); }
+        return JSON.parse(JSON.stringify(DEFAULT_RESOURCES));
+    },
+    async setResources(categories) {
+        const batch = db.batch();
+        const ex = await db.collection('resource_categories').get();
+        ex.docs.forEach(d => batch.delete(d.ref));
+        categories.forEach((cat, i) => batch.set(db.collection('resource_categories').doc(cat.id), { ...cat, order: i }));
+        await batch.commit();
+    },
+    async saveResourceCategory(cat) {
+        const id = cat.id;
+        const { id: _ignore, ...rest } = cat;
+        await db.collection('resource_categories').doc(id).set(rest, { merge: true });
+    },
+    async deleteResourceCategory(id) {
+        await db.collection('resource_categories').doc(id).delete();
     }
 };
 

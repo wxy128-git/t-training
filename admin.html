@@ -82,6 +82,7 @@
             <div class="sidebar-item" onclick="switchPanel('tools-mgr',this)"><i class="ph ph-wrench"></i>工具管理</div>
             <div class="sidebar-item" onclick="switchPanel('prompts-mgr',this)"><i class="ph ph-chat-text"></i>提示词管理</div>
             <div class="sidebar-item" onclick="switchPanel('paths-mgr',this)"><i class="ph ph-path"></i>学习路径</div>
+            <div class="sidebar-item" onclick="switchPanel('resources-mgr',this)"><i class="ph ph-palette"></i>设计资源</div>
             <div class="sidebar-item" onclick="switchPanel('users',this)"><i class="ph ph-users"></i>用户列表</div>
             <div style="margin-top:20px;padding:8px 12px">
                 <a href="index.html" style="font-size:13px;color:#475569;display:flex;align-items:center;gap:6px"><i class="ph ph-arrow-left"></i>返回网站</a>
@@ -217,6 +218,19 @@
                 </div>
             </div>
 
+            <!-- Resources manager -->
+            <div class="panel" id="panel-resources-mgr">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h2 style="font-size:1.3rem;font-weight:800">设计资源管理</h2>
+                    <div style="display:flex;gap:8px">
+                        <button onclick="openCategoryModal(null)" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增分类</button>
+                        <button onclick="resetResources()" style="padding:8px 12px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;cursor:pointer;background:var(--paper);font-family:inherit">恢复默认</button>
+                    </div>
+                </div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px">每个分类下可以单独管理资源条目；改动会立即同步到设计资源页面。</p>
+                <div id="resources-list" style="display:flex;flex-direction:column;gap:14px"></div>
+            </div>
+
             <!-- Users -->
             <div class="panel" id="panel-users">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -335,6 +349,54 @@
     </div>
 </div>
 
+<!-- Resource category modal -->
+<div class="modal-admin" id="rescat-modal">
+    <div class="modal-box" style="max-width:520px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:10">
+            <h3 style="font-size:16px;font-weight:700" id="rescat-title">新增分类</h3>
+            <button onclick="closeModal('rescat-modal')" style="background:none;border:none;font-size:22px;color:var(--subtle);cursor:pointer">×</button>
+        </div>
+        <div style="padding:20px 24px">
+            <input type="hidden" id="rescat-original-id">
+            <div class="form-group"><label class="form-label">分类 ID *（小写英文，唯一）</label><input id="rescat-id" class="form-input" placeholder="例：videos"></div>
+            <div class="form-group"><label class="form-label">分类标题 *</label><input id="rescat-title-input" class="form-input" placeholder="例：免费视频素材库"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group"><label class="form-label">分类图标（Phosphor 类名）</label><input id="rescat-icon" class="form-input" placeholder="ph-image"></div>
+                <div class="form-group"><label class="form-label">颜色配色（Tailwind 风格类名）</label><input id="rescat-color" class="form-input" placeholder="text-rose-500"></div>
+            </div>
+            <div class="form-group"><label class="form-label">背景配色（Tailwind 风格类名）</label><input id="rescat-bg" class="form-input" placeholder="bg-rose-50"></div>
+            <div id="rescat-err" class="form-error" style="display:none"></div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+                <button class="btn-primary" onclick="saveCategory()" style="flex:1">保存分类</button>
+                <button onclick="closeModal('rescat-modal')" style="flex:0 0 auto;padding:12px 22px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-family:inherit;cursor:pointer">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resource item modal -->
+<div class="modal-admin" id="resitem-modal">
+    <div class="modal-box" style="max-width:520px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:10">
+            <h3 style="font-size:16px;font-weight:700" id="resitem-title">新增资源</h3>
+            <button onclick="closeModal('resitem-modal')" style="background:none;border:none;font-size:22px;color:var(--subtle);cursor:pointer">×</button>
+        </div>
+        <div style="padding:20px 24px">
+            <input type="hidden" id="resitem-catid">
+            <input type="hidden" id="resitem-idx">
+            <div class="form-group"><label class="form-label">资源名称 *</label><input id="resitem-name" class="form-input" placeholder="例：Pixabay"></div>
+            <div class="form-group"><label class="form-label">网址 *</label><input id="resitem-url" class="form-input" placeholder="https://..."></div>
+            <div class="form-group"><label class="form-label">说明 *</label><textarea id="resitem-desc" class="form-input" rows="3" style="resize:vertical" placeholder="一句话介绍这个资源的特色"></textarea></div>
+            <div class="form-group"><label class="form-label">条目图标（Phosphor 类名）</label><input id="resitem-icon" class="form-input" placeholder="ph-globe"></div>
+            <div id="resitem-err" class="form-error" style="display:none"></div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+                <button class="btn-primary" onclick="saveResourceItem()" style="flex:1">保存资源</button>
+                <button onclick="closeModal('resitem-modal')" style="flex:0 0 auto;padding:12px 22px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-family:inherit;cursor:pointer">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Article modal -->
 <div class="modal-admin" id="article-modal">
     <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
@@ -417,7 +479,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260530-admin-delete"></script>
-<script src="js/data.js?v=20260528-tips"></script>
+<script src="js/data.js?v=20260601-resources"></script>
 <script src="js/auth.js?v=20260601-hamburger"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
@@ -473,6 +535,7 @@ async function switchPanel(name, el) {
     if (name === 'tools-mgr') await renderToolsTable();
     if (name === 'prompts-mgr') await renderPromptsTable();
     if (name === 'paths-mgr') await renderPathsTable();
+    if (name === 'resources-mgr') await renderResourcesList();
     if (name === 'users') await renderUsersTable();
 }
 
@@ -880,6 +943,156 @@ async function resetPaths() {
     if (!confirm('确定恢复默认学习路径？')) return;
     await DB.setPaths(DEFAULT_PATHS);
     await renderPathsTable();
+    showToast('已恢复默认');
+}
+
+// ===== RESOURCES =====
+let _adminResources = [];
+
+function htmlEscape(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function renderResourcesList() {
+    _adminResources = await DB.getResources();
+    const list = document.getElementById('resources-list');
+    if (!_adminResources.length) {
+        list.innerHTML = `<div style="background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:32px;text-align:center;color:var(--muted)">暂无分类，点击右上角「新增分类」开始添加。</div>`;
+        return;
+    }
+    list.innerHTML = _adminResources.map((cat, ci) => `
+        <details ${ci === 0 ? 'open' : ''} style="background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden">
+            <summary style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;list-style:none;background:var(--soft);border-bottom:1px solid var(--line)">
+                <i class="ph ${htmlEscape(cat.icon || 'ph-folder')} ${htmlEscape(cat.color || '')}" style="font-size:20px"></i>
+                <span style="font-size:15px;font-weight:700;color:var(--ink)">${htmlEscape(cat.title)}</span>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:2px 8px;border-radius:999px">${htmlEscape(cat.id)}</span>
+                <span style="font-size:12px;color:var(--muted);margin-left:auto">${(cat.items || []).length} 条</span>
+                <button onclick="event.stopPropagation();event.preventDefault();openCategoryModal('${htmlEscape(cat.id)}')" class="edit-btn"><i class="ph ph-pencil-simple"></i></button>
+                <button onclick="event.stopPropagation();event.preventDefault();deleteCategory('${htmlEscape(cat.id)}')" class="reject-btn"><i class="ph ph-trash"></i></button>
+            </summary>
+            <div style="padding:14px 18px">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+                    <button onclick="openItemModal('${htmlEscape(cat.id)}', -1)" style="padding:6px 14px;background:transparent;color:var(--brand);border:1px solid var(--brand);border-radius:var(--r-sm);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px"><i class="ph ph-plus"></i>新增资源</button>
+                </div>
+                ${(cat.items || []).length === 0
+                    ? '<div style="padding:18px;text-align:center;font-size:13px;color:var(--muted)">分类下还没有资源</div>'
+                    : `<div style="display:flex;flex-direction:column;gap:8px">${(cat.items || []).map((it, ii) => `
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:var(--r-sm);background:var(--soft)">
+                            <i class="ph ${htmlEscape(it.itemIcon || 'ph-link')}" style="font-size:18px;color:var(--brand);flex-shrink:0"></i>
+                            <div style="flex:1;min-width:0">
+                                <div style="font-size:13.5px;font-weight:600;color:var(--ink)">${htmlEscape(it.name)}</div>
+                                <div style="font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${htmlEscape(it.desc)}</div>
+                                <a href="${htmlEscape(it.url)}" target="_blank" rel="noopener noreferrer" style="font-size:11.5px;color:var(--muted);font-family:var(--font-mono)" onclick="event.stopPropagation()">${htmlEscape(it.url)}</a>
+                            </div>
+                            <button onclick="openItemModal('${htmlEscape(cat.id)}', ${ii})" class="edit-btn"><i class="ph ph-pencil-simple"></i></button>
+                            <button onclick="deleteResourceItem('${htmlEscape(cat.id)}', ${ii})" class="reject-btn"><i class="ph ph-trash"></i></button>
+                        </div>
+                    `).join('')}</div>`}
+            </div>
+        </details>
+    `).join('');
+}
+
+function openCategoryModal(catId) {
+    const cat = catId ? _adminResources.find(c => c.id === catId) : null;
+    document.getElementById('rescat-title').textContent = cat ? '编辑分类' : '新增分类';
+    document.getElementById('rescat-original-id').value = cat ? cat.id : '';
+    document.getElementById('rescat-id').value = cat ? cat.id : '';
+    document.getElementById('rescat-id').disabled = !!cat; // id 不可改（doc 主键）
+    document.getElementById('rescat-title-input').value = cat ? cat.title || '' : '';
+    document.getElementById('rescat-icon').value = cat ? cat.icon || '' : '';
+    document.getElementById('rescat-color').value = cat ? cat.color || '' : '';
+    document.getElementById('rescat-bg').value = cat ? cat.bg || '' : '';
+    document.getElementById('rescat-err').style.display = 'none';
+    openModal('rescat-modal');
+}
+
+async function saveCategory() {
+    const originalId = document.getElementById('rescat-original-id').value;
+    const id = document.getElementById('rescat-id').value.trim();
+    const title = document.getElementById('rescat-title-input').value.trim();
+    const icon = document.getElementById('rescat-icon').value.trim() || 'ph-folder';
+    const color = document.getElementById('rescat-color').value.trim() || 'text-slate-500';
+    const bg = document.getElementById('rescat-bg').value.trim() || 'bg-slate-50';
+    const errEl = document.getElementById('rescat-err');
+    if (!id || !/^[a-z0-9-]+$/i.test(id)) { errEl.textContent = '分类 ID 必须是英文/数字/-'; errEl.style.display = ''; return; }
+    if (!title) { errEl.textContent = '请填写分类标题'; errEl.style.display = ''; return; }
+    if (!originalId && _adminResources.some(c => c.id === id)) { errEl.textContent = '该 ID 已存在'; errEl.style.display = ''; return; }
+    const existing = originalId ? _adminResources.find(c => c.id === originalId) : null;
+    const cat = {
+        id,
+        title, icon, color, bg,
+        items: existing ? existing.items || [] : [],
+        order: existing ? existing.order || 0 : _adminResources.length
+    };
+    await DB.saveResourceCategory(cat);
+    closeModal('rescat-modal');
+    await renderResourcesList();
+    showToast(originalId ? '已更新' : '已新增');
+}
+
+async function deleteCategory(catId) {
+    const cat = _adminResources.find(c => c.id === catId);
+    if (!cat) return;
+    if (!confirm(`确定删除分类「${cat.title}」？该分类下的所有资源也会一起删除。`)) return;
+    await DB.deleteResourceCategory(catId);
+    await renderResourcesList();
+    showToast('已删除');
+}
+
+function openItemModal(catId, idx) {
+    const cat = _adminResources.find(c => c.id === catId);
+    if (!cat) return;
+    const item = idx >= 0 ? (cat.items || [])[idx] : null;
+    document.getElementById('resitem-title').textContent = item ? '编辑资源' : '新增资源';
+    document.getElementById('resitem-catid').value = catId;
+    document.getElementById('resitem-idx').value = String(idx);
+    document.getElementById('resitem-name').value = item ? item.name || '' : '';
+    document.getElementById('resitem-url').value = item ? item.url || '' : '';
+    document.getElementById('resitem-desc').value = item ? item.desc || '' : '';
+    document.getElementById('resitem-icon').value = item ? item.itemIcon || '' : '';
+    document.getElementById('resitem-err').style.display = 'none';
+    openModal('resitem-modal');
+}
+
+async function saveResourceItem() {
+    const catId = document.getElementById('resitem-catid').value;
+    const idx = Number(document.getElementById('resitem-idx').value);
+    const name = document.getElementById('resitem-name').value.trim();
+    const url = document.getElementById('resitem-url').value.trim();
+    const desc = document.getElementById('resitem-desc').value.trim();
+    const itemIcon = document.getElementById('resitem-icon').value.trim() || 'ph-link';
+    const errEl = document.getElementById('resitem-err');
+    if (!name) { errEl.textContent = '请填写资源名称'; errEl.style.display = ''; return; }
+    if (!url || !/^https?:\/\//.test(url)) { errEl.textContent = '请填写有效网址（http:// 或 https://）'; errEl.style.display = ''; return; }
+    if (!desc) { errEl.textContent = '请填写说明'; errEl.style.display = ''; return; }
+    const cat = _adminResources.find(c => c.id === catId);
+    if (!cat) return;
+    cat.items = cat.items || [];
+    const item = { name, desc, url, itemIcon };
+    if (idx >= 0) cat.items[idx] = item;
+    else cat.items.push(item);
+    await DB.saveResourceCategory(cat);
+    closeModal('resitem-modal');
+    await renderResourcesList();
+    showToast('已保存');
+}
+
+async function deleteResourceItem(catId, idx) {
+    const cat = _adminResources.find(c => c.id === catId);
+    if (!cat || !cat.items || idx < 0 || idx >= cat.items.length) return;
+    const item = cat.items[idx];
+    if (!confirm(`确定删除资源「${item.name}」？`)) return;
+    cat.items.splice(idx, 1);
+    await DB.saveResourceCategory(cat);
+    await renderResourcesList();
+    showToast('已删除');
+}
+
+async function resetResources() {
+    if (!confirm('确定恢复默认资源数据？所有自定义内容将被覆盖。')) return;
+    await DB.setResources(DEFAULT_RESOURCES);
+    await renderResourcesList();
     showToast('已恢复默认');
 }
 
