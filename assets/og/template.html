@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>OG card template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,700;0,800;1,800&family=Noto+Sans+SC:wght@500;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#1a1612; --text:#3d342b; --muted:#8a7d6d;
+    --soft:#faf7f0; --line:#e0d9c7; --brand:#c0392b; --brand-dark:#962b1f;
+    --sans:"Plus Jakarta Sans","Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+    --mono:"JetBrains Mono",monospace;
+  }
+  html,body{width:1200px;height:630px;overflow:hidden}
+  body{
+    font-family:var(--sans);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(26,22,18,0.05) 1px, transparent 0) 0 0/26px 26px,
+      linear-gradient(135deg,#fbf8f2 0%,#f5f0e4 100%);
+    color:var(--text);
+    position:relative;
+  }
+  /* corner accents */
+  .frame{position:absolute;inset:40px;border:1px solid var(--line);border-radius:24px;pointer-events:none}
+  .stripe{position:absolute;left:40px;right:40px;bottom:40px;height:6px;background:var(--brand);border-radius:0 0 24px 24px}
+  .stage{position:absolute;inset:40px;padding:64px 72px;display:flex;flex-direction:column;justify-content:space-between}
+
+  /* top: brand */
+  .brand{display:flex;align-items:center;gap:16px}
+  .mark{
+    width:64px;height:64px;background:var(--brand);color:#fff;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:26px;letter-spacing:-0.02em;
+    box-shadow:0 6px 16px rgba(150,43,31,0.28);position:relative;
+  }
+  .mark::after{content:'';position:absolute;inset:5px;border:1.5px solid rgba(255,255,255,0.3);border-radius:9px}
+  .brand-text strong{display:block;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-0.01em;line-height:1.2}
+  .brand-text span{font-size:13px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;font-family:var(--mono)}
+
+  /* middle: title block */
+  .body{margin:auto 0}
+  .kicker{
+    display:inline-flex;align-items:center;gap:12px;
+    font-family:var(--mono);font-size:16px;font-weight:600;color:var(--brand);
+    letter-spacing:0.04em;margin-bottom:26px;
+  }
+  .kicker::before{content:'';width:34px;height:2px;background:var(--brand);opacity:0.55}
+  h1{
+    font-size:76px;font-weight:800;color:var(--ink);line-height:1.08;
+    letter-spacing:-0.03em;margin-bottom:26px;
+  }
+  h1 em{font-style:italic;color:var(--brand)}
+  .sub{font-size:25px;color:var(--text);line-height:1.5;max-width:760px;font-weight:500}
+
+  /* bottom: url */
+  .foot{display:flex;align-items:center;justify-content:space-between}
+  .url{font-family:var(--mono);font-size:18px;color:var(--muted);letter-spacing:0.02em}
+  .tag{font-family:var(--mono);font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 16px;letter-spacing:0.06em}
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <div class="stage">
+    <div class="brand">
+      <div class="mark">AI</div>
+      <div class="brand-text">
+        <strong>AI 教师培训中心</strong>
+        <span>Teacher AI Training Hub</span>
+      </div>
+    </div>
+    <div class="body">
+      <div class="kicker" id="kicker"></div>
+      <h1 id="title"></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="foot">
+      <div class="url">xylaoshi.pages.dev</div>
+      <div class="tag" id="tag"></div>
+    </div>
+  </div>
+  <div class="stripe"></div>
+
+<script>
+const PAGES = {
+  index: {
+    kicker: '首页 · HOME', tag: 'HOME',
+    title: '让 AI 真正<br>走进你的<em>课堂</em>',
+    sub: 'AI 工具 · 提示词模板 · 学习路径 · 教学案例 · 教育科技资讯'
+  },
+  tools: {
+    kicker: 'AI 工具箱 · TOOLS', tag: 'TOOLS',
+    title: '教师专用的<br><em>AI 工具箱</em>',
+    sub: '为教师场景精心筛选——备课 · 出题 · 课件 · 图像 · 数字人全覆盖'
+  },
+  prompts: {
+    kicker: '提示词库 · PROMPTS', tag: 'PROMPTS',
+    title: '教学提示词<br><em>速查模板</em>',
+    sub: '即用模板：备课 · 出题 · 评语 · 家校沟通，一键复制'
+  },
+  paths: {
+    kicker: '学习路径 · PATHS', tag: 'PATHS',
+    title: '结构化的<br>AI 教学<em>学习路径</em>',
+    sub: '三条进阶路径：入门基础 · 教学应用 · 创作进阶'
+  },
+  news: {
+    kicker: '教育资讯 · NEWS', tag: 'NEWS',
+    title: 'AI 教育<br><em>资讯日报</em>',
+    sub: '机器之心 · 量子位等顶尖媒体，双引擎自动抓取'
+  },
+  showcase: {
+    kicker: '教学案例 · SHOWCASE', tag: 'SHOWCASE',
+    title: '一线教师的<br>AI 教学<em>案例</em>',
+    sub: '真实的课堂实践，分享经验，共同成长'
+  },
+  articles: {
+    kicker: '精选文章 · ARTICLES', tag: 'ARTICLES',
+    title: '教师 AI 教学<br><em>精选文章</em>',
+    sub: '学习指南 · 工具推荐 · 教学案例与一线实战经验'
+  },
+  article: {
+    kicker: '精选文章 · ARTICLES', tag: 'ARTICLE',
+    title: '教师 AI 教学<br><em>精选文章</em>',
+    sub: '深度阅读教师 AI 教学领域的精选内容'
+  },
+  resources: {
+    kicker: '设计资源 · RESOURCES', tag: 'RESOURCES',
+    title: '课件素材<br><em>速查库</em>',
+    sub: '图片 · PNG · 图标 · 抠图 · AIGC 平台，常用素材一站直达'
+  },
+  classroom: {
+    kicker: '课堂工具 · CLASSROOM', tag: 'CLASSROOM',
+    title: '课堂互动<br><em>小工具集</em>',
+    sub: '倒计时 · 随机点名 · 转盘 · 分组 · 座位表 · 音效 · 白板'
+  }
+};
+const p = new URLSearchParams(location.search).get('p') || 'index';
+const d = PAGES[p] || PAGES.index;
+document.getElementById('kicker').textContent = d.kicker;
+document.getElementById('title').innerHTML = d.title;
+document.getElementById('sub').textContent = d.sub;
+document.getElementById('tag').textContent = d.tag;
+document.title = 'OG · ' + p;
+</script>
+</body>
+</html>

@@ -1960,3 +1960,63 @@ tr:hover td { background: var(--soft); }
     .ct-stage-bar { gap: 8px; padding-bottom: 14px; margin-bottom: 18px; }
     .ct-stage-title { font-size: 18px; flex-basis: 100%; order: -1; }
 }
+
+/* ============================================================
+   2026-06-04 · Refinement layer — motion, spacing & polish
+   Self-contained overrides; safe to revert as a block.
+   ============================================================ */
+:root {
+    --ease-soft: cubic-bezier(.2,.7,.2,1);
+    --ease-spring: cubic-bezier(.34,1.4,.5,1);
+    --shadow-soft: 0 18px 44px rgba(26,22,18,0.10), 0 2px 8px rgba(26,22,18,0.04);
+}
+
+/* --- More cohesive, softer card motion across the whole site --- */
+.card, .feature-card, .tool-card, .news-card {
+    transition: transform .34s var(--ease-soft),
+                box-shadow .34s var(--ease-soft),
+                border-color .34s var(--ease-soft);
+    will-change: transform;
+}
+.card:hover, .feature-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-soft); }
+.feature-card:hover .feature-icon { transform: rotate(-4deg) scale(1.08); }
+
+/* --- Springy, tactile press feedback on primary actions --- */
+.btn-hero-primary, .btn-hero-secondary, .btn-register, .btn-login, .filter-pill {
+    transition: transform .2s var(--ease-spring), background .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.btn-hero-primary:active, .btn-hero-secondary:active,
+.btn-register:active, .btn-login:active, .filter-pill:active { transform: translateY(1px) scale(.98); }
+
+/* --- A touch more air: grander, more editorial spacing --- */
+.hero { padding-top: 108px; }
+.hero-highlights { margin-top: 80px; }
+.hero-highlights strong { font-size: 42px; }
+.home-main { gap: 108px; }
+@media (max-width: 900px) { .hero { padding-top: 76px; } .home-main { gap: 72px; } }
+
+/* --- Smoother sticky-header transition on scroll --- */
+.site-header { transition: box-shadow .3s var(--ease-soft), background .3s var(--ease-soft); }
+
+/* ============================================================
+   Scroll-reveal — pure CSS, progressive enhancement.
+   Browsers without scroll-driven animations simply show content
+   normally (no JS, no per-page changes, fully accessible).
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .home-section,
+        .cards-grid > .card,
+        .cards-grid > a.card,
+        .feature-grid > .feature-card,
+        .reveal-on-scroll {
+            animation: reveal-rise linear both;
+            animation-timeline: view();
+            animation-range: entry 2% cover 18%;
+        }
+        @keyframes reveal-rise {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    }
+}

@@ -24,6 +24,7 @@
 - **2026-05-31**: Removed the legacy `netlify/functions/` directory once CF was stable; configured `FIREBASE_SERVICE_ACCOUNT` on CF so admin user deletion works. Editorial visual redesign + four classroom tools shipped.
 - **2026-06-01**: Hamburger drawer replaces 1080px-and-below horizontal scroll nav. Four more classroom tools added (groups / seating / applause / whiteboard). Paths and articles split into warm-vs-cool color families. Admin gets a 设计资源 management panel; resources migrate to Firestore.
 - **2026-06-02**: Firestore rules updated to include `resource_categories`. Path gradients enforced at render time by slug, bypassing any legacy data in Firestore.
+- **2026-06-04**: Per-page OG share cards shipped (10 editorial 1200×630 JPGs under `assets/og/`, generated from `assets/og/template.html` via headless screenshots — see "SEO / OG"). Added `twitter:card`/`twitter:image` + `og:image:width/height` to all content pages; added missing `canonical` to `index.html`. CSS got a self-contained "Refinement layer" at the end of `style.css` (softer card motion, springy button press, more editorial spacing, CSS-only scroll-reveal). `style.css` is now cache-busted with `?v=YYYYMMDD` on every page — bump it whenever the stylesheet changes.
 - Old Netlify site (`xylaoshi.netlify.app`) is currently 503 (team credit limit). If/when it comes back, follow up on a redirect — strategy is to commit a `netlify.toml` with a 301 to pages.dev, since CF Pages ignores that file.
 
 ## Auth Lesson (Important)
@@ -157,8 +158,10 @@ If a render call throws (we hit this when the bubble theme built `"rgb(...)55"` 
 
 ## SEO / OG
 
-- Every page has `<meta name="description">`, complete OpenGraph tags (og:title / description / type / url / image), and `<link rel="canonical">`.
-- OG image is shared across all pages (`assets/hero-teacher-workspace.jpg`). Per-page custom OG cards were deferred — would need either user-supplied 1200×630 PNGs (path D) or a satori-based CF Pages Function (path B).
+- Every page has `<meta name="description">`, complete OpenGraph tags (og:title / description / type / url / image + image:width/height), `twitter:card` (summary_large_image) + `twitter:image`, and `<link rel="canonical">`.
+- **Per-page OG cards (done 2026-06-04)**: each content page points `og:image`/`twitter:image` at its own `assets/og/<slug>.jpg` (1200×630). Slugs: `index, tools, prompts, paths, news, showcase, articles, article, resources, classroom`. `admin.html` / `main.html` are internal and have no OG card.
+- **How to regenerate a card**: edit the page's entry in the `PAGES` map inside `assets/og/template.html`, serve the folder locally (`python3 -m http.server`), open `assets/og/template.html?p=<slug>` at a 1200×630 viewport, and screenshot to `assets/og/<slug>.jpg`. The template uses the editorial palette (cream + dot-grid + cinnabar italic highlight + mono kicker + bottom brand stripe). No build step, no runtime function — the cards are static JPGs.
+- Old shared image `assets/hero-teacher-workspace.jpg` is still used as the hero preload, just no longer as the OG image.
 
 ## Known Quirks / Conventions
 
@@ -169,14 +172,14 @@ If a render call throws (we hit this when the bubble theme built `"rgb(...)55"` 
 - Five-star tool ratings UI was removed but the `tool_ratings` collection and rules remain (in case it's reintroduced).
 - Article and path data flow: if Firestore is empty, `DEFAULT_*` constants in `js/data.js` provide content. Otherwise Firestore wins.
 - Resources data flow same: `resources.html` paints `DEFAULT_RESOURCES` immediately, then swaps in whatever Firestore returns. Admin saves go to `resource_categories`.
-- Cache-busting query strings on `data.js` (`?v=...`) and `auth.js` are updated whenever those files change; bump the version in every page that loads them.
+- Cache-busting query strings on `data.js` (`?v=...`), `auth.js`, and now `css/style.css` (`?v=YYYYMMDD`) are updated whenever those files change; bump the version in every page that loads them.
+- The end of `css/style.css` has a clearly fenced "2026-06-04 · Refinement layer" — motion/spacing/polish overrides plus a pure-CSS scroll-reveal (`@supports (animation-timeline: view())`, degrades to fully-visible on unsupported browsers, disabled under `prefers-reduced-motion`). It's self-contained and safe to revert as a block.
 
 ## Future Follow-Ups
 
 - Add a 忘记密码 flow to the login modal.
 - When the old Netlify site recovers, commit a `netlify.toml` that 301-redirects to `pages.dev` (CF Pages ignores it, so it's safe).
 - Consider extracting the classroom-tools sub-tools into separate JS modules — `classroom-tools.html` is large (~1700 lines now).
-- Per-page OG cards (path B with `@vercel/og` or path D with hand-made PNGs).
 - If we ever need real-time updates on `contact_messages`, switch the admin panel to `onSnapshot`.
 - Cloud storage for user-uploaded showcase images is not wired up yet — currently URLs only.
 - `tool_ratings` is dormant; either restore the UI or delete the collection + its security rule.
