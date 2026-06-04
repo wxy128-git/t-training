@@ -299,7 +299,47 @@
             <div class="form-group"><label class="form-label">工具链接 *</label><input type="url" id="tool-url" class="form-input" placeholder="https://"></div>
             <div class="form-group"><label class="form-label">工具描述 *</label><input type="text" id="tool-desc" class="form-input" placeholder="简短描述工具的核心功能"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div class="form-group"><label class="form-label">图标类名</label><input type="text" id="tool-icon" class="form-input" placeholder="ph-robot" value="ph-robot"></div>
+                <div class="form-group"><label class="form-label">图标</label>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <select id="tool-icon" class="form-input" style="flex:1" onchange="updateIconPreview()">
+                            <option value="ph-robot">机器人</option>
+                            <option value="ph-brain">大脑 / 智能</option>
+                            <option value="ph-magic-wand">魔法棒</option>
+                            <option value="ph-sparkle">闪光 / 灵感</option>
+                            <option value="ph-lightbulb">灯泡 / 创意</option>
+                            <option value="ph-chats">对话气泡</option>
+                            <option value="ph-chat-text">聊天文本</option>
+                            <option value="ph-exam">出题 / 试卷</option>
+                            <option value="ph-book-open-text">书本</option>
+                            <option value="ph-notebook">笔记本</option>
+                            <option value="ph-pencil-line">铅笔 / 写作</option>
+                            <option value="ph-pen">钢笔</option>
+                            <option value="ph-presentation-chart">演示图表</option>
+                            <option value="ph-presentation">幻灯片演示</option>
+                            <option value="ph-image">图片</option>
+                            <option value="ph-image-square">图像方块</option>
+                            <option value="ph-palette">调色板 / 设计</option>
+                            <option value="ph-scissors">剪刀 / 抠图</option>
+                            <option value="ph-shapes">形状</option>
+                            <option value="ph-film-strip">影片 / 视频</option>
+                            <option value="ph-video-camera">摄像机</option>
+                            <option value="ph-music-notes">音乐</option>
+                            <option value="ph-users-three">人群 / 协作</option>
+                            <option value="ph-user-circle">用户头像</option>
+                            <option value="ph-magnifying-glass">放大镜 / 搜索</option>
+                            <option value="ph-globe">全球 / 网页</option>
+                            <option value="ph-rocket-launch">火箭</option>
+                            <option value="ph-trophy">奖杯</option>
+                            <option value="ph-megaphone">扬声器 / 宣传</option>
+                            <option value="ph-translate">翻译</option>
+                            <option value="ph-code">代码</option>
+                            <option value="ph-files">文件</option>
+                            <option value="ph-folder-open">文件夹</option>
+                            <option value="ph-sticker">贴纸</option>
+                        </select>
+                        <span id="tool-icon-preview" style="width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--r-sm);font-size:22px;color:var(--brand);background:var(--soft)"><i class="ph ph-robot"></i></span>
+                    </div>
+                </div>
                 <div class="form-group"><label class="form-label">颜色</label>
                     <select id="tool-color" class="form-input">
                         <option value="text-blue-500 bg-blue-50">蓝色</option>
@@ -801,11 +841,32 @@ async function renderToolsTable() {
         </tr>`).join('');
 }
 
+// Live preview of the selected Phosphor icon next to the dropdown.
+function updateIconPreview() {
+    const sel = document.getElementById('tool-icon');
+    const prev = document.getElementById('tool-icon-preview');
+    if (prev) prev.innerHTML = '<i class="ph ' + (sel.value || 'ph-robot') + '"></i>';
+}
+// Set the icon dropdown; if an existing tool uses an icon not in the curated
+// list, inject a temporary option so it still displays (no blank select).
+function setToolIcon(val) {
+    const sel = document.getElementById('tool-icon');
+    val = val || 'ph-robot';
+    if (![...sel.options].some(o => o.value === val)) {
+        const o = document.createElement('option');
+        o.value = val;
+        o.textContent = '当前图标（' + val + '）';
+        sel.insertBefore(o, sel.firstChild);
+    }
+    sel.value = val;
+    updateIconPreview();
+}
+
 function openToolModal() {
     document.getElementById('tool-modal-title').textContent = '添加工具';
     document.getElementById('tool-edit-id').value = '';
     ['tool-name','tool-url','tool-desc'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('tool-icon').value = 'ph-robot';
+    setToolIcon('ph-robot');
     openModal('tool-modal');
 }
 
@@ -817,7 +878,7 @@ function editTool(i) {
     document.getElementById('tool-cat').value = t.category;
     document.getElementById('tool-url').value = t.url;
     document.getElementById('tool-desc').value = t.desc;
-    document.getElementById('tool-icon').value = t.icon;
+    setToolIcon(t.icon);
     openModal('tool-modal');
 }
 
