@@ -46,7 +46,7 @@ export async function onRequestOptions() {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
     const apiKey = env.DEEPSEEK_API_KEY;
     if (!apiKey) {
         return jsonResponse(501, { ok: false, msg: '服务器尚未配置 DeepSeek 密钥（请在 Cloudflare 设置 DEEPSEEK_API_KEY）' });
@@ -66,17 +66,6 @@ export async function onRequestPost({ request, env }) {
         await verifyUser(idToken);
     } catch (e) {
         return jsonResponse(e.statusCode || 401, { ok: false, msg: e.message });
-    }
-
-    // ⚙️ 临时诊断：?debug=1 时改用非流式调用，把 DeepSeek 原始返回直接吐出来
-    if (new URL(request.url).searchParams.get('debug') === '1') {
-        const dbg = await fetch(DEEPSEEK_URL, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: MODEL, messages: messages.slice(-30), stream: false, temperature: TEMPERATURE })
-        });
-        const txt = await dbg.text();
-        return jsonResponse(200, { debug: true, upstreamStatus: dbg.status, upstreamBody: txt.slice(0, 2000) });
     }
 
     // 调用 DeepSeek（流式）
@@ -106,34 +95,41 @@ export async function onRequestPost({ request, env }) {
         return jsonResponse(upstream.status || 502, { ok: false, msg });
     }
 
-    // 解析上游 SSE，只把模型生成的纯文本增量流式吐给前端
-    const reader = upstream.body.getReader();
-    const decoder = new TextDecoder();
+    // 解析上游 SSE → 纯文本增量，用 TransformStream 管道流式回传
+    // （在 Cloudflare Workers 上比手写 ReadableStream.pull 更可靠）
     const encoder = new TextEncoder();
-    let buffer = '';
+    const { readable, writable } = new TransformStream();
 
-    const stream = new ReadableStream({
-        async pull(controller) {
-            const { done, value } = await reader.read();
-            if (done) { controller.close(); return; }
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop();   // 末尾可能是半行，留到下次
-            for (const line of lines) {
-                const t = line.trim();
-                if (!t.startsWith('data:')) continue;
-                const data = t.slice(5).trim();
-                if (data === '[DONE]') { controller.close(); return; }
-                try {
-                    const delta = JSON.parse(data)?.choices?.[0]?.delta?.content;
-                    if (delta) controller.enqueue(encoder.encode(delta));
-                } catch { /* 忽略心跳/空行 */ }
+    const pump = (async () => {
+        const reader = upstream.body.getReader();
+        const decoder = new TextDecoder();
+        const writer = writable.getWriter();
+        let buffer = '';
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop();   // 末尾可能是半行，留到下次
+                for (const line of lines) {
+                    const t = line.trim();
+                    if (!t.startsWith('data:')) continue;
+                    const data = t.slice(5).trim();
+                    if (data === '[DONE]') { buffer = ''; break; }
+                    try {
+                        const delta = JSON.parse(data)?.choices?.[0]?.delta?.content;
+                        if (delta) await writer.write(encoder.encode(delta));
+                    } catch { /* 忽略心跳/空行 */ }
+                }
             }
-        },
-        cancel() { reader.cancel().catch(() => {}); }
-    });
+        } catch { /* 上游中断，下面照常收尾 */ }
+        try { await writer.close(); } catch {}
+    })();
 
-    return new Response(stream, {
+    if (typeof waitUntil === 'function') waitUntil(pump);
+
+    return new Response(readable, {
         headers: {
             'Content-Type': 'text/plain; charset=utf-8',
             'Cache-Control': 'no-cache',
