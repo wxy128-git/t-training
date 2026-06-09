@@ -296,7 +296,7 @@ globalThis.requireLogin = requireLogin;
 function renderNav(currentPage) {
     const pages = [
         { key:'index',     href:'index.html',    label:'首页' },
-        { key:'agents',    href:'agents.html',   label:'智能体' },
+        { key:'agents',    href:'agents.html',   label:'智能体空间' },
         { key:'tools',     href:'tools.html',    label:'AI工具' },
         { key:'classroom', href:'classroom-tools.html', label:'课堂工具' },
         { key:'news',      href:'news.html',     label:'全球资讯' },
@@ -307,9 +307,11 @@ function renderNav(currentPage) {
         { key:'resources', href:'resources.html', label:'设计资源' }
     ];
     const user = _currentUser;
-    const navLinks = pages.map(p =>
-        `<a href="${p.href}" class="nav-link${p.key === currentPage ? ' active' : ''}">${p.label}</a>`
-    ).join('');
+    const navLinks = pages.map(p => {
+        const feature = p.key === 'agents' ? ' nav-feature' : '';
+        const icon = p.key === 'agents' ? '<i class="ph-fill ph-sparkle"></i>' : '';
+        return `<a href="${p.href}" class="nav-link${feature}${p.key === currentPage ? ' active' : ''}">${icon}${p.label}</a>`;
+    }).join('');
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
     const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
     const authHtml = user

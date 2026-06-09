@@ -227,6 +227,24 @@ button, input, textarea, select { font: inherit; }
 }
 .nav-link.admin-link { color: var(--brand); }
 .nav-link.admin-link:hover { background: var(--brand-soft); }
+/* 导航中的「智能体空间」引导样式：品牌色药丸 + 闪光图标 + 温和脉冲 */
+.nav-link.nav-feature {
+    color: #fff;
+    background: var(--brand);
+    font-weight: 600;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(192,57,43,0.26);
+    animation: navFeaturePulse 2.6s ease-in-out infinite;
+}
+.nav-link.nav-feature:hover { color: #fff; background: var(--brand-dark); }
+.nav-link.nav-feature.active { color: #fff; background: var(--brand); }
+.nav-link.nav-feature.active::before { display: none; }
+.nav-link.nav-feature i { font-size: 12.5px; margin-right: 4px; }
+@keyframes navFeaturePulse {
+    0%, 100% { box-shadow: 0 2px 8px rgba(192,57,43,0.20); }
+    50% { box-shadow: 0 2px 8px rgba(192,57,43,0.20), 0 0 0 5px rgba(192,57,43,0.12); }
+}
+@media (prefers-reduced-motion: reduce) { .nav-link.nav-feature { animation: none; } }
 .auth-area { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .btn-login { padding: 8px 16px; font-size: 13.5px; color: var(--text); font-weight: 500; border-radius: var(--r-sm); background: transparent; border: 1px solid var(--line); cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
 .btn-login:hover { color: var(--ink); border-color: var(--ink); }
@@ -1910,6 +1928,9 @@ tr:hover td { background: var(--soft); }
 .nav-drawer .nav-link::after { display: none !important; }
 .nav-drawer .nav-link:hover { background: var(--soft); color: var(--ink); }
 .nav-drawer .nav-link.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+/* 抽屉里的「智能体空间」：轻量品牌色，不用桌面那种实心全宽红块 */
+.nav-drawer .nav-link.nav-feature { background: var(--brand-soft); color: var(--brand); font-weight: 600; box-shadow: none; animation: none; }
+.nav-drawer .nav-link.nav-feature:hover { background: var(--brand-soft); color: var(--brand-dark); }
 .nav-drawer .nav-link.admin-link { color: var(--brand); }
 .nav-drawer-kicker {
     font-family: var(--font-mono);
