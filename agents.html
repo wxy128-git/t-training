@@ -299,7 +299,7 @@ function buildForm(a) {
     <div class="ws-form-layout">
         <div class="ws-panel">
             <div class="ws-panel-head"><i class="ph ph-sliders-horizontal"></i> 填写信息 <span class="mono">INPUT</span></div>
-            <form id="agent-form" onsubmit="return runForm('${a.id}')">
+            <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
                 ${fieldsHtml}
                 <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> 开始生成</button>
             </form>
