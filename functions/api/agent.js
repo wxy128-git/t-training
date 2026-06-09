@@ -68,6 +68,17 @@ export async function onRequestPost({ request, env }) {
         return jsonResponse(e.statusCode || 401, { ok: false, msg: e.message });
     }
 
+    // ⚙️ 临时诊断：?debug=1 时改用非流式调用，把 DeepSeek 原始返回直接吐出来
+    if (new URL(request.url).searchParams.get('debug') === '1') {
+        const dbg = await fetch(DEEPSEEK_URL, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: MODEL, messages: messages.slice(-30), stream: false, temperature: TEMPERATURE })
+        });
+        const txt = await dbg.text();
+        return jsonResponse(200, { debug: true, upstreamStatus: dbg.status, upstreamBody: txt.slice(0, 2000) });
+    }
+
     // 调用 DeepSeek（流式）
     let upstream;
     try {
