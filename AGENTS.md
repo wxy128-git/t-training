@@ -28,6 +28,7 @@
 - **2026-06-04**: Per-page OG share cards shipped (10 editorial 1200×630 JPGs under `assets/og/`, generated from `assets/og/template.html` via headless screenshots — see "SEO / OG"). Added `twitter:card`/`twitter:image` + `og:image:width/height` to all content pages; added missing `canonical` to `index.html`. CSS got a self-contained "Refinement layer" at the end of `style.css` (softer card motion, springy button press, more editorial spacing, CSS-only scroll-reveal). `style.css` is now cache-busted with `?v=YYYYMMDD` on every page — bump it whenever the stylesheet changes.
 - **2026-06-09**: 新增「智能体空间」(`agents.html` + `js/agents-data.js`) — 19 个面向中小学教师的 AI 智能体，分备课设计 / 课堂教学 / 作业评价 / 班级家校 / 教师发展五类，含生成式（填参数）与对话式两种工作台。模型调用统一收口在前端 `callAgentAPI()` → 后端 `functions/api/agent.js`。已加入主导航（`renderNav` 的 `agents` 项）、页脚与首页功能卡；OG 卡 `assets/og/agents.jpg` 已按 `template.html` 流程生成。智能体清单纯前端维护，未进 Firestore/admin。
 - **2026-06-09（下午）**: 智能体空间接入 **DeepSeek**。新增 `functions/api/agent.js` 后端代理（model `deepseek-chat`/V3，全站统一），前端 `callAgentAPI()` 从演示 mock 改为真实流式调用。需在 Cloudflare 配 `DEEPSEEK_API_KEY`（Secret），配后需重新部署一次才生效。智能体的角色设定取自 `js/agents-data.js` 各项的 `system` 字段；表单输入由前端 `buildUserPrompt()` 拼成 user 消息。
+- **2026-06-09（接入后修两个上线 bug）**: ① 后端流式转发必须用 `TransformStream`+`waitUntil`——最初用 `ReadableStream.pull` 在 CF Workers 上返回 200 但 body 全空（前端表现为「转一下没内容」）。② 生成按钮 form 的 `onsubmit` 必须写成 `runForm(...); return false`——`runForm` 是 async，返回 Promise（恒 truthy），若写 `return runForm(...)` 无法阻止表单默认提交，会导致每次点「开始生成」**整页重载**、登录态闪断、输出被刷掉（症状：闪一下、右上角登录→用户名、第二次起无输出）。**勿改回。**
 
 ## Auth Lesson (Important)
 
