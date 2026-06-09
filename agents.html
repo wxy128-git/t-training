@@ -74,6 +74,9 @@
         /* form 工作台：左输入右输出 */
         .ws-form-layout { display: grid; grid-template-columns: minmax(300px, 0.85fr) 1.15fr; gap: 26px; align-items: start; }
         @media (max-width: 860px) { .ws-form-layout { grid-template-columns: 1fr; } }
+        /* 左侧参数栏吸顶跟随，避免与右侧长结果产生突兀高度差 */
+        .ws-input-col { position: sticky; top: 18px; align-self: start; }
+        @media (max-width: 860px) { .ws-input-col { position: static; } }
 
         .ws-panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; }
         .ws-panel-head { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 18px; }
@@ -96,7 +99,10 @@
         .ws-run:disabled { opacity: .55; cursor: not-allowed; }
 
         /* 输出区 */
-        .ws-out-panel { min-height: 420px; display: flex; flex-direction: column; }
+        .ws-out-panel { min-height: 340px; display: flex; flex-direction: column; }
+        .ws-edit-area { width: 100%; flex: 1; min-height: 360px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--soft); padding: 14px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--ink); resize: vertical; outline: none; }
+        .ws-edit-area:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .ws-mini-btn.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
         .ws-out-head { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
         .ws-out-head .label { font-size: 13px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 7px; }
         .ws-out-actions { margin-left: auto; display: flex; gap: 7px; }
@@ -123,25 +129,28 @@
         .cursor-blink::after { content: "▋"; color: var(--brand); animation: blink 1s steps(2) infinite; margin-left: 1px; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* chat 工作台 */
-        .ws-chat-layout { max-width: 820px; margin: 0 auto; }
-        .chat-stream { display: flex; flex-direction: column; gap: 18px; min-height: 360px; padding: 8px 2px 24px; }
-        .chat-row { display: flex; gap: 12px; max-width: 86%; }
+        /* chat 工作台 —— 独立聊天窗口，内部滚动（不带动整页与底部色块）*/
+        .ws-chat-layout { max-width: 840px; margin: 0 auto; }
+        .chat-window { display: flex; flex-direction: column; height: min(66vh, 600px); border: 1px solid var(--line); border-radius: var(--r-xl); background: var(--soft); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .chat-stream { flex: 1; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 16px; padding: 22px 20px; }
+        .chat-row { display: flex; gap: 12px; max-width: 88%; }
         .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
-        .chat-av { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; font-size: 17px; }
+        .chat-av { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; font-size: 17px; box-shadow: var(--shadow-xs); }
         .chat-av.user { background: var(--ink); color: var(--soft); font-size: 13px; font-weight: 700; }
-        .chat-bubble { padding: 13px 16px; border-radius: 15px; font-size: 14px; line-height: 1.8; }
-        .chat-row.bot .chat-bubble { background: var(--paper); border: 1px solid var(--line); border-top-left-radius: 4px; color: var(--text); }
-        .chat-row.user .chat-bubble { background: var(--ink); color: var(--soft); border-top-right-radius: 4px; }
+        .chat-bubble { padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.8; }
+        .chat-row.bot .chat-bubble { background: var(--paper); border: 1px solid var(--line); border-top-left-radius: 5px; color: var(--text); box-shadow: var(--shadow-xs); }
+        .chat-row.user .chat-bubble { background: var(--ink); color: var(--soft); border-top-right-radius: 5px; }
         .chat-row.user .chat-bubble .md strong { color: #fff; }
-        .chat-input-bar { position: sticky; bottom: 0; display: flex; gap: 10px; align-items: flex-end; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); }
-        .chat-input-bar textarea { flex: 1; border: none; outline: none; resize: none; font-family: inherit; font-size: 14px; line-height: 1.6; background: transparent; color: var(--ink); max-height: 140px; padding: 6px 4px; }
-        .chat-send { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; border: none; background: var(--brand); color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 19px; transition: background .15s; }
+        .chat-foot { border-top: 1px solid var(--line); background: var(--paper); padding: 12px 14px; }
+        .chat-starter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .chat-starter-chips button { padding: 7px 13px; border: 1px solid var(--line); background: var(--soft); border-radius: 999px; font-size: 12.5px; color: var(--text); cursor: pointer; font-family: inherit; transition: all .14s; }
+        .chat-starter-chips button:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
+        .chat-input-bar { display: flex; gap: 10px; align-items: flex-end; }
+        .chat-input-bar textarea { flex: 1; border: 1px solid var(--line); border-radius: var(--r-md); outline: none; resize: none; font-family: inherit; font-size: 14px; line-height: 1.6; background: var(--soft); color: var(--ink); max-height: 120px; padding: 10px 12px; transition: border-color .15s, box-shadow .15s, background .15s; }
+        .chat-input-bar textarea:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .chat-send { flex-shrink: 0; width: 42px; height: 42px; border-radius: var(--r-md); border: none; background: var(--brand); color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 19px; transition: background .15s; }
         .chat-send:hover { background: var(--brand-dark); }
         .chat-send:disabled { opacity: .5; cursor: not-allowed; }
-        .chat-starter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-        .chat-starter-chips button { padding: 8px 14px; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; font-size: 12.5px; color: var(--text); cursor: pointer; font-family: inherit; transition: all .14s; }
-        .chat-starter-chips button:hover { border-color: var(--brand); color: var(--brand); }
 
         .api-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 24px; padding: 13px 16px; background: var(--soft-2); border: 1px dashed var(--line); border-radius: var(--r-md); font-size: 12.5px; color: var(--muted); line-height: 1.7; }
         .api-note i { color: var(--ochre); font-size: 16px; margin-top: 1px; flex-shrink: 0; }
@@ -297,7 +306,7 @@ function buildForm(a) {
     const fieldsHtml = a.fields.map(f => renderField(a.id, f)).join('');
     document.getElementById('ws-body').innerHTML = `
     <div class="ws-form-layout">
-        <div class="ws-panel">
+        <div class="ws-panel ws-input-col">
             <div class="ws-panel-head"><i class="ph ph-sliders-horizontal"></i> 填写信息 <span class="mono">INPUT</span></div>
             <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
                 ${fieldsHtml}
@@ -308,6 +317,7 @@ function buildForm(a) {
             <div class="ws-out-head">
                 <span class="label"><i class="ph ph-file-text"></i> 生成结果</span>
                 <div class="ws-out-actions" id="out-actions" style="display:none">
+                    <button class="ws-mini-btn" id="edit-btn" onclick="toggleEdit()"><i class="ph ph-pencil-simple"></i> 编辑</button>
                     <button class="ws-mini-btn" id="copy-btn" onclick="copyResult()"><i class="ph ph-copy"></i> 复制</button>
                     <button class="ws-mini-btn" onclick="runForm('${a.id}')"><i class="ph ph-arrows-clockwise"></i> 重新生成</button>
                 </div>
@@ -372,6 +382,9 @@ async function runForm(aid) {
     body.className = 'ws-out-body md';
     body.innerHTML = '';
     _lastResult = '';
+    _editing = false;
+    const editBtn = document.getElementById('edit-btn');
+    if (editBtn) { editBtn.classList.remove('active'); editBtn.innerHTML = '<i class="ph ph-pencil-simple"></i> 编辑'; }
 
     try {
         await callAgentAPI({
@@ -390,6 +403,8 @@ async function runForm(aid) {
 }
 
 function copyResult() {
+    // 编辑态下先把最新文本存回
+    if (_editing) { const ta = document.getElementById('edit-area'); if (ta) _lastResult = ta.value; }
     if (!_lastResult) return;
     navigator.clipboard.writeText(_lastResult).then(() => {
         const b = document.getElementById('copy-btn');
@@ -397,6 +412,32 @@ function copyResult() {
         showToast('已复制到剪贴板 ✓');
         setTimeout(() => { b.classList.remove('copied'); b.innerHTML = '<i class="ph ph-copy"></i> 复制'; }, 1800);
     });
+}
+
+// 编辑生成结果：渲染态 ↔ 编辑原始文本 切换
+let _editing = false;
+function toggleEdit() {
+    const body = document.getElementById('out-body');
+    const btn = document.getElementById('edit-btn');
+    if (!_editing) {
+        _editing = true;
+        body.className = 'ws-out-body';
+        body.innerHTML = `<textarea class="ws-edit-area" id="edit-area"></textarea>`;
+        const ta = document.getElementById('edit-area');
+        ta.value = _lastResult;
+        ta.style.height = 'auto'; ta.style.height = Math.max(360, ta.scrollHeight + 8) + 'px';
+        ta.focus();
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="ph ph-check"></i> 完成';
+    } else {
+        const ta = document.getElementById('edit-area');
+        if (ta) _lastResult = ta.value;
+        _editing = false;
+        body.className = 'ws-out-body md';
+        body.innerHTML = mdToHtml(_lastResult);
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="ph ph-pencil-simple"></i> 编辑';
+    }
 }
 
 /* ---------- chat 工作台 ---------- */
@@ -407,12 +448,16 @@ function buildChat(a) {
         `<button onclick="quickChat('${a.id}', this.textContent)">${s}</button>`).join('');
     document.getElementById('ws-body').innerHTML = `
     <div class="ws-chat-layout">
-        <div class="chat-stream" id="chat-stream"></div>
-        ${starters ? `<div class="chat-starter-chips">${starters}</div>` : ''}
-        <div class="chat-input-bar">
-            <textarea id="chat-input" rows="1" placeholder="输入消息，Enter 发送 / Shift+Enter 换行"
-                oninput="autoGrow(this)" onkeydown="chatKey(event,'${a.id}')"></textarea>
-            <button class="chat-send" id="chat-send" onclick="sendChat('${a.id}')"><i class="ph-fill ph-paper-plane-right"></i></button>
+        <div class="chat-window">
+            <div class="chat-stream" id="chat-stream"></div>
+            <div class="chat-foot">
+                ${starters ? `<div class="chat-starter-chips" id="chat-starters">${starters}</div>` : ''}
+                <div class="chat-input-bar">
+                    <textarea id="chat-input" rows="1" placeholder="输入消息，Enter 发送 / Shift+Enter 换行"
+                        oninput="autoGrow(this)" onkeydown="chatKey(event,'${a.id}')"></textarea>
+                    <button class="chat-send" id="chat-send" onclick="sendChat('${a.id}')"><i class="ph-fill ph-paper-plane-right"></i></button>
+                </div>
+            </div>
         </div>
     </div>`;
     // 智能体开场白
@@ -438,8 +483,7 @@ function pushChat(role, text, a) {
         : `<div class="chat-av" style="background:${c?.soft};color:${c?.color}"><i class="ph-fill ${a?.icon}"></i></div>`;
     row.innerHTML = `${av}<div class="chat-bubble"><div class="md">${role === 'user' ? escapeHtml(text) : mdToHtml(text)}</div></div>`;
     stream.appendChild(row);
-    stream.scrollIntoView(false);
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    stream.scrollTop = stream.scrollHeight;   // 仅在聊天窗口内部滚动，不带动整页
     return row.querySelector('.md');
 }
 
@@ -450,18 +494,20 @@ async function sendChat(aid) {
     if (!text) return;
     if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return;
 
+    document.getElementById('chat-starters')?.remove();   // 发首条后收起引导问题
     pushChat('user', text, a);
     _chatHistory.push({ role: 'user', content: text });
     input.value = ''; autoGrow(input);
     const sendBtn = document.getElementById('chat-send');
     sendBtn.disabled = true;
+    const stream = document.getElementById('chat-stream');
 
     const target = pushChat('bot', '', a);
     target.parentElement.parentElement.classList.add('cursor-blink');
     try {
         await callAgentAPI({
             agent: a, inputs: {}, history: _chatHistory,
-            onToken: (full) => { target.innerHTML = mdToHtml(full); window.scrollTo({ top: document.body.scrollHeight }); }
+            onToken: (full) => { target.innerHTML = mdToHtml(full); stream.scrollTop = stream.scrollHeight; }
         });
         _chatHistory.push({ role: 'assistant', content: target.textContent });
     } catch (e) {
