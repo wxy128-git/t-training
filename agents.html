@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能体空间 · AI 教师培训中心</title>
+    <meta name="description" content="为中小学教师打造的 AI 智能体工作台：教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通等一线场景，填参数即用。">
+    <meta property="og:title" content="智能体空间 · 教师 AI 工作台">
+    <meta property="og:description" content="教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通——为中小学教师设计的一批即用 AI 智能体。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/agents.html">
+    <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css?v=20260604">
+    <style>
+        /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
+        .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
+        .page-title { font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
+        .page-title em { font-style: italic; color: var(--brand); }
+        .page-sub { font-size: 14.5px; color: var(--muted); margin-top: 14px; line-height: 1.75; max-width: 620px; }
+
+        /* 搜索 + 筛选条 */
+        .agents-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 30px 0 8px; }
+        .agent-search { position: relative; flex: 1; min-width: 240px; max-width: 380px; }
+        .agent-search i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--subtle); font-size: 17px; }
+        .agent-search input { width: 100%; padding: 11px 16px 11px 42px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); font-size: 14px; color: var(--ink); outline: none; transition: border-color .15s, box-shadow .15s; }
+        .agent-search input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .agent-count { font-family: var(--font-mono); font-size: 12px; color: var(--subtle); white-space: nowrap; }
+
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 36px; }
+        .filter-pill { padding: 8px 16px; font-size: 13px; font-weight: 500; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; cursor: pointer; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+        .filter-pill:hover { color: var(--ink); border-color: var(--subtle); }
+        .filter-pill.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
+        .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+        /* 卡片墙 */
+        .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        @media (max-width: 920px) { .agent-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .agent-grid { grid-template-columns: 1fr; } }
+
+        .agent-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 22px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; overflow: hidden; }
+        .agent-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--cat-color, var(--brand)); opacity: 0; transition: opacity .18s; }
+        .agent-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--cat-color, var(--line)); }
+        .agent-card:hover::before { opacity: 1; }
+        .agent-card-top { display: flex; align-items: center; gap: 13px; }
+        .agent-ico { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 23px; flex-shrink: 0; }
+        .agent-card-name { font-size: 15.5px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+        .agent-card-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 3px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; color: var(--cat-color, var(--muted)); }
+        .agent-card-desc { font-size: 13px; line-height: 1.7; color: var(--text-soft); flex: 1; }
+        .agent-card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
+        .agent-chip { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: var(--soft-2); color: var(--muted); font-weight: 500; }
+        .agent-chip.chat { background: var(--brand-soft); color: var(--brand-dark); }
+        .agent-go { font-size: 13px; font-weight: 600; color: var(--ink); display: inline-flex; align-items: center; gap: 5px; transition: gap .15s, color .15s; }
+        .agent-card:hover .agent-go { color: var(--cat-color, var(--brand)); gap: 9px; }
+
+        .empty-hint { grid-column: 1/-1; text-align: center; padding: 70px 20px; color: var(--subtle); }
+        .empty-hint i { font-size: 46px; display: block; margin-bottom: 12px; }
+
+        /* ===== 工作台 ===== */
+        .ws-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; }
+        .ws-top { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
+        .ws-back { flex-shrink: 0; width: 42px; height: 42px; border-radius: 11px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 19px; transition: background .15s, border-color .15s; }
+        .ws-back:hover { background: var(--soft-2); border-color: var(--subtle); }
+        .ws-ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 27px; flex-shrink: 0; }
+        .ws-titles h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.02em; }
+        .ws-titles p { font-size: 13.5px; color: var(--muted); margin: 6px 0 0; line-height: 1.7; max-width: 640px; }
+        .ws-cat-tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; margin-bottom: 4px; }
+
+        /* form 工作台：左输入右输出 */
+        .ws-form-layout { display: grid; grid-template-columns: minmax(300px, 0.85fr) 1.15fr; gap: 26px; align-items: start; }
+        @media (max-width: 860px) { .ws-form-layout { grid-template-columns: 1fr; } }
+
+        .ws-panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; }
+        .ws-panel-head { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 18px; }
+        .ws-panel-head .mono { font-family: var(--font-mono); font-size: 10.5px; color: var(--subtle); margin-left: auto; letter-spacing: .05em; }
+
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+        .field label .req { color: var(--brand); margin-left: 2px; }
+        .field label .hint { font-weight: 400; color: var(--subtle); font-size: 11.5px; margin-left: 6px; }
+        .field input, .field select, .field textarea { width: 100%; padding: 10px 13px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); font-size: 13.5px; color: var(--ink); outline: none; font-family: inherit; transition: border-color .15s, box-shadow .15s, background .15s; }
+        .field textarea { resize: vertical; line-height: 1.65; }
+        .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .field .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+        .field .chip-opt { padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--soft); font-size: 12.5px; color: var(--text); cursor: pointer; transition: all .14s; user-select: none; }
+        .field .chip-opt.on { background: var(--ink); color: var(--soft); border-color: var(--ink); }
+
+        .ws-run { width: 100%; margin-top: 6px; padding: 13px; border: none; border-radius: var(--r-md); background: var(--brand); color: #fff; font-size: 14.5px; font-weight: 700; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s, transform .1s; }
+        .ws-run:hover { background: var(--brand-dark); }
+        .ws-run:active { transform: scale(.99); }
+        .ws-run:disabled { opacity: .55; cursor: not-allowed; }
+
+        /* 输出区 */
+        .ws-out-panel { min-height: 420px; display: flex; flex-direction: column; }
+        .ws-out-head { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+        .ws-out-head .label { font-size: 13px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 7px; }
+        .ws-out-actions { margin-left: auto; display: flex; gap: 7px; }
+        .ws-mini-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border: 1px solid var(--line); background: var(--paper); border-radius: var(--r-sm); font-size: 12px; color: var(--text); cursor: pointer; font-family: inherit; transition: all .14s; }
+        .ws-mini-btn:hover { background: var(--soft-2); color: var(--ink); }
+        .ws-mini-btn.copied { color: var(--success); border-color: var(--success); }
+        .ws-out-body { flex: 1; font-size: 14px; line-height: 1.85; color: var(--text); }
+        .ws-out-body.placeholder { display: grid; place-items: center; text-align: center; color: var(--subtle); }
+        .ws-out-body.placeholder .ph { font-size: 50px; display: block; margin-bottom: 14px; opacity: .6; }
+        /* markdown 渲染样式 */
+        .md h1, .md h2, .md h3 { color: var(--ink); font-weight: 700; line-height: 1.3; margin: 1.2em 0 .5em; }
+        .md h1 { font-size: 20px; } .md h2 { font-size: 17px; } .md h3 { font-size: 15px; }
+        .md h2 { padding-top: .4em; border-top: 1px solid var(--line-soft); }
+        .md p { margin: .6em 0; }
+        .md ul, .md ol { margin: .5em 0; padding-left: 1.4em; }
+        .md li { margin: .3em 0; }
+        .md strong { color: var(--ink); font-weight: 700; }
+        .md code { background: var(--soft-2); padding: 1px 6px; border-radius: 5px; font-family: var(--font-mono); font-size: 12.5px; }
+        .md blockquote { border-left: 3px solid var(--brand); padding: 2px 14px; margin: .8em 0; color: var(--muted); background: var(--brand-soft); border-radius: 0 8px 8px 0; }
+        .md table { width: 100%; border-collapse: collapse; margin: .9em 0; font-size: 13px; }
+        .md th, .md td { border: 1px solid var(--line); padding: 8px 11px; text-align: left; }
+        .md th { background: var(--soft-2); font-weight: 700; color: var(--ink); }
+        .md hr { border: none; border-top: 1px solid var(--line); margin: 1.2em 0; }
+        .cursor-blink::after { content: "▋"; color: var(--brand); animation: blink 1s steps(2) infinite; margin-left: 1px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* chat 工作台 */
+        .ws-chat-layout { max-width: 820px; margin: 0 auto; }
+        .chat-stream { display: flex; flex-direction: column; gap: 18px; min-height: 360px; padding: 8px 2px 24px; }
+        .chat-row { display: flex; gap: 12px; max-width: 86%; }
+        .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-av { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; font-size: 17px; }
+        .chat-av.user { background: var(--ink); color: var(--soft); font-size: 13px; font-weight: 700; }
+        .chat-bubble { padding: 13px 16px; border-radius: 15px; font-size: 14px; line-height: 1.8; }
+        .chat-row.bot .chat-bubble { background: var(--paper); border: 1px solid var(--line); border-top-left-radius: 4px; color: var(--text); }
+        .chat-row.user .chat-bubble { background: var(--ink); color: var(--soft); border-top-right-radius: 4px; }
+        .chat-row.user .chat-bubble .md strong { color: #fff; }
+        .chat-input-bar { position: sticky; bottom: 0; display: flex; gap: 10px; align-items: flex-end; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); }
+        .chat-input-bar textarea { flex: 1; border: none; outline: none; resize: none; font-family: inherit; font-size: 14px; line-height: 1.6; background: transparent; color: var(--ink); max-height: 140px; padding: 6px 4px; }
+        .chat-send { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; border: none; background: var(--brand); color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 19px; transition: background .15s; }
+        .chat-send:hover { background: var(--brand-dark); }
+        .chat-send:disabled { opacity: .5; cursor: not-allowed; }
+        .chat-starter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+        .chat-starter-chips button { padding: 8px 14px; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; font-size: 12.5px; color: var(--text); cursor: pointer; font-family: inherit; transition: all .14s; }
+        .chat-starter-chips button:hover { border-color: var(--brand); color: var(--brand); }
+
+        .api-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 24px; padding: 13px 16px; background: var(--soft-2); border: 1px dashed var(--line); border-radius: var(--r-md); font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+        .api-note i { color: var(--ochre); font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<div id="main-nav"></div>
+
+<!-- ============ 视图一：智能体库 ============ -->
+<main id="view-home" style="max-width:1240px;margin:0 auto;padding:48px 24px 88px">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
+
+    <div style="margin-bottom:8px">
+        <div class="page-kicker">Agents · 教师 AI 工作台</div>
+        <h1 class="page-title">智能体<em>空间</em></h1>
+        <p class="page-sub">把常见的教学任务交给专门调教过的 AI 智能体——从教学设计、微课脚本到智能出题、作业批改、家校沟通。选一个，填上你的信息，一键得到可用的初稿。</p>
+    </div>
+
+    <div class="agents-toolbar">
+        <div class="agent-search">
+            <i class="ph ph-magnifying-glass"></i>
+            <input type="text" id="agent-search" placeholder="搜索智能体，如「出题」「评语」「微课」…" oninput="applyFilter()">
+        </div>
+        <span class="agent-count" id="agent-count"></span>
+    </div>
+    <div class="filter-bar" id="filter-bar"></div>
+
+    <div class="agent-grid" id="agent-grid"></div>
+</main>
+
+<!-- ============ 视图二：工作台 ============ -->
+<div id="view-workspace" style="display:none">
+    <div class="ws-wrap">
+        <div class="ws-top">
+            <button class="ws-back" onclick="backToHome()" aria-label="返回"><i class="ph ph-arrow-left"></i></button>
+            <div class="ws-ico" id="ws-ico"></div>
+            <div class="ws-titles">
+                <div class="ws-cat-tag" id="ws-cat"></div>
+                <h1 id="ws-name"></h1>
+                <p id="ws-intro"></p>
+            </div>
+        </div>
+        <div id="ws-body"></div>
+        <div class="api-note">
+            <i class="ph ph-plug"></i>
+            <span><strong>演示模式：</strong>当前展示的是界面与交互效果，输出为示例内容。接入大模型 API 后，这里将返回针对你输入实时生成的真实结果。</span>
+        </div>
+    </div>
+</div>
+
+<div id="main-footer"></div>
+
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js?v=20260530-admin-delete"></script>
+<script src="js/data.js?v=20260601-resources"></script>
+<script src="js/auth.js?v=20260601-hamburger"></script>
+<script src="js/agents-data.js?v=20260609"></script>
+<script>
+/* ===================================================================
+   智能体空间 · 页面逻辑
+   智能体清单数据在 js/agents-data.js（window.AGENTS / window.AGENT_CATS）
+   =================================================================== */
+const CATS = window.AGENT_CATS;
+const AGENTS = window.AGENTS;
+const CAT_MAP = Object.fromEntries(CATS.map(c => [c.key, c]));
+let currentCat = 'all';
+
+/* ---------- 卡片墙 ---------- */
+function renderFilterBar() {
+    const all = `<button class="filter-pill active" data-cat="all" onclick="setCat('all')">全部</button>`;
+    const rest = CATS.map(c =>
+        `<button class="filter-pill" data-cat="${c.key}" onclick="setCat('${c.key}')"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`
+    ).join('');
+    document.getElementById('filter-bar').innerHTML = all + rest;
+}
+
+function setCat(key) {
+    currentCat = key;
+    document.querySelectorAll('#filter-bar .filter-pill').forEach(b =>
+        b.classList.toggle('active', b.dataset.cat === key));
+    applyFilter();
+}
+
+function applyFilter() {
+    const q = document.getElementById('agent-search').value.trim().toLowerCase();
+    const list = AGENTS.filter(a => {
+        const catOk = currentCat === 'all' || a.cat === currentCat;
+        const qOk = !q || (a.name + a.tagline + a.desc + (a.keywords || '')).toLowerCase().includes(q);
+        return catOk && qOk;
+    });
+    document.getElementById('agent-count').textContent = `共 ${list.length} 个智能体`;
+    const grid = document.getElementById('agent-grid');
+    if (!list.length) {
+        grid.innerHTML = `<div class="empty-hint"><i class="ph ph-robot"></i><p>没有匹配的智能体，换个关键词试试</p></div>`;
+        return;
+    }
+    grid.innerHTML = list.map(a => {
+        const c = CAT_MAP[a.cat];
+        return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
+            <div class="agent-card-top">
+                <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
+                <div>
+                    <div class="agent-card-name">${a.name}</div>
+                    <div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div>
+                </div>
+            </div>
+            <div class="agent-card-desc">${a.desc}</div>
+            <div class="agent-card-foot">
+                <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : '一键生成'}</span>
+                <span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+/* ---------- 打开 / 返回 ---------- */
+function openAgent(id, skipGuard) {
+    const a = AGENTS.find(x => x.id === id);
+    if (!a) return;
+    // 登录门禁：使用智能体需要登录
+    if (!skipGuard && typeof requireLogin === 'function' && !requireLogin(() => openAgent(id, true), '请先登录后使用智能体')) return;
+
+    const c = CAT_MAP[a.cat];
+    document.getElementById('view-home').style.display = 'none';
+    document.getElementById('view-workspace').style.display = '';
+    const ico = document.getElementById('ws-ico');
+    ico.style.background = c.soft; ico.style.color = c.color;
+    ico.innerHTML = `<i class="ph-fill ${a.icon}"></i>`;
+    document.getElementById('ws-cat').innerHTML = `<i class="ph ph-circle-fill" style="font-size:6px;color:${c.color}"></i><span style="color:${c.color}">${c.name}</span>`;
+    document.getElementById('ws-name').textContent = a.name;
+    document.getElementById('ws-intro').textContent = a.intro || a.desc;
+
+    if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+    if (a.type === 'chat') buildChat(a);
+    else buildForm(a);
+}
+
+function backToHome() {
+    document.getElementById('view-workspace').style.display = 'none';
+    document.getElementById('view-home').style.display = '';
+    history.replaceState(null, '', location.pathname);
+    document.title = '智能体空间 · AI 教师培训中心';
+}
+
+/* ---------- form 工作台 ---------- */
+function buildForm(a) {
+    const fieldsHtml = a.fields.map(f => renderField(a.id, f)).join('');
+    document.getElementById('ws-body').innerHTML = `
+    <div class="ws-form-layout">
+        <div class="ws-panel">
+            <div class="ws-panel-head"><i class="ph ph-sliders-horizontal"></i> 填写信息 <span class="mono">INPUT</span></div>
+            <form id="agent-form" onsubmit="return runForm('${a.id}')">
+                ${fieldsHtml}
+                <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> 开始生成</button>
+            </form>
+        </div>
+        <div class="ws-panel ws-out-panel">
+            <div class="ws-out-head">
+                <span class="label"><i class="ph ph-file-text"></i> 生成结果</span>
+                <div class="ws-out-actions" id="out-actions" style="display:none">
+                    <button class="ws-mini-btn" id="copy-btn" onclick="copyResult()"><i class="ph ph-copy"></i> 复制</button>
+                    <button class="ws-mini-btn" onclick="runForm('${a.id}')"><i class="ph ph-arrows-clockwise"></i> 重新生成</button>
+                </div>
+            </div>
+            <div class="ws-out-body placeholder" id="out-body">
+                <div><i class="ph ph-cursor-click"></i><p>填好左侧信息后点击「开始生成」<br>结果会显示在这里</p></div>
+            </div>
+        </div>
+    </div>`;
+    // 恢复 chip 多选监听
+    document.querySelectorAll('#agent-form .chip-opt').forEach(ch => {
+        ch.addEventListener('click', () => ch.classList.toggle('on'));
+    });
+}
+
+function renderField(aid, f) {
+    const req = f.required ? '<span class="req">*</span>' : '';
+    const hint = f.hint ? `<span class="hint">${f.hint}</span>` : '';
+    const label = `<label>${f.label}${req}${hint}</label>`;
+    let control = '';
+    if (f.type === 'textarea') {
+        control = `<textarea name="${f.key}" rows="${f.rows || 4}" placeholder="${f.placeholder || ''}"></textarea>`;
+    } else if (f.type === 'select') {
+        control = `<select name="${f.key}">${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
+    } else if (f.type === 'chips') {
+        control = `<div class="chips" data-key="${f.key}">${f.options.map(o => `<span class="chip-opt">${o}</span>`).join('')}</div>`;
+    } else {
+        control = `<input type="${f.type || 'text'}" name="${f.key}" placeholder="${f.placeholder || ''}">`;
+    }
+    return `<div class="field">${label}${control}</div>`;
+}
+
+function collectInputs(a) {
+    const form = document.getElementById('agent-form');
+    const data = {};
+    a.fields.forEach(f => {
+        if (f.type === 'chips') {
+            const sel = [...form.querySelectorAll(`.chips[data-key="${f.key}"] .chip-opt.on`)].map(e => e.textContent);
+            data[f.key] = sel;
+        } else {
+            const el = form.querySelector(`[name="${f.key}"]`);
+            data[f.key] = el ? el.value.trim() : '';
+        }
+    });
+    return data;
+}
+
+let _lastResult = '';
+async function runForm(aid) {
+    const a = AGENTS.find(x => x.id === aid);
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return false;
+    const inputs = collectInputs(a);
+    // 必填校验
+    const missing = a.fields.filter(f => f.required && (!inputs[f.key] || (Array.isArray(inputs[f.key]) && !inputs[f.key].length)));
+    if (missing.length) { showToast(`请填写：${missing.map(m => m.label).join('、')}`); return false; }
+
+    const btn = document.getElementById('run-btn');
+    const body = document.getElementById('out-body');
+    const actions = document.getElementById('out-actions');
+    btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 生成中…';
+    actions.style.display = 'none';
+    body.className = 'ws-out-body md';
+    body.innerHTML = '';
+    _lastResult = '';
+
+    try {
+        await callAgentAPI({
+            agent: a, inputs,
+            onToken: (full) => { _lastResult = full; body.innerHTML = mdToHtml(full) + ' '; body.classList.add('cursor-blink'); }
+        });
+        body.classList.remove('cursor-blink');
+        body.innerHTML = mdToHtml(_lastResult);
+        actions.style.display = 'flex';
+    } catch (e) {
+        body.className = 'ws-out-body placeholder';
+        body.innerHTML = `<div><i class="ph ph-warning"></i><p>生成失败：${e.message}</p></div>`;
+    }
+    btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-sparkle"></i> 开始生成';
+    return false;
+}
+
+function copyResult() {
+    if (!_lastResult) return;
+    navigator.clipboard.writeText(_lastResult).then(() => {
+        const b = document.getElementById('copy-btn');
+        b.classList.add('copied'); b.innerHTML = '<i class="ph ph-check"></i> 已复制';
+        showToast('已复制到剪贴板 ✓');
+        setTimeout(() => { b.classList.remove('copied'); b.innerHTML = '<i class="ph ph-copy"></i> 复制'; }, 1800);
+    });
+}
+
+/* ---------- chat 工作台 ---------- */
+let _chatHistory = [];
+function buildChat(a) {
+    _chatHistory = [];
+    const starters = (a.starters || []).map(s =>
+        `<button onclick="quickChat('${a.id}', this.textContent)">${s}</button>`).join('');
+    document.getElementById('ws-body').innerHTML = `
+    <div class="ws-chat-layout">
+        <div class="chat-stream" id="chat-stream"></div>
+        ${starters ? `<div class="chat-starter-chips">${starters}</div>` : ''}
+        <div class="chat-input-bar">
+            <textarea id="chat-input" rows="1" placeholder="输入消息，Enter 发送 / Shift+Enter 换行"
+                oninput="autoGrow(this)" onkeydown="chatKey(event,'${a.id}')"></textarea>
+            <button class="chat-send" id="chat-send" onclick="sendChat('${a.id}')"><i class="ph-fill ph-paper-plane-right"></i></button>
+        </div>
+    </div>`;
+    // 智能体开场白
+    pushChat('bot', a.greeting || '你好，我可以帮你什么？', a);
+}
+
+function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px'; }
+function chatKey(ev, aid) {
+    if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); sendChat(aid); }
+}
+function quickChat(aid, text) {
+    document.getElementById('chat-input').value = text;
+    sendChat(aid);
+}
+
+function pushChat(role, text, a) {
+    const stream = document.getElementById('chat-stream');
+    const row = document.createElement('div');
+    row.className = `chat-row ${role === 'user' ? 'user' : 'bot'}`;
+    const c = a ? CAT_MAP[a.cat] : null;
+    const av = role === 'user'
+        ? `<div class="chat-av user">${(Auth.getCurrentUser()?.name || '我').slice(0,1).toUpperCase()}</div>`
+        : `<div class="chat-av" style="background:${c?.soft};color:${c?.color}"><i class="ph-fill ${a?.icon}"></i></div>`;
+    row.innerHTML = `${av}<div class="chat-bubble"><div class="md">${role === 'user' ? escapeHtml(text) : mdToHtml(text)}</div></div>`;
+    stream.appendChild(row);
+    stream.scrollIntoView(false);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    return row.querySelector('.md');
+}
+
+async function sendChat(aid) {
+    const a = AGENTS.find(x => x.id === aid);
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return;
+
+    pushChat('user', text, a);
+    _chatHistory.push({ role: 'user', content: text });
+    input.value = ''; autoGrow(input);
+    const sendBtn = document.getElementById('chat-send');
+    sendBtn.disabled = true;
+
+    const target = pushChat('bot', '', a);
+    target.parentElement.parentElement.classList.add('cursor-blink');
+    try {
+        await callAgentAPI({
+            agent: a, inputs: {}, history: _chatHistory,
+            onToken: (full) => { target.innerHTML = mdToHtml(full); window.scrollTo({ top: document.body.scrollHeight }); }
+        });
+        _chatHistory.push({ role: 'assistant', content: target.textContent });
+    } catch (e) {
+        target.innerHTML = `<span style="color:var(--brand)">出错了：${e.message}</span>`;
+    }
+    target.parentElement.parentElement.classList.remove('cursor-blink');
+    sendBtn.disabled = false;
+    input.focus();
+}
+
+/* ===================================================================
+   ★★★ API 接入点 ★★★
+   当前为本地演示（mock）。拿到大模型 API 后，只需替换这个函数内部：
+     1. 把 agent.system + inputs / history 组成请求体
+     2. POST 到你的后端（如 Cloudflare Pages Function /api/agent，由后端持有密钥转发）
+     3. 按 token 流式回调 onToken(已生成的完整文本)
+   其余 UI 逻辑都不用动。
+   =================================================================== */
+async function callAgentAPI({ agent, inputs, history, onToken }) {
+    /* ---- 真实接入时的写法（示意，待你提供接口后启用）----
+    const res = await fetch('/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await Auth.getIdToken() },
+        body: JSON.stringify({ agentId: agent.id, system: agent.system, inputs, history })
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        full += decoder.decode(value, { stream: true });
+        onToken(full);
+    }
+    return full;
+    ------------------------------------------------------------------ */
+
+    // ---- 当前：本地演示，模拟流式输出 ----
+    const demo = agent.type === 'chat'
+        ? mockChatReply(agent, history)
+        : (typeof agent.sample === 'function' ? agent.sample(inputs) : agent.sample);
+    return streamText(demo, onToken);
+}
+
+function streamText(text, onToken) {
+    return new Promise((resolve) => {
+        let i = 0;
+        const step = Math.max(1, Math.round(text.length / 160)); // 约 160 帧内输出完
+        const timer = setInterval(() => {
+            i = Math.min(text.length, i + step + Math.floor(Math.random() * 3));
+            onToken(text.slice(0, i));
+            if (i >= text.length) { clearInterval(timer); resolve(text); }
+        }, 16);
+    });
+}
+
+function mockChatReply(agent, history) {
+    const last = history.filter(h => h.role === 'user').slice(-1)[0]?.content || '';
+    if (typeof agent.mock === 'function') return agent.mock(last, history);
+    return agent.mock || '（演示回复）我已经收到你的问题，接入真实模型后会在这里给出具体回答。';
+}
+
+/* ---------- 工具函数 ---------- */
+function mdToHtml(md) {
+    try { return window.marked ? marked.parse(md, { breaks: true }) : escapeHtml(md).replace(/\n/g, '<br>'); }
+    catch { return escapeHtml(md).replace(/\n/g, '<br>'); }
+}
+function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+
+/* ---------- 初始化 ---------- */
+renderFilterBar();
+applyFilter();
+renderNav('agents');
+renderFooter();
+
+// hash 深链：直接进入某个智能体
+function routeFromHash(skipGuard) {
+    const id = location.hash.replace('#', '');
+    if (id && AGENTS.find(a => a.id === id)) openAgent(id, skipGuard);
+}
+routeFromHash(true); // 首次进入不强制登录拦截（避免落地即弹窗），实际调用时再拦
+
+// 浏览器前进/后退或手动改 hash 时响应（openAgent/backToHome 用 replaceState，不会触发本监听，避免循环）
+window.addEventListener('hashchange', () => {
+    if (location.hash && location.hash !== '#') routeFromHash(true);
+    else if (document.getElementById('view-workspace').style.display !== 'none') backToHome();
+});
+
+onAuthReady(() => {
+    renderNav('agents');
+    renderFooter();
+});
+</script>
+<script src="js/assistant.js"></script>
+</body>
+</html>

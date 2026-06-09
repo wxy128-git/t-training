@@ -25,7 +25,7 @@
 - **2026-06-01**: Hamburger drawer replaces 1080px-and-below horizontal scroll nav. Four more classroom tools added (groups / seating / applause / whiteboard). Paths and articles split into warm-vs-cool color families. Admin gets a 设计资源 management panel; resources migrate to Firestore.
 - **2026-06-02**: Firestore rules updated to include `resource_categories`. Path gradients enforced at render time by slug, bypassing any legacy data in Firestore.
 - **2026-06-04**: Per-page OG share cards shipped (10 editorial 1200×630 JPGs under `assets/og/`, generated from `assets/og/template.html` via headless screenshots — see "SEO / OG"). Added `twitter:card`/`twitter:image` + `og:image:width/height` to all content pages; added missing `canonical` to `index.html`. CSS got a self-contained "Refinement layer" at the end of `style.css` (softer card motion, springy button press, more editorial spacing, CSS-only scroll-reveal). `style.css` is now cache-busted with `?v=YYYYMMDD` on every page — bump it whenever the stylesheet changes.
-- Old Netlify site (`xylaoshi.netlify.app`) is currently 503 (team credit limit). If/when it comes back, follow up on a redirect — strategy is to commit a `netlify.toml` with a 301 to pages.dev, since CF Pages ignores that file.
+- **2026-06-09**: 新增「智能体空间」(`agents.html` + `js/agents-data.js`) — 19 个面向中小学教师的 AI 智能体，分备课设计 / 课堂教学 / 作业评价 / 班级家校 / 教师发展五类，含生成式（填参数）与对话式两种工作台。模型调用统一收口在 `callAgentAPI()`，**当前为本地 mock，待接入真实 API**（接入点在 `agents.html` 内已用注释标出，并预留了带流式读取的 fetch 示例 + `Authorization: Bearer <idToken>`）。已加入主导航（`renderNav` 的 `agents` 项）、页脚与首页功能卡；OG 卡 `assets/og/agents.jpg` 已按 `template.html` 流程生成。智能体清单纯前端维护，未进 Firestore/admin。
 
 ## Auth Lesson (Important)
 
@@ -65,7 +65,8 @@ Rules live in Firebase Console → Firestore → Rules. They are the source of t
 
 | File | Purpose |
 |---|---|
-| `index.html` | Homepage: hero, feature nav (8 cards in 4×2), paths preview, tools preview, prompts preview, articles, showcases, contact band, subscribe |
+| `index.html` | Homepage: hero, feature nav (9 cards), paths preview, tools preview, prompts preview, articles, showcases, contact band, subscribe |
+| `agents.html` | **智能体空间** — agent gallery + workspace. Self-contained single page (card wall ↔ workspace, hash deep-link `#agent-id`). 19 agents defined in `js/agents-data.js` (5 categories). Two workspace types: **form** (left inputs / right streamed Markdown output, copy + regenerate) and **chat** (multi-turn). Login is enforced on *use* (`openAgent` / run / send), not on browsing — so the card wall stays an open shop window (not in `PROTECTED_PAGE_NAMES`). All model calls funnel through **`callAgentAPI()`** — currently a local streaming **mock**; swap that one function for the real API. |
 | `tools.html` | AI tool listing — **renders `DEFAULT_TOOLS` synchronously first**, then replaces with Firestore data |
 | `classroom-tools.html` | Eight self-contained classroom widgets (see below) |
 | `paths.html` | Full learning-path detail page |
@@ -159,7 +160,7 @@ If a render call throws (we hit this when the bubble theme built `"rgb(...)55"` 
 ## SEO / OG
 
 - Every page has `<meta name="description">`, complete OpenGraph tags (og:title / description / type / url / image + image:width/height), `twitter:card` (summary_large_image) + `twitter:image`, and `<link rel="canonical">`.
-- **Per-page OG cards (done 2026-06-04)**: each content page points `og:image`/`twitter:image` at its own `assets/og/<slug>.jpg` (1200×630). Slugs: `index, tools, prompts, paths, news, showcase, articles, article, resources, classroom`. `admin.html` / `main.html` are internal and have no OG card.
+- **Per-page OG cards (done 2026-06-04)**: each content page points `og:image`/`twitter:image` at its own `assets/og/<slug>.jpg` (1200×630). Slugs: `index, tools, prompts, paths, news, showcase, articles, article, resources, classroom, agents`. `admin.html` / `main.html` are internal and have no OG card.
 - **How to regenerate a card**: edit the page's entry in the `PAGES` map inside `assets/og/template.html`, serve the folder locally (`python3 -m http.server`), open `assets/og/template.html?p=<slug>` at a 1200×630 viewport, and screenshot to `assets/og/<slug>.jpg`. The template uses the editorial palette (cream + dot-grid + cinnabar italic highlight + mono kicker + bottom brand stripe). No build step, no runtime function — the cards are static JPGs.
 - Old shared image `assets/hero-teacher-workspace.jpg` is still used as the hero preload, just no longer as the OG image.
 
@@ -179,7 +180,6 @@ If a render call throws (we hit this when the bubble theme built `"rgb(...)55"` 
 ## Future Follow-Ups
 
 - Add a 忘记密码 flow to the login modal.
-- When the old Netlify site recovers, commit a `netlify.toml` that 301-redirects to `pages.dev` (CF Pages ignores it, so it's safe).
 - Consider extracting the classroom-tools sub-tools into separate JS modules — `classroom-tools.html` is large (~1700 lines now).
 - If we ever need real-time updates on `contact_messages`, switch the admin panel to `onSnapshot`.
 - Cloud storage for user-uploaded showcase images is not wired up yet — currently URLs only.
