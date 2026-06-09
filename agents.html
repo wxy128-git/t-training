@@ -186,8 +186,8 @@
         </div>
         <div id="ws-body"></div>
         <div class="api-note">
-            <i class="ph ph-plug"></i>
-            <span><strong>演示模式：</strong>当前展示的是界面与交互效果，输出为示例内容。接入大模型 API 后，这里将返回针对你输入实时生成的真实结果。</span>
+            <i class="ph ph-sparkle"></i>
+            <span>内容由 <strong>DeepSeek</strong> 大模型实时生成，仅供参考，请结合教学实际核对后使用。</span>
         </div>
     </div>
 </div>
@@ -473,20 +473,36 @@ async function sendChat(aid) {
 }
 
 /* ===================================================================
-   ★★★ API 接入点 ★★★
-   当前为本地演示（mock）。拿到大模型 API 后，只需替换这个函数内部：
-     1. 把 agent.system + inputs / history 组成请求体
-     2. POST 到你的后端（如 Cloudflare Pages Function /api/agent，由后端持有密钥转发）
-     3. 按 token 流式回调 onToken(已生成的完整文本)
-   其余 UI 逻辑都不用动。
+   智能体执行：调用同源后端代理 /api/agent
+   （由 functions/api/agent.js 持 DeepSeek 密钥转发，密钥永不出现在前端）
+   前端只负责：① 组装发给模型的消息  ② 带上登录令牌  ③ 读流式纯文本
    =================================================================== */
 async function callAgentAPI({ agent, inputs, history, onToken }) {
-    /* ---- 真实接入时的写法（示意，待你提供接口后启用）----
+    // ① 组装消息
+    let messages;
+    if (agent.type === 'chat') {
+        messages = [{ role: 'system', content: agent.system },
+                    ...history.map(h => ({ role: h.role, content: h.content }))];
+    } else {
+        messages = [{ role: 'system', content: agent.system },
+                    { role: 'user', content: buildUserPrompt(agent, inputs) }];
+    }
+
+    // ② 登录令牌（后端据此校验，防止接口被盗刷）
+    let idToken = '';
+    try { idToken = await Auth.getIdToken(); } catch {}
+
     const res = await fetch('/api/agent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await Auth.getIdToken() },
-        body: JSON.stringify({ agentId: agent.id, system: agent.system, inputs, history })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages, idToken })
     });
+    if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.msg || `请求失败（${res.status}）`);
+    }
+
+    // ③ 读取后端转发的纯文本增量流
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let full = '';
@@ -496,32 +512,18 @@ async function callAgentAPI({ agent, inputs, history, onToken }) {
         full += decoder.decode(value, { stream: true });
         onToken(full);
     }
+    if (!full.trim()) throw new Error('模型没有返回内容，请稍后重试');
     return full;
-    ------------------------------------------------------------------ */
-
-    // ---- 当前：本地演示，模拟流式输出 ----
-    const demo = agent.type === 'chat'
-        ? mockChatReply(agent, history)
-        : (typeof agent.sample === 'function' ? agent.sample(inputs) : agent.sample);
-    return streamText(demo, onToken);
 }
 
-function streamText(text, onToken) {
-    return new Promise((resolve) => {
-        let i = 0;
-        const step = Math.max(1, Math.round(text.length / 160)); // 约 160 帧内输出完
-        const timer = setInterval(() => {
-            i = Math.min(text.length, i + step + Math.floor(Math.random() * 3));
-            onToken(text.slice(0, i));
-            if (i >= text.length) { clearInterval(timer); resolve(text); }
-        }, 16);
-    });
-}
-
-function mockChatReply(agent, history) {
-    const last = history.filter(h => h.role === 'user').slice(-1)[0]?.content || '';
-    if (typeof agent.mock === 'function') return agent.mock(last, history);
-    return agent.mock || '（演示回复）我已经收到你的问题，接入真实模型后会在这里给出具体回答。';
+// 把表单输入拼成一段给模型的提示
+function buildUserPrompt(agent, inputs) {
+    const lines = agent.fields.map(f => {
+        const v = inputs[f.key];
+        const val = Array.isArray(v) ? v.join('、') : (v || '');
+        return val ? `【${f.label}】${val}` : null;
+    }).filter(Boolean);
+    return `请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中国大陆中小学教学实际。`;
 }
 
 /* ---------- 工具函数 ---------- */
