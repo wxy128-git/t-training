@@ -61,6 +61,21 @@
         .empty-hint { grid-column: 1/-1; text-align: center; padding: 70px 20px; color: var(--subtle); }
         .empty-hint i { font-size: 46px; display: block; margin-bottom: 12px; }
 
+        /* 分区陈列 + 精选 */
+        .agent-section { margin-bottom: 38px; }
+        .agent-section-head { display: flex; align-items: center; gap: 10px; padding-top: 20px; margin-bottom: 18px; border-top: 1px solid var(--line); }
+        .agent-section-head.featured-head { border-top: none; padding-top: 0; }
+        .agent-section-head .sec-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 16px; flex-shrink: 0; }
+        .agent-section-head .sec-title { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+        .agent-section-head .sec-count { font-family: var(--font-mono); font-size: 11px; color: var(--subtle); background: var(--soft-2); padding: 1px 8px; border-radius: 999px; }
+        .agent-section-head .sec-sub { font-size: 12.5px; color: var(--muted); }
+        .featured-grid { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 980px) { .featured-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .featured-grid { grid-template-columns: 1fr; } }
+        /* 精选卡片：细品牌色顶饰，强化「起点」感 */
+        .featured-grid .agent-card { border-color: var(--brand-soft); }
+        .featured-grid .agent-card::before { opacity: .5; background: var(--brand); }
+
         /* ===== 工作台 ===== */
         .ws-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; }
         .ws-top { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
@@ -178,7 +193,7 @@
     </div>
     <div class="filter-bar" id="filter-bar"></div>
 
-    <div class="agent-grid" id="agent-grid"></div>
+    <div id="agent-content"></div>
 </main>
 
 <!-- ============ 视图二：工作台 ============ -->
@@ -238,36 +253,77 @@ function setCat(key) {
     applyFilter();
 }
 
+const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
+const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
+
+function cardHtml(a) {
+    const c = CAT_MAP[a.cat];
+    return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
+        <div class="agent-card-top">
+            <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
+            <div>
+                <div class="agent-card-name">${a.name}</div>
+                <div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div>
+            </div>
+        </div>
+        <div class="agent-card-desc">${a.desc}</div>
+        <div class="agent-card-foot">
+            <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : '一键生成'}</span>
+            <span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span>
+        </div>
+    </div>`;
+}
+
 function applyFilter() {
     const q = document.getElementById('agent-search').value.trim().toLowerCase();
+    if (currentCat === 'all' && !q) renderHome();
+    else renderFiltered(q);
+}
+
+// 默认视图：顶部精选 + 按 5 大类分区陈列（降低「一片卡海」的认知负荷）
+function renderHome() {
+    document.getElementById('agent-count').textContent = `${AGENTS.length} 个智能体 · 按教学场景分类`;
+    let html = '';
+    const feat = FEATURED.map(id => AGENTS.find(a => a.id === id)).filter(Boolean);
+    if (feat.length) {
+        html += `<div class="agent-section">
+            <div class="agent-section-head featured-head">
+                <div class="sec-ico" style="background:var(--brand-soft);color:var(--brand)"><i class="ph-fill ph-star"></i></div>
+                <span class="sec-title">常用推荐</span>
+                <span class="sec-sub">不知从哪开始？先试这几个</span>
+            </div>
+            <div class="agent-grid featured-grid">${feat.map(cardHtml).join('')}</div>
+        </div>`;
+    }
+    CATS.forEach(c => {
+        const list = AGENTS.filter(a => a.cat === c.key);
+        if (!list.length) return;
+        html += `<div class="agent-section">
+            <div class="agent-section-head">
+                <div class="sec-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${CAT_ICONS[c.key] || 'ph-folder-simple'}"></i></div>
+                <span class="sec-title">${c.name}</span>
+                <span class="sec-count">${list.length}</span>
+            </div>
+            <div class="agent-grid">${list.map(cardHtml).join('')}</div>
+        </div>`;
+    });
+    document.getElementById('agent-content').innerHTML = html;
+}
+
+// 筛选 / 搜索视图：单层网格
+function renderFiltered(q) {
     const list = AGENTS.filter(a => {
         const catOk = currentCat === 'all' || a.cat === currentCat;
         const qOk = !q || (a.name + a.tagline + a.desc + (a.keywords || '')).toLowerCase().includes(q);
         return catOk && qOk;
     });
     document.getElementById('agent-count').textContent = `共 ${list.length} 个智能体`;
-    const grid = document.getElementById('agent-grid');
+    const content = document.getElementById('agent-content');
     if (!list.length) {
-        grid.innerHTML = `<div class="empty-hint"><i class="ph ph-robot"></i><p>没有匹配的智能体，换个关键词试试</p></div>`;
+        content.innerHTML = `<div class="agent-grid"><div class="empty-hint"><i class="ph ph-robot"></i><p>没有匹配的智能体，换个关键词试试</p></div></div>`;
         return;
     }
-    grid.innerHTML = list.map(a => {
-        const c = CAT_MAP[a.cat];
-        return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
-            <div class="agent-card-top">
-                <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
-                <div>
-                    <div class="agent-card-name">${a.name}</div>
-                    <div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div>
-                </div>
-            </div>
-            <div class="agent-card-desc">${a.desc}</div>
-            <div class="agent-card-foot">
-                <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : '一键生成'}</span>
-                <span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span>
-            </div>
-        </div>`;
-    }).join('');
+    content.innerHTML = `<div class="agent-grid">${list.map(cardHtml).join('')}</div>`;
 }
 
 /* ---------- 打开 / 返回 ---------- */
