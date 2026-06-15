@@ -30,7 +30,7 @@
             <span class="hero-badge"><span class="hero-badge-dot"></span>面向中小学教师的 AI 学习资源中心</span>
         </div>
         <h1>让 <span class="highlight">AI</span> 真正<br>走进<span class="underline">你的课堂</span></h1>
-        <p>这里汇聚 AI 工具、提示词模板、学习路径、优秀案例与前沿资讯，方便老师们按需查找、学习和分享。</p>
+        <p>这里汇聚 AI 工具、提示词模板、学习路径与前沿资讯，方便老师们按需查找、学习和分享。</p>
         <div class="hero-btns">
             <a href="paths.html" class="btn-hero-primary"><i class="ph ph-map-trifold"></i>开始学习</a>
             <a href="tools.html" class="btn-hero-secondary"><i class="ph ph-wrench"></i>浏览工具箱</a>
@@ -38,7 +38,6 @@
         <div class="hero-highlights">
             <a href="prompts.html"><strong>8+</strong><span>即用提示词</span></a>
             <a href="tools.html"><strong>14+</strong><span>精选 AI 工具</span></a>
-            <a href="showcase.html"><strong>共创</strong><span>教师实践案例</span></a>
         </div>
     </div>
 </section>
@@ -78,10 +77,6 @@
             <a href="news.html" class="feature-card">
                 <div class="feature-icon feature-news"><i class="ph-fill ph-newspaper"></i></div>
                 <div><div class="feature-title">全球资讯</div><div class="feature-desc">AI 与教育科技动态聚合</div></div>
-            </a>
-            <a href="showcase.html" class="feature-card">
-                <div class="feature-icon feature-showcase"><i class="ph-fill ph-shooting-star"></i></div>
-                <div><div class="feature-title">案例展示</div><div class="feature-desc">一线教师的真实实践分享</div></div>
             </a>
             <a href="articles.html" class="feature-card">
                 <div class="feature-icon feature-articles"><i class="ph-fill ph-article"></i></div>
@@ -148,18 +143,6 @@
         <div class="cards-grid cards-grid-3" id="articles-preview"></div>
     </section>
 
-    <!-- 案例展示预览 -->
-    <section class="home-section" id="showcase-section" style="display:none">
-        <div class="section-header section-header-row">
-            <div>
-                <h2>教师优秀案例</h2>
-                <p>一线教师的 AI 教学实践，真实经验共享</p>
-            </div>
-            <a href="showcase.html" style="font-size:13px;color:var(--brand);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--brand);padding-bottom:3px">查看全部 <i class="ph ph-arrow-right"></i></a>
-        </div>
-        <div class="cards-grid cards-grid-3" id="showcase-preview"></div>
-    </section>
-
     <!-- 联系留言 -->
     <section class="contact-band" aria-labelledby="contact-band-title">
         <div class="contact-band-icon"><i class="ph-fill ph-envelope-simple"></i></div>
@@ -197,8 +180,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260601-resources"></script>
-<script src="js/auth.js?v=20260615-authflash"></script>
+<script src="js/data.js?v=20260615-rmshowcase"></script>
+<script src="js/auth.js?v=20260615-rmshowcase"></script>
 <script src="js/assistant.js"></script>
 <script>
 // ===== 立即渲染导航（不等待 auth）=====
@@ -211,9 +194,8 @@ Promise.all([
     DB.getAnnouncements(),
     DB.getPaths(),
     DB.getPrompts(),
-    DB.getShowcases('approved'),
     DB.getArticles('published')
-]).then(([tools, ann, paths, prompts, showcases, articles]) => {
+]).then(([tools, ann, paths, prompts, articles]) => {
     // Announcements
     if (ann.length > 0) {
         document.getElementById('announcements-section').innerHTML = `
@@ -233,30 +215,6 @@ Promise.all([
             <h3 style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px">${t.name}</h3>
             <p style="font-size:12px;color:#64748b;line-height:1.6">${t.desc}</p>
         </a>`).join('');
-
-    // Showcase preview (3 items)
-    if (showcases.length > 0) {
-        document.getElementById('showcase-section').style.display = '';
-        const catColors = {teaching:'#4F46E5',creation:'#EC4899',assessment:'#10B981',management:'#F59E0B',communication:'#3B82F6'};
-        const catLabels = {teaching:'教学设计',creation:'内容创作',assessment:'评估反馈',management:'班级管理',communication:'家校沟通'};
-        document.getElementById('showcase-preview').innerHTML = showcases.slice(0, 3).map(s => {
-            const color = catColors[s.category] || '#64748b';
-            return `
-            <a href="showcase.html" class="card showcase-card" style="display:block;text-decoration:none">
-                <div class="showcase-card-body">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-                        <span class="showcase-tag" style="background:${color}20;color:${color}">${catLabels[s.category]||s.category}</span>
-                    </div>
-                    <h3 style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${s.title}</h3>
-                    <p style="font-size:12px;color:#64748b;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${s.description}</p>
-                    <div style="margin-top:12px;display:flex;align-items:center;gap:6px">
-                        <div style="width:26px;height:26px;border-radius:50%;background:#c0392b;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#faf7f0">${s.authorName?.charAt(0)||'?'}</div>
-                        <span style="font-size:12px;color:#64748b">${s.authorName||'匿名教师'}</span>
-                    </div>
-                </div>
-            </a>`;
-        }).join('');
-    }
 
     // Paths preview — force the editorial palette, ignoring any
     // legacy gradient that may still live in Firestore.

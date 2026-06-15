@@ -74,7 +74,6 @@
             <div class="sidebar-item active" onclick="switchPanel('dashboard',this)"><i class="ph ph-squares-four"></i>概览</div>
             <div class="sidebar-item" onclick="switchPanel('announcements',this)"><i class="ph ph-megaphone"></i>公告管理</div>
             <div class="sidebar-item" onclick="switchPanel('community-prompts',this)"><i class="ph ph-chats-circle"></i>社区提示词</div>
-            <div class="sidebar-item" onclick="switchPanel('showcases',this)"><i class="ph ph-shooting-star"></i>案例审核</div>
             <div class="sidebar-item" onclick="switchPanel('subscribers',this)"><i class="ph ph-envelope-simple"></i>邮件订阅</div>
             <div class="sidebar-item" onclick="switchPanel('messages',this)"><i class="ph ph-chat-circle-text"></i>联系留言</div>
             <div class="sidebar-item" onclick="switchPanel('articles-mgr',this)"><i class="ph ph-article"></i>文章管理</div>
@@ -127,21 +126,6 @@
                 </div>
                 <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table><thead><tr><th>名称</th><th>作者</th><th>分类</th><th>内容摘要</th><th>点赞</th><th>状态</th><th>操作</th></tr></thead><tbody id="cp-tbody"></tbody></table></div>
-                </div>
-            </div>
-
-            <!-- Showcases -->
-            <div class="panel" id="panel-showcases">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-                    <h2 style="font-size:1.3rem;font-weight:800">案例展示审核</h2>
-                    <div style="display:flex;gap:8px">
-                        <button class="filter-pill active" id="sc-filter-pending" onclick="setSCFilter('pending',this)">待审核</button>
-                        <button class="filter-pill" id="sc-filter-approved" onclick="setSCFilter('approved',this)">已通过</button>
-                        <button class="filter-pill" id="sc-filter-all" onclick="setSCFilter('all',this)">全部</button>
-                    </div>
-                </div>
-                <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
-                    <div class="table-wrap"><table><thead><tr><th>标题</th><th>作者</th><th>学科</th><th>工具</th><th>描述摘要</th><th>状态</th><th>操作</th></tr></thead><tbody id="sc-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -519,12 +503,12 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260601-resources"></script>
-<script src="js/auth.js?v=20260615-authflash"></script>
+<script src="js/data.js?v=20260615-rmshowcase"></script>
+<script src="js/auth.js?v=20260615-rmshowcase"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
-let _adminCPs = [], _adminSCs = [], _adminSubs = [], _adminArticles = [];
-let _cpFilter = 'pending', _scFilter = 'pending';
+let _adminCPs = [], _adminSubs = [], _adminArticles = [];
+let _cpFilter = 'pending';
 
 // ===== GATE =====
 async function gateLogin() {
@@ -568,7 +552,6 @@ async function switchPanel(name, el) {
     el.classList.add('active');
     if (name === 'announcements') await renderAnnTable();
     if (name === 'community-prompts') await renderCPTable();
-    if (name === 'showcases') await renderSCTable();
     if (name === 'subscribers') await renderSubsTable();
     if (name === 'messages') await renderMessagesTable();
     if (name === 'articles-mgr') await renderArticlesTable();
@@ -581,13 +564,12 @@ async function switchPanel(name, el) {
 
 // ===== INIT =====
 async function initAdmin() {
-    const [tools, prompts, users, ann, cps, scs, subs, articles, msgs] = await Promise.all([
+    const [tools, prompts, users, ann, cps, subs, articles, msgs] = await Promise.all([
         DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements(),
-        DB.getCommunityPrompts(), DB.getShowcases(), DB.getSubscribers(), DB.getArticles(),
+        DB.getCommunityPrompts(), DB.getSubscribers(), DB.getArticles(),
         DB.getMessages()
     ]);
     const pendingCPs = cps.filter(p => p.status === 'pending').length;
-    const pendingSCs = scs.filter(s => s.status === 'pending').length;
     const pendingMsgs = msgs.filter(m => !m.handled).length;
     document.getElementById('dash-stats').innerHTML = [
         { label:'注册用户', value: users.length, icon:'ph-users', color:'#574a3d' },
@@ -595,7 +577,6 @@ async function initAdmin() {
         { label:'提示词模板', value: prompts.length, icon:'ph-chat-text', color:'#b08642' },
         { label:'平台公告', value: ann.length, icon:'ph-megaphone', color:'#c0392b' },
         { label:'待审提示词', value: pendingCPs, icon:'ph-chats-circle', color:'#2c5282' },
-        { label:'待审案例', value: pendingSCs, icon:'ph-shooting-star', color:'#a05a3e' },
         { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3a5070' },
         { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#2d4a3a' },
         { label:'待处理留言', value: pendingMsgs, icon:'ph-chat-circle-text', color:'#962b1f' }
@@ -702,48 +683,6 @@ async function deleteCommunityPrompt(id) {
     if (!confirm('确定删除这条社区提示词？')) return;
     await DB.deleteCommunityPrompt(id);
     await renderCPTable();
-    showToast('已删除');
-}
-
-// ===== SHOWCASES =====
-function setSCFilter(f, btn) {
-    _scFilter = f;
-    document.querySelectorAll('#panel-showcases .filter-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderSCTable();
-}
-
-async function renderSCTable() {
-    _adminSCs = await DB.getShowcases();
-    const list = _scFilter === 'all' ? _adminSCs : _adminSCs.filter(s => s.status === _scFilter);
-    const statusLabel = { pending:'<span class="badge-pending">待审核</span>', approved:'<span class="badge-community">已通过</span>' };
-    document.getElementById('sc-tbody').innerHTML = list.length === 0
-        ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">暂无数据</td></tr>'
-        : list.map(s => `
-        <tr>
-            <td style="font-weight:600;max-width:160px">${s.title}</td>
-            <td style="color:#64748b">${s.authorName || '—'}</td>
-            <td style="color:#64748b">${s.subject || '—'}</td>
-            <td style="color:var(--brand);font-size:12px">${s.tool || '—'}</td>
-            <td style="color:#64748b;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${s.description}</td>
-            <td>${statusLabel[s.status] || s.status}</td>
-            <td style="white-space:nowrap">
-                ${s.status !== 'approved' ? `<button class="approve-btn" onclick="approveShowcase('${s.id}')">通过</button>` : ''}
-                <button class="reject-btn" onclick="deleteShowcase('${s.id}')">删除</button>
-            </td>
-        </tr>`).join('');
-}
-
-async function approveShowcase(id) {
-    await DB.approveShowcase(id);
-    await renderSCTable();
-    showToast('案例已通过审核，将公开展示');
-}
-
-async function deleteShowcase(id) {
-    if (!confirm('确定删除这个案例？')) return;
-    await DB.deleteShowcase(id);
-    await renderSCTable();
     showToast('已删除');
 }
 

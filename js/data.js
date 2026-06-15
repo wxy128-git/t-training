@@ -595,29 +595,6 @@ const DB = {
         } catch { return null; }
     },
 
-    /* ===== 优秀案例 ===== */
-    async getShowcases(status = null) {
-        try {
-            let q = db.collection('showcases');
-            if (status) q = q.where('status', '==', status);
-            else q = q.orderBy('createdAt', 'desc');
-            const snap = await q.get();
-            return snap.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        } catch(e) { console.warn('getShowcases:', e.message); return []; }
-    },
-    async submitShowcase(userId, userName, data) {
-        const item = { ...data, authorId: userId, authorName: userName, status: 'pending', createdAt: new Date().toISOString() };
-        await db.collection('showcases').add(item);
-    },
-    async approveShowcase(id) {
-        await db.collection('showcases').doc(id).update({ status: 'approved' });
-    },
-    async deleteShowcase(id) {
-        await db.collection('showcases').doc(id).delete();
-    },
-
     /* ===== 精选文章 ===== */
     async getArticles(status = null) {
         try {

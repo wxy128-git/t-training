@@ -211,7 +211,6 @@ const PROTECTED_PAGE_NAMES = new Set([
     'news.html',
     'paths.html',
     'prompts.html',
-    'showcase.html',
     'articles.html',
     'article.html',
     'resources.html',
@@ -305,7 +304,6 @@ function renderNav(currentPage) {
         { key:'news',      href:'news.html',     label:'全球资讯' },
         { key:'paths',     href:'paths.html',    label:'学习路径' },
         { key:'prompts',   href:'prompts.html',  label:'提示词库' },
-        { key:'showcase',  href:'showcase.html',  label:'案例展示' },
         { key:'articles',  href:'articles.html',  label:'精选文章' },
         { key:'resources', href:'resources.html', label:'设计资源' }
     ];
@@ -540,7 +538,6 @@ function renderFooter() {
                 <li><a href="news.html">全球资讯</a></li>
                 <li><a href="paths.html">学习路径</a></li>
                 <li><a href="prompts.html">提示词库</a></li>
-                <li><a href="showcase.html">案例展示</a></li>
                 <li><a href="articles.html">精选文章</a></li>
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
