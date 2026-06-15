@@ -518,9 +518,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260530-admin-delete"></script>
+<script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260601-resources"></script>
-<script src="js/auth.js?v=20260610-navfeature"></script>
+<script src="js/auth.js?v=20260615-authflash"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSCs = [], _adminSubs = [], _adminArticles = [];
@@ -1366,6 +1366,14 @@ async function seedDatabase() {
 document.querySelectorAll('.modal-admin').forEach(m => {
     m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); });
 });
+
+// 乐观渲染：已是管理员的会话首帧直接进后台外壳，避免「先闪登录页再自动进后台」。
+// 真正的数据加载（initAdmin）仍留在下方 onAuthReady 里执行，确保 Firestore 请求已带认证态。
+renderNav('admin');
+if (Auth.isAdmin()) {
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+}
 
 onAuthReady(async (user) => {
     renderNav('admin');

@@ -12,9 +12,31 @@ firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 window.PROXY_AUTH_SESSION_KEY = window.PROXY_AUTH_SESSION_KEY || 'xylaoshiProxyAuthSession';
+window.LAST_AUTH_USER_KEY = window.LAST_AUTH_USER_KEY || 'xylaoshiLastAuthUser';
+
+// 同步缓存「上次已确认的登录用户」：Firebase 登录态是异步从 IndexedDB 恢复的，
+// 页面首帧拿不到，会先按未登录渲染导致「闪一下登录又变回用户名」。这里在登录确认后
+// 把用户快照存进 localStorage，下次加载时同步读出来做乐观渲染，Firebase 就绪后再校正。
+function rememberLastAuthUser(user) {
+    try {
+        if (user) localStorage.setItem(window.LAST_AUTH_USER_KEY, JSON.stringify(user));
+        else localStorage.removeItem(window.LAST_AUTH_USER_KEY);
+    } catch {
+        // localStorage 不可用（隐私模式）时忽略，页面仍可正常工作
+    }
+}
+function getLastAuthUser() {
+    try {
+        const raw = localStorage.getItem(window.LAST_AUTH_USER_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
 
 // ===== 全局 Auth 状态 =====
-let _currentUser = null;
+// 乐观初值：用上次缓存的用户（或代理会话）先渲染，避免登录态闪烁；Firebase 就绪后会校正
+let _currentUser = getLastAuthUser() || getProxyAuthUser();
 let _authReady   = false;
 const _readyCallbacks = [];
 const ADMIN_EMAIL = 'admin@xylaoshi.com';
@@ -75,6 +97,7 @@ auth.onAuthStateChanged(async (fbUser) => {
     } else {
         _currentUser = getProxyAuthUser();
     }
+    rememberLastAuthUser(_currentUser);  // 同步缓存，供下次加载乐观渲染
 
     // 通知等待初始化的回调
     if (!_authReady) {

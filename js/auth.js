@@ -84,6 +84,7 @@ async function callAuthProxy(action, payload) {
     rememberProxyAuthSession(data);
     if (data.user?.uid) rememberUserProfile(data.user.uid, data.user);
     _currentUser = data.user;
+    rememberLastAuthUser(_currentUser);
     document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
     return { ok: true, viaProxy: true };
 }
@@ -171,6 +172,7 @@ const Auth = {
                 console.warn('saveUserProfile:', e.message);
             }
             _currentUser = { uid: cred.user.uid, ...userData };
+            rememberLastAuthUser(_currentUser);
             document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
             return { ok: true };
         } catch(e) {
@@ -196,6 +198,7 @@ const Auth = {
 
     async logout() {
         forgetProxyAuthSession();
+        rememberLastAuthUser(null);  // 清除乐观渲染缓存，刷新后正确显示未登录
         try { await auth.signOut(); } catch {}
         _currentUser = null;
         location.reload();
