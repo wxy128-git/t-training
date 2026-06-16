@@ -152,7 +152,7 @@
     }
 
     function toolLinks(tools) {
-        if (!tools.length) return '<a href="tools.html">查看 AI 工具箱</a>';
+        if (!tools.length) return '<a href="tools.html">查看 AI资源精选</a>';
         return tools.map(tool => `<a href="${tool.url}" target="_blank" rel="noopener">${escapeHtml(tool.name)}</a>`).join('、');
     }
 
@@ -244,7 +244,7 @@
         const scenario = buildScenarioAnswer(question);
         if (scenario) return scenario;
 
-        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="paths.html">学习路径</a>、<a href="tools.html">AI 工具箱</a>、<a href="prompts.html">提示词库</a>。`;
+        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="paths.html">学习路径</a>、<a href="tools.html">AI资源精选</a>、<a href="prompts.html">提示词库</a>。`;
     }
 
     function sendQuestion(question) {
