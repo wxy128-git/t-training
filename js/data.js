@@ -693,6 +693,26 @@ const DB = {
     },
     async deleteResourceCategory(id) {
         await db.collection('resource_categories').doc(id).delete();
+    },
+
+    /* ===== 我的备课本（saved works）===== */
+    async saveWork(work) {
+        const now = new Date().toISOString();
+        const ref = await db.collection('works').add({ ...work, createdAt: now, updatedAt: now });
+        return ref.id;
+    },
+    async getMyWorks(uid) {
+        // 不用 orderBy 避免复合索引，按时间在前端排序
+        const snap = await db.collection('works').where('uid', '==', uid).get();
+        return snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+    },
+    async renameWork(id, title) {
+        await db.collection('works').doc(id).update({ title, updatedAt: new Date().toISOString() });
+    },
+    async deleteWork(id) {
+        await db.collection('works').doc(id).delete();
     }
 };
 

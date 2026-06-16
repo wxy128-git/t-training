@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的备课本 · AI 教师培训中心</title>
+    <meta name="description" content="保存、管理你在智能体空间生成的备课内容——查看、复制、导出 Word / Markdown。">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css?v=20260616-workbook">
+    <style>
+        .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
+        .wb-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .wb-head h1 { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.025em; }
+        .wb-head p { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+        #wb-count { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+
+        /* 登录门 */
+        #login-gate { display: none; min-height: 46vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: var(--muted); }
+        #login-gate i { font-size: 52px; color: var(--subtle); }
+        #login-gate .btn-primary { margin-top: 4px; width: auto; padding: 12px 30px; }
+
+        /* 空状态 */
+        #wb-empty { display: none; text-align: center; padding: 64px 20px; color: var(--muted); }
+        #wb-empty i { font-size: 52px; display: block; margin-bottom: 14px; color: var(--subtle); }
+        #wb-empty a { color: var(--brand); font-weight: 600; border-bottom: 1px solid var(--brand); }
+
+        /* 卡片墙 */
+        #wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .wb-card { display: flex; flex-direction: column; background: var(--paper); border: 1px solid #d9d0ba; border-radius: var(--r-md); padding: 20px;
+            box-shadow: 0 1px 2px rgba(26,22,18,0.04), 0 10px 26px -10px rgba(26,22,18,0.16); transition: transform .2s, box-shadow .2s; }
+        .wb-card:hover { transform: translateY(-4px); box-shadow: 0 2px 4px rgba(26,22,18,0.05), 0 24px 44px -14px rgba(26,22,18,0.24); }
+        .wb-card-meta { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-family: var(--font-mono); }
+        .wb-card-title { font-size: 15.5px; font-weight: 800; color: var(--ink); line-height: 1.4; margin: 0 0 8px; cursor: pointer;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .wb-card-title:hover { color: var(--brand); }
+        .wb-card-preview { font-size: 13px; color: var(--text-soft); line-height: 1.7; margin: 0 0 16px; flex: 1; cursor: pointer;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .wb-card-actions { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+        .wb-card-actions button { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-family: inherit; color: var(--text-soft);
+            background: var(--soft); border: 1px solid var(--line); border-radius: 7px; padding: 5px 9px; cursor: pointer; transition: all .15s; }
+        .wb-card-actions button:hover { border-color: var(--ink); color: var(--ink); }
+        .wb-card-actions button.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--brand-soft); }
+
+        /* 查看弹层 */
+        .wb-modal { position: fixed; inset: 0; background: rgba(26,22,18,0.45); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
+        .wb-modal.active { display: flex; }
+        .wb-modal-box { background: var(--paper); border-radius: var(--r-lg); width: min(760px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow: hidden; }
+        .wb-modal-head { padding: 20px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .wb-modal-head h2 { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--ink); margin: 0 0 4px; }
+        .wb-modal-head .meta { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+        .wb-modal-head .x { background: none; border: none; font-size: 24px; line-height: 1; color: var(--subtle); cursor: pointer; padding: 0 4px; }
+        .wb-modal-body { padding: 24px; overflow-y: auto; }
+
+        /* markdown 渲染（弹层内） */
+        .wb-md { color: var(--text); font-size: 14.5px; line-height: 1.8; }
+        .wb-md h1, .wb-md h2, .wb-md h3 { color: var(--ink); font-weight: 800; line-height: 1.3; margin: 1.2em 0 0.5em; }
+        .wb-md h1 { font-size: 1.5em; } .wb-md h2 { font-size: 1.3em; } .wb-md h3 { font-size: 1.12em; }
+        .wb-md p { margin: 0.6em 0; }
+        .wb-md ul, .wb-md ol { padding-left: 1.4em; margin: 0.6em 0; }
+        .wb-md li { margin: 0.3em 0; }
+        .wb-md strong { color: var(--ink); font-weight: 700; }
+        .wb-md code { background: var(--soft-2); padding: 1px 6px; border-radius: 5px; font-family: var(--font-mono); font-size: 0.9em; }
+        .wb-md pre { background: var(--soft-2); padding: 14px 16px; border-radius: 10px; overflow-x: auto; }
+        .wb-md pre code { background: none; padding: 0; }
+        .wb-md blockquote { border-left: 3px solid var(--brand); padding-left: 14px; color: var(--text-soft); margin: 0.8em 0; }
+        .wb-md table { border-collapse: collapse; width: 100%; margin: 0.8em 0; font-size: 0.95em; }
+        .wb-md th, .wb-md td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
+        .wb-md th { background: var(--soft-2); font-weight: 700; }
+    </style>
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main class="wb-wrap">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>我的备课本</span></div>
+
+    <div class="wb-head">
+        <div>
+            <h1>我的备课本</h1>
+            <p>你在智能体空间保存的内容都在这里——可查看、复制、导出 Word / Markdown</p>
+        </div>
+        <span id="wb-count"></span>
+    </div>
+
+    <!-- 未登录 -->
+    <div id="login-gate">
+        <i class="ph ph-notebook"></i>
+        <p>登录后即可查看你保存的备课内容</p>
+        <button class="btn-primary" onclick="showAuthModal('login')">登录 / 注册</button>
+    </div>
+
+    <!-- 已登录 -->
+    <div id="wb-app" style="display:none">
+        <div id="wb-empty">
+            <i class="ph ph-folder-open"></i>
+            <p style="font-size:16px;font-weight:600;margin-bottom:6px">备课本还是空的</p>
+            <p style="font-size:13px">去 <a href="agents.html">智能体空间</a> 生成内容，点「保存到备课本」就会出现在这里。</p>
+        </div>
+        <div id="wb-grid"></div>
+    </div>
+</main>
+
+<!-- 查看弹层 -->
+<div class="wb-modal" id="wb-modal" onclick="if(event.target===this)closeModal()">
+    <div class="wb-modal-box">
+        <div class="wb-modal-head">
+            <div>
+                <h2 id="wb-modal-title"></h2>
+                <div class="meta" id="wb-modal-meta"></div>
+            </div>
+            <button class="x" onclick="closeModal()" aria-label="关闭">×</button>
+        </div>
+        <div class="wb-modal-body"><div class="wb-md" id="wb-modal-body"></div></div>
+    </div>
+</div>
+
+<div id="main-footer"></div>
+
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="js/firebase-config.js?v=20260615-authflash"></script>
+<script src="js/data.js?v=20260616-workbook"></script>
+<script src="js/auth.js?v=20260616-workbook"></script>
+<script>
+let _works = [];
+
+function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
+function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+function mdToHtml(md) { try { return window.marked ? marked.parse(md, { breaks:true, gfm:true }) : escapeHtml(md).replace(/\n/g, '<br>'); } catch { return escapeHtml(md); } }
+function previewText(md) { const t = String(md || '').replace(/[#*_>`!\[\]()-]/g, '').replace(/\s+/g, ' ').trim(); return t.length > 130 ? t.slice(0, 130) + '…' : t; }
+function findWork(id) { return _works.find(w => w.id === id); }
+function safeName(s) { return (String(s || '备课内容').replace(/[\\/:*?"<>|]/g, '_').trim() || '备课内容').slice(0, 60); }
+function downloadBlob(filename, blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function renderWorks() {
+    const grid = document.getElementById('wb-grid');
+    const empty = document.getElementById('wb-empty');
+    document.getElementById('wb-count').textContent = _works.length ? `共 ${_works.length} 条` : '';
+    if (!_works.length) { empty.style.display = ''; grid.style.display = 'none'; grid.innerHTML = ''; return; }
+    empty.style.display = 'none'; grid.style.display = 'grid';
+    grid.innerHTML = _works.map(w => `
+        <div class="wb-card">
+            <div class="wb-card-meta"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')} · ${fmtDate(w.updatedAt || w.createdAt)}</div>
+            <h3 class="wb-card-title" onclick="viewWork('${w.id}')">${escapeHtml(w.title || '未命名')}</h3>
+            <p class="wb-card-preview" onclick="viewWork('${w.id}')">${escapeHtml(previewText(w.content))}</p>
+            <div class="wb-card-actions">
+                <button onclick="viewWork('${w.id}')"><i class="ph ph-eye"></i> 查看</button>
+                <button onclick="copyWork('${w.id}')"><i class="ph ph-copy"></i> 复制</button>
+                <button onclick="exportWord('${w.id}')"><i class="ph ph-file-doc"></i> Word</button>
+                <button onclick="exportMd('${w.id}')"><i class="ph ph-file-text"></i> MD</button>
+                <button onclick="doRename('${w.id}')"><i class="ph ph-pencil-simple"></i> 重命名</button>
+                <button class="danger" onclick="doDelete('${w.id}')"><i class="ph ph-trash"></i> 删除</button>
+            </div>
+        </div>`).join('');
+}
+
+function viewWork(id) {
+    const w = findWork(id); if (!w) return;
+    document.getElementById('wb-modal-title').textContent = w.title || '未命名';
+    document.getElementById('wb-modal-meta').textContent = `${w.agentName || ''} · ${fmtDate(w.updatedAt || w.createdAt)}`;
+    document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
+    document.getElementById('wb-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() { document.getElementById('wb-modal').classList.remove('active'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function copyWork(id) { const w = findWork(id); if (!w) return; navigator.clipboard.writeText(w.content || '').then(() => showToast('已复制到剪贴板 ✓')); }
+function exportMd(id) { const w = findWork(id); if (!w) return; downloadBlob(safeName(w.title) + '.md', new Blob([w.content || ''], { type: 'text/markdown;charset=utf-8' })); }
+function exportWord(id) {
+    const w = findWork(id); if (!w) return;
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(w.title)}</title></head><body>${mdToHtml(w.content)}</body></html>`;
+    downloadBlob(safeName(w.title) + '.doc', new Blob(['﻿', html], { type: 'application/msword' }));
+}
+
+async function doRename(id) {
+    const w = findWork(id); if (!w) return;
+    const t = prompt('重命名为：', w.title || '');
+    if (t === null) return;
+    const title = t.trim(); if (!title) return;
+    try { await DB.renameWork(id, title); w.title = title; w.updatedAt = new Date().toISOString(); renderWorks(); showToast('已重命名'); }
+    catch (e) { showToast('重命名失败：' + (e.message || '请稍后重试')); }
+}
+async function doDelete(id) {
+    if (!confirm('确定删除这条内容？删除后无法恢复。')) return;
+    try { await DB.deleteWork(id); _works = _works.filter(w => w.id !== id); renderWorks(); showToast('已删除'); }
+    catch (e) { showToast('删除失败：' + (e.message || '请稍后重试')); }
+}
+
+async function loadWorks() {
+    const user = Auth.getCurrentUser();
+    if (!user) { document.getElementById('login-gate').style.display = 'flex'; document.getElementById('wb-app').style.display = 'none'; return; }
+    document.getElementById('login-gate').style.display = 'none'; document.getElementById('wb-app').style.display = '';
+    try { _works = await DB.getMyWorks(user.uid); } catch (e) { _works = []; console.warn('getMyWorks:', e.message); }
+    renderWorks();
+}
+
+renderNav('');
+renderFooter();
+loadWorks();                                  // 乐观渲染（用缓存登录态）
+onAuthReady(() => { renderNav(''); renderFooter(); loadWorks(); });  // Firebase 就绪后校正
+</script>
+<script src="js/assistant.js"></script>
+</body>
+</html>

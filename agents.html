@@ -224,8 +224,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260615-rmshowcase"></script>
-<script src="js/auth.js?v=20260616-navnames"></script>
+<script src="js/data.js?v=20260616-workbook"></script>
+<script src="js/auth.js?v=20260616-workbook"></script>
 <script src="js/agents-data.js?v=20260609"></script>
 <script>
 /* ===================================================================
@@ -373,6 +373,7 @@ function buildForm(a) {
             <div class="ws-out-head">
                 <span class="label"><i class="ph ph-file-text"></i> 生成结果</span>
                 <div class="ws-out-actions" id="out-actions" style="display:none">
+                    <button class="ws-mini-btn" id="save-btn" onclick="saveToWorkbook('${a.id}')"><i class="ph ph-bookmark-simple"></i> 保存到备课本</button>
                     <button class="ws-mini-btn" id="edit-btn" onclick="toggleEdit()"><i class="ph ph-pencil-simple"></i> 编辑</button>
                     <button class="ws-mini-btn" id="copy-btn" onclick="copyResult()"><i class="ph ph-copy"></i> 复制</button>
                     <button class="ws-mini-btn" onclick="runForm('${a.id}')"><i class="ph ph-arrows-clockwise"></i> 重新生成</button>
@@ -456,6 +457,34 @@ async function runForm(aid) {
     }
     btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-sparkle"></i> 开始生成';
     return false;
+}
+
+async function saveToWorkbook(aid) {
+    // 编辑态下先把最新文本存回
+    if (_editing) { const ta = document.getElementById('edit-area'); if (ta) _lastResult = ta.value; }
+    if (!_lastResult) { showToast('还没有可保存的内容'); return; }
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后保存')) return;
+    const a = AGENTS.find(x => x.id === aid);
+    const user = Auth.getCurrentUser();
+    if (!user) { showToast('请先登录后保存'); return; }
+    const btn = document.getElementById('save-btn');
+    const orig = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 保存中…';
+    try {
+        await DB.saveWork({
+            uid: user.uid,
+            agentId: aid,
+            agentName: a ? a.name : '',
+            title: `${a ? a.name : '生成结果'} · ${new Date().toLocaleDateString('zh-CN')}`,
+            content: _lastResult
+        });
+        btn.classList.add('copied'); btn.innerHTML = '<i class="ph ph-check"></i> 已保存';
+        showToast('已保存到「我的备课本」✓');
+        setTimeout(() => { btn.classList.remove('copied'); btn.disabled = false; btn.innerHTML = orig; }, 1800);
+    } catch (e) {
+        btn.disabled = false; btn.innerHTML = orig;
+        showToast('保存失败：' + (e.message || '请稍后重试'));
+    }
 }
 
 function copyResult() {

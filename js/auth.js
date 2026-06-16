@@ -315,11 +315,13 @@ function renderNav(currentPage) {
     }).join('');
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
     const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
+    const workbookLink = user ? `<a href="workspace.html" class="nav-link"><i class="ph ph-notebook"></i> 我的备课本</a>` : '';
     const authHtml = user
         ? `<div style="display:flex;align-items:center;gap:8px">
                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
                <span style="font-size:14px;color:#374151;font-weight:500" class="hm">${user.name}</span>
                ${user.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}
+               <a href="workspace.html" title="我的备课本" style="display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text-soft);font-weight:600;text-decoration:none;padding:6px 11px;border:1px solid var(--line);border-radius:8px;transition:border-color .15s,color .15s" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text-soft)'"><i class="ph ph-notebook"></i><span class="hm">备课本</span></a>
                <button class="btn-login" onclick="Auth.logout()">退出</button>
            </div>`
         : `<button class="btn-login" onclick="showAuthModal('login')">登录</button>
@@ -353,6 +355,7 @@ function renderNav(currentPage) {
             <div class="nav-drawer-kicker">导航</div>
             ${navLinks}
             <div class="nav-drawer-kicker">其他</div>
+            ${workbookLink}
             ${contactLink}
             ${adminLink}
         </div>

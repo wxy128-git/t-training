@@ -41,6 +41,11 @@
   - ③ **工具页改「分组陈列」**（`tools.html`，治选择过载）：默认「全部」不再平铺 17 张，`renderTools()` 改为按分类分段渲染到 `#tools-grouped`（每段小标题 + 数量）；**搜索或选了具体分类**时切回单层 `#tools-grid`。筛选栏改由 `buildFilterBar()` 按「数据里实际存在的分类」动态生成（`CAT_ORDER` / `CAT_LABELS` 为准），补回了以前漏列的分类。
   - ④ **首页「功能导航」→「按教学任务进入」**（治与顶部导航重复）：8 张「栏目镜像」卡改为 **6 张任务卡**（备课与教学设计 / 课件与素材 / 课堂上课 / 作业与评价 / 家校沟通 / 入门与进阶），3 列 2×3（`.feature-grid.cols-3`），分别链向 agents / tools / classroom-tools / agents / prompts / paths——按「想做的事」而非「网站栏目」，与顶部导航错位互补。
   - 缓存版本：`css/style.css` → `?v=20260616-tasksgroup`（全站 12 个 HTML 同步）。
+- **2026-06-16（导航改名 + 「我的备课本」MVP）**:
+  - 导航改名：`AI工具`→`AI资源精选`、`全球资讯`→`AI 资讯`、`设计资源`→`课件素材`（nav/footer/页面标题/面包屑/kicker/admin/assistant 全对齐；nav key 不变）。
+  - **「我的备课本」（saved works）MVP**：智能体「表单类」结果区新增「保存到备课本」按钮（`saveToWorkbook()` in `agents.html`，存到 Firestore `works`）。新页面 `workspace.html`（登录门 + 卡片墙 + 查看弹层 + 复制 / 导出 Word(.doc) / 导出 Markdown / 重命名 / 删除）。入口在 `renderNav` 登录态的用户名旁（`workbookLink`，桌面显示「备课本」、手机进抽屉）。`js/data.js` 加 `saveWork/getMyWorks/renameWork/deleteWork`（`getMyWorks` 用 `where uid==` + 前端排序，免复合索引）。Markdown 用 marked@9 渲染；Word 导出 = HTML blob 套 Office 命名空间存 `.doc`。
+  - **依赖（必须手动做一次）**：Firebase Console → Firestore → Rules 加 `works` 集合规则（owner-only），否则保存/读取被拒。规则见本文件「Firestore Rule for works」。
+  - 缓存版本：`data.js` / `auth.js` → `?v=20260616-workbook`（保存范围 MVP 仅 form 类；chat 类、PPT 导出留待二期）。
 
 ## Auth Lesson (Important)
 
@@ -73,9 +78,19 @@ To verify auth is healthy: in DevTools console, `firebase.auth().currentUser` sh
 | `showcases` | **(retired 2026-06-15)** teacher case studies — all frontend/admin UI removed; collection + existing docs kept, no longer read or written | — |
 | `tool_ratings` | per-tool 5-star ratings (not currently shown in UI) | logged-in users |
 | `subscribers` | newsletter sign-ups | anyone (create), admin (read/delete) |
+| `works` | **「我的备课本」** saved agent outputs (added 2026-06-16) — `{uid, agentId, agentName, title, content, createdAt, updatedAt}` | owner only (uid == request.auth.uid) — **rule must be added in Firebase Console, see below** |
 | `contact_messages` | contact-form submissions | logged-in users (create), admin (read/update/delete) |
 
 Rules live in Firebase Console → Firestore → Rules. They are the source of truth — keep them in mind whenever a write fails.
+
+**Firestore Rule for `works`** (must be added inside `match /databases/{database}/documents { … }`; without it the「我的备课本」save/read is denied):
+
+```
+match /works/{workId} {
+  allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+  allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+}
+```
 
 ## Pages
 
@@ -91,6 +106,7 @@ Rules live in Firebase Console → Firestore → Rules. They are the source of t
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
 | `admin.html` | Admin dashboard: dashboard, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users |
+| `workspace.html` | **「我的备课本」**(added 2026-06-16) — per-user saved agent outputs. Self-gated (shows login prompt if logged out; entry only shown in nav when logged in). Card wall + view modal + copy / export Word(.doc) / export Markdown / rename / delete. Reads `works` where `uid == current user` |
 
 ## Key JS Files
 
