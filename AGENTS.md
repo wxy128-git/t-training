@@ -87,9 +87,9 @@ Rules live in Firebase Console → Firestore → Rules. They are the source of t
 | `classroom-tools.html` | Eight self-contained classroom widgets (see below) |
 | `paths.html` | Full learning-path detail page |
 | `prompts.html` | Prompt library (official + community submissions) |
-| `news.html` | RSS-aggregated industry news |
+| `news.html` | RSS-aggregated industry news. Nav display name **「AI 资讯」** (renamed 2026-06-16 from "全球资讯"; key stays `news`) |
 | `articles.html` + `article.html` | Featured article list + detail |
-| `resources.html` | Design resources (now Firestore-backed, falls back to `DEFAULT_RESOURCES`) |
+| `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
 | `admin.html` | Admin dashboard: dashboard, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users |
 
 ## Key JS Files

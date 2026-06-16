@@ -81,7 +81,7 @@
             <div class="sidebar-item" onclick="switchPanel('tools-mgr',this)"><i class="ph ph-wrench"></i>工具管理</div>
             <div class="sidebar-item" onclick="switchPanel('prompts-mgr',this)"><i class="ph ph-chat-text"></i>提示词管理</div>
             <div class="sidebar-item" onclick="switchPanel('paths-mgr',this)"><i class="ph ph-path"></i>学习路径</div>
-            <div class="sidebar-item" onclick="switchPanel('resources-mgr',this)"><i class="ph ph-palette"></i>设计资源</div>
+            <div class="sidebar-item" onclick="switchPanel('resources-mgr',this)"><i class="ph ph-palette"></i>课件素材</div>
             <div class="sidebar-item" onclick="switchPanel('users',this)"><i class="ph ph-users"></i>用户列表</div>
             <div style="margin-top:20px;padding:8px 12px">
                 <a href="index.html" style="font-size:13px;color:#475569;display:flex;align-items:center;gap:6px"><i class="ph ph-arrow-left"></i>返回网站</a>
@@ -205,13 +205,13 @@
             <!-- Resources manager -->
             <div class="panel" id="panel-resources-mgr">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-                    <h2 style="font-size:1.3rem;font-weight:800">设计资源管理</h2>
+                    <h2 style="font-size:1.3rem;font-weight:800">课件素材管理</h2>
                     <div style="display:flex;gap:8px">
                         <button onclick="openCategoryModal(null)" style="padding:8px 16px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ph ph-plus"></i>新增分类</button>
                         <button onclick="resetResources()" style="padding:8px 12px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;cursor:pointer;background:var(--paper);font-family:inherit">恢复默认</button>
                     </div>
                 </div>
-                <p style="font-size:13px;color:var(--muted);margin-bottom:16px">每个分类下可以单独管理资源条目；改动会立即同步到设计资源页面。</p>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px">每个分类下可以单独管理资源条目；改动会立即同步到课件素材页面。</p>
                 <div id="resources-list" style="display:flex;flex-direction:column;gap:14px"></div>
             </div>
 
@@ -504,7 +504,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260615-rmshowcase"></script>
-<script src="js/auth.js?v=20260616-airesource"></script>
+<script src="js/auth.js?v=20260616-navnames"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];

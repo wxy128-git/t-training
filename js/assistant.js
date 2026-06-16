@@ -184,7 +184,7 @@
             {
                 keys: ['ppt', '课件', '幻灯片', '展示'],
                 title: '课件制作可以拆成“结构 + 美化 + 素材”',
-                body: `先用 AI 生成课件大纲，再用 Gamma 快速生成 PPT 初稿。重点页建议手动补充真实课堂图片、例题和板书逻辑。需要图片、图标、免抠素材时，可以去 <a href="resources.html">设计资源库</a>。<br><br>推荐工具：${toolLinks(findToolsByNames(['Gamma', '即梦AI', 'Nano Banana']))}`
+                body: `先用 AI 生成课件大纲，再用 Gamma 快速生成 PPT 初稿。重点页建议手动补充真实课堂图片、例题和板书逻辑。需要图片、图标、免抠素材时，可以去 <a href="resources.html">课件素材</a>。<br><br>推荐工具：${toolLinks(findToolsByNames(['Gamma', '即梦AI', 'Nano Banana']))}`
             },
             {
                 keys: ['动画', '视频', '微课', '数字人'],
@@ -194,7 +194,7 @@
             {
                 keys: ['图片', '绘本', '插图', '海报', '素材'],
                 title: '图像素材建议先确定使用场景',
-                body: `课件配图可以先找真实照片；故事、绘本和活动海报可以用 AI 生成系列图。做公开发布前，注意检查平台版权协议和人物肖像问题。<br><br>推荐入口：<a href="resources.html">设计资源库</a>；推荐工具：${toolLinks(findToolsByNames(['anygen', 'Nano Banana']))}`
+                body: `课件配图可以先找真实照片；故事、绘本和活动海报可以用 AI 生成系列图。做公开发布前，注意检查平台版权协议和人物肖像问题。<br><br>推荐入口：<a href="resources.html">课件素材</a>；推荐工具：${toolLinks(findToolsByNames(['anygen', 'Nano Banana']))}`
             },
             {
                 keys: ['评语', '评价', '反馈', '学生评价'],

@@ -301,11 +301,11 @@ function renderNav(currentPage) {
         { key:'agents',    href:'agents.html',   label:'智能体空间' },
         { key:'tools',     href:'tools.html',    label:'AI资源精选' },
         { key:'classroom', href:'classroom-tools.html', label:'课堂工具' },
-        { key:'news',      href:'news.html',     label:'全球资讯' },
+        { key:'news',      href:'news.html',     label:'AI 资讯' },
         { key:'paths',     href:'paths.html',    label:'学习路径' },
         { key:'prompts',   href:'prompts.html',  label:'提示词库' },
         { key:'articles',  href:'articles.html',  label:'精选文章' },
-        { key:'resources', href:'resources.html', label:'设计资源' }
+        { key:'resources', href:'resources.html', label:'课件素材' }
     ];
     const user = _currentUser;
     const navLinks = pages.map(p => {
@@ -535,7 +535,7 @@ function renderFooter() {
                 <li><a href="index.html">首页</a></li>
                 <li><a href="agents.html">智能体空间</a></li>
                 <li><a href="tools.html">AI资源精选</a></li>
-                <li><a href="news.html">全球资讯</a></li>
+                <li><a href="news.html">AI 资讯</a></li>
                 <li><a href="paths.html">学习路径</a></li>
                 <li><a href="prompts.html">提示词库</a></li>
                 <li><a href="articles.html">精选文章</a></li>
