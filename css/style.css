@@ -2091,3 +2091,46 @@ tr:hover td { background: var(--soft); }
         }
     }
 }
+
+/* ============================================================
+   2026-06-16 · 「加浓」增强层（Direction ①）
+   目标：增强纵深、提高图标与文字对比，解决「平、寡淡」。
+   不改结构、不换美学；自成一块，可整体删除回退。
+   ============================================================ */
+
+/* 1) 卡片纵深：更实的描边 + 更明显的阴影与 hover 抬升 */
+.card, .feature-card, .tool-card, .news-card {
+    border-color: #d9d0ba;
+    box-shadow: 0 1px 2px rgba(26,22,18,0.04), 0 10px 26px -10px rgba(26,22,18,0.16);
+}
+.card:hover, .feature-card:hover, .tool-card:hover, .news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 2px 4px rgba(26,22,18,0.05), 0 26px 46px -14px rgba(26,22,18,0.26);
+}
+
+/* 2) 功能卡图标块：做大、做实、上饱和色 + 白图标（配色由各卡内联 --c 决定） */
+.feature-icon {
+    width: 54px; height: 54px; font-size: 26px;
+    background: var(--c, var(--brand));
+    color: #fff;
+    box-shadow: 0 6px 14px -5px color-mix(in srgb, var(--c, var(--brand)) 60%, transparent);
+}
+.feature-title { font-weight: 800; }
+.feature-desc { color: var(--text); }
+/* 任务导向入口：6 张卡走 3 列（2×3），比 4 列更聚焦 */
+.feature-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { .feature-grid.cols-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .feature-grid.cols-3 { grid-template-columns: 1fr; } }
+
+/* 3) 工具卡图标块：淡底 → 实心、图标转白。配色收敛到一组「暖而克制」的编辑色
+   （藏蓝/赭石/墨绿/黛青/酒玫/砖玫/黛紫…全部偏深偏稳），贴合纸墨风、避免亮色彩虹感。 */
+.tool-card .tool-card-icon { color: #fff; }
+.tool-card-icon.bg-blue-50 { background: #2c5282; }   /* 藏蓝 */
+.tool-card-icon.bg-indigo-50 { background: #3a466e; } /* 深靛 */
+.tool-card-icon.bg-cyan-50, .tool-card-icon.bg-sky-50 { background: #2f6a72; } /* 深青 */
+.tool-card-icon.bg-teal-50 { background: #356b66; }   /* 黛青 */
+.tool-card-icon.bg-emerald-50, .tool-card-icon.bg-green-50 { background: #2d6a4f; } /* 墨绿 */
+.tool-card-icon.bg-orange-50, .tool-card-icon.bg-amber-50, .tool-card-icon.bg-yellow-50 { background: #b08642; } /* 赭石 */
+.tool-card-icon.bg-rose-50 { background: #a23a3a; }   /* 砖玫 */
+.tool-card-icon.bg-pink-50 { background: #9d4e63; }   /* 酒玫 */
+.tool-card-icon.bg-purple-50, .tool-card-icon.bg-violet-50 { background: #6a4a6b; } /* 黛紫 */

@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/tools.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/tools.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260615-herocard">
+    <link rel="stylesheet" href="css/style.css?v=20260616-tasksgroup">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -39,7 +39,9 @@
 
     <div style="font-size:13px;color:#94a3b8;margin-bottom:16px" id="count-label"></div>
 
-    <div class="cards-grid cards-grid-4" id="tools-grid"></div>
+    <!-- 默认「全部」按分类分组陈列；搜索或选具体分类时切换到下面的单层网格 -->
+    <div id="tools-grouped"></div>
+    <div class="cards-grid cards-grid-4" id="tools-grid" style="display:none"></div>
 
     <div id="empty-state" style="display:none;text-align:center;padding:60px 20px;color:#94a3b8">
         <i class="ph ph-magnifying-glass" style="font-size:48px;display:block;margin-bottom:12px"></i>
@@ -58,19 +60,19 @@
 <script src="js/data.js?v=20260615-rmshowcase"></script>
 <script src="js/auth.js?v=20260615-rmshowcase"></script>
 <script>
-const categories = [
-    { key:'all', label:'全部' },
-    { key:'teaching', label:'教学辅助' },
-    { key:'creation', label:'内容创作' },
-    { key:'search', label:'智能搜索' },
-    { key:'dev', label:'智能开发' }
-];
+const CAT_ORDER = ['teaching','creation','advanced','communication','search','dev'];
+const CAT_LABELS = { teaching:'教学辅助', creation:'内容创作', advanced:'智能进阶', communication:'家校沟通', search:'智能搜索', dev:'智能开发' };
 let currentCat = 'all';
 let _allTools = [];
 
-document.getElementById('filter-bar').innerHTML = categories.map(c =>
-    `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
-).join('');
+// 筛选栏按「实际有工具的分类」动态生成（修掉以前漏列的分类）
+function buildFilterBar() {
+    const present = CAT_ORDER.filter(k => _allTools.some(t => t.category === k));
+    const cats = [{ key:'all', label:'全部' }, ...present.map(k => ({ key:k, label:CAT_LABELS[k] }))];
+    document.getElementById('filter-bar').innerHTML = cats.map(c =>
+        `<button class="filter-pill${c.key===currentCat?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
+    ).join('');
+}
 
 function setCat(key, btn) {
     currentCat = key;
@@ -79,19 +81,8 @@ function setCat(key, btn) {
     renderTools();
 }
 
-function renderTools() {
-    const q = document.getElementById('search').value.toLowerCase();
-    const filtered = _allTools.filter(t => {
-        const matchCat = currentCat === 'all' || t.category === currentCat;
-        const matchQ = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q);
-        return matchCat && matchQ;
-    });
-
-    document.getElementById('count-label').textContent = `共 ${filtered.length} 个工具`;
-    document.getElementById('empty-state').style.display = filtered.length ? 'none' : 'block';
-
-    const catLabels = {teaching:'教学辅助',creation:'内容创作',search:'智能搜索',dev:'智能开发'};
-    document.getElementById('tools-grid').innerHTML = filtered.map(t => `
+function toolCardHTML(t) {
+    return `
         <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column;position:relative">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
                 <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
@@ -100,20 +91,62 @@ function renderTools() {
             <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px">${t.name}</div>
             <div style="font-size:12px;color:#64748b;line-height:1.6;flex:1">${t.desc}</div>
             <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f8fafc">
-                <span style="font-size:11px;color:#94a3b8">${catLabels[t.category]||''}</span>
+                <span style="font-size:11px;color:#94a3b8">${CAT_LABELS[t.category]||'其他'}</span>
             </div>
-        </a>`).join('');
+        </a>`;
+}
+
+function renderTools() {
+    const q = document.getElementById('search').value.toLowerCase().trim();
+    const grid = document.getElementById('tools-grid');
+    const grouped = document.getElementById('tools-grouped');
+
+    // 搜索 或 选了具体分类 → 单层网格
+    if (q || currentCat !== 'all') {
+        const filtered = _allTools.filter(t => {
+            const matchCat = currentCat === 'all' || t.category === currentCat;
+            const matchQ = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q);
+            return matchCat && matchQ;
+        });
+        document.getElementById('count-label').textContent = `共 ${filtered.length} 个工具`;
+        document.getElementById('empty-state').style.display = filtered.length ? 'none' : 'block';
+        grouped.style.display = 'none'; grouped.innerHTML = '';
+        grid.style.display = ''; grid.innerHTML = filtered.map(toolCardHTML).join('');
+        return;
+    }
+
+    // 默认「全部」且无搜索 → 按分类分组陈列，缓解一屏 17 张的选择过载
+    document.getElementById('count-label').textContent = `共 ${_allTools.length} 个工具`;
+    document.getElementById('empty-state').style.display = 'none';
+    grid.style.display = 'none'; grid.innerHTML = '';
+    const known = new Set(CAT_ORDER);
+    const present = CAT_ORDER.filter(k => _allTools.some(t => t.category === k));
+    const others = [...new Set(_allTools.map(t => t.category).filter(c => !known.has(c)))];
+    grouped.style.display = '';
+    grouped.innerHTML = [...present, ...others].map(cat => {
+        const items = _allTools.filter(t => t.category === cat);
+        if (!items.length) return '';
+        return `
+        <section style="margin-bottom:44px">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line)">
+                <h2 style="font-size:1.1rem;font-weight:800;color:var(--ink)">${CAT_LABELS[cat] || '其他'}</h2>
+                <span style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">${items.length} 个</span>
+            </div>
+            <div class="cards-grid cards-grid-4">${items.map(toolCardHTML).join('')}</div>
+        </section>`;
+    }).join('');
 }
 
 renderNav('tools');
 renderFooter();
 
-// Render defaults synchronously so the page is never blank, then
-// replace with live Firestore data once it arrives.
+// 先用本地默认渲染避免白屏；Firestore 数据到了再替换。
 _allTools = (typeof DEFAULT_TOOLS !== 'undefined') ? JSON.parse(JSON.stringify(DEFAULT_TOOLS)) : [];
+buildFilterBar();
 renderTools();
 DB.getTools().then(tools => {
     _allTools = tools;
+    buildFilterBar();
     renderTools();
 });
 
