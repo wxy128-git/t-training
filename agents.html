@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260616-tasksgroup">
+    <link rel="stylesheet" href="css/style.css?v=20260616-cards">
     <style>
         /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -43,12 +43,12 @@
         @media (max-width: 920px) { .agent-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .agent-grid { grid-template-columns: 1fr; } }
 
-        .agent-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 22px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; overflow: hidden; }
+        .agent-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 22px; background: var(--paper); border: 1px solid rgba(26,22,18,0.08); border-radius: 16px; box-shadow: 0 1px 2px rgba(26,22,18,0.05); cursor: pointer; transition: transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s cubic-bezier(.2,.7,.2,1), border-color .32s cubic-bezier(.2,.7,.2,1); overflow: hidden; }
         .agent-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--cat-color, var(--brand)); opacity: 0; transition: opacity .18s; }
-        .agent-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--cat-color, var(--line)); }
+        .agent-card:hover { transform: translateY(-3px); border-color: rgba(26,22,18,0.13); box-shadow: 0 2px 4px rgba(26,22,18,0.04), 0 10px 20px -10px rgba(26,22,18,0.10), 0 22px 44px -20px rgba(26,22,18,0.16); }
         .agent-card:hover::before { opacity: 1; }
         .agent-card-top { display: flex; align-items: center; gap: 13px; }
-        .agent-ico { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 23px; flex-shrink: 0; }
+        .agent-ico { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 23px; flex-shrink: 0; }
         .agent-card-name { font-size: 15.5px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
         .agent-card-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 3px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; color: var(--cat-color, var(--muted)); }
         .agent-card-desc { font-size: 13px; line-height: 1.7; color: var(--text-soft); flex: 1; }
