@@ -2,7 +2,7 @@
 
 ## Project Snapshot
 
-- Project: `t-training`, a teacher-facing AI training site (AI tools, prompts, learning paths, teaching cases, articles, design resources, classroom tools, contact feedback).
+- Project: `t-training`, a teacher-facing AI training site (AI agents, AI tools, prompts, learning paths, articles, design resources, classroom tools, contact feedback).
 - Local path: `/Users/wangxingyu/C-C/t-training`
 - Production: `https://xylaoshi.pages.dev/`
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
@@ -30,6 +30,17 @@
 - **2026-06-09（下午）**: 智能体空间接入 **DeepSeek**。新增 `functions/api/agent.js` 后端代理（model `deepseek-chat`/V3，全站统一），前端 `callAgentAPI()` 从演示 mock 改为真实流式调用。需在 Cloudflare 配 `DEEPSEEK_API_KEY`（Secret），配后需重新部署一次才生效。智能体的角色设定取自 `js/agents-data.js` 各项的 `system` 字段；表单输入由前端 `buildUserPrompt()` 拼成 user 消息。
 - **2026-06-09（接入后修两个上线 bug）**: ① 后端流式转发必须用 `TransformStream`+`waitUntil`——最初用 `ReadableStream.pull` 在 CF Workers 上返回 200 但 body 全空（前端表现为「转一下没内容」）。② 生成按钮 form 的 `onsubmit` 必须写成 `runForm(...); return false`——`runForm` 是 async，返回 Promise（恒 truthy），若写 `return runForm(...)` 无法阻止表单默认提交，会导致每次点「开始生成」**整页重载**、登录态闪断、输出被刷掉（症状：闪一下、右上角登录→用户名、第二次起无输出）。**勿改回。**
 - **2026-06-10（智能体空间 UI 优化）**: ① 工作台：form 左参数栏 `sticky` 吸顶（缓解与右侧长结果的高度差）；结果区加「编辑」按钮 `toggleEdit`（渲染态 ↔ 原始 Markdown 文本框，可改后重渲染）；chat 改为独立聊天窗口（固定高度 `min(66vh,600px)`），流式输出仅在 `chat-stream` 内部 `scrollTop` 滚动，**不再带动整页与底部 footer**（修「生成时页面抖动」）。② 导航：`renderNav` 中 `agents` 项 label 改为「智能体空间」，加 `nav-feature` class + 闪光图标引导点击（桌面实心朱砂药丸 + 脉冲动效；抽屉内 `brand-soft` 轻量样式）；因改 `auth.js`/`style.css`，全站 HTML 缓存版本号已 bump 到 `auth.js?v=20260610-navfeature` / `style.css?v=20260610`。③ 卡片墙从 19 卡平铺改为 `renderHome`（精选 + 5 类分区），降低选择过载；筛选/搜索走 `renderFiltered` 单层网格。
+- **2026-06-15（修登录闪烁 + 删案例展示 + 首页 Hero 改版）**: 三项一并上线。
+  - ① **修登录态闪烁**：Firebase 登录态异步从 IndexedDB 恢复，页面首帧 `_currentUser` 还是 `null` → 先按「未登录」渲染再回填，导致切页时右上角「登录」闪一下又变回用户名、管理后台先闪登录页再自动进入。修法：`js/firebase-config.js` 同步缓存「上次已确认登录用户」到 `localStorage`（key `window.LAST_AUTH_USER_KEY`，读写经 `rememberLastAuthUser` / `getLastAuthUser`），`_currentUser` 初值改为 `getLastAuthUser() || getProxyAuthUser()` 做**乐观渲染**；`onAuthStateChanged` / 代理登录 / 注册后写回，退出时清除。`admin.html` 加乐观门禁：已是 admin 的会话首帧直接进后台外壳，`initAdmin()` 数据加载仍留在 `onAuthReady` 里（确保 Firestore 请求带认证态）。**勿把 `_currentUser` 改回初值 `null`，否则闪烁回归。**
+  - ② **移除「案例展示」功能**：删 `showcase.html` + `assets/og/showcase.jpg`；清掉导航/页脚链接、`PROTECTED_PAGE_NAMES` 条目、首页功能卡 + 预览区 + 数据加载、admin「案例审核」面板 + 概览「待审案例」统计、`js/data.js` 的 `getShowcases/submitShowcase/approveShowcase/deleteShowcase`。Firestore `showcases` 集合与历史数据**保留未删**（仅前端下线）。注意：文章的「教学案例」分类（`case`）与此功能无关，未动。
+  - ③ **首页 Hero 改两栏**（`<section class="hero hero-split">`）：左文案 `.hero-text` + 右「本周精选 · 智能体空间」推荐卡 `.hero-card`，填补右侧大块空白；删掉写死的「8+ 提示词 / 14+ 工具」数字统计（旧 `.hero-highlights`，会过时且数小显单薄），改为价值标签 `.hero-values`「完全免费 / 持续更新 / 一线教师实测」；顺带修复删案例展示后该行「两项占三列」的失衡。删除从不显示却一直 `preload` 的 `hero-teacher-workspace.jpg`。新样式在 `style.css`（`.hero-split` / `.hero-values` / `.hero-card`）。
+  - 缓存版本：`auth.js` / `data.js` → `?v=20260615-rmshowcase`，`css/style.css` → `?v=20260615-herocard`。
+- **2026-06-16（设计「加浓」+ 工具页分组 + 首页任务入口）**: 一批前端设计优化，针对「整体偏平、寡淡」和「工具页选择过载 / 首页功能导航与顶部导航重复」。
+  - ① **「加浓」增强层**：`style.css` 末尾新增一块「2026-06-16 · 加浓增强层」，自成一段、可整体删除回退。内容：所有卡片（`.card/.feature-card/.tool-card/.news-card`）描边更实、阴影更明显、hover 抬升更大（治「平」）；功能卡图标块做大做实、上**饱和色 + 白图标**（配色由各卡内联 `--c` 决定，原 `.feature-tools/.feature-paths…` 淡色类已不再使用）；功能卡标题加粗、说明文字由 `--muted` 加深为 `--text`。
+  - ② **工具卡图标实心化 + 配色收敛**：`.tool-card-icon` 由「淡底 `bg-X-50` + 彩色图标」改为「实心底 + 白图标」，并把原亮色 Tailwind-500 **重映射到一组暖而克制的编辑色**（藏蓝 #2c5282 / 赭石 #b08642 / 墨绿 #2d6a4f / 黛青 #356b66 / 深青 #2f6a72 / 砖玫 #a23a3a / 酒玫 #9d4e63 / 黛紫 #6a4a6b / 深靛 #3a466e），避免亮色彩虹感、贴合纸墨风。覆盖规则在加浓层里按 `.tool-card-icon.bg-*` 写。
+  - ③ **工具页改「分组陈列」**（`tools.html`，治选择过载）：默认「全部」不再平铺 17 张，`renderTools()` 改为按分类分段渲染到 `#tools-grouped`（每段小标题 + 数量）；**搜索或选了具体分类**时切回单层 `#tools-grid`。筛选栏改由 `buildFilterBar()` 按「数据里实际存在的分类」动态生成（`CAT_ORDER` / `CAT_LABELS` 为准），补回了以前漏列的分类。
+  - ④ **首页「功能导航」→「按教学任务进入」**（治与顶部导航重复）：8 张「栏目镜像」卡改为 **6 张任务卡**（备课与教学设计 / 课件与素材 / 课堂上课 / 作业与评价 / 家校沟通 / 入门与进阶），3 列 2×3（`.feature-grid.cols-3`），分别链向 agents / tools / classroom-tools / agents / prompts / paths——按「想做的事」而非「网站栏目」，与顶部导航错位互补。
+  - 缓存版本：`css/style.css` → `?v=20260616-tasksgroup`（全站 12 个 HTML 同步）。
 
 ## Auth Lesson (Important)
 
@@ -59,7 +70,7 @@ To verify auth is healthy: in DevTools console, `firebase.auth().currentUser` sh
 | `articles` | featured articles | admin only |
 | `resource_categories` | design resource categories with embedded items array (added 2026-06-01) | admin only |
 | `community_prompts` | user-submitted prompts | logged-in users (create), author or admin (update) |
-| `showcases` | teacher case studies | logged-in users (create), admin (moderate) |
+| `showcases` | **(retired 2026-06-15)** teacher case studies — all frontend/admin UI removed; collection + existing docs kept, no longer read or written | — |
 | `tool_ratings` | per-tool 5-star ratings (not currently shown in UI) | logged-in users |
 | `subscribers` | newsletter sign-ups | anyone (create), admin (read/delete) |
 | `contact_messages` | contact-form submissions | logged-in users (create), admin (read/update/delete) |
@@ -70,17 +81,16 @@ Rules live in Firebase Console → Firestore → Rules. They are the source of t
 
 | File | Purpose |
 |---|---|
-| `index.html` | Homepage: hero, feature nav (9 cards), paths preview, tools preview, prompts preview, articles, showcases, contact band, subscribe |
+| `index.html` | Homepage: **two-column hero** (`hero-split` — left copy + value labels `.hero-values`; right "本周精选 · 智能体空间" card `.hero-card`), **task-oriented entry grid** (`按教学任务进入`, 6 cards, `.feature-grid.cols-3`, links by *task* not site section), paths preview, tools preview, prompts preview, articles preview, contact band, subscribe |
 | `agents.html` | **智能体空间** — agent gallery + workspace. Self-contained single page (card wall ↔ workspace, hash deep-link `#agent-id`). 19 agents in `js/agents-data.js` (5 categories). 首页视图 = **顶部精选 (`FEATURED` 4 个) + 按类分区陈列** (`renderHome`)；选分类或搜索时切单层网格 (`renderFiltered`)。Two workspace types: **form**（左参数栏 `sticky` 吸顶 / 右流式 Markdown，含编辑·复制·重新生成；`toggleEdit` 切换渲染态↔可编辑文本框）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing — card wall 是开放橱窗 (not in `PROTECTED_PAGE_NAMES`)。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek，已接真实 API）。 |
-| `tools.html` | AI tool listing — **renders `DEFAULT_TOOLS` synchronously first**, then replaces with Firestore data |
+| `tools.html` | AI tool listing — **renders `DEFAULT_TOOLS` synchronously first**, then replaces with Firestore data. Default "全部" view is **grouped by category** (`#tools-grouped`, section per category); search or a specific category switches to a flat `#tools-grid`. Filter pills built dynamically by `buildFilterBar()` from categories actually present |
 | `classroom-tools.html` | Eight self-contained classroom widgets (see below) |
 | `paths.html` | Full learning-path detail page |
 | `prompts.html` | Prompt library (official + community submissions) |
 | `news.html` | RSS-aggregated industry news |
-| `showcase.html` | Teacher case showcase |
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Design resources (now Firestore-backed, falls back to `DEFAULT_RESOURCES`) |
-| `admin.html` | Admin dashboard: dashboard, announcements, community prompts, showcases, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users |
+| `admin.html` | Admin dashboard: dashboard, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users |
 
 ## Key JS Files
 
@@ -123,7 +133,7 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 - Radius scale 8 / 12 / 18 / 24 px.
 - Cards: 1px `--line` border, soft hover lift (`translateY(-3px)` + `--shadow-md`).
 - Section headers: top hairline + auto-counter "01 / 02 / 03" italic numeral in brand color (uses CSS counter on `.home-section`).
-- Hero is on `--soft` with a faint dot-grid radial mask; title 800-weight with the `.highlight` span italic + brand color; staggered fade-in animation on `.hero-content > *`.
+- Hero is on `--soft` with a faint dot-grid radial mask; title 800-weight with the `.highlight` span italic + brand color; staggered fade-in animation on `.hero-content > *`. Homepage hero is **two-column** (`.hero-split`, 1.04fr/0.96fr, stacks ≤900px): left = copy + value-label strip (`.hero-values`, icon + 短句, replaced the old number stats), right = a "本周精选" spotlight card (`.hero-card`). Other pages keep the single-column hero/breadcrumb.
 
 **Welcome overlay**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + the user's name + a 3-dot pulse) for ~1.7s before reloading. This is what makes the login moment feel like something happened.
 
@@ -165,9 +175,9 @@ If a render call throws (we hit this when the bubble theme built `"rgb(...)55"` 
 ## SEO / OG
 
 - Every page has `<meta name="description">`, complete OpenGraph tags (og:title / description / type / url / image + image:width/height), `twitter:card` (summary_large_image) + `twitter:image`, and `<link rel="canonical">`.
-- **Per-page OG cards (done 2026-06-04)**: each content page points `og:image`/`twitter:image` at its own `assets/og/<slug>.jpg` (1200×630). Slugs: `index, tools, prompts, paths, news, showcase, articles, article, resources, classroom, agents`. `admin.html` / `main.html` are internal and have no OG card.
+- **Per-page OG cards (done 2026-06-04)**: each content page points `og:image`/`twitter:image` at its own `assets/og/<slug>.jpg` (1200×630). Slugs: `index, tools, prompts, paths, news, articles, article, resources, classroom, agents` (the `showcase` card was deleted 2026-06-15 with the feature). `admin.html` / `main.html` are internal and have no OG card.
 - **How to regenerate a card**: edit the page's entry in the `PAGES` map inside `assets/og/template.html`, serve the folder locally (`python3 -m http.server`), open `assets/og/template.html?p=<slug>` at a 1200×630 viewport, and screenshot to `assets/og/<slug>.jpg`. The template uses the editorial palette (cream + dot-grid + cinnabar italic highlight + mono kicker + bottom brand stripe). No build step, no runtime function — the cards are static JPGs.
-- Old shared image `assets/hero-teacher-workspace.jpg` is still used as the hero preload, just no longer as the OG image.
+- `assets/hero-teacher-workspace.jpg` is now **unused** — the homepage stopped preloading it when the hero went two-column (2026-06-15). The file is still in `assets/` (also unused: `assets/hero-ai-training.jpg`); safe to delete if you want, kept for now in case a future design reuses it.
 
 ## Known Quirks / Conventions
 
@@ -181,11 +191,12 @@ If a render call throws (we hit this when the bubble theme built `"rgb(...)55"` 
 - Resources data flow same: `resources.html` paints `DEFAULT_RESOURCES` immediately, then swaps in whatever Firestore returns. Admin saves go to `resource_categories`.
 - Cache-busting query strings on `data.js` (`?v=...`), `auth.js`, and now `css/style.css` (`?v=YYYYMMDD`) are updated whenever those files change; bump the version in every page that loads them.
 - The end of `css/style.css` has a clearly fenced "2026-06-04 · Refinement layer" — motion/spacing/polish overrides plus a pure-CSS scroll-reveal (`@supports (animation-timeline: view())`, degrades to fully-visible on unsupported browsers, disabled under `prefers-reduced-motion`). It's self-contained and safe to revert as a block.
+- After it sits a second fenced block "**2026-06-16 · 加浓增强层**" (depth/contrast/solid icons). Two conventions live here: (a) **feature-card icon color** is driven by an inline `--c` on each `.feature-icon` (set per card in `index.html`), with `.feature-icon{background:var(--c);color:#fff}` — the old `.feature-*` tint classes are dead; (b) **tool-card icons** are forced solid by overriding `.tool-card-icon.bg-*` to a restrained warm palette. Also self-contained / revertible as a block. Heads-up for audits: because of the scroll-reveal, a Playwright `fullPage` screenshot renders below-fold `.home-section`s (and grouped tool cards) at `opacity:0` — they're fine for real users; force `opacity:1` before capturing.
 
 ## Future Follow-Ups
 
 - Add a 忘记密码 flow to the login modal.
 - Consider extracting the classroom-tools sub-tools into separate JS modules — `classroom-tools.html` is large (~1700 lines now).
 - If we ever need real-time updates on `contact_messages`, switch the admin panel to `onSnapshot`.
-- Cloud storage for user-uploaded showcase images is not wired up yet — currently URLs only.
 - `tool_ratings` is dormant; either restore the UI or delete the collection + its security rule.
+- `showcases` collection is now orphaned (feature removed 2026-06-15) — delete the collection + rule + any stored docs if it won't be revived.
