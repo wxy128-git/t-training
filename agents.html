@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-herob">
+    <link rel="stylesheet" href="css/style.css?v=20260617-seal">
     <style>
         /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -243,9 +243,10 @@ function setCat(key) {
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
 
-function cardHtml(a) {
+function cardHtml(a, seal) {
     const c = CAT_MAP[a.cat];
     return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
+        ${seal ? '<span class="seal sm card-seal">精选</span>' : ''}
         <div class="agent-card-top">
             <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
             <div>
@@ -279,7 +280,7 @@ function renderHome() {
                 <span class="sec-title">常用推荐</span>
                 <span class="sec-sub">不知从哪开始？先试这几个</span>
             </div>
-            <div class="agent-grid featured-grid">${feat.map(cardHtml).join('')}</div>
+            <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, true)).join('')}</div>
         </div>`;
     }
     CATS.forEach(c => {
@@ -291,7 +292,7 @@ function renderHome() {
                 <span class="sec-title">${c.name}</span>
                 <span class="sec-count">${list.length}</span>
             </div>
-            <div class="agent-grid">${list.map(cardHtml).join('')}</div>
+            <div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>
         </div>`;
     });
     document.getElementById('agent-content').innerHTML = html;
@@ -310,7 +311,7 @@ function renderFiltered(q) {
         content.innerHTML = `<div class="agent-grid"><div class="empty-hint"><i class="ph ph-robot"></i><p>没有匹配的智能体，换个关键词试试</p></div></div>`;
         return;
     }
-    content.innerHTML = `<div class="agent-grid">${list.map(cardHtml).join('')}</div>`;
+    content.innerHTML = `<div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>`;
 }
 
 /* ---------- 打开 / 返回 ---------- */

@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-herob">
+    <link rel="stylesheet" href="css/style.css?v=20260617-seal">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -36,9 +36,9 @@
                 <a href="#supp" class="btn-hero-secondary"><i class="ph ph-compass"></i>看看配套资源</a>
             </div>
             <div class="hero-values">
-                <div class="item"><i class="ph ph-robot"></i><div><b>19 个智能体</b><small>覆盖 5 大教学场景</small></div></div>
-                <div class="item"><i class="ph ph-seal-check"></i><div><b>完全免费</b><small>登录即可使用</small></div></div>
-                <div class="item"><i class="ph ph-bookmark-simple"></i><div><b>成果可沉淀</b><small>存进我的备课本</small></div></div>
+                <div class="item"><svg class="rp-check" viewBox="0 0 24 24"><path d="M3,13 l6,7 l12,-17"/></svg><div><b>19 个智能体</b><small>覆盖 5 大教学场景</small></div></div>
+                <div class="item"><svg class="rp-check" viewBox="0 0 24 24"><path d="M3,13 l6,7 l12,-17"/></svg><div><b>完全免费</b><small>登录即可使用</small></div></div>
+                <div class="item"><svg class="rp-check" viewBox="0 0 24 24"><path d="M3,13 l6,7 l12,-17"/></svg><div><b>成果可沉淀</b><small>存进我的备课本</small></div></div>
             </div>
         </div>
         <div class="hero-card">
@@ -154,6 +154,7 @@ DB.getAnnouncements().then(ann => {
     document.getElementById('feat-agents').innerHTML = feat.map(a => {
         const c = CAT_MAP[a.cat] || {};
         return `<a class="agent-card" style="--cat-color:${c.color}" href="agents.html#${a.id}">
+            <span class="seal sm card-seal">精选</span>
             <div class="agent-card-top">
                 <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
                 <div><div class="agent-card-name">${a.name}</div><div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div></div>
