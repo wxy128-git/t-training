@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-hot">
+    <link rel="stylesheet" href="css/style.css?v=20260617-guide">
     <style>
         /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -194,6 +194,7 @@
                 <h1 id="ws-name"></h1>
                 <p id="ws-intro"></p>
             </div>
+            <button class="ws-mini-btn" id="ws-copyprompt" onclick="copyAgentPrompt()" style="margin-left:auto;align-self:center;flex-shrink:0" title="复制这个智能体的提示词，方便拿到别的 AI 里用"><i class="ph ph-copy"></i> 复制提示词</button>
         </div>
         <div id="ws-body"></div>
         <div class="api-note">
@@ -212,7 +213,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
-<script src="js/auth.js?v=20260616-workbook"></script>
+<script src="js/auth.js?v=20260617-guide"></script>
 <script src="js/agents-data.js?v=20260609"></script>
 <script>
 /* ===================================================================
@@ -333,6 +334,7 @@ function openAgent(id, skipGuard) {
     document.getElementById('ws-cat').innerHTML = `<i class="ph ph-circle-fill" style="font-size:6px;color:${c.color}"></i><span style="color:${c.color}">${c.name}</span>`;
     document.getElementById('ws-name').textContent = a.name;
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
+    window._wsAgent = a;   // 供「复制提示词」使用
 
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -346,6 +348,19 @@ function backToHome() {
     document.getElementById('view-home').style.display = '';
     history.replaceState(null, '', location.pathname);
     document.title = '智能体空间 · AI 教师培训中心';
+}
+
+// 复制当前智能体的提示词（角色设定），方便老师拿到别的 AI 里用
+function copyAgentPrompt() {
+    const a = window._wsAgent;
+    if (!a) return;
+    const text = a.system || a.intro || a.desc || '';
+    if (!text) { showToast('这个智能体暂无可复制的提示词'); return; }
+    navigator.clipboard.writeText(text).then(() => {
+        const b = document.getElementById('ws-copyprompt');
+        if (b) { const o = b.innerHTML; b.innerHTML = '<i class="ph ph-check"></i> 已复制'; setTimeout(() => { b.innerHTML = o; }, 1800); }
+        showToast('提示词已复制 ✓ 可粘到任意 AI 里用');
+    }).catch(() => showToast('复制失败，请重试'));
 }
 
 /* ---------- form 工作台 ---------- */
@@ -688,6 +703,6 @@ onAuthReady(() => {
     renderFooter();
 });
 </script>
-<script src="js/assistant.js"></script>
+<script src="js/assistant.js?v=20260617-guide"></script>
 </body>
 </html>

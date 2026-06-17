@@ -172,13 +172,13 @@
             {
                 keys: ['备课', '教案', '导入', '教学设计'],
                 title: '备课可以用“三步走”',
-                body: `1. 先让 AI 梳理知识点、易错点和教学目标。<br>2. 再让 AI 生成 2-3 个课堂导入或活动方案，你挑最贴近学生的一版。<br>3. 最后请 AI 检查教案中的知识准确性和课堂时间分配。<br><br>推荐工具：${toolLinks(findToolsByNames(['AI好记', 'PrompterHub', 'Prompt123']))}`,
+                body: `<strong>首选：</strong>用「<a href="agents.html#lesson-design">教学设计助手</a>」智能体，填课题与学情直接生成教案。想自己一步步来：<br>1. 先让 AI 梳理知识点、易错点和教学目标。<br>2. 再让 AI 生成 2-3 个课堂导入或活动方案，你挑最贴近学生的一版。<br>3. 最后请 AI 检查教案中的知识准确性和课堂时间分配。<br><br>推荐工具：${toolLinks(findToolsByNames(['AI好记', 'PrompterHub', 'Prompt123']))}`,
                 prompt: '备课助手'
             },
             {
                 keys: ['出题', '组卷', '试题', '练习', '作业'],
                 title: '出题组卷建议这样做',
-                body: `先明确年级、学科、知识点、题型和难度比例，再让 AI 生成基础题、提高题和拓展题。生成后一定抽查答案和解题过程。<br><br>推荐工具：${toolLinks(findToolsByNames(['快出题', 'Prompt123']))}`,
+                body: `<strong>首选：</strong>用「<a href="agents.html#quiz-gen">智能出题</a>」智能体一键出题。要点：先明确年级、学科、知识点、题型和难度比例，再让 AI 生成基础题、提高题和拓展题。生成后一定抽查答案和解题过程。<br><br>推荐工具：${toolLinks(findToolsByNames(['快出题', 'Prompt123']))}`,
                 prompt: '智能出题'
             },
             {
@@ -205,7 +205,7 @@
             {
                 keys: ['家长', '沟通', '通知', '家校'],
                 title: '家校沟通要让 AI 帮你把语气“降温”',
-                body: `把事实、期待家长配合的事项和希望的语气写清楚，让 AI 先出一版合作导向的话术。敏感问题要再人工调整，避免标签化学生。`,
+                body: `<strong>首选：</strong>用「<a href="agents.html#parent-comm">家校沟通助手</a>」智能体起草。把事实、期待家长配合的事项和希望的语气写清楚，让 AI 先出一版合作导向的话术。敏感问题要再人工调整，避免标签化学生。`,
                 prompt: '家长沟通'
             },
             {
@@ -216,7 +216,7 @@
             {
                 keys: ['提示词', 'prompt', '怎么问', '提问'],
                 title: '好提示词可以用这个公式',
-                body: `角色 + 任务 + 背景 + 输出格式。<br><br>例如：你是一位有经验的初中语文老师，请为七年级学生设计《春》的课堂导入，要求 5 分钟内完成，包含教师提问和学生可能回应。<br><br>更多模板可以看 <a href="prompts.html">提示词库</a>。`
+                body: `角色 + 任务 + 背景 + 输出格式。<br><br>例如：你是一位有经验的初中语文老师，请为七年级学生设计《春》的课堂导入，要求 5 分钟内完成，包含教师提问和学生可能回应。<br><br>想省事？直接用 <a href="agents.html">智能体空间</a> 里的现成智能体，填参数就出结果。`
             },
             {
                 keys: ['学习路径', '入门', '怎么学', '新手'],
@@ -244,11 +244,10 @@
         const scenario = buildScenarioAnswer(question);
         if (scenario) return scenario;
 
-        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="paths.html">学习路径</a>、<a href="tools.html">AI资源精选</a>、<a href="prompts.html">提示词库</a>。`;
+        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="agents.html">智能体空间</a>、<a href="paths.html">学习路径</a>、<a href="tools.html">AI资源精选</a>。`;
     }
 
     function sendQuestion(question) {
-        if (!requireAssistantLogin(() => sendQuestion(question))) return;
         const text = question.trim();
         if (!text) return;
         addMessage(text, 'user');
@@ -257,7 +256,6 @@
     }
 
     function openAssistant() {
-        if (!requireAssistantLogin(() => openAssistant())) return;
         assistantPanel.classList.add('open');
         assistantPanel.setAttribute('aria-hidden', 'false');
         setTimeout(() => assistantInput.focus(), 80);
@@ -272,35 +270,18 @@
         const launcher = document.createElement('button');
         launcher.className = 'assistant-launcher';
         launcher.type = 'button';
-        launcher.setAttribute('aria-label', '打开智能助教');
-        launcher.innerHTML = `
-            <span class="assistant-launcher-label"><strong>智能助教</strong><span>点我问 AI 教学</span></span>
-            <span class="assistant-mascot" aria-hidden="true">
-                <span class="mascot-ear mascot-ear-left"></span>
-                <span class="mascot-ear mascot-ear-right"></span>
-                <span class="mascot-tail"></span>
-                <span class="mascot-screen">
-                    <span class="mascot-eye mascot-eye-left"></span>
-                    <span class="mascot-eye mascot-eye-right"></span>
-                    <span class="mascot-nose"></span>
-                    <span class="mascot-mouth"></span>
-                </span>
-                <span class="mascot-antenna"></span>
-            </span>`;
+        launcher.setAttribute('aria-label', '打开网站向导');
+        launcher.innerHTML = `<i class="ph-fill ph-compass"></i><span>需要帮忙？</span>`;
 
         assistantPanel = document.createElement('aside');
         assistantPanel.className = 'assistant-panel';
         assistantPanel.setAttribute('aria-hidden', 'true');
         assistantPanel.innerHTML = `
             <div class="assistant-panel-head">
-                <div class="assistant-mini" aria-hidden="true">
-                    <span class="assistant-mini-ear left"></span>
-                    <span class="assistant-mini-ear right"></span>
-                    <span class="assistant-mini-face"></span>
-                </div>
+                <div class="assistant-mini" aria-hidden="true"><i class="ph-fill ph-compass"></i></div>
                 <div>
-                    <div class="assistant-panel-title">AI 教学助教</div>
-                    <div class="assistant-panel-subtitle">回答 AI 教学应用与工具选择问题</div>
+                    <div class="assistant-panel-title">网站向导</div>
+                    <div class="assistant-panel-subtitle">帮你找到合适的智能体、工具或学习路径</div>
                 </div>
                 <div class="assistant-head-actions">
                     <button type="button" class="assistant-icon-button" data-open-contact aria-label="联系我们"><i class="ph ph-envelope-simple"></i></button>
@@ -321,7 +302,7 @@
         assistantMessages = assistantPanel.querySelector('.assistant-messages');
         assistantInput = assistantPanel.querySelector('.assistant-input');
 
-        addMessage('你好，我是你的 AI 教学助教。你可以问我：AI 怎样帮我备课、出题、做课件，或者哪个工具更适合某个教学任务。', 'bot');
+        addMessage('你好～告诉我你要做的教学任务（备课 / 出题 / 做课件 / 写评语 / 家校沟通…），我帮你指到最合适的智能体、工具或学习路径。', 'bot');
         launcher.addEventListener('click', openAssistant);
         assistantPanel.querySelector('[data-close-assistant]').addEventListener('click', closeAssistant);
         assistantPanel.querySelector('[data-open-contact]').addEventListener('click', () => openContactModal());

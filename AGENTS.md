@@ -60,6 +60,11 @@
   - **签名视觉（红笔/印章，克制·更轻）**：一套「教师」母题，整页只点几处。① **手绘红笔下划线**：`.hero h1 .underline::after` 改为内嵌 SVG 笔触（data-URI，朱砂、细），用于首页 H1「你的课堂」。② **印章徽记** `.seal`（朱砂双线、微旋转）盖在智能体卡右上角 `.card-seal`。③ **红笔对勾**（已于 2026-06-17 回滚——观感不佳，hero 价值条恢复 Phosphor 图标；`.rp-check` 样式已删）。母题样式在 style.css「签名视觉」块。
   - **印章改为「热门」按使用频率（2026-06-17）**：原固定 4 个「精选」印 → 改为**全站使用频率最高的 2 个**盖「热门」印，自动顶替。计数：智能体每次「生成/对话」成功后 `DB.bumpAgentUsage(id)` 写 Firestore `agent_usage/{id}.count`（`FieldValue.increment`）；`DB.getTopAgents(2)` 读出 Top-2。`window.TOP_AGENTS` 先用种子 `['lesson-design','quiz-gen']`，数据返回后覆盖并重渲染。**显示去重**：homepage 在 `#feat-agents` 盖；agents.html 在**分区卡**盖、**「常用推荐」行传 `cardHtml(a,false)` 不盖**（避免同一智能体出现两次被盖两个印）。无 `agent_usage` 规则/数据时回退到种子，不报错。缓存版本：`data.js`/`css/style.css` → `?v=20260617-hot`。
 
+- **2026-06-17（提示词并入智能体 + 悬浮助手重绘）**:
+  - **撤「提示词库」栏目，并入智能体**：从导航 (`renderNav`)、页脚、首页「配套资源」移除「提示词库」入口；智能体工作台头部新增 **「复制提示词」** 按钮（`copyAgentPrompt()`，复制当前智能体的 `a.system`，供老师拿到别处用）；`openAgent` 里记 `window._wsAgent`。**`prompts.html` 文件保留**（直链可达、admin 社区提示词面板仍在），只是退出主 IA——如要彻底删页/删 community_prompts 再单独定。
+  - **悬浮助手重绘 + 改定位**（`js/assistant.js` + style.css）：卡通吉祥物 → **克制小药丸**「🧭 需要帮忙？」；面板从「AI 教学助教」改为 **「网站向导」**（帮你找智能体/工具/路径）；答案改为**优先引导到对应智能体**（备课→`#lesson-design`、出题→`#quiz-gen`、家校→`#parent-comm`），清掉对已撤提示词库的引用；**去掉打开/提问的登录门槛**（找功能不需登录；联系我们仍需登录）。删除全部 `.assistant-mascot/.mascot-*/.assistant-mini-*` 吉祥物 CSS。`assistant.js` 首次加上缓存版本号 `?v=20260617-guide`（全 13 页）。
+  - 缓存版本：`css/style.css` / `js/auth.js` / `js/assistant.js` → `?v=20260617-guide`。
+
 ## Auth Lesson (Important)
 
 **The single biggest bug we hit during the migration**: production logins were routed through `/api/auth-proxy` first, which only stashes the ID token in `localStorage` and never calls the Firebase JS SDK. That left `firebase.auth().currentUser` as `null`, so every Firestore request went out unauthenticated — `getUsers`, article writes, subscribe lookups all 403'd even though the UI showed the admin as "logged in".

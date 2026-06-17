@@ -303,7 +303,6 @@ function renderNav(currentPage) {
         { key:'classroom', href:'classroom-tools.html', label:'课堂工具' },
         { key:'news',      href:'news.html',     label:'AI 资讯' },
         { key:'paths',     href:'paths.html',    label:'学习路径' },
-        { key:'prompts',   href:'prompts.html',  label:'提示词库' },
         { key:'articles',  href:'articles.html',  label:'精选文章' },
         { key:'resources', href:'resources.html', label:'课件素材' }
     ];
@@ -540,7 +539,6 @@ function renderFooter() {
                 <li><a href="tools.html">AI资源精选</a></li>
                 <li><a href="news.html">AI 资讯</a></li>
                 <li><a href="paths.html">学习路径</a></li>
-                <li><a href="prompts.html">提示词库</a></li>
                 <li><a href="articles.html">精选文章</a></li>
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
