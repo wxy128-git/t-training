@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-agentfirst">
+    <link rel="stylesheet" href="css/style.css?v=20260617-herob">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -42,18 +42,8 @@
             </div>
         </div>
         <div class="hero-card">
-            <div class="kicker"><i class="ph-fill ph-sparkle"></i>试试这个智能体</div>
-            <div class="hero-card-main">
-                <div class="hero-card-icon"><i class="ph-fill ph-blueprint"></i></div>
-                <div>
-                    <h3>教学设计助手</h3>
-                    <p>输入课题与学情，生成含教学目标、重难点、教学过程、板书与作业的完整教案。</p>
-                </div>
-            </div>
-            <div class="hero-card-foot">
-                <a href="agents.html#lesson-design" class="use">立即体验 <i class="ph ph-arrow-right"></i></a>
-                <span class="meta">填参数即出结果</span>
-            </div>
+            <div class="kicker"><i class="ph-fill ph-sparkle"></i>AI 智能体 · 5 大场景</div>
+            <div class="hc-scenes" id="hero-scenes"></div>
         </div>
     </div>
 </section>
@@ -68,7 +58,7 @@
         <div class="section-header section-header-row">
             <div>
                 <h2>AI 智能体</h2>
-                <p>按真实教学场景设计，填参数即出结果——这是本站的核心</p>
+                <p>按真实教学场景设计，填好参数就出结果。</p>
             </div>
             <a href="agents.html" style="font-size:13px;color:var(--brand);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--brand);padding-bottom:3px">查看全部 <i class="ph ph-arrow-right"></i></a>
         </div>
@@ -180,6 +170,13 @@ DB.getAnnouncements().then(ann => {
             <div class="mini-ico" style="background:${c.color}"><i class="ph-fill ${CAT_ICON[c.key] || 'ph-robot'}"></i></div>
             <div><b>${c.name} <span style="font-weight:500;color:var(--muted);font-family:var(--font-mono);font-size:12px">${items.length}</span></b><span>${names} 等</span></div>
         </a>`;
+    }).join('');
+
+    // Hero 右侧「5 大场景」面板
+    const scenes = document.getElementById('hero-scenes');
+    if (scenes) scenes.innerHTML = CATS.map(c => {
+        const n = A.filter(a => a.cat === c.key).length;
+        return `<a class="hc-scene" href="agents.html"><span class="dot" style="background:${c.color}"></span><span class="nm">${c.name}</span><span class="n">${n}</span></a>`;
     }).join('');
 })();
 

@@ -111,12 +111,14 @@ button, input, textarea, select { font: inherit; }
 .home-main {
     max-width: 1240px;
     margin: 0 auto;
-    padding: 88px 24px 96px;
+    padding: 48px 24px 96px;   /* 顶部 88→48：hero 已有 88 底距，收紧 hero→首区间距 */
     display: flex;
     flex-direction: column;
     gap: 96px;
     counter-reset: section;
 }
+/* 空公告占位不参与 flex gap，消除 hero 与首区之间的「幽灵间距」 */
+#announcements-section:empty { display: none; }
 .home-section {
     content-visibility: auto;
     contain-intrinsic-size: 520px;
@@ -2176,3 +2178,12 @@ tr:hover td { background: var(--soft); }
 .mini b { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
 .mini span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .mini.cat-card { flex-direction: column; align-items: flex-start; gap: 10px; min-height: 116px; }
+
+/* ===== Hero 右侧「AI 智能体 · 5 大场景」面板 ===== */
+.hc-scenes { display: flex; flex-direction: column; gap: 2px; }
+.hc-scene { display: flex; align-items: center; gap: 11px; padding: 11px 6px; border-radius: 10px; text-decoration: none; transition: background .15s; }
+.hc-scene:hover { background: var(--soft); }
+.hc-scene .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.hc-scene .nm { font-size: 14px; font-weight: 600; color: var(--ink); }
+.hc-scene .n { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.hc-scene + .hc-scene { border-top: 1px solid var(--line-soft); }

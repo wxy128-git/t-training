@@ -56,6 +56,7 @@
   - **外链与学习内容下沉**：合并为底部「配套资源」`#supp`（6 张 `.mini` 卡：学习路径/提示词库/精选文章/AI资源精选/课件素材/AI 资讯），保留不删、不再抢戏。
   - **`.agent-card` 样式迁移**：从 agents.html 内联**移到 `css/style.css`**（共享给首页橱窗 + agents.html）；agents.html 仅保留 `.agent-grid/.agent-section/.featured-grid` 等页面布局。新增 `.home-feat-grid/.home-cat-grid/.mini/.cat-sub` 等首页橱窗样式。
   - 导航分组（第二层「资源 ▾ 下拉」）尚未做，待定。缓存版本：`css/style.css` → `?v=20260617-agentfirst`（全站 14 处同步）。
+  - **微调（同日）**：① 「AI 智能体」副标题去掉自我标榜的「这是本站的核心」→「按真实教学场景设计，填好参数就出结果。」；② hero 右侧 spotlight 卡（吆喝感重、与下方重复）改为安静的 **「AI 智能体 · 5 大场景」面板**（`.hc-scenes`，`#hero-scenes` 由首页脚本按 AGENT_CATS + 计数渲染，整行可点）；③ **修首页 hero→首区「幽灵间距」**：`#announcements-section:empty{display:none}`（空公告不再占 flex gap）+ `.home-main` 顶部内距 88→48。缓存版本：`css/style.css` → `?v=20260617-herob`。
 
 ## Auth Lesson (Important)
 
@@ -106,7 +107,7 @@ match /works/{workId} {
 
 | File | Purpose |
 |---|---|
-| `index.html` | Homepage — **agent-first (2026-06-17)**. Two-column hero (`hero-split`; H1 kept「让 AI 真正走进你的课堂」, copy/CTA agent-focused; right `hero-card` spotlights 教学设计助手). Body = **智能体橱窗**: `#feat-agents` (4 featured agent cards) + `#cat-agents` (5 teaching-scenario category cards), rendered from `js/agents-data.js`. Then a demoted **配套资源** band `#supp` (6 `.mini` cards → paths/prompts/articles/tools/resources/news). Then contact band + subscribe. Only Firestore call left on homepage is `DB.getAnnouncements()` |
+| `index.html` | Homepage — **agent-first (2026-06-17)**. Two-column hero (`hero-split`; H1 kept「让 AI 真正走进你的课堂」, copy/CTA agent-focused; right `hero-card` = quiet **「5 大场景」panel** `.hc-scenes` / `#hero-scenes`). Body = **智能体橱窗**: `#feat-agents` (4 featured agent cards) + `#cat-agents` (5 teaching-scenario category cards), rendered from `js/agents-data.js`. Then a demoted **配套资源** band `#supp` (6 `.mini` cards → paths/prompts/articles/tools/resources/news). Then contact band + subscribe. Only Firestore call left on homepage is `DB.getAnnouncements()` |
 | `agents.html` | **智能体空间** — agent gallery + workspace. Self-contained single page (card wall ↔ workspace, hash deep-link `#agent-id`). 19 agents in `js/agents-data.js` (5 categories). 首页视图 = **顶部精选 (`FEATURED` 4 个) + 按类分区陈列** (`renderHome`)；选分类或搜索时切单层网格 (`renderFiltered`)。Two workspace types: **form**（左参数栏 `sticky` 吸顶 / 右流式 Markdown，含编辑·复制·重新生成；`toggleEdit` 切换渲染态↔可编辑文本框）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing — card wall 是开放橱窗 (not in `PROTECTED_PAGE_NAMES`)。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek，已接真实 API）。 |
 | `tools.html` | Curated directory of **external** third-party AI products (cards link out). User-facing name is **「AI资源精选」** (renamed 2026-06-16 from "AI工具" — clearer vs in-house 智能体空间; nav key stays `tools`). **Renders `DEFAULT_TOOLS` synchronously first**, then replaces with Firestore data. Default "全部" view is **grouped by category** (`#tools-grouped`, section per category); search or a specific category switches to a flat `#tools-grid`. Filter pills built dynamically by `buildFilterBar()` from categories actually present |
 | `classroom-tools.html` | Eight self-contained classroom widgets (see below) |
