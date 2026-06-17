@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-seal">
+    <link rel="stylesheet" href="css/style.css?v=20260617-hot">
     <style>
         /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -211,7 +211,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260616-workbook"></script>
+<script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260616-workbook"></script>
 <script src="js/agents-data.js?v=20260609"></script>
 <script>
@@ -243,10 +243,13 @@ function setCat(key) {
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
 
-function cardHtml(a, seal) {
+function cardHtml(a, allowSeal) {
     const c = CAT_MAP[a.cat];
+    // 「热门」印章：盖在「使用频率最高的 N 个」智能体上；常用推荐行传 false 以免同一智能体重复盖印
+    const seal = (allowSeal !== false && (window.TOP_AGENTS || []).includes(a.id))
+        ? '<span class="seal sm card-seal">热门</span>' : '';
     return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
-        ${seal ? '<span class="seal sm card-seal">精选</span>' : ''}
+        ${seal}
         <div class="agent-card-top">
             <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
             <div>
@@ -280,7 +283,7 @@ function renderHome() {
                 <span class="sec-title">常用推荐</span>
                 <span class="sec-sub">不知从哪开始？先试这几个</span>
             </div>
-            <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, true)).join('')}</div>
+            <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, false)).join('')}</div>
         </div>`;
     }
     CATS.forEach(c => {
@@ -439,6 +442,7 @@ async function runForm(aid) {
         body.classList.remove('cursor-blink');
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
+        if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
     } catch (e) {
         body.className = 'ws-out-body placeholder';
         body.innerHTML = `<div><i class="ph ph-warning"></i><p>生成失败：${e.message}</p></div>`;
@@ -583,6 +587,7 @@ async function sendChat(aid) {
             onToken: (full) => { target.innerHTML = mdToHtml(full); stream.scrollTop = stream.scrollHeight; }
         });
         _chatHistory.push({ role: 'assistant', content: target.textContent });
+        if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
     } catch (e) {
         target.innerHTML = `<span style="color:var(--brand)">出错了：${e.message}</span>`;
     }
@@ -653,10 +658,17 @@ function mdToHtml(md) {
 function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
 /* ---------- 初始化 ---------- */
+// 「热门」印章：先用种子（默认两个），待全站使用频率数据返回后覆盖并重渲染
+window.TOP_AGENTS = ['lesson-design', 'quiz-gen'];
 renderFilterBar();
 applyFilter();
 renderNav('agents');
 renderFooter();
+if (window.DB && DB.getTopAgents) {
+    DB.getTopAgents(2).then(top => {
+        if (top && top.length) { window.TOP_AGENTS = top; applyFilter(); }
+    }).catch(() => {});
+}
 
 // hash 深链：直接进入某个智能体
 function routeFromHash(skipGuard) {

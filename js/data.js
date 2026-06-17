@@ -713,6 +713,28 @@ const DB = {
     },
     async deleteWork(id) {
         await db.collection('works').doc(id).delete();
+    },
+
+    /* ===== 智能体使用计数（用于「热门」印章，按全站使用频率取 Top-N）===== */
+    async bumpAgentUsage(agentId) {
+        if (!agentId) return;
+        try {
+            await db.collection('agent_usage').doc(agentId).set(
+                { count: firebase.firestore.FieldValue.increment(1), updatedAt: new Date().toISOString() },
+                { merge: true }
+            );
+        } catch (e) { /* 计数失败不影响智能体使用，静默 */ }
+    },
+    async getTopAgents(n = 2) {
+        try {
+            const snap = await db.collection('agent_usage').get();
+            return snap.docs
+                .map(d => ({ id: d.id, count: d.data().count || 0 }))
+                .filter(r => r.count > 0)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, n)
+                .map(r => r.id);
+        } catch (e) { return []; }
     }
 };
 

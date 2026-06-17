@@ -2200,7 +2200,3 @@ tr:hover td { background: var(--soft); }
 .seal::before { content: ''; position: absolute; inset: 3px; border: 1px solid var(--brand); border-radius: 5px; opacity: .4; }
 .seal.sm { width: 36px; height: 36px; font-size: 12px; }
 .card-seal { position: absolute; top: 13px; right: 13px; z-index: 2; }
-
-/* 红笔对勾：用于 hero 价值条 */
-.rp-check { width: 20px; height: 20px; flex-shrink: 0; }
-.rp-check path { fill: none; stroke: var(--brand); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }

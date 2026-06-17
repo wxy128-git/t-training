@@ -57,7 +57,8 @@
   - **`.agent-card` 样式迁移**：从 agents.html 内联**移到 `css/style.css`**（共享给首页橱窗 + agents.html）；agents.html 仅保留 `.agent-grid/.agent-section/.featured-grid` 等页面布局。新增 `.home-feat-grid/.home-cat-grid/.mini/.cat-sub` 等首页橱窗样式。
   - 导航分组（第二层「资源 ▾ 下拉」）尚未做，待定。缓存版本：`css/style.css` → `?v=20260617-agentfirst`（全站 14 处同步）。
   - **微调（同日）**：① 「AI 智能体」副标题去掉自我标榜的「这是本站的核心」→「按真实教学场景设计，填好参数就出结果。」；② hero 右侧 spotlight 卡（吆喝感重、与下方重复）改为安静的 **「AI 智能体 · 5 大场景」面板**（`.hc-scenes`，`#hero-scenes` 由首页脚本按 AGENT_CATS + 计数渲染，整行可点）；③ **修首页 hero→首区「幽灵间距」**：`#announcements-section:empty{display:none}`（空公告不再占 flex gap）+ `.home-main` 顶部内距 88→48。缓存版本：`css/style.css` → `?v=20260617-herob`。
-  - **签名视觉（红笔/印章，克制·更轻）**：一套「教师」母题，整页只点几处。① **手绘红笔下划线**：`.hero h1 .underline::after` 改为内嵌 SVG 笔触（data-URI，朱砂、细），用于首页 H1「你的课堂」。② **印章徽记** `.seal`（朱砂双线、微旋转）作「精选」标记，盖在精选智能体卡右上角 `.card-seal`——首页 `#feat-agents` 4 张 + agents.html「常用推荐」4 张；只有 `cardHtml(a, true)` 才盖，**`.map(cardHtml)` 会把数组索引当第二参数误盖印，必须写 `.map(a=>cardHtml(a))`**。③ **红笔对勾** `.rp-check`（SVG）替换首页 hero 价值条图标。母题样式在 style.css「签名视觉」块。缓存版本：`css/style.css` → `?v=20260617-seal`。
+  - **签名视觉（红笔/印章，克制·更轻）**：一套「教师」母题，整页只点几处。① **手绘红笔下划线**：`.hero h1 .underline::after` 改为内嵌 SVG 笔触（data-URI，朱砂、细），用于首页 H1「你的课堂」。② **印章徽记** `.seal`（朱砂双线、微旋转）盖在智能体卡右上角 `.card-seal`。③ **红笔对勾**（已于 2026-06-17 回滚——观感不佳，hero 价值条恢复 Phosphor 图标；`.rp-check` 样式已删）。母题样式在 style.css「签名视觉」块。
+  - **印章改为「热门」按使用频率（2026-06-17）**：原固定 4 个「精选」印 → 改为**全站使用频率最高的 2 个**盖「热门」印，自动顶替。计数：智能体每次「生成/对话」成功后 `DB.bumpAgentUsage(id)` 写 Firestore `agent_usage/{id}.count`（`FieldValue.increment`）；`DB.getTopAgents(2)` 读出 Top-2。`window.TOP_AGENTS` 先用种子 `['lesson-design','quiz-gen']`，数据返回后覆盖并重渲染。**显示去重**：homepage 在 `#feat-agents` 盖；agents.html 在**分区卡**盖、**「常用推荐」行传 `cardHtml(a,false)` 不盖**（避免同一智能体出现两次被盖两个印）。无 `agent_usage` 规则/数据时回退到种子，不报错。缓存版本：`data.js`/`css/style.css` → `?v=20260617-hot`。
 
 ## Auth Lesson (Important)
 
@@ -90,6 +91,7 @@ To verify auth is healthy: in DevTools console, `firebase.auth().currentUser` sh
 | `showcases` | **(retired 2026-06-15)** teacher case studies — all frontend/admin UI removed; collection + existing docs kept, no longer read or written | — |
 | `tool_ratings` | per-tool 5-star ratings (not currently shown in UI) | logged-in users |
 | `subscribers` | newsletter sign-ups | anyone (create), admin (read/delete) |
+| `agent_usage` | 智能体使用计数（doc/agentId，`count`），驱动首页/智能体空间「热门」印章（added 2026-06-17） | read public；write 任意登录用户（`FieldValue.increment`）— **需在 Console 加规则，见下** |
 | `works` | **「我的备课本」** saved agent outputs (added 2026-06-16) — `{uid, agentId, agentName, title, content, createdAt, updatedAt}` | owner only (uid == request.auth.uid) — **rule must be added in Firebase Console, see below** |
 | `contact_messages` | contact-form submissions | logged-in users (create), admin (read/update/delete) |
 
@@ -101,6 +103,15 @@ Rules live in Firebase Console → Firestore → Rules. They are the source of t
 match /works/{workId} {
   allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
   allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+}
+```
+
+**Firestore Rule for `agent_usage`** (智能体使用计数，驱动「热门」印章；缺了不会报错，但用量不会累计、印章固定在种子两个)：
+
+```
+match /agent_usage/{agentId} {
+  allow read: if true;
+  allow write: if request.auth != null;
 }
 ```
 

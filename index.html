@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-seal">
+    <link rel="stylesheet" href="css/style.css?v=20260617-hot">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -36,9 +36,9 @@
                 <a href="#supp" class="btn-hero-secondary"><i class="ph ph-compass"></i>看看配套资源</a>
             </div>
             <div class="hero-values">
-                <div class="item"><svg class="rp-check" viewBox="0 0 24 24"><path d="M3,13 l6,7 l12,-17"/></svg><div><b>19 个智能体</b><small>覆盖 5 大教学场景</small></div></div>
-                <div class="item"><svg class="rp-check" viewBox="0 0 24 24"><path d="M3,13 l6,7 l12,-17"/></svg><div><b>完全免费</b><small>登录即可使用</small></div></div>
-                <div class="item"><svg class="rp-check" viewBox="0 0 24 24"><path d="M3,13 l6,7 l12,-17"/></svg><div><b>成果可沉淀</b><small>存进我的备课本</small></div></div>
+                <div class="item"><i class="ph ph-robot"></i><div><b>19 个智能体</b><small>覆盖 5 大教学场景</small></div></div>
+                <div class="item"><i class="ph ph-seal-check"></i><div><b>完全免费</b><small>登录即可使用</small></div></div>
+                <div class="item"><i class="ph ph-bookmark-simple"></i><div><b>成果可沉淀</b><small>存进我的备课本</small></div></div>
             </div>
         </div>
         <div class="hero-card">
@@ -121,7 +121,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260616-workbook"></script>
+<script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260616-workbook"></script>
 <script src="js/agents-data.js?v=20260609"></script>
 <script src="js/assistant.js"></script>
@@ -151,18 +151,24 @@ DB.getAnnouncements().then(ann => {
     const CAT_ICON = { plan: 'ph-blueprint', class: 'ph-presentation', assess: 'ph-check-square', home: 'ph-chats-circle', growth: 'ph-trend-up' };
 
     const feat = FEATURED.map(id => A.find(a => a.id === id)).filter(Boolean);
-    document.getElementById('feat-agents').innerHTML = feat.map(a => {
-        const c = CAT_MAP[a.cat] || {};
-        return `<a class="agent-card" style="--cat-color:${c.color}" href="agents.html#${a.id}">
-            <span class="seal sm card-seal">精选</span>
-            <div class="agent-card-top">
-                <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
-                <div><div class="agent-card-name">${a.name}</div><div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div></div>
-            </div>
-            <div class="agent-card-desc">${a.tagline || a.desc}</div>
-            <div class="agent-card-foot"><span class="agent-chip${a.type === 'chat' ? ' chat' : ''}">${a.type === 'chat' ? '对话' : '表单'}</span><span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span></div>
-        </a>`;
-    }).join('');
+    // 「热门」印章：盖在使用频率最高的 2 个上（先用种子，待真实用量返回后覆盖）
+    function paintFeat(top) {
+        document.getElementById('feat-agents').innerHTML = feat.map(a => {
+            const c = CAT_MAP[a.cat] || {};
+            const seal = top.includes(a.id) ? '<span class="seal sm card-seal">热门</span>' : '';
+            return `<a class="agent-card" style="--cat-color:${c.color}" href="agents.html#${a.id}">
+                ${seal}
+                <div class="agent-card-top">
+                    <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
+                    <div><div class="agent-card-name">${a.name}</div><div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div></div>
+                </div>
+                <div class="agent-card-desc">${a.tagline || a.desc}</div>
+                <div class="agent-card-foot"><span class="agent-chip${a.type === 'chat' ? ' chat' : ''}">${a.type === 'chat' ? '对话' : '表单'}</span><span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span></div>
+            </a>`;
+        }).join('');
+    }
+    paintFeat(['lesson-design', 'quiz-gen']);   // 种子
+    if (window.DB && DB.getTopAgents) DB.getTopAgents(2).then(top => { if (top && top.length) paintFeat(top); }).catch(() => {});
 
     document.getElementById('cat-agents').innerHTML = CATS.map(c => {
         const items = A.filter(a => a.cat === c.key);
