@@ -99,6 +99,30 @@ const Auth = {
         throw new Error('登录状态已过期，请重新登录');
     },
 
+    async sendPasswordReset(identifier) {
+        const { authEmail, isPhone } = parseIdentifier(identifier);
+        // 手机号账号用的是占位邮箱（tel_…@xylaoshi.tel），无法收信，只能找管理员重置。
+        if (isPhone) {
+            return { ok: false, msg: '手机号注册的账号无法通过邮件重置密码，请用「联系我们」联系管理员协助重置。' };
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail)) {
+            return { ok: false, msg: '请输入有效的邮箱地址' };
+        }
+        try {
+            await auth.sendPasswordResetEmail(authEmail);
+            return { ok: true, msg: `重置链接已发送至 ${authEmail}，请查收邮箱（如未收到请检查垃圾邮件箱）。` };
+        } catch(e) {
+            const msgs = {
+                'auth/user-not-found': '该邮箱尚未注册，请确认邮箱或先注册账号',
+                'auth/invalid-email': '邮箱格式不正确',
+                'auth/missing-email': '请输入邮箱地址',
+                'auth/too-many-requests': '请求过于频繁，请稍后再试',
+                'auth/network-request-failed': '网络连接异常，请检查网络后重试'
+            };
+            return { ok: false, msg: msgs[e.code] || ('发送失败：' + e.message) };
+        }
+    },
+
     async login(identifier, password) {
         const { authEmail } = parseIdentifier(identifier);
         if (shouldUseAuthProxyFirst()) {
@@ -405,9 +429,17 @@ function showAuthModal(tab) {
             <div id="form-li" class="modal-body">
                 <div class="form-group"><label class="form-label">邮箱或手机号</label><input type="text" id="li-email" class="form-input" placeholder="your@email.com 或 13800138000"></div>
                 <div class="form-group"><label class="form-label">密码</label><input type="password" id="li-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+                <div style="text-align:right;margin-top:-4px"><button type="button" onclick="switchAuthTab('forgot')" style="background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer;padding:0;font-family:inherit">忘记密码？</button></div>
                 <div id="li-err" class="form-error" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="li-btn" onclick="handleLogin()">登录</button></div>
                 <p class="modal-footer-text">还没有账号？<button onclick="switchAuthTab('register')">立即注册</button></p>
+            </div>
+            <div id="form-fp" class="modal-body" style="display:none">
+                <p style="font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:16px">输入注册时使用的<strong>邮箱</strong>，我们会把密码重置链接发到你的邮箱，按邮件指引设置新密码即可。</p>
+                <div class="form-group"><label class="form-label">注册邮箱</label><input type="email" id="fp-email" class="form-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')handleForgotPassword()"></div>
+                <div id="fp-msg" style="display:none"></div>
+                <div style="margin-top:20px"><button class="btn-primary" id="fp-btn" onclick="handleForgotPassword()">发送重置邮件</button></div>
+                <p class="modal-footer-text"><button onclick="switchAuthTab('login')">← 返回登录</button></p>
             </div>
             <div id="form-rg" class="modal-body" style="display:none">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -433,9 +465,22 @@ function closeAuthModal() {
 }
 
 function switchAuthTab(tab) {
-    const isLogin = tab === 'login';
-    ['form-li','form-rg'].forEach((id,i) => { const el=document.getElementById(id); if(el) el.style.display = (i===0)===isLogin ? '' : 'none'; });
-    ['tab-li','tab-rg'].forEach((id,i) => { const el=document.getElementById(id); if(el) el.className='modal-tab'+((i===0)===isLogin?' active':''); });
+    const views = { login: 'form-li', register: 'form-rg', forgot: 'form-fp' };
+    Object.entries(views).forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (key === tab) ? '' : 'none';
+    });
+    // 「忘记密码」沿用登录页签的高亮（它是登录流程的分支，不单独占一个页签）
+    const activeTab = (tab === 'forgot') ? 'login' : tab;
+    const li = document.getElementById('tab-li'); if (li) li.className = 'modal-tab' + (activeTab === 'login' ? ' active' : '');
+    const rg = document.getElementById('tab-rg'); if (rg) rg.className = 'modal-tab' + (activeTab === 'register' ? ' active' : '');
+    if (tab === 'forgot') {
+        // 把登录框里已输入的邮箱带过来，省去重复输入
+        const liEmail = document.getElementById('li-email')?.value.trim();
+        const fpEmail = document.getElementById('fp-email');
+        if (fpEmail && liEmail && !fpEmail.value) fpEmail.value = liEmail;
+        const fpMsg = document.getElementById('fp-msg'); if (fpMsg) fpMsg.style.display = 'none';
+    }
 }
 
 function showWelcomeOverlay(kind, name) {
@@ -486,6 +531,20 @@ async function handleRegister() {
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
     closeAuthModal();
     showWelcomeOverlay('register', name);
+}
+
+async function handleForgotPassword() {
+    const email = document.getElementById('fp-email').value.trim();
+    const msg = document.getElementById('fp-msg');
+    const btn = document.getElementById('fp-btn');
+    msg.style.display = 'none';
+    if (!email) { msg.className = 'form-error'; msg.textContent = '请输入邮箱地址'; msg.style.display = ''; return; }
+    btn.disabled = true; btn.textContent = '发送中…';
+    const result = await Auth.sendPasswordReset(email);
+    btn.disabled = false; btn.textContent = '发送重置邮件';
+    msg.className = result.ok ? 'form-success' : 'form-error';
+    msg.textContent = result.msg;
+    msg.style.display = '';
 }
 
 /* ===== Toast ===== */

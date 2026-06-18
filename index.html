@@ -16,74 +16,344 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-guide">
+    <link rel="stylesheet" href="css/style.css?v=20260617-pwreset">
+    <style>
+    /* ===== 首页报头带重设计（2026-06-18 · 朱印风 · 全部 hp- 前缀 + 令牌限定 .hp-root，互不污染） ===== */
+    .hp-root{
+      --paper:#faf7f0; --paper-2:#f3ede0; --panel:#ffffff;
+      --ink:#1a1612; --ink-soft:#574a3d; --muted:#8d8071;
+      --brand:#c0392b; --seal:#c8402e;
+      --line:rgba(26,22,18,0.10); --line-soft:rgba(26,22,18,0.06);
+      --grid:rgba(26,22,18,0.026); --grid-strong:rgba(192,57,43,0.055);
+      --font-seal:'STKaiti','Kaiti SC','KaiTi','STSong','Songti SC',serif;
+      --r:16px;
+      --shadow:0 1px 2px rgba(26,22,18,.04);
+      --shadow-lift:0 18px 40px -22px rgba(26,22,18,.45),0 4px 12px -6px rgba(26,22,18,.12);
+      --c-plan:#2d6a4f;--c-plan-s:#e6f0ea;--c-class:#2c5282;--c-class-s:#e7edf6;
+      --c-assess:#c0392b;--c-assess-s:#fbeae6;--c-home:#b07d2a;--c-home-s:#f6eed9;
+      --c-growth:#7a4f86;--c-growth-s:#efe7f2;
+      position:relative; background:var(--paper);
+    }
+    .hp-root *{box-sizing:border-box}
+    .hp-root::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+      background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size:27px 27px;
+      -webkit-mask-image:radial-gradient(120% 70% at 50% 0%,#000 45%,transparent 100%);
+              mask-image:radial-gradient(120% 70% at 50% 0%,#000 45%,transparent 100%);}
+    .hp-wrap{max-width:1200px;margin:0 auto;padding:0 40px;position:relative;z-index:1}
+    .hp-root a{color:inherit;text-decoration:none}
+
+    /* 印章 */
+    .hp-seal{font-family:var(--font-seal);color:#fff;background:var(--seal);
+      box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5),inset 0 0 0 3px var(--seal);
+      border-radius:5px;letter-spacing:1px;font-weight:700;position:relative}
+    .hp-seal::after{content:"";position:absolute;inset:0;border-radius:5px;
+      background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.18),transparent 60%);mix-blend-mode:screen}
+    .hp-seal-sq{display:grid;grid-template-columns:1fr 1fr;width:62px;height:62px;place-items:center;font-size:20px;line-height:1;transform:rotate(-6deg)}
+    .hp-seal-sm{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;font-size:14px;transform:rotate(-7deg)}
+
+    /* 报头带 */
+    .hp-mast{display:flex;align-items:center;gap:18px;padding:13px 24px;margin:0 0 34px;
+      background:var(--paper-2);border-top:1px solid var(--line);border-bottom:2px solid var(--brand)}
+    .hp-mh-mark{color:var(--brand);font-size:10px;margin-right:8px;vertical-align:1px}
+    .hp-mh-name{font-weight:800;font-size:15px;letter-spacing:.01em}
+    .hp-mh-name b{color:var(--brand)}
+    .hp-mh-en{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.18em;margin-left:2px}
+    .hp-mh-meta{margin-left:auto;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em;display:flex;gap:16px;align-items:center}
+    .hp-mh-meta b{color:var(--ink-soft)}
+    .hp-mh-seal{margin-left:18px}
+
+    /* hero */
+    .hp-hero{padding:40px 0 56px;position:relative}
+    .hp-hgrid{display:grid;grid-template-columns:1.06fr .94fr;gap:48px;align-items:center}
+    .hp-kicker{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.05em;margin-bottom:22px}
+    .hp-kicker .no{color:var(--brand);font-weight:600}
+    .hp-kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--brand)}
+    .hp-h1{font-size:clamp(44px,5.2vw,72px);font-weight:800;line-height:1.04;letter-spacing:-.02em}
+    .hp-h1 .hp-em{color:var(--brand);font-style:italic;font-weight:800;padding:0 .06em}
+    .hp-dek{font-size:16.5px;color:var(--ink-soft);line-height:1.75;margin:24px 0 8px;max-width:30em}
+    .hp-cta{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+    .hp-cta-primary{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);font-weight:600;font-size:14.5px;padding:14px 24px;border-radius:11px;border:1px solid var(--ink);transition:.18s}
+    .hp-cta-primary:hover{background:var(--brand);border-color:var(--brand);transform:translateY(-2px)}
+    .hp-cta-ghost{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14.5px;padding:14px 22px;border-radius:11px;border:1px solid var(--line);background:#fff;transition:.18s}
+    .hp-cta-ghost:hover{border-color:var(--ink-soft);transform:translateY(-2px)}
+    .hp-values{display:flex;gap:30px;margin-top:36px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+    .hp-val{display:flex;gap:11px;align-items:flex-start}
+    .hp-val i{color:var(--brand);font-size:20px;margin-top:2px}
+    .hp-val b{display:block;font-size:14px;font-weight:700}
+    .hp-val span{font-size:12px;color:var(--muted)}
+
+    /* 「怎么用」面板 */
+    .hp-howto{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-lift);overflow:hidden;position:relative}
+    .hp-ht-head{display:flex;align-items:center;gap:8px;padding:20px 24px 18px;border-bottom:1px solid var(--line-soft);font-weight:800;font-size:17px}
+    .hp-ht-head i{color:var(--brand);font-size:20px}
+    .hp-ht-head .hp-kx{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.06em;font-weight:500}
+    .hp-ht-step{display:flex;gap:16px;align-items:flex-start;padding:18px 24px}
+    .hp-ht-step+.hp-ht-step{border-top:1px dashed var(--line-soft)}
+    .hp-ht-no{width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff;font-family:var(--font-mono);font-weight:600;font-size:15px;box-shadow:0 4px 10px -4px rgba(192,57,43,.5)}
+    .hp-ht-step b{display:block;font-size:15px;font-weight:700;margin-bottom:3px}
+    .hp-ht-step span{font-size:12.5px;color:var(--muted);line-height:1.6}
+    .hp-ht-foot{padding:15px 24px;background:var(--paper-2);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.03em;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
+    .hp-ht-foot i{color:var(--brand);font-size:14px}
+
+    /* section 头 */
+    .hp-section{padding:60px 0;position:relative}
+    .hp-sec-head{display:flex;align-items:flex-end;gap:18px;margin-bottom:34px;padding-top:22px;border-top:2px solid var(--ink);flex-wrap:wrap}
+    .hp-sec-counter{font-family:var(--font-mono);font-style:italic;font-size:15px;color:var(--brand);font-weight:600;padding-bottom:6px}
+    .hp-sec-title{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+    .hp-sec-dek{font-size:14px;color:var(--muted);padding-bottom:5px}
+    .hp-sec-more{margin-left:auto;font-size:13.5px;font-weight:600;color:var(--brand);padding-bottom:5px;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+    .hp-sec-more:hover{gap:10px}
+    .hp-sub-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:30px 0 16px;display:flex;align-items:center;gap:10px}
+    .hp-sub-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+    /* 头条 */
+    .hp-lead{display:grid;grid-template-columns:1fr 1.15fr;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel);box-shadow:var(--shadow);position:relative}
+    .hp-lead-left{padding:34px 34px 32px;display:flex;flex-direction:column;border-right:1px solid var(--line-soft)}
+    .hp-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:7px;align-self:flex-start}
+    .hp-tag i{font-size:13px}
+    .hp-lead-title{font-size:30px;font-weight:800;letter-spacing:-.01em;margin:16px 0 10px;color:var(--ink)}
+    .hp-lead-dek{font-size:14.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:22px}
+    .hp-incl{margin:2px 0 6px}
+    .hp-incl-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:11px}
+    .hp-incl-chips{display:flex;flex-wrap:wrap;gap:8px}
+    .hp-incl-chips span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line-soft);padding:6px 11px;border-radius:8px}
+    .hp-incl-chips i{color:var(--c-plan);font-size:12px;font-weight:bold}
+    .hp-lead-foot{margin-top:auto;display:flex;align-items:center;gap:14px;padding-top:18px;flex-wrap:wrap}
+    .hp-pill{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);padding:5px 10px;border-radius:7px}
+    .hp-enter{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:14px;color:var(--ink);transition:.15s}
+    .hp-lead:hover .hp-enter{color:var(--brand);gap:11px}
+    .hp-lead-right{padding:30px;background:var(--paper);position:relative}
+    .hp-lead-seal{position:absolute;top:16px;right:18px;z-index:5}
+
+    /* 样张 */
+    .hp-sample{border:1px solid var(--line);border-radius:12px;background:#fffdf8;overflow:hidden;box-shadow:0 6px 18px -12px rgba(26,22,18,.4);position:relative;height:100%}
+    .hp-sample-bar{display:flex;align-items:center;gap:7px;padding:9px 13px;border-bottom:1px solid var(--line-soft);background:var(--paper-2);font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+    .hp-sample-bar .hp-rd{width:8px;height:8px;border-radius:50%;background:#e3d9c8}
+    .hp-sample-body{padding:16px 18px;font-size:12.5px;line-height:1.95;color:#3a3128;position:relative;
+      background-image:linear-gradient(var(--grid-strong) 1px,transparent 1px),linear-gradient(90deg,var(--grid-strong) 1px,transparent 1px);
+      background-size:24px 24px;background-position:-1px 8px}
+    .hp-sample-body h5{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:5px}
+    .hp-sample-body .hp-hl{color:var(--brand);font-weight:700}
+    .hp-sample-body .hp-mut{color:var(--muted)}
+    .hp-sample-fade{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,#fffdf8)}
+
+    /* 要闻 */
+    .hp-brief{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .hp-bcard{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:22px;position:relative;display:flex;flex-direction:column;transition:.2s;box-shadow:var(--shadow)}
+    .hp-bcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+    .hp-bcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+    .hp-bcard-no{font-family:var(--font-mono);font-size:13px;color:var(--muted);font-weight:600}
+    .hp-icon-chip{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:19px;color:#fff}
+    .hp-bcard-title{font-size:16.5px;font-weight:800;margin-bottom:5px;color:var(--ink)}
+    .hp-bcard-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+    .hp-mini-sample{font-size:11.5px;line-height:1.85;color:#4a4135;background:#fffdf8;border:1px solid var(--line-soft);border-radius:9px;padding:11px 13px;margin-bottom:14px;
+      background-image:linear-gradient(var(--grid) 1px,transparent 1px);background-size:100% 22px;background-position:0 7px}
+    .hp-mini-sample .hp-hl{color:var(--brand);font-weight:700}
+    .hp-mini-sample .hp-ok{color:var(--c-plan);font-weight:700}
+    .hp-bcard-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+    .hp-bcard-foot .hp-m{font-family:var(--font-mono);color:var(--muted);font-size:11px}
+    .hp-bcard-foot .hp-e{font-weight:700;color:var(--ink);display:inline-flex;gap:6px;align-items:center}
+    .hp-bcard:hover .hp-e{color:var(--brand)}
+
+    /* 分类目录 */
+    .hp-toc{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+    .hp-toc-row{display:flex;align-items:center;gap:18px;padding:18px 24px;border-bottom:1px solid var(--line-soft);transition:.15s}
+    .hp-toc-row:last-child{border-bottom:none}
+    .hp-toc-row:hover{background:var(--paper-2)}
+    .hp-toc-idx{font-family:var(--font-mono);font-size:12px;color:var(--muted);width:26px}
+    .hp-toc-bar{width:4px;height:30px;border-radius:3px;flex:none}
+    .hp-toc-name{font-weight:800;font-size:16px;width:108px;flex:none;color:var(--ink)}
+    .hp-toc-list{font-size:13px;color:var(--ink-soft);flex:1}
+    .hp-toc-list .hp-sep{color:var(--line);margin:0 7px}
+    .hp-toc-cnt{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:5px}
+    .hp-toc-cnt b{font-size:17px;color:var(--ink)}
+    .hp-toc-go{color:var(--muted);font-size:18px;transition:.15s}
+    .hp-toc-row:hover .hp-toc-go{color:var(--brand);transform:translateX(3px)}
+
+    /* 配套资源 */
+    .hp-supp{background:var(--paper-2)}
+    .hp-supp .hp-sec-head{border-top-color:var(--line)}
+    .hp-mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .hp-mcard{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;transition:.18s;box-shadow:var(--shadow)}
+    .hp-mcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift)}
+    .hp-mcard .hp-mi{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;color:#fff;flex:none}
+    .hp-mcard b{display:block;font-size:14.5px;font-weight:700;color:var(--ink)}
+    .hp-mcard span{font-size:12px;color:var(--muted)}
+    .hp-mcard .hp-ar{margin-left:auto;color:var(--muted);transition:.15s}
+    .hp-mcard:hover .hp-ar{color:var(--brand);transform:translate(2px,-2px)}
+    .hp-mc-no{font-family:var(--font-mono);font-size:12px;color:var(--muted);font-weight:600;flex:none}
+
+    /* 动效 */
+    @keyframes hpRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    .hp-hgrid>*>*{animation:hpRise .7s cubic-bezier(.2,.7,.3,1) backwards}
+    .hp-kicker{animation-delay:.05s}.hp-h1{animation-delay:.13s}.hp-dek{animation-delay:.22s}
+    .hp-cta{animation-delay:.3s}.hp-values{animation-delay:.38s}
+    .hp-howto{animation:hpRise .8s .26s cubic-bezier(.2,.7,.3,1) backwards}
+    .hp-reveal{opacity:0;transform:translateY(22px)}
+    .hp-reveal.hp-in{opacity:1;transform:none;transition:opacity .7s,transform .7s}
+
+    @media (max-width:900px){
+      .hp-hgrid,.hp-lead,.hp-brief,.hp-mgrid{grid-template-columns:1fr}
+      .hp-lead-left{border-right:none;border-bottom:1px solid var(--line-soft)}
+      .hp-brief{gap:14px}.hp-wrap{padding:0 22px}
+      .hp-toc-list{display:none}
+      .hp-mh-meta{display:none}
+    }
+    @media (prefers-reduced-motion:reduce){.hp-root *{animation:none!important;transition:none!important}.hp-reveal{opacity:1;transform:none}}
+    </style>
 </head>
 <body>
 <div id="main-nav"></div>
 
-<!-- Hero -->
-<section class="hero hero-split">
-    <div class="hero-content">
-        <div class="hero-text">
-            <div class="hero-meta">
-                <span class="hero-issue">No. 001 / 2026</span>
-                <span class="hero-badge"><span class="hero-badge-dot"></span>面向中小学教师的 AI 智能体平台</span>
+<main>
+<div class="hp-root">
+
+    <!-- Hero（报头带 + 标题 + 「怎么用」面板） -->
+    <section class="hp-hero">
+        <div class="hp-wrap">
+            <div class="hp-mast">
+                <span class="hp-mh-name"><i class="ph-fill ph-diamond hp-mh-mark"></i><b>AI 教研周刊</b></span>
+                <span class="hp-mh-en">TEACHER · AI · GAZETTE</span>
+                <span class="hp-mh-meta"><span>第 <b>24</b> 期</span><span>2026.06.18</span><span>本期收录 <b>19</b> 个智能体</span></span>
+                <span class="hp-mh-seal"><span class="hp-seal hp-seal-sq"><span>教</span><span>研</span><span>甄</span><span>选</span></span></span>
             </div>
-            <h1>让 <span class="highlight">AI</span> 真正<br>走进<span class="underline">你的课堂</span></h1>
-            <p>19 个为中小学教学场景打造的 AI 智能体——备课、上课、批改、家校，填好参数即出结果，生成内容还能存进「我的备课本」。</p>
-            <div class="hero-btns">
-                <a href="agents.html" class="btn-hero-primary"><i class="ph-fill ph-sparkle"></i>进入智能体空间</a>
-                <a href="#supp" class="btn-hero-secondary"><i class="ph ph-compass"></i>看看配套资源</a>
-            </div>
-            <div class="hero-values">
-                <div class="item"><i class="ph ph-robot"></i><div><b>19 个智能体</b><small>覆盖 5 大教学场景</small></div></div>
-                <div class="item"><i class="ph ph-seal-check"></i><div><b>完全免费</b><small>登录即可使用</small></div></div>
-                <div class="item"><i class="ph ph-bookmark-simple"></i><div><b>成果可沉淀</b><small>存进我的备课本</small></div></div>
+            <div class="hp-hgrid">
+                <div>
+                    <div><div class="hp-kicker"><span class="no">NO. 001 / 2026</span><span class="dot"></span><span>面向中小学教师的 AI 智能体平台</span></div></div>
+                    <div><h1 class="hp-h1">让 <span class="hp-em">AI</span> 真正<br>走进你的课堂</h1></div>
+                    <div><p class="hp-dek">19 个为中小学教学场景打造的 AI 智能体——备课、上课、批改、家校，填好参数即出结果，生成内容还能存进「我的备课本」。</p></div>
+                    <div><div class="hp-cta">
+                        <a href="agents.html" class="hp-cta-primary"><i class="ph-fill ph-sparkle"></i> 进入智能体空间</a>
+                        <a href="#hp-supp" class="hp-cta-ghost"><i class="ph ph-compass"></i> 看看配套资源</a>
+                    </div></div>
+                    <div><div class="hp-values">
+                        <div class="hp-val"><i class="ph-fill ph-robot"></i><div><b>19 个智能体</b><span>覆盖 5 大教学场景</span></div></div>
+                        <div class="hp-val"><i class="ph-fill ph-seal-check"></i><div><b>完全免费</b><span>登录即可使用</span></div></div>
+                        <div class="hp-val"><i class="ph-fill ph-notebook"></i><div><b>成果可沉淀</b><span>存进我的备课本</span></div></div>
+                    </div></div>
+                </div>
+                <div class="hp-hright">
+                    <div class="hp-howto">
+                        <div class="hp-ht-head"><i class="ph-fill ph-lightning"></i> 怎么用 · 30 秒出稿<span class="hp-kx">SO EASY</span></div>
+                        <div class="hp-ht-step"><span class="hp-ht-no">1</span><div><b>选一个智能体</b><span>按教学场景挑，如「教学设计助手」「智能出题」</span></div></div>
+                        <div class="hp-ht-step"><span class="hp-ht-no">2</span><div><b>填几个参数</b><span>学科 · 年级 · 课题，可留空让 AI 依课标拟定</span></div></div>
+                        <div class="hp-ht-step"><span class="hp-ht-no">3</span><div><b>一键生成 · 存备课本</b><span>可编辑、复制、导出 Word，随时取用</span></div></div>
+                        <div class="hp-ht-foot"><i class="ph-fill ph-gift"></i> 5 大场景 · 19 个智能体 · 完全免费</div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="hero-card">
-            <div class="kicker"><i class="ph-fill ph-sparkle"></i>AI 智能体 · 5 大场景</div>
-            <div class="hc-scenes" id="hero-scenes"></div>
+    </section>
+
+    <!-- 01 · AI 智能体 -->
+    <section class="hp-section">
+        <div class="hp-wrap">
+            <div class="hp-sec-head">
+                <span class="hp-sec-counter">01</span><span class="hp-sec-title">AI 智能体</span>
+                <span class="hp-sec-dek">按真实教学场景设计，填好参数就出结果</span>
+                <a href="agents.html" class="hp-sec-more">查看全部 19 个 <i class="ph ph-arrow-right"></i></a>
+            </div>
+
+            <!-- 头条 -->
+            <div class="hp-sub-label">本期头条 · 最受欢迎</div>
+            <a class="hp-lead hp-reveal" href="agents.html#lesson-design">
+                <div class="hp-lead-left">
+                    <span class="hp-tag" style="background:var(--c-plan-s);color:var(--c-plan)"><i class="ph-fill ph-blueprint"></i> 备课设计</span>
+                    <h3 class="hp-lead-title">教学设计助手</h3>
+                    <p class="hp-lead-dek">输入课题与学情，生成含教学目标、重难点、教学过程、板书与作业的完整教案——一节课的备课，从一句话到一份能用的稿子。</p>
+                    <div class="hp-incl">
+                        <span class="hp-incl-label">生成内容包含</span>
+                        <div class="hp-incl-chips">
+                            <span><i class="ph-bold ph-check"></i> 教学目标</span><span><i class="ph-bold ph-check"></i> 重难点</span><span><i class="ph-bold ph-check"></i> 教学过程</span><span><i class="ph-bold ph-check"></i> 板书设计</span><span><i class="ph-bold ph-check"></i> 分层作业</span>
+                        </div>
+                    </div>
+                    <div class="hp-lead-foot">
+                        <span class="hp-pill">表单 · 约 30 秒出稿</span><span class="hp-pill">可存备课本</span>
+                        <span class="hp-enter">进入工作台 <i class="ph-bold ph-arrow-right"></i></span>
+                    </div>
+                </div>
+                <div class="hp-lead-right">
+                    <span class="hp-lead-seal"><span class="hp-seal hp-seal-sm">精选</span></span>
+                    <div class="hp-sample">
+                        <div class="hp-sample-bar"><span class="hp-rd"></span><span>教学设计助手 · 生成预览</span></div>
+                        <div class="hp-sample-body">
+                            <h5>《圆的认识》· 六年级上 · 1 课时</h5>
+                            <div class="hp-mut">一、教学目标</div>
+                            　1. 认识圆心、半径、直径及其<span class="hp-hl">相互关系</span><br>
+                            　2. 会用圆规画出指定半径的圆<br>
+                            　3. 在操作中体会圆的<span class="hp-hl">对称之美</span><br>
+                            <div class="hp-mut">二、教学重难点</div>
+                            　重点：圆各部分名称与特征<br>
+                            　难点：理解半径与直径的倍数关系<br>
+                            <div class="hp-mut">三、教学过程</div>
+                            　1. 情境导入：找一找生活中的圆 …
+                            <div class="hp-sample-fade"></div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 要闻 -->
+            <div class="hp-sub-label">本期要闻 · 高频常用</div>
+            <div class="hp-brief">
+                <a class="hp-bcard hp-reveal" href="agents.html#quiz-gen">
+                    <div class="hp-bcard-top"><span class="hp-bcard-no">02</span><span class="hp-icon-chip" style="background:var(--c-assess)"><i class="ph-fill ph-exam"></i></span></div>
+                    <div class="hp-bcard-title">智能出题</div>
+                    <div class="hp-bcard-sub">作业评价 · 题目＋答案＋解析</div>
+                    <div class="hp-mini-sample"><span class="hp-hl">【单选】</span>下列各数中是最简分数的是（ ）<br>A. 6/8　B. <span class="hp-hl">3/7</span>　C. 4/10　D. 9/12</div>
+                    <div class="hp-bcard-foot"><span class="hp-m">表单</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
+                </a>
+                <a class="hp-bcard hp-reveal" href="agents.html#homework-grader">
+                    <div class="hp-bcard-top"><span class="hp-bcard-no">03</span><span class="hp-icon-chip" style="background:var(--c-assess)"><i class="ph-fill ph-check-square"></i></span></div>
+                    <div class="hp-bcard-title">作业批改助手</div>
+                    <div class="hp-bcard-sub">作业评价 · 批改＋错因＋订正</div>
+                    <div class="hp-mini-sample"><span class="hp-ok">✓ 第 1 题</span> 解题思路正确<br>✗ 第 2 题 约分有误，应为 <span class="hp-hl">3/4</span><br>订正建议：先通分再比较大小</div>
+                    <div class="hp-bcard-foot"><span class="hp-m">表单</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
+                </a>
+                <a class="hp-bcard hp-reveal" href="agents.html#parent-comm">
+                    <div class="hp-bcard-top"><span class="hp-bcard-no">04</span><span class="hp-icon-chip" style="background:var(--c-home)"><i class="ph-fill ph-chat-teardrop-text"></i></span></div>
+                    <div class="hp-bcard-title">家校沟通助手</div>
+                    <div class="hp-bcard-sub">班级家校 · 得体的沟通话术</div>
+                    <div class="hp-mini-sample">王女士您好！本周明明在课堂<br>发言积极、<span class="hp-hl">进步明显</span>，建议<br>在家多鼓励他坚持每日阅读 …</div>
+                    <div class="hp-bcard-foot"><span class="hp-m">表单</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
+                </a>
+            </div>
+
+            <!-- 分类目录 -->
+            <div class="hp-sub-label">按教学场景浏览 · 本期全目录</div>
+            <div class="hp-toc">
+                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅰ</span><span class="hp-toc-bar" style="background:var(--c-plan)"></span><span class="hp-toc-name">备课设计</span><span class="hp-toc-list">教学设计助手<span class="hp-sep">·</span>课件大纲生成<span class="hp-sep">·</span>微课脚本撰写<span class="hp-sep">·</span>情境导入设计</span><span class="hp-toc-cnt"><b>4</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
+                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅱ</span><span class="hp-toc-bar" style="background:var(--c-class)"></span><span class="hp-toc-name">课堂教学</span><span class="hp-toc-list">苏格拉底助手<span class="hp-sep">·</span>分层提问设计<span class="hp-sep">·</span>概念解释器<span class="hp-sep">·</span>课堂活动设计</span><span class="hp-toc-cnt"><b>4</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
+                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅲ</span><span class="hp-toc-bar" style="background:var(--c-assess)"></span><span class="hp-toc-name">作业评价</span><span class="hp-toc-list">智能出题<span class="hp-sep">·</span>作业批改助手<span class="hp-sep">·</span>作文评改<span class="hp-sep">·</span>单元组卷<span class="hp-sep">·</span>错题诊断</span><span class="hp-toc-cnt"><b>5</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
+                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅳ</span><span class="hp-toc-bar" style="background:var(--c-home)"></span><span class="hp-toc-name">班级家校</span><span class="hp-toc-list">家校沟通助手<span class="hp-sep">·</span>学生评语生成<span class="hp-sep">·</span>主题班会设计<span class="hp-sep">·</span>学生谈心顾问</span><span class="hp-toc-cnt"><b>4</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
+                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅴ</span><span class="hp-toc-bar" style="background:var(--c-growth)"></span><span class="hp-toc-name">教师发展</span><span class="hp-toc-list">教学反思助手<span class="hp-sep">·</span>听评课助手</span><span class="hp-toc-cnt"><b>2</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<main class="home-main">
+    <!-- 02 · 配套资源 -->
+    <section class="hp-section hp-supp" id="hp-supp">
+        <div class="hp-wrap">
+            <div class="hp-sec-head"><span class="hp-sec-counter">02</span><span class="hp-sec-title">配套资源</span><span class="hp-sec-dek">学习与素材入口，按需取用</span></div>
+            <div class="hp-mgrid">
+                <a class="hp-mcard hp-reveal" href="paths.html"><span class="hp-mc-no">01</span><span class="hp-mi" style="background:var(--c-plan)"><i class="ph-fill ph-path"></i></span><div><b>学习路径</b><span>从入门到进阶</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+                <a class="hp-mcard hp-reveal" href="articles.html"><span class="hp-mc-no">02</span><span class="hp-mi" style="background:var(--c-class)"><i class="ph-fill ph-article"></i></span><div><b>精选文章</b><span>学习指南与经验</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+                <a class="hp-mcard hp-reveal" href="tools.html"><span class="hp-mc-no">03</span><span class="hp-mi" style="background:var(--c-assess)"><i class="ph-fill ph-compass-tool"></i></span><div><b>AI资源精选</b><span>第三方 AI 产品导航</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+                <a class="hp-mcard hp-reveal" href="resources.html"><span class="hp-mc-no">04</span><span class="hp-mi" style="background:var(--c-home)"><i class="ph-fill ph-images"></i></span><div><b>课件素材</b><span>图片 / 图标 / 免抠</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+                <a class="hp-mcard hp-reveal" href="news.html"><span class="hp-mc-no">05</span><span class="hp-mi" style="background:var(--c-growth)"><i class="ph-fill ph-newspaper"></i></span><div><b>AI 资讯</b><span>前沿动态聚合</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+                <a class="hp-mcard hp-reveal" href="prompts.html"><span class="hp-mc-no">06</span><span class="hp-mi" style="background:var(--ink-soft)"><i class="ph-fill ph-chats-teardrop"></i></span><div><b>提示词库</b><span>官方＋社区共建</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+            </div>
+        </div>
+    </section>
 
-    <!-- 公告 -->
+</div><!-- /.hp-root -->
+
+<!-- 公告 / 联系 / 订阅（沿用全站既有样式，不进 hp-root 作用域） -->
+<div class="home-main">
+
     <div id="announcements-section"></div>
 
-    <!-- AI 智能体（核心橱窗） -->
-    <section class="home-section">
-        <div class="section-header section-header-row">
-            <div>
-                <h2>AI 智能体</h2>
-                <p>按真实教学场景设计，填好参数就出结果。</p>
-            </div>
-            <a href="agents.html" style="font-size:13px;color:var(--brand);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--brand);padding-bottom:3px">查看全部 <i class="ph ph-arrow-right"></i></a>
-        </div>
-        <div class="cat-sub">精选 · 最常用的几个</div>
-        <div class="home-feat-grid" id="feat-agents"></div>
-        <div class="cat-sub">按教学场景</div>
-        <div class="home-cat-grid" id="cat-agents"></div>
-    </section>
-
-    <!-- 配套资源（下沉：学习与素材入口） -->
-    <section class="home-section" id="supp">
-        <div class="section-header compact">
-            <h2>配套资源</h2>
-            <p>学习与素材入口，按需取用</p>
-        </div>
-        <div class="mini-grid">
-            <a class="mini" href="paths.html"><div class="mini-ico" style="background:#2d6a4f"><i class="ph-fill ph-path"></i></div><div><b>学习路径</b><span>从入门到进阶</span></div></a>
-            <a class="mini" href="articles.html"><div class="mini-ico" style="background:#2d4a3a"><i class="ph-fill ph-article"></i></div><div><b>精选文章</b><span>学习指南与经验</span></div></a>
-            <a class="mini" href="tools.html"><div class="mini-ico" style="background:#2c5282"><i class="ph-fill ph-compass"></i></div><div><b>AI资源精选</b><span>第三方 AI 产品导航</span></div></a>
-            <a class="mini" href="resources.html"><div class="mini-ico" style="background:#a23a3a"><i class="ph-fill ph-images"></i></div><div><b>课件素材</b><span>图片 / 图标 / 免抠</span></div></a>
-            <a class="mini" href="news.html"><div class="mini-ico" style="background:#6a4a6b"><i class="ph-fill ph-newspaper"></i></div><div><b>AI 资讯</b><span>前沿动态聚合</span></div></a>
-        </div>
-    </section>
-
-    <!-- 联系留言 -->
     <section class="contact-band" aria-labelledby="contact-band-title">
         <div class="contact-band-icon"><i class="ph-fill ph-envelope-simple"></i></div>
         <div class="contact-band-copy">
@@ -97,7 +367,6 @@
         </button>
     </section>
 
-    <!-- 邮件订阅 -->
     <section class="subscribe-section">
         <div style="max-width:560px;margin:0 auto">
             <i class="ph ph-envelope-simple" style="font-size:40px;opacity:.9;display:block;margin-bottom:16px"></i>
@@ -111,6 +380,7 @@
         </div>
     </section>
 
+</div>
 </main>
 
 <div id="main-footer"></div>
@@ -121,11 +391,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
-<script src="js/auth.js?v=20260617-guide"></script>
-<script src="js/agents-data.js?v=20260609"></script>
-<script src="js/assistant.js?v=20260617-guide"></script>
+<script src="js/auth.js?v=20260617-pwreset"></script>
+<script src="js/assistant.js?v=20260617-pwreset"></script>
 <script>
-// ===== 立即渲染导航（不等待 auth）=====
+// ===== 立即渲染导航/页脚（不等待 auth）=====
 renderNav('index');
 renderFooter();
 
@@ -140,59 +409,23 @@ DB.getAnnouncements().then(ann => {
     }
 }).catch(() => {});
 
-// ===== 智能体橱窗（数据来自 js/agents-data.js，无需 Firestore）=====
-(function renderAgents() {
-    const CATS = window.AGENT_CATS || [];
-    const CAT_MAP = Object.fromEntries(CATS.map(c => [c.key, c]));
-    const A = window.AGENTS || [];
-    if (!A.length) return;
-    const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
-    const CAT_ICON = { plan: 'ph-blueprint', class: 'ph-presentation', assess: 'ph-check-square', home: 'ph-chats-circle', growth: 'ph-trend-up' };
-
-    const feat = FEATURED.map(id => A.find(a => a.id === id)).filter(Boolean);
-    // 「热门」印章：盖在使用频率最高的 2 个上（先用种子，待真实用量返回后覆盖）
-    function paintFeat(top) {
-        document.getElementById('feat-agents').innerHTML = feat.map(a => {
-            const c = CAT_MAP[a.cat] || {};
-            const seal = top.includes(a.id) ? '<span class="seal sm card-seal">热门</span>' : '';
-            return `<a class="agent-card" style="--cat-color:${c.color}" href="agents.html#${a.id}">
-                ${seal}
-                <div class="agent-card-top">
-                    <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
-                    <div><div class="agent-card-name">${a.name}</div><div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div></div>
-                </div>
-                <div class="agent-card-desc">${a.tagline || a.desc}</div>
-                <div class="agent-card-foot"><span class="agent-chip${a.type === 'chat' ? ' chat' : ''}">${a.type === 'chat' ? '对话' : '表单'}</span><span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span></div>
-            </a>`;
-        }).join('');
-    }
-    paintFeat(['lesson-design', 'quiz-gen']);   // 种子
-    if (window.DB && DB.getTopAgents) DB.getTopAgents(2).then(top => { if (top && top.length) paintFeat(top); }).catch(() => {});
-
-    document.getElementById('cat-agents').innerHTML = CATS.map(c => {
-        const items = A.filter(a => a.cat === c.key);
-        const names = items.slice(0, 2).map(a => a.name).join('、');
-        return `<a class="mini cat-card" href="agents.html">
-            <div class="mini-ico" style="background:${c.color}"><i class="ph-fill ${CAT_ICON[c.key] || 'ph-robot'}"></i></div>
-            <div><b>${c.name} <span style="font-weight:500;color:var(--muted);font-family:var(--font-mono);font-size:12px">${items.length}</span></b><span>${names} 等</span></div>
-        </a>`;
-    }).join('');
-
-    // Hero 右侧「5 大场景」面板
-    const scenes = document.getElementById('hero-scenes');
-    if (scenes) scenes.innerHTML = CATS.map(c => {
-        const n = A.filter(a => a.cat === c.key).length;
-        return `<a class="hc-scene" href="agents.html"><span class="dot" style="background:${c.color}"></span><span class="nm">${c.name}</span><span class="n">${n}</span></a>`;
-    }).join('');
-})();
-
-// ===== auth 就绪后仅更新导航状态（不重新加载数据）=====
+// ===== auth 就绪后仅更新导航状态 =====
 onAuthReady((user) => {
     renderNav('index');
     renderFooter();
 });
 
-// ===== 工具函数 =====
+// ===== 滚动渐入 =====
+(function () {
+    const els = document.querySelectorAll('.hp-reveal');
+    if (!els.length) return;
+    const io = new IntersectionObserver((entries) => entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('hp-in'); io.unobserve(e.target); }
+    }), { threshold: .12 });
+    els.forEach(el => io.observe(el));
+})();
+
+// ===== 订阅 =====
 async function mainSubscribe() {
     if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后订阅动态')) return;
     const input = document.getElementById('main-sub-email');

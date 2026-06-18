@@ -830,6 +830,16 @@ button, input, textarea, select { font: inherit; }
     border: 1px solid #f5cfc8;
     border-left: 3px solid var(--brand);
 }
+.form-success {
+    font-size: 12.5px;
+    color: #1a7d4f;
+    background: #eaf6ef;
+    padding: 10px 14px;
+    border-radius: var(--r-sm);
+    margin-top: 10px;
+    border: 1px solid #bfe3cd;
+    border-left: 3px solid #2e9e63;
+}
 .btn-primary {
     width: 100%; padding: 14px;
     background: var(--ink);
