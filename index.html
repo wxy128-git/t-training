@@ -42,6 +42,8 @@
               mask-image:radial-gradient(120% 70% at 50% 0%,#000 45%,transparent 100%);}
     .hp-wrap{max-width:1200px;margin:0 auto;padding:0 40px;position:relative;z-index:1}
     .hp-root a{color:inherit;text-decoration:none}
+    .hp-root a.hp-cta-primary{color:var(--paper)}
+    .hp-root a.hp-sec-more{color:var(--brand)}
 
     /* 印章 */
     .hp-seal{font-family:var(--font-seal);color:#fff;background:var(--seal);
@@ -215,20 +217,20 @@
             <div class="hp-mast">
                 <span class="hp-mh-name"><i class="ph-fill ph-diamond hp-mh-mark"></i><b>AI 教研周刊</b></span>
                 <span class="hp-mh-en">TEACHER · AI · GAZETTE</span>
-                <span class="hp-mh-meta"><span>第 <b>24</b> 期</span><span>2026.06.18</span><span>本期收录 <b>19</b> 个智能体</span></span>
+                <span class="hp-mh-meta" id="hp-mast-meta"></span>
                 <span class="hp-mh-seal"><span class="hp-seal hp-seal-sq"><span>教</span><span>研</span><span>甄</span><span>选</span></span></span>
             </div>
             <div class="hp-hgrid">
                 <div>
                     <div><div class="hp-kicker"><span class="no">NO. 001 / 2026</span><span class="dot"></span><span>面向中小学教师的 AI 智能体平台</span></div></div>
                     <div><h1 class="hp-h1">让 <span class="hp-em">AI</span> 真正<br>走进你的课堂</h1></div>
-                    <div><p class="hp-dek">19 个为中小学教学场景打造的 AI 智能体——备课、上课、批改、家校，填好参数即出结果，生成内容还能存进「我的备课本」。</p></div>
+                    <div><p class="hp-dek"><span class="hp-count">19</span> 个为中小学教学场景打造的 AI 智能体——备课、上课、批改、家校，填好参数即出结果，生成内容还能存进「我的备课本」。</p></div>
                     <div><div class="hp-cta">
                         <a href="agents.html" class="hp-cta-primary"><i class="ph-fill ph-sparkle"></i> 进入智能体空间</a>
                         <a href="#hp-supp" class="hp-cta-ghost"><i class="ph ph-compass"></i> 看看配套资源</a>
                     </div></div>
                     <div><div class="hp-values">
-                        <div class="hp-val"><i class="ph-fill ph-robot"></i><div><b>19 个智能体</b><span>覆盖 5 大教学场景</span></div></div>
+                        <div class="hp-val"><i class="ph-fill ph-robot"></i><div><b><span class="hp-count">19</span> 个智能体</b><span>覆盖 5 大教学场景</span></div></div>
                         <div class="hp-val"><i class="ph-fill ph-seal-check"></i><div><b>完全免费</b><span>登录即可使用</span></div></div>
                         <div class="hp-val"><i class="ph-fill ph-notebook"></i><div><b>成果可沉淀</b><span>存进我的备课本</span></div></div>
                     </div></div>
@@ -239,7 +241,7 @@
                         <div class="hp-ht-step"><span class="hp-ht-no">1</span><div><b>选一个智能体</b><span>按教学场景挑，如「教学设计助手」「智能出题」</span></div></div>
                         <div class="hp-ht-step"><span class="hp-ht-no">2</span><div><b>填几个参数</b><span>学科 · 年级 · 课题，可留空让 AI 依课标拟定</span></div></div>
                         <div class="hp-ht-step"><span class="hp-ht-no">3</span><div><b>一键生成 · 存备课本</b><span>可编辑、复制、导出 Word，随时取用</span></div></div>
-                        <div class="hp-ht-foot"><i class="ph-fill ph-gift"></i> 5 大场景 · 19 个智能体 · 完全免费</div>
+                        <div class="hp-ht-foot"><i class="ph-fill ph-gift"></i> 5 大场景 · <span class="hp-count">19</span> 个智能体 · 完全免费</div>
                     </div>
                 </div>
             </div>
@@ -252,83 +254,20 @@
             <div class="hp-sec-head">
                 <span class="hp-sec-counter">01</span><span class="hp-sec-title">AI 智能体</span>
                 <span class="hp-sec-dek">按真实教学场景设计，填好参数就出结果</span>
-                <a href="agents.html" class="hp-sec-more">查看全部 19 个 <i class="ph ph-arrow-right"></i></a>
+                <a href="agents.html" class="hp-sec-more">查看全部 <span class="hp-count">19</span> 个 <i class="ph ph-arrow-right"></i></a>
             </div>
 
-            <!-- 头条 -->
+            <!-- 头条（JS 从 agents-data.js 渲染） -->
             <div class="hp-sub-label">本期头条 · 最受欢迎</div>
-            <a class="hp-lead hp-reveal" href="agents.html#lesson-design">
-                <div class="hp-lead-left">
-                    <span class="hp-tag" style="background:var(--c-plan-s);color:var(--c-plan)"><i class="ph-fill ph-blueprint"></i> 备课设计</span>
-                    <h3 class="hp-lead-title">教学设计助手</h3>
-                    <p class="hp-lead-dek">输入课题与学情，生成含教学目标、重难点、教学过程、板书与作业的完整教案——一节课的备课，从一句话到一份能用的稿子。</p>
-                    <div class="hp-incl">
-                        <span class="hp-incl-label">生成内容包含</span>
-                        <div class="hp-incl-chips">
-                            <span><i class="ph-bold ph-check"></i> 教学目标</span><span><i class="ph-bold ph-check"></i> 重难点</span><span><i class="ph-bold ph-check"></i> 教学过程</span><span><i class="ph-bold ph-check"></i> 板书设计</span><span><i class="ph-bold ph-check"></i> 分层作业</span>
-                        </div>
-                    </div>
-                    <div class="hp-lead-foot">
-                        <span class="hp-pill">表单 · 约 30 秒出稿</span><span class="hp-pill">可存备课本</span>
-                        <span class="hp-enter">进入工作台 <i class="ph-bold ph-arrow-right"></i></span>
-                    </div>
-                </div>
-                <div class="hp-lead-right">
-                    <span class="hp-lead-seal"><span class="hp-seal hp-seal-sm">精选</span></span>
-                    <div class="hp-sample">
-                        <div class="hp-sample-bar"><span class="hp-rd"></span><span>教学设计助手 · 生成预览</span></div>
-                        <div class="hp-sample-body">
-                            <h5>《圆的认识》· 六年级上 · 1 课时</h5>
-                            <div class="hp-mut">一、教学目标</div>
-                            　1. 认识圆心、半径、直径及其<span class="hp-hl">相互关系</span><br>
-                            　2. 会用圆规画出指定半径的圆<br>
-                            　3. 在操作中体会圆的<span class="hp-hl">对称之美</span><br>
-                            <div class="hp-mut">二、教学重难点</div>
-                            　重点：圆各部分名称与特征<br>
-                            　难点：理解半径与直径的倍数关系<br>
-                            <div class="hp-mut">三、教学过程</div>
-                            　1. 情境导入：找一找生活中的圆 …
-                            <div class="hp-sample-fade"></div>
-                        </div>
-                    </div>
-                </div>
-            </a>
+            <div id="hp-lead-slot"></div>
 
             <!-- 要闻 -->
             <div class="hp-sub-label">本期要闻 · 高频常用</div>
-            <div class="hp-brief">
-                <a class="hp-bcard hp-reveal" href="agents.html#quiz-gen">
-                    <div class="hp-bcard-top"><span class="hp-bcard-no">02</span><span class="hp-icon-chip" style="background:var(--c-assess)"><i class="ph-fill ph-exam"></i></span></div>
-                    <div class="hp-bcard-title">智能出题</div>
-                    <div class="hp-bcard-sub">作业评价 · 题目＋答案＋解析</div>
-                    <div class="hp-mini-sample"><span class="hp-hl">【单选】</span>下列各数中是最简分数的是（ ）<br>A. 6/8　B. <span class="hp-hl">3/7</span>　C. 4/10　D. 9/12</div>
-                    <div class="hp-bcard-foot"><span class="hp-m">表单</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
-                </a>
-                <a class="hp-bcard hp-reveal" href="agents.html#homework-grader">
-                    <div class="hp-bcard-top"><span class="hp-bcard-no">03</span><span class="hp-icon-chip" style="background:var(--c-assess)"><i class="ph-fill ph-check-square"></i></span></div>
-                    <div class="hp-bcard-title">作业批改助手</div>
-                    <div class="hp-bcard-sub">作业评价 · 批改＋错因＋订正</div>
-                    <div class="hp-mini-sample"><span class="hp-ok">✓ 第 1 题</span> 解题思路正确<br>✗ 第 2 题 约分有误，应为 <span class="hp-hl">3/4</span><br>订正建议：先通分再比较大小</div>
-                    <div class="hp-bcard-foot"><span class="hp-m">表单</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
-                </a>
-                <a class="hp-bcard hp-reveal" href="agents.html#parent-comm">
-                    <div class="hp-bcard-top"><span class="hp-bcard-no">04</span><span class="hp-icon-chip" style="background:var(--c-home)"><i class="ph-fill ph-chat-teardrop-text"></i></span></div>
-                    <div class="hp-bcard-title">家校沟通助手</div>
-                    <div class="hp-bcard-sub">班级家校 · 得体的沟通话术</div>
-                    <div class="hp-mini-sample">王女士您好！本周明明在课堂<br>发言积极、<span class="hp-hl">进步明显</span>，建议<br>在家多鼓励他坚持每日阅读 …</div>
-                    <div class="hp-bcard-foot"><span class="hp-m">表单</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
-                </a>
-            </div>
+            <div class="hp-brief" id="hp-brief-slot"></div>
 
             <!-- 分类目录 -->
             <div class="hp-sub-label">按教学场景浏览 · 本期全目录</div>
-            <div class="hp-toc">
-                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅰ</span><span class="hp-toc-bar" style="background:var(--c-plan)"></span><span class="hp-toc-name">备课设计</span><span class="hp-toc-list">教学设计助手<span class="hp-sep">·</span>课件大纲生成<span class="hp-sep">·</span>微课脚本撰写<span class="hp-sep">·</span>情境导入设计</span><span class="hp-toc-cnt"><b>4</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
-                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅱ</span><span class="hp-toc-bar" style="background:var(--c-class)"></span><span class="hp-toc-name">课堂教学</span><span class="hp-toc-list">苏格拉底助手<span class="hp-sep">·</span>分层提问设计<span class="hp-sep">·</span>概念解释器<span class="hp-sep">·</span>课堂活动设计</span><span class="hp-toc-cnt"><b>4</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
-                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅲ</span><span class="hp-toc-bar" style="background:var(--c-assess)"></span><span class="hp-toc-name">作业评价</span><span class="hp-toc-list">智能出题<span class="hp-sep">·</span>作业批改助手<span class="hp-sep">·</span>作文评改<span class="hp-sep">·</span>单元组卷<span class="hp-sep">·</span>错题诊断</span><span class="hp-toc-cnt"><b>5</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
-                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅳ</span><span class="hp-toc-bar" style="background:var(--c-home)"></span><span class="hp-toc-name">班级家校</span><span class="hp-toc-list">家校沟通助手<span class="hp-sep">·</span>学生评语生成<span class="hp-sep">·</span>主题班会设计<span class="hp-sep">·</span>学生谈心顾问</span><span class="hp-toc-cnt"><b>4</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
-                <a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">Ⅴ</span><span class="hp-toc-bar" style="background:var(--c-growth)"></span><span class="hp-toc-name">教师发展</span><span class="hp-toc-list">教学反思助手<span class="hp-sep">·</span>听评课助手</span><span class="hp-toc-cnt"><b>2</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>
-            </div>
+            <div class="hp-toc" id="hp-toc-slot"></div>
         </div>
     </section>
 
@@ -393,6 +332,7 @@
 <script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260617-pwreset"></script>
 <script src="js/assistant.js?v=20260617-pwreset"></script>
+<script src="js/agents-data.js?v=20260609"></script>
 <script>
 // ===== 立即渲染导航/页脚（不等待 auth）=====
 renderNav('index');
@@ -415,7 +355,96 @@ onAuthReady((user) => {
     renderFooter();
 });
 
-// ===== 滚动渐入 =====
+// ===== 首页橱窗（动态，数据来自 js/agents-data.js；样张为按 id 的示意文案）=====
+(function renderHome() {
+    const CATS = window.AGENT_CATS || [];
+    const CMAP = Object.fromEntries(CATS.map(c => [c.key, c]));
+    const A = window.AGENTS || [];
+    const typeLabel = t => t === 'chat' ? '对话' : '表单';
+
+    // 期号（每周一期，自 2026-01-05 起算）/ 日期 / 智能体总数——全部自动
+    const issue = Math.floor((Date.now() - Date.UTC(2026, 0, 5)) / (7 * 86400000)) + 1;
+    const d = new Date();
+    const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    const N = A.length || 19;
+    document.querySelectorAll('.hp-count').forEach(e => e.textContent = N);
+    const meta = document.getElementById('hp-mast-meta');
+    if (meta) meta.innerHTML = `<span>第 <b>${issue}</b> 期</span><span>${date}</span><span>本期收录 <b>${N}</b> 个智能体</span>`;
+
+    if (!A.length) {
+        const slot = document.getElementById('hp-lead-slot');
+        if (slot) slot.innerHTML = '<a class="hp-cta-primary" href="agents.html" style="display:inline-flex">进入智能体空间 <i class="ph ph-arrow-right"></i></a>';
+        return;
+    }
+
+    // 头条 + 要闻的精选 id（要调整精选，改这里即可；卡片内容自动取自 agents-data.js）
+    const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
+    // 样张（示意文案，按智能体 id）：头条用多行、要闻用短句
+    const SAMP = {
+        'lesson-design': `<h5>《圆的认识》· 六年级上 · 1 课时</h5>
+            <div class="hp-mut">一、教学目标</div>
+            　1. 认识圆心、半径、直径及其<span class="hp-hl">相互关系</span><br>
+            　2. 会用圆规画出指定半径的圆<br>
+            　3. 在操作中体会圆的<span class="hp-hl">对称之美</span><br>
+            <div class="hp-mut">二、教学重难点</div>
+            　重点：圆各部分名称与特征<br>
+            　难点：理解半径与直径的倍数关系<br>
+            <div class="hp-mut">三、教学过程</div>
+            　1. 情境导入：找一找生活中的圆 …`,
+        'quiz-gen': `<span class="hp-hl">【单选】</span>下列各数中是最简分数的是（ ）<br>A. 6/8　B. <span class="hp-hl">3/7</span>　C. 4/10　D. 9/12`,
+        'homework-grader': `<span class="hp-ok">✓ 第 1 题</span> 解题思路正确<br>✗ 第 2 题 约分有误，应为 <span class="hp-hl">3/4</span><br>订正建议：先通分再比较大小`,
+        'parent-comm': `王女士您好！本周明明在课堂<br>发言积极、<span class="hp-hl">进步明显</span>，建议<br>在家多鼓励他坚持每日阅读 …`
+    };
+    const INCL = { 'lesson-design': ['教学目标', '重难点', '教学过程', '板书设计', '分层作业'] };
+
+    // 头条 = FEATURED[0]
+    const la = A.find(a => a.id === FEATURED[0]);
+    if (la) {
+        const c = CMAP[la.cat] || {};
+        const chips = (INCL[la.id] || []).map(x => `<span><i class="ph-bold ph-check"></i> ${x}</span>`).join('');
+        document.getElementById('hp-lead-slot').innerHTML = `
+            <a class="hp-lead hp-reveal" href="agents.html#${la.id}">
+                <div class="hp-lead-left">
+                    <span class="hp-tag" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${la.icon}"></i> ${c.name}</span>
+                    <h3 class="hp-lead-title">${la.name}</h3>
+                    <p class="hp-lead-dek">${la.desc}</p>
+                    ${chips ? `<div class="hp-incl"><span class="hp-incl-label">生成内容包含</span><div class="hp-incl-chips">${chips}</div></div>` : ''}
+                    <div class="hp-lead-foot"><span class="hp-pill">${typeLabel(la.type)} · 约 30 秒出稿</span><span class="hp-pill">可存备课本</span><span class="hp-enter">进入工作台 <i class="ph-bold ph-arrow-right"></i></span></div>
+                </div>
+                <div class="hp-lead-right">
+                    <span class="hp-lead-seal"><span class="hp-seal hp-seal-sm">精选</span></span>
+                    <div class="hp-sample">
+                        <div class="hp-sample-bar"><span class="hp-rd"></span><span>${la.name} · 生成预览</span></div>
+                        <div class="hp-sample-body">${SAMP[la.id] || la.desc}<div class="hp-sample-fade"></div></div>
+                    </div>
+                </div>
+            </a>`;
+    }
+
+    // 要闻 = FEATURED[1..3]
+    document.getElementById('hp-brief-slot').innerHTML = FEATURED.slice(1, 4).map((id, i) => {
+        const a = A.find(x => x.id === id);
+        if (!a) return '';
+        const c = CMAP[a.cat] || {};
+        return `<a class="hp-bcard hp-reveal" href="agents.html#${a.id}">
+            <div class="hp-bcard-top"><span class="hp-bcard-no">0${i + 2}</span><span class="hp-icon-chip" style="background:${c.color}"><i class="ph-fill ${a.icon}"></i></span></div>
+            <div class="hp-bcard-title">${a.name}</div>
+            <div class="hp-bcard-sub">${c.name} · ${a.tagline || ''}</div>
+            <div class="hp-mini-sample">${SAMP[id] || a.desc}</div>
+            <div class="hp-bcard-foot"><span class="hp-m">${typeLabel(a.type)}</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
+        </a>`;
+    }).join('');
+
+    // 分类目录（全部分类 + 各自智能体名 + 数量，全自动）
+    const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ'];
+    document.getElementById('hp-toc-slot').innerHTML = CATS.map((c, i) => {
+        const items = A.filter(a => a.cat === c.key);
+        const names = items.map(a => a.name).join('<span class="hp-sep">·</span>');
+        return `<a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">${ROMAN[i] || (i + 1)}</span><span class="hp-toc-bar" style="background:${c.color}"></span><span class="hp-toc-name">${c.name}</span><span class="hp-toc-list">${names}</span><span class="hp-toc-cnt"><b>${items.length}</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>`;
+    }).join('');
+})();
+
+// ===== 滚动渐入（在橱窗渲染之后，覆盖动态注入的卡片）=====
 (function () {
     const els = document.querySelectorAll('.hp-reveal');
     if (!els.length) return;
