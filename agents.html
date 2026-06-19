@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能体空间 · AI 教师培训中心</title>
-    <meta name="description" content="为中小学教师打造的 AI 智能体工作台：教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通等一线场景，填参数即用。">
+    <meta name="description" content="为中小学教师打造的 AI 智能体工作台：教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通等一线场景，AI 起草初稿、教师修改定稿。">
     <meta property="og:title" content="智能体空间 · 教师 AI 工作台">
     <meta property="og:description" content="教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通——为中小学教师设计的一批即用 AI 智能体。">
     <meta property="og:type" content="website">
@@ -186,7 +186,7 @@
         <span class="seal agents-head-seal">甄选</span>
         <div class="page-kicker">Agents · 教师 AI 工作台</div>
         <h1 class="page-title">智能体<em>空间</em></h1>
-        <p class="page-sub">把常见的教学任务交给专门调教过的 AI 智能体——从教学设计、微课脚本到智能出题、作业批改、家校沟通。选一个，填上你的信息，一键得到可用的初稿。</p>
+        <p class="page-sub">把常见的教学任务交给专门调教过的 AI 智能体——从教学设计、微课脚本到智能出题、作业批改、家校沟通。选一个，给出你的要点，AI 起草初稿，你再打磨定稿。</p>
     </div>
 
     <div class="agents-toolbar">
@@ -232,7 +232,7 @@
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260617-pwreset"></script>
-<script src="js/agents-data.js?v=20260609"></script>
+<script src="js/agents-data.js?v=20260619-prompts"></script>
 <script>
 /* ===================================================================
    智能体空间 · 页面逻辑
@@ -280,7 +280,7 @@ function cardHtml(a, allowSeal, featured) {
         </div>
         <div class="agent-card-desc">${a.desc}</div>
         <div class="agent-card-foot">
-            <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : '一键生成'}</span>
+            <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : 'AI 起草'}</span>
             <span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span>
         </div>
     </div>`;

@@ -53,20 +53,21 @@
         .wb-modal-body { padding: 24px; overflow-y: auto; }
 
         /* markdown 渲染（弹层内） */
-        .wb-md { color: var(--text); font-size: 14.5px; line-height: 1.8; }
-        .wb-md h1, .wb-md h2, .wb-md h3 { color: var(--ink); font-weight: 800; line-height: 1.3; margin: 1.2em 0 0.5em; }
-        .wb-md h1 { font-size: 1.5em; } .wb-md h2 { font-size: 1.3em; } .wb-md h3 { font-size: 1.12em; }
+        .wb-md { color: var(--text); font-size: 14.5px; line-height: 1.9; }
+        .wb-md h1 { font-size: 1.5em; font-weight: 800; color: var(--ink); line-height: 1.3; text-align: center; margin: 0.2em 0 0.7em; }
+        .wb-md h2 { font-size: 1.25em; font-weight: 700; color: var(--ink); line-height: 1.3; margin: 1.4em 0 0.5em; padding: 2px 0 2px 12px; border-left: 4px solid var(--brand); }
+        .wb-md h3 { font-size: 1.1em; font-weight: 700; color: var(--brand-dark); margin: 1.1em 0 0.4em; }
         .wb-md p { margin: 0.6em 0; }
-        .wb-md ul, .wb-md ol { padding-left: 1.4em; margin: 0.6em 0; }
-        .wb-md li { margin: 0.3em 0; }
-        .wb-md strong { color: var(--ink); font-weight: 700; }
+        .wb-md ul, .wb-md ol { padding-left: 1.7em; margin: 0.6em 0; }
+        .wb-md li { margin: 0.35em 0; }
+        .wb-md strong { color: var(--brand-dark); font-weight: 700; }
         .wb-md code { background: var(--soft-2); padding: 1px 6px; border-radius: 5px; font-family: var(--font-mono); font-size: 0.9em; }
         .wb-md pre { background: var(--soft-2); padding: 14px 16px; border-radius: 10px; overflow-x: auto; }
         .wb-md pre code { background: none; padding: 0; }
-        .wb-md blockquote { border-left: 3px solid var(--brand); padding-left: 14px; color: var(--text-soft); margin: 0.8em 0; }
-        .wb-md table { border-collapse: collapse; width: 100%; margin: 0.8em 0; font-size: 0.95em; }
-        .wb-md th, .wb-md td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
-        .wb-md th { background: var(--soft-2); font-weight: 700; }
+        .wb-md blockquote { border-left: 3px solid var(--brand); background: var(--brand-soft); padding: 8px 14px; color: var(--text-soft); margin: 0.9em 0; border-radius: 0 8px 8px 0; }
+        .wb-md table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+        .wb-md th, .wb-md td { border: 1px solid var(--line); padding: 8px 11px; text-align: left; vertical-align: top; }
+        .wb-md th { background: var(--soft-2); font-weight: 700; color: var(--ink); }
     </style>
 </head>
 <body>
@@ -155,6 +156,7 @@ function renderWorks() {
             <div class="wb-card-actions">
                 <button onclick="viewWork('${w.id}')"><i class="ph ph-eye"></i> 查看</button>
                 <button onclick="copyWork('${w.id}')"><i class="ph ph-copy"></i> 复制</button>
+                <button onclick="exportPdf('${w.id}')"><i class="ph ph-file-pdf"></i> PDF</button>
                 <button onclick="exportWord('${w.id}')"><i class="ph ph-file-doc"></i> Word</button>
                 <button onclick="exportMd('${w.id}')"><i class="ph ph-file-text"></i> MD</button>
                 <button onclick="doRename('${w.id}')"><i class="ph ph-pencil-simple"></i> 重命名</button>
@@ -176,10 +178,51 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 function copyWork(id) { const w = findWork(id); if (!w) return; navigator.clipboard.writeText(w.content || '').then(() => showToast('已复制到剪贴板 ✓')); }
 function exportMd(id) { const w = findWork(id); if (!w) return; downloadBlob(safeName(w.title) + '.md', new Blob([w.content || ''], { type: 'text/markdown;charset=utf-8' })); }
+
+// 「教学文稿」排版样式：宋体正文 + 黑体标题 + 朱红点睛 + 表格/引用 + 落款；导出 Word / PDF 共用
+function docStyles() {
+    return `
+        @page { margin: 2.2cm 2.4cm; }
+        * { box-sizing: border-box; }
+        body { font-family: "Songti SC","SimSun","宋体",serif; font-size: 15px; line-height: 1.9; color: #1a1612; max-width: 800px; margin: 0 auto; padding: 28px; background: #fff; }
+        .doc-meta { text-align: right; font-family: "Heiti SC","SimHei","微软雅黑",sans-serif; font-size: 11px; color: #8a7d6d; letter-spacing: .04em; border-bottom: 2px solid #c0392b; padding-bottom: 8px; margin-bottom: 26px; }
+        h1 { font-family: "Heiti SC","SimHei","微软雅黑",sans-serif; font-size: 24px; font-weight: 800; color: #1a1612; line-height: 1.3; text-align: center; margin: .2em 0 .8em; }
+        h2 { font-family: "Heiti SC","SimHei","微软雅黑",sans-serif; font-size: 18px; font-weight: 700; color: #1a1612; margin: 1.5em 0 .6em; padding: 2px 0 2px 12px; border-left: 4px solid #c0392b; }
+        h3 { font-family: "Heiti SC","SimHei","微软雅黑",sans-serif; font-size: 15.5px; font-weight: 700; color: #9a2b1f; margin: 1.2em 0 .4em; }
+        p { margin: .65em 0; text-align: justify; }
+        ul, ol { margin: .5em 0; padding-left: 1.9em; }
+        li { margin: .38em 0; }
+        strong { color: #9a2b1f; font-weight: 700; }
+        em { color: #574a3d; font-style: italic; }
+        blockquote { border-left: 3px solid #c0392b; background: #fbeae6; padding: 9px 15px; margin: 1em 0; color: #574a3d; }
+        table { width: 100%; border-collapse: collapse; margin: 1.1em 0; font-size: 14px; }
+        th, td { border: 1px solid #d9cdb8; padding: 8px 11px; text-align: left; vertical-align: top; }
+        th { background: #f3ede0; font-weight: 700; color: #1a1612; }
+        hr { border: none; border-top: 1px solid #d9cdb8; margin: 1.5em 0; }
+        code { font-family: "Courier New",monospace; background: #f3ede0; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+        pre { background: #f3ede0; padding: 12px 15px; border-radius: 8px; overflow-x: auto; }
+        pre code { background: none; padding: 0; }
+        .doc-foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid #d9cdb8; text-align: right; font-family: "Heiti SC","SimHei","微软雅黑",sans-serif; font-size: 11px; color: #8a7d6d; }
+        .doc-foot .seal { display: inline-block; border: 1.5px solid #c0392b; color: #c0392b; font-family: "KaiTi","STKaiti","楷体",serif; font-weight: 700; padding: 3px 9px; border-radius: 4px; margin-left: 10px; letter-spacing: 3px; }
+    `;
+}
+function docHtml(w) {
+    const meta = `AI 教师培训中心 · ${escapeHtml(w.agentName || '智能体')} · ${fmtDate(w.updatedAt || w.createdAt)}`;
+    return `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(w.title || '文稿')}</title><style>${docStyles()}</style></head><body><div class="doc-meta">${meta}</div>${mdToHtml(w.content)}<div class="doc-foot">本文由 AI 起草、教师修改定稿<span class="seal">教研甄选</span></div></body></html>`;
+}
 function exportWord(id) {
     const w = findWork(id); if (!w) return;
-    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(w.title)}</title></head><body>${mdToHtml(w.content)}</body></html>`;
-    downloadBlob(safeName(w.title) + '.doc', new Blob(['﻿', html], { type: 'application/msword' }));
+    downloadBlob(safeName(w.title) + '.doc', new Blob(['﻿', docHtml(w)], { type: 'application/msword' }));
+}
+function exportPdf(id) {
+    const w = findWork(id); if (!w) return;
+    const win = window.open('', '_blank');
+    if (!win) { showToast('请允许弹出窗口后重试'); return; }
+    win.document.write(docHtml(w));
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 350);
+    showToast('已打开打印窗口，选「另存为 PDF」即可');
 }
 
 async function doRename(id) {
