@@ -63,6 +63,23 @@
         .featured-grid .agent-card { border-color: var(--brand-soft); }
         .featured-grid .agent-card::before { opacity: .5; background: var(--brand); }
 
+        /* 朱印：实心款，与首页一致（2026-06-19 深修）——覆盖 style.css 的描边款 */
+        .seal { font-family: "STKaiti","Kaiti SC","KaiTi","STSong","Songti SC",serif;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: auto; height: auto; padding: 5px 9px; border: none; border-radius: 5px;
+            color: #fff; background: #c8402e; font-size: 13px; font-weight: 700; letter-spacing: 1px;
+            line-height: 1; transform: rotate(-7deg); position: relative;
+            box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5), inset 0 0 0 3px #c8402e; }
+        .seal::before { display: none; }
+        .seal::after { content: ""; position: absolute; inset: 0; border-radius: 5px;
+            background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), transparent 60%); mix-blend-mode: screen; }
+        .seal.sm { width: auto; height: auto; padding: 4px 8px; font-size: 12px; }
+        .card-seal { position: absolute; top: 12px; right: 12px; z-index: 2; }
+        /* 页眉甄选印 */
+        .agents-head { position: relative; }
+        .agents-head-seal { position: absolute; top: 4px; right: 2px; }
+        @media (max-width: 600px) { .agents-head-seal { display: none; } }
+
         /* ===== 工作台 ===== */
         .ws-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; }
         .ws-top { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
@@ -165,7 +182,8 @@
 <main id="view-home" style="max-width:1240px;margin:0 auto;padding:48px 24px 88px">
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
 
-    <div style="margin-bottom:8px">
+    <div class="agents-head" style="margin-bottom:8px">
+        <span class="seal agents-head-seal">甄选</span>
         <div class="page-kicker">Agents · 教师 AI 工作台</div>
         <h1 class="page-title">智能体<em>空间</em></h1>
         <p class="page-sub">把常见的教学任务交给专门调教过的 AI 智能体——从教学设计、微课脚本到智能出题、作业批改、家校沟通。选一个，填上你的信息，一键得到可用的初稿。</p>
@@ -244,11 +262,13 @@ function setCat(key) {
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
 
-function cardHtml(a, allowSeal) {
+function cardHtml(a, allowSeal, featured) {
     const c = CAT_MAP[a.cat];
-    // 「热门」印章：盖在「使用频率最高的 N 个」智能体上；常用推荐行传 false 以免同一智能体重复盖印
-    const seal = (allowSeal !== false && (window.TOP_AGENTS || []).includes(a.id))
-        ? '<span class="seal sm card-seal">热门</span>' : '';
+    // 精选区盖「精选」印；其余按使用频率给 Top-N 盖「热门」印（常用推荐行传 allowSeal=false 避免重复）
+    const seal = featured
+        ? '<span class="seal sm card-seal">精选</span>'
+        : ((allowSeal !== false && (window.TOP_AGENTS || []).includes(a.id))
+            ? '<span class="seal sm card-seal">热门</span>' : '');
     return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
         ${seal}
         <div class="agent-card-top">
@@ -284,7 +304,7 @@ function renderHome() {
                 <span class="sec-title">常用推荐</span>
                 <span class="sec-sub">不知从哪开始？先试这几个</span>
             </div>
-            <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, false)).join('')}</div>
+            <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, false, true)).join('')}</div>
         </div>`;
     }
     CATS.forEach(c => {
