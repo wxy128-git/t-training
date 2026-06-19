@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-pwreset">
+    <link rel="stylesheet" href="css/style.css?v=20260619-texture">
     <style>
     /* ===== 首页报头带重设计（2026-06-18 · 朱印风 · 全部 hp- 前缀 + 令牌限定 .hp-root，互不污染） ===== */
     .hp-root{
@@ -344,7 +344,7 @@ DB.getAnnouncements().then(ann => {
         document.getElementById('announcements-section').innerHTML = `
             <section>
                 <div class="section-header"><h2>📢 平台公告</h2></div>
-                ${ann.map(a => `<div class="announcement"><strong>${a.title}</strong><p>${a.content}</p><small style="color:#6366f1;font-size:11px">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</small></div>`).join('')}
+                ${ann.map(a => `<div class="announcement"><strong>${a.title}</strong><p>${a.content}</p><small style="color:var(--muted);font-size:11px">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</small></div>`).join('')}
             </section>`;
     }
 }).catch(() => {});

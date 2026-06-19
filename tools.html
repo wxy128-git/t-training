@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/tools.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/tools.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-pwreset">
+    <link rel="stylesheet" href="css/style.css?v=20260619-texture">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -26,24 +26,24 @@
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
         <div>
-            <h1 style="font-size:1.75rem;font-weight:800;color:#0f172a">AI资源精选</h1>
-            <p style="font-size:14px;color:#64748b;margin-top:4px">精选好用的第三方 AI 产品，点击直达——覆盖备课、出题、创作全流程</p>
+            <h1 style="font-size:1.75rem;font-weight:800;color:var(--ink)">AI资源精选</h1>
+            <p style="font-size:14px;color:var(--muted);margin-top:4px">精选好用的第三方 AI 产品，点击直达——覆盖备课、出题、创作全流程</p>
         </div>
         <div style="position:relative">
-            <i class="ph ph-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8"></i>
+            <i class="ph ph-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)"></i>
             <input id="search" type="text" placeholder="搜索工具名称或描述…" oninput="renderTools()" style="padding:9px 14px 9px 36px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;width:min(240px, calc(100vw - 32px));font-family:inherit;outline:none;transition:all 0.15s" onfocus="this.style.borderColor='#4F46E5';this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow=''">
         </div>
     </div>
 
     <div class="filter-bar" id="filter-bar"></div>
 
-    <div style="font-size:13px;color:#94a3b8;margin-bottom:16px" id="count-label"></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px" id="count-label"></div>
 
     <!-- 默认「全部」按分类分组陈列；搜索或选具体分类时切换到下面的单层网格 -->
     <div id="tools-grouped"></div>
     <div class="cards-grid cards-grid-4" id="tools-grid" style="display:none"></div>
 
-    <div id="empty-state" style="display:none;text-align:center;padding:60px 20px;color:#94a3b8">
+    <div id="empty-state" style="display:none;text-align:center;padding:60px 20px;color:var(--muted)">
         <i class="ph ph-magnifying-glass" style="font-size:48px;display:block;margin-bottom:12px"></i>
         <p style="font-size:15px;font-weight:500">没有找到匹配的工具</p>
         <p style="font-size:13px;margin-top:4px">换个关键词试试</p>
@@ -88,10 +88,10 @@ function toolCardHTML(t) {
                 <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
                 <div class="tool-card-arrow"><i class="ph-bold ph-arrow-up-right" style="font-size:11px"></i></div>
             </div>
-            <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px">${t.name}</div>
-            <div style="font-size:12px;color:#64748b;line-height:1.6;flex:1">${t.desc}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px">${t.name}</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;flex:1">${t.desc}</div>
             <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f8fafc">
-                <span style="font-size:11px;color:#94a3b8">${CAT_LABELS[t.category]||'其他'}</span>
+                <span style="font-size:11px;color:var(--muted)">${CAT_LABELS[t.category]||'其他'}</span>
             </div>
         </a>`;
 }

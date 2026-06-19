@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/articles.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/articles.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-pwreset">
+    <link rel="stylesheet" href="css/style.css?v=20260619-texture">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -92,7 +92,7 @@ function renderArticles() {
     const grid = document.getElementById('articles-grid');
 
     if (!list.length) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#94a3b8">
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--muted)">
             <i class="ph ph-article" style="font-size:56px;display:block;margin-bottom:16px"></i>
             <p style="font-size:16px;font-weight:600;margin-bottom:6px">暂无文章</p>
             <p style="font-size:13px">敬请期待更多内容</p>

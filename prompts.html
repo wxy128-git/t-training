@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/prompts.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/prompts.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-pwreset">
+    <link rel="stylesheet" href="css/style.css?v=20260619-texture">
     <style>
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
         .page-title { font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
@@ -108,7 +108,7 @@
                 <button class="btn-primary" id="cp-submit-btn" onclick="submitCommunityPrompt()" style="flex:1">提交</button>
                 <button onclick="closeCommunityModal()" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
             </div>
-            <p style="font-size:12px;color:#94a3b8;margin-top:10px;text-align:center">提交后由管理员审核，通过后对所有教师可见</p>
+            <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">提交后由管理员审核，通过后对所有教师可见</p>
         </div>
     </div>
 </div>
@@ -174,8 +174,8 @@ async function renderOfficial() {
                 <div class="prompt-card-title">
                     <div class="prompt-icon ${p.bg} ${p.color}"><i class="ph-fill ${p.icon}"></i></div>
                     <div>
-                        <div style="font-size:14px;font-weight:700;color:#0f172a">${p.label}</div>
-                        <div style="font-size:11px;color:#94a3b8;margin-top:1px">点击复制后直接粘贴使用</div>
+                        <div style="font-size:14px;font-weight:700;color:var(--ink)">${p.label}</div>
+                        <div style="font-size:11px;color:var(--muted);margin-top:1px">点击复制后直接粘贴使用</div>
                     </div>
                 </div>
                 <button class="copy-btn" onclick="copyPrompt(this,${JSON.stringify(p.text)})"><i class="ph ph-copy"></i>复制</button>
@@ -187,7 +187,7 @@ async function renderOfficial() {
 let _communityPrompts = [];
 async function renderCommunity() {
     const grid = document.getElementById('community-grid');
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8"><i class="ph ph-spinner" style="font-size:32px;display:block;margin-bottom:8px"></i>加载中…</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)"><i class="ph ph-spinner" style="font-size:32px;display:block;margin-bottom:8px"></i>加载中…</div>`;
     _communityPrompts = await DB.getCommunityPrompts('approved');
 
     // Check if user has pending submissions
@@ -198,7 +198,7 @@ async function renderCommunity() {
     }
 
     if (!_communityPrompts.length) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8">
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)">
             <i class="ph ph-chat-dots" style="font-size:48px;display:block;margin-bottom:12px"></i>
             <p style="font-size:15px;font-weight:600;margin-bottom:6px">社区提示词库还是空的</p>
             <p style="font-size:13px">成为第一个投稿的教师吧！</p>

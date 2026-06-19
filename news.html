@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/news.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/news.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260617-pwreset">
+    <link rel="stylesheet" href="css/style.css?v=20260619-texture">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -91,7 +91,7 @@ function showSkeletons(n = 9) {
 function renderItems(items) {
     const grid = document.getElementById('news-grid');
     if (!items || items.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8">
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)">
             <i class="ph ph-wifi-slash" style="font-size:48px;display:block;margin-bottom:12px"></i>
             <p style="font-size:15px;font-weight:500;margin-bottom:6px">资讯获取失败</p>
             <p style="font-size:13px">可能是网络问题，请稍后点击"刷新"重试</p>

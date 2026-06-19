@@ -69,6 +69,16 @@ body {
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ss01" 1;
 }
+/* 全站稿纸纹理（2026-06-19 · 与首页呼应的轻量一致层；固定、极淡、顶部加重） */
+body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(26,22,18,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,22,18,0.022) 1px, transparent 1px);
+    background-size: 27px 27px;
+    -webkit-mask-image: linear-gradient(#000, #000 32%, transparent 88%);
+            mask-image: linear-gradient(#000, #000 32%, transparent 88%);
+}
 .display, .display-serif {
     font-family: var(--font-display);
 }
