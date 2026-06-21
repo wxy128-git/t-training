@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>课堂工具 · AI 教师培训中心</title>
-    <meta name="description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、课堂音效、简易白板。">
+    <meta name="description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、简易白板。">
     <meta property="og:title" content="课堂互动小工具集">
-    <meta property="og:description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、课堂音效、简易白板。">
+    <meta property="og:description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、简易白板。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://xylaoshi.pages.dev/classroom-tools.html">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/classroom.jpg">
@@ -364,27 +364,6 @@
             .ct-seating-stage { position: absolute; left: 0; top: 0; width: 100%; border: none; }
         }
 
-        /* Applause */
-        .ct-applause-wrap { padding: 12px 0; }
-        .ct-applause-intro { text-align: center; font-size: 14px; color: var(--muted); margin: 0 0 28px; }
-        .ct-applause-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-        .ct-sound-btn {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 8px; padding: 26px 16px;
-            background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md);
-            cursor: pointer; font-family: inherit;
-            transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
-            min-height: 130px;
-        }
-        .ct-sound-btn:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-        .ct-sound-btn.playing { background: var(--brand); border-color: var(--brand); color: var(--soft); transform: scale(0.97); }
-        .ct-sound-btn i { font-size: 32px; color: var(--brand); transition: color 0.15s; }
-        .ct-sound-btn.playing i { color: var(--soft); }
-        .ct-sound-btn span { font-size: 15px; font-weight: 700; color: var(--ink); }
-        .ct-sound-btn.playing span { color: var(--soft); }
-        .ct-sound-btn em { font-style: normal; font-size: 11.5px; color: var(--muted); font-weight: 500; }
-        .ct-sound-btn.playing em { color: rgba(250,247,240,0.85); }
-
         /* Whiteboard */
         .ct-wb-wrap { display: flex; flex-direction: column; gap: 14px; }
         .ct-wb-toolbar {
@@ -431,6 +410,35 @@
             box-shadow: inset 0 2px 6px rgba(0,0,0,0.04);
         }
         #wb-canvas { display: block; cursor: crosshair; touch-action: none; }
+
+        /* 量规 Rubric */
+        .ct-rb-wrap { display: flex; flex-direction: column; gap: 18px; }
+        .ct-rb-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .ct-rb-select { padding: 9px 14px; font-size: 13.5px; font-family: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; }
+        .ct-rb-table { width: 100%; border-collapse: collapse; background: var(--paper); border-radius: var(--r-md); overflow: hidden; box-shadow: 0 1px 2px rgba(26,22,18,.05); }
+        .ct-rb-table th, .ct-rb-table td { border: 1px solid var(--line); padding: 12px 14px; text-align: left; vertical-align: top; font-size: 14px; line-height: 1.6; }
+        .ct-rb-table thead th { background: var(--ink); color: var(--soft); font-weight: 700; }
+        .ct-rb-table thead th:first-child { background: var(--ink); }
+        .ct-rb-table tbody td:first-child { background: var(--soft-2); font-weight: 700; color: var(--ink); width: 110px; }
+        .ct-rb-table [contenteditable] { outline: none; min-height: 1.4em; }
+        .ct-rb-table [contenteditable]:focus { background: var(--brand-soft); border-radius: 4px; }
+        .ct-rb-table [contenteditable]:empty::before { content: attr(data-ph); color: var(--subtle); }
+
+        /* 课堂活动模板 Routine */
+        .ct-rt-wrap { display: flex; flex-direction: column; gap: 18px; }
+        .ct-rt-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ct-rt-tab { padding: 9px 18px; font-size: 13.5px; font-weight: 500; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; cursor: pointer; font-family: inherit; transition: all .15s; }
+        .ct-rt-tab:hover { color: var(--ink); border-color: var(--subtle); }
+        .ct-rt-tab.active { background: var(--ink); color: var(--soft); border-color: var(--ink); font-weight: 600; }
+        .ct-rt-grid { display: grid; gap: 16px; }
+        .ct-rt-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        @media (max-width: 820px) { .ct-rt-grid.cols-3 { grid-template-columns: 1fr; } }
+        .ct-rt-col { display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; box-shadow: 0 1px 2px rgba(26,22,18,.05); }
+        .ct-rt-col-head { padding: 13px 16px; font-weight: 700; font-size: 15px; color: var(--soft); display: flex; align-items: center; gap: 8px; }
+        .ct-rt-col-head .ct-rt-badge { font-family: var(--font-mono); font-size: 12px; opacity: .85; }
+        .ct-rt-col-sub { font-size: 12px; color: var(--muted); padding: 8px 16px 0; }
+        .ct-rt-area { flex: 1; min-height: 200px; border: none; outline: none; resize: vertical; padding: 14px 16px; font-family: inherit; font-size: 14.5px; line-height: 1.85; color: var(--ink); background: transparent; }
+        .ct-rt-area::placeholder { color: var(--subtle); }
     </style>
 </head>
 <body>
@@ -480,16 +488,22 @@
                 <div class="ct-tool-desc">按指定行列生成座位表，自动安排花名册并可一键洗牌、点击两个座位互换。</div>
                 <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
             </div>
-            <div class="ct-tool-card" data-tool="applause">
-                <div class="ct-tool-icon" style="background:#fbe8e4;color:#c0392b"><i class="ph-fill ph-hands-clapping"></i></div>
-                <div class="ct-tool-name">课堂音效</div>
-                <div class="ct-tool-desc">鼓掌、欢呼、上下课铃、计时结束、提示音——课堂常用音效一键播放。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
             <div class="ct-tool-card" data-tool="whiteboard">
                 <div class="ct-tool-icon" style="background:#e6eef7;color:#2c5282"><i class="ph-fill ph-pen-nib"></i></div>
                 <div class="ct-tool-name">简易白板</div>
                 <div class="ct-tool-desc">投影时随手批注、画重点。多色画笔、橡皮、清空、撤销、保存为图片。</div>
+                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
+            </div>
+            <div class="ct-tool-card" data-tool="rubric">
+                <div class="ct-tool-icon" style="background:#e7ede8;color:#2d6a4f"><i class="ph-fill ph-list-checks"></i></div>
+                <div class="ct-tool-name">评价量规</div>
+                <div class="ct-tool-desc">把"评价维度 × 等级"做成清晰量规挂大屏，学习目标全程可见。内置作文/口语/小组合作模板，可编辑、可打印。</div>
+                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
+            </div>
+            <div class="ct-tool-card" data-tool="routine">
+                <div class="ct-tool-icon" style="background:#efe7f2;color:#7a4f86"><i class="ph-fill ph-tree-structure"></i></div>
+                <div class="ct-tool-name">课堂活动模板</div>
+                <div class="ct-tool-desc">内置 KWL、3-2-1 反思、思考·配对·分享等思维结构，当堂在大屏上填写、引导深度学习，可打印。</div>
                 <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
             </div>
         </div>
@@ -529,8 +543,9 @@ const TOOLS = {
     balls:      { title: '音量监测',   mount: mountBalls },
     groups:     { title: '随机分组',   mount: mountGroups },
     seating:    { title: '座位表',     mount: mountSeating },
-    applause:   { title: '课堂音效',   mount: mountApplause },
-    whiteboard: { title: '简易白板',   mount: mountWhiteboard }
+    whiteboard: { title: '简易白板',   mount: mountWhiteboard },
+    rubric:     { title: '评价量规',   mount: mountRubric },
+    routine:    { title: '课堂活动模板', mount: mountRoutine }
 };
 
 document.querySelectorAll('.ct-tool-card').forEach(card => {
@@ -1484,120 +1499,6 @@ function mountSeating(root) {
     return () => {};
 }
 
-/* ============== 7. 课堂音效 ============== */
-function mountApplause(root) {
-    root.innerHTML = `
-        <div class="ct-applause-wrap">
-            <p class="ct-applause-intro">点击任意按钮播放对应音效。可投影到大屏使用，营造课堂氛围。</p>
-            <div class="ct-applause-grid">
-                <button class="ct-sound-btn" data-sound="applause"><i class="ph-fill ph-hands-clapping"></i><span>掌声</span><em>鼓掌欢迎</em></button>
-                <button class="ct-sound-btn" data-sound="cheer"><i class="ph-fill ph-confetti"></i><span>欢呼</span><em>庆祝时刻</em></button>
-                <button class="ct-sound-btn" data-sound="bell"><i class="ph-fill ph-bell-ringing"></i><span>上课铃</span><em>清脆铃声</em></button>
-                <button class="ct-sound-btn" data-sound="chime"><i class="ph-fill ph-musical-notes"></i><span>提示音</span><em>注意听讲</em></button>
-                <button class="ct-sound-btn" data-sound="timeup"><i class="ph-fill ph-alarm"></i><span>时间到</span><em>限时结束</em></button>
-                <button class="ct-sound-btn" data-sound="drumroll"><i class="ph-fill ph-drum"></i><span>鼓点</span><em>悬念预热</em></button>
-                <button class="ct-sound-btn" data-sound="correct"><i class="ph-fill ph-check-circle"></i><span>答对了</span><em>积极反馈</em></button>
-                <button class="ct-sound-btn" data-sound="wrong"><i class="ph-fill ph-x-circle"></i><span>再想想</span><em>温和提示</em></button>
-            </div>
-        </div>`;
-
-    let ctx = null;
-    function ac() { return ctx || (ctx = new (window.AudioContext || window.webkitAudioContext)()); }
-
-    function envelope(g, a, p, d, t, gain) {
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(gain, t + a);
-        g.gain.exponentialRampToValueAtTime(Math.max(0.0001, gain * 0.4), t + a + p);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + a + p + d);
-    }
-
-    function tone(freq, t, dur, gain, type='sine') {
-        const c = ac();
-        const o = c.createOscillator();
-        const g = c.createGain();
-        o.type = type; o.frequency.setValueAtTime(freq, t);
-        o.connect(g); g.connect(c.destination);
-        envelope(g, 0.01, dur * 0.3, dur * 0.6, t, gain);
-        o.start(t); o.stop(t + dur + 0.1);
-    }
-
-    function noise(t, dur, gain, filterFreq=2000) {
-        const c = ac();
-        const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
-        const data = buf.getChannelData(0);
-        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-        const src = c.createBufferSource(); src.buffer = buf;
-        const flt = c.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = filterFreq;
-        const g = c.createGain();
-        src.connect(flt); flt.connect(g); g.connect(c.destination);
-        envelope(g, 0.01, dur * 0.4, dur * 0.5, t, gain);
-        src.start(t); src.stop(t + dur + 0.1);
-    }
-
-    const sounds = {
-        applause: () => {
-            const t0 = ac().currentTime;
-            // 12 sharp claps, varied
-            for (let i = 0; i < 20; i++) {
-                noise(t0 + i * 0.1 + Math.random() * 0.04, 0.12, 0.16 + Math.random() * 0.06, 2200);
-            }
-        },
-        cheer: () => {
-            const t0 = ac().currentTime;
-            // rising chord + crowd
-            [261.6, 329.6, 392, 523.2].forEach((f, i) => tone(f, t0 + i * 0.08, 0.9, 0.12, 'triangle'));
-            for (let i = 0; i < 10; i++) noise(t0 + 0.2 + i * 0.08, 0.18, 0.08, 1800);
-        },
-        bell: () => {
-            const t0 = ac().currentTime;
-            [880, 1320, 1760].forEach((f, i) => {
-                const c = ac(); const o = c.createOscillator(); const g = c.createGain();
-                o.type = 'sine'; o.frequency.value = f;
-                o.connect(g); g.connect(c.destination);
-                const t = t0 + i * 0.05;
-                g.gain.setValueAtTime(0.0001, t);
-                g.gain.exponentialRampToValueAtTime(0.22 / (i + 1), t + 0.01);
-                g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
-                o.start(t); o.stop(t + 2);
-            });
-        },
-        chime: () => {
-            const t0 = ac().currentTime;
-            [523.25, 659.25, 784].forEach((f, i) => tone(f, t0 + i * 0.13, 0.5, 0.18, 'sine'));
-        },
-        timeup: () => {
-            const t0 = ac().currentTime;
-            for (let i = 0; i < 4; i++) tone(880, t0 + i * 0.35, 0.22, 0.25, 'square');
-        },
-        drumroll: () => {
-            const t0 = ac().currentTime;
-            for (let i = 0; i < 28; i++) noise(t0 + i * 0.05, 0.06, 0.14, 400);
-            tone(220, t0 + 1.5, 0.4, 0.3, 'sawtooth');
-        },
-        correct: () => {
-            const t0 = ac().currentTime;
-            [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, t0 + i * 0.09, 0.25, 0.18, 'triangle'));
-        },
-        wrong: () => {
-            const t0 = ac().currentTime;
-            [349.23, 311.13, 277.18].forEach((f, i) => tone(f, t0 + i * 0.18, 0.32, 0.18, 'sawtooth'));
-        }
-    };
-
-    root.querySelectorAll('.ct-sound-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const fn = sounds[btn.dataset.sound];
-            if (fn) {
-                fn();
-                btn.classList.add('playing');
-                setTimeout(() => btn.classList.remove('playing'), 600);
-            }
-        });
-    });
-
-    return () => { if (ctx) ctx.close().catch(()=>{}); ctx = null; };
-}
-
 /* ============== 8. 简易白板 ============== */
 function mountWhiteboard(root) {
     root.innerHTML = `
@@ -1756,6 +1657,190 @@ function mountWhiteboard(root) {
         window.removeEventListener('mouseup', end);
         if (ro) ro.disconnect();
     };
+}
+
+/* ============== 共用：打印 / 导出 PDF（教学文稿排版） ============== */
+function ctPrint(title, bodyHtml) {
+    const win = window.open('', '_blank');
+    if (!win) { alert('请允许弹出窗口后重试'); return; }
+    win.document.write(`<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${title}</title><style>
+        @page { margin: 1.8cm 2cm; }
+        * { box-sizing: border-box; }
+        body { font-family:"Songti SC","SimSun","宋体",serif; color:#1a1612; max-width:920px; margin:0 auto; padding:24px; }
+        h1 { font-family:"Heiti SC","SimHei","微软雅黑",sans-serif; font-size:23px; text-align:center; margin:0 0 6px; }
+        .sub { text-align:center; font-size:11.5px; color:#8a7d6d; margin-bottom:24px; letter-spacing:.04em; font-family:"Heiti SC","SimHei",sans-serif; }
+        table { width:100%; border-collapse:collapse; font-size:14px; }
+        th,td { border:1px solid #d9cdb8; padding:9px 12px; text-align:left; vertical-align:top; line-height:1.65; }
+        thead th { background:#1a1612; color:#faf7f0; font-weight:700; }
+        tbody td:first-child { background:#f3ede0; font-weight:700; width:96px; }
+        .rt { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+        .rt .c { border:1px solid #d9cdb8; border-radius:8px; overflow:hidden; }
+        .rt .h { padding:9px 13px; font-weight:700; color:#fff; font-family:"Heiti SC","SimHei",sans-serif; }
+        .rt .b { padding:13px; white-space:pre-wrap; min-height:140px; font-size:13.5px; line-height:1.85; }
+    </style></head><body>${bodyHtml}</body></html>`);
+    win.document.close(); win.focus();
+    setTimeout(() => win.print(), 320);
+}
+
+/* ============== 9. 评价量规 ============== */
+function mountRubric(root) {
+    const KEY = 'ctRubric';
+    const LV3 = ['优秀', '良好', '合格'], LV4 = ['优秀', '良好', '合格', '待改进'];
+    const TPL = {
+        '作文': { levels: LV3.slice(), rows: [
+            { dim: '内容立意', cells: ['中心突出，选材新颖典型', '中心明确，选材恰当', '有中心，选材基本合理'] },
+            { dim: '结构条理', cells: ['层次清晰，过渡自然', '结构完整，条理较清', '结构基本完整'] },
+            { dim: '语言表达', cells: ['准确生动，有文采', '通顺得体', '基本通顺，偶有语病'] },
+            { dim: '书写规范', cells: ['卷面整洁，标点正确', '较整洁，标点基本正确', '尚可，有少量错漏'] }
+        ]},
+        '口语表达': { levels: LV3.slice(), rows: [
+            { dim: '内容', cells: ['切题充实，观点鲜明', '切题，较充实', '基本切题'] },
+            { dim: '流利度', cells: ['流利自然', '较流利，偶有停顿', '停顿较多'] },
+            { dim: '语音语调', cells: ['标准，抑扬得当', '较标准', '基本清楚'] },
+            { dim: '仪态', cells: ['大方自信，有交流感', '较自然', '略拘谨'] }
+        ]},
+        '小组合作': { levels: LV3.slice(), rows: [
+            { dim: '任务完成', cells: ['准确完整，有创见', '按要求完成', '基本完成'] },
+            { dim: '合作参与', cells: ['人人投入，分工明确', '多数参与', '少数主导'] },
+            { dim: '交流表达', cells: ['清晰有条理，能补充他人', '能说清要点', '表达不够清楚'] },
+            { dim: '时间管理', cells: ['高效，按时完成', '基本按时', '略超时'] }
+        ]},
+        '空白': { levels: LV3.slice(), rows: [
+            { dim: '维度一', cells: ['', '', ''] }, { dim: '维度二', cells: ['', '', ''] }, { dim: '维度三', cells: ['', '', ''] }
+        ]}
+    };
+    let model;
+    try { model = JSON.parse(localStorage.getItem(KEY)); } catch {}
+    if (!model || !Array.isArray(model.levels) || !Array.isArray(model.rows)) model = JSON.parse(JSON.stringify(TPL['作文']));
+
+    root.innerHTML = `
+        <div class="ct-rb-wrap">
+            <div class="ct-rb-controls">
+                <select class="ct-rb-select" id="rb-tpl">
+                    <option value="">载入模板…</option>
+                    <option value="作文">作文评价</option>
+                    <option value="口语表达">口语表达</option>
+                    <option value="小组合作">小组合作</option>
+                    <option value="空白">空白量规</option>
+                </select>
+                <select class="ct-rb-select" id="rb-lv">
+                    <option value="3">3 个等级</option>
+                    <option value="4">4 个等级</option>
+                </select>
+                <button class="ct-btn-secondary" id="rb-addrow">＋维度</button>
+                <button class="ct-btn-secondary" id="rb-delrow">－维度</button>
+                <button class="ct-btn-secondary" id="rb-print"><i class="ph ph-printer"></i> 打印 / PDF</button>
+            </div>
+            <table class="ct-rb-table" id="rb-table"></table>
+            <p class="ct-seating-hint">点单元格直接编辑 · 自动保存 · 「打印/PDF」导出成稿</p>
+        </div>`;
+
+    const table = root.querySelector('#rb-table');
+    const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(model)); } catch {} };
+
+    function render() {
+        root.querySelector('#rb-lv').value = String(model.levels.length);
+        const head = `<thead><tr><th>评价维度</th>${model.levels.map((l, j) => `<th contenteditable data-l="${j}" data-ph="等级">${esc(l)}</th>`).join('')}</tr></thead>`;
+        const body = `<tbody>${model.rows.map((r, i) => `<tr><td contenteditable data-r="${i}" data-c="dim" data-ph="维度">${esc(r.dim)}</td>${r.cells.map((c, j) => `<td contenteditable data-r="${i}" data-c="${j}" data-ph="描述该等级的表现">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+        table.innerHTML = head + body;
+    }
+
+    table.addEventListener('input', e => {
+        const el = e.target.closest('[contenteditable]');
+        if (!el) return;
+        if (el.dataset.l !== undefined) model.levels[+el.dataset.l] = el.textContent;
+        else if (el.dataset.c === 'dim') model.rows[+el.dataset.r].dim = el.textContent;
+        else model.rows[+el.dataset.r].cells[+el.dataset.c] = el.textContent;
+        save();
+    });
+    root.querySelector('#rb-tpl').addEventListener('change', e => {
+        const v = e.target.value; if (!v) return;
+        model = JSON.parse(JSON.stringify(TPL[v])); save(); render(); e.target.value = '';
+    });
+    root.querySelector('#rb-lv').addEventListener('change', e => {
+        const n = +e.target.value, names = n === 4 ? LV4 : LV3, old = model.levels;
+        model.levels = names.map((nm, i) => old[i] || nm);
+        model.rows.forEach(r => { while (r.cells.length < n) r.cells.push(''); r.cells = r.cells.slice(0, n); });
+        save(); render();
+    });
+    root.querySelector('#rb-addrow').addEventListener('click', () => { model.rows.push({ dim: '', cells: model.levels.map(() => '') }); save(); render(); });
+    root.querySelector('#rb-delrow').addEventListener('click', () => { if (model.rows.length > 1) { model.rows.pop(); save(); render(); } });
+    root.querySelector('#rb-print').addEventListener('click', () => {
+        const head = `<tr><th>评价维度</th>${model.levels.map(l => `<th>${esc(l)}</th>`).join('')}</tr>`;
+        const body = model.rows.map(r => `<tr><td>${esc(r.dim)}</td>${r.cells.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('');
+        ctPrint('评价量规', `<h1>评价量规</h1><div class="sub">AI 教师培训中心 · 课堂工具</div><table><thead>${head}</thead><tbody>${body}</tbody></table>`);
+    });
+
+    render();
+    return () => {};
+}
+
+/* ============== 10. 课堂活动模板（思维结构） ============== */
+function mountRoutine(root) {
+    const KEY = 'ctRoutine';
+    let st;
+    try { st = JSON.parse(localStorage.getItem(KEY)); } catch {}
+    if (!st || typeof st !== 'object') st = { type: 'kwl' };
+
+    const ROUT = {
+        kwl: { name: 'KWL 表格', cols: [
+            { c: '#2c5282', t: 'K · 我已经知道', s: '关于这个主题，我们已知什么？' },
+            { c: '#b08642', t: 'W · 我想知道', s: '还想弄清楚哪些问题？' },
+            { c: '#2d6a4f', t: 'L · 我学到了', s: '学完后，我们学到了什么？' }
+        ]},
+        '321': { name: '3-2-1 反思', cols: [
+            { c: '#2d6a4f', t: '3 个收获', s: '这节课最大的三个收获' },
+            { c: '#b08642', t: '2 个疑问', s: '还没弄懂、想继续追问的两点' },
+            { c: '#c0392b', t: '1 个行动', s: '课后我打算做的一件事' }
+        ]},
+        tps: { name: '思考 · 配对 · 分享', cols: [
+            { c: '#574a3d', t: '① 独立思考', s: '先自己想，写下初步想法' },
+            { c: '#2c5282', t: '② 同桌配对', s: '和同桌交流、互相补充' },
+            { c: '#c0392b', t: '③ 全班分享', s: '推选代表，分享小组结论' }
+        ]}
+    };
+
+    root.innerHTML = `
+        <div class="ct-rt-wrap">
+            <div class="ct-rt-tabs">
+                <button class="ct-rt-tab" data-t="kwl">KWL 表格</button>
+                <button class="ct-rt-tab" data-t="321">3-2-1 反思</button>
+                <button class="ct-rt-tab" data-t="tps">思考·配对·分享</button>
+                <button class="ct-btn-secondary" id="rt-print" style="margin-left:auto"><i class="ph ph-printer"></i> 打印 / PDF</button>
+            </div>
+            <div class="ct-rt-grid cols-3" id="rt-grid"></div>
+            <p class="ct-seating-hint">当堂在大屏上填写 · 自动保存 · 「打印/PDF」导出</p>
+        </div>`;
+
+    const grid = root.querySelector('#rt-grid');
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} };
+
+    function render() {
+        root.querySelectorAll('.ct-rt-tab').forEach(b => b.classList.toggle('active', b.dataset.t === st.type));
+        const cols = ROUT[st.type].cols, vals = st[st.type] || [];
+        grid.innerHTML = cols.map((col, i) => `<div class="ct-rt-col">
+            <div class="ct-rt-col-head" style="background:${col.c}">${esc(col.t)}</div>
+            <div class="ct-rt-col-sub">${esc(col.s)}</div>
+            <textarea class="ct-rt-area" data-i="${i}" placeholder="点此输入…">${esc(vals[i] || '')}</textarea>
+        </div>`).join('');
+    }
+
+    grid.addEventListener('input', e => {
+        const ta = e.target.closest('.ct-rt-area'); if (!ta) return;
+        if (!Array.isArray(st[st.type])) st[st.type] = [];
+        st[st.type][+ta.dataset.i] = ta.value; save();
+    });
+    root.querySelectorAll('.ct-rt-tab').forEach(b => b.addEventListener('click', () => { st.type = b.dataset.t; save(); render(); }));
+    root.querySelector('#rt-print').addEventListener('click', () => {
+        const cols = ROUT[st.type].cols, vals = st[st.type] || [];
+        const body = cols.map((col, i) => `<div class="c"><div class="h" style="background:${col.c}">${esc(col.t)}</div><div class="b">${esc(vals[i] || '')}</div></div>`).join('');
+        ctPrint(ROUT[st.type].name, `<h1>${esc(ROUT[st.type].name)}</h1><div class="sub">AI 教师培训中心 · 课堂工具</div><div class="rt">${body}</div>`);
+    });
+
+    render();
+    return () => {};
 }
 </script>
 <script src="js/assistant.js?v=20260617-pwreset"></script>

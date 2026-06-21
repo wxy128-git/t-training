@@ -194,7 +194,9 @@ Single-page experience. Home grid shows tool cards; clicking one swaps in its UI
 
 **优化 (2026-06-19)** — ① 功能清晰度：**「音浪小球」显示名改为「音量监测」**（卡片名 + `TOOLS.balls.title` + meta；id 仍是 `balls`），说明改成用途优先「监测课堂音量、提醒安静」；转盘说明点明用于"奖励/游戏/选答案"并与随机点名区分。② 大屏高级感（重点 4 工具）：倒计时加**圆形进度环**（`.ct-cd-ring`/`#cd-prog`，`paint()` 里更新 `stroke-dashoffset`，间隔 200ms）；随机点名右侧改白卡 + 柔影、占位换图标空状态（`.ct-pk-empty`）、抽中回弹（`ct-land`）；转盘加投影 + 中奖结果卡（`.ct-wheel-win`）；座位表讲台改深色讲台牌、座位改白色椅卡 + 柔影 + 悬停上浮、地面用 `--soft`。另：**导航「智能体空间」`nav-feature` 简约化**（去常亮朱红底块与脉冲，改为朱红文字 + ✦ 图标，hover/active 才 `brand-soft` 底）；`css/style.css?v=20260619-nav`。
 
-The eight tools:
+**新增 (2026-06-21，借鉴 ketang.cool 的教学法、单屏化创新)** — **评价量规** (`mountRubric`, `rubric`) + **课堂活动模板** (`mountRoutine`, `routine`)；共用打印助手 `ctPrint(title, bodyHtml)`（开新窗 + 教学文稿样式 + `window.print()` → 另存 PDF）。（叠加同日删除「课堂音效」后）现共 **9 个工具**。⚠️ 维护提醒：这两个工具的 CSS 在 `<head>` 内联 `<style>` 末尾（`.ct-rb-*` / `.ct-rt-*`），mount 函数在底部 `<script>` 末尾（会 hoist）。
+
+The nine tools（「课堂音效」`applause`/`mountApplause` 已于 2026-06-21 删除——属低频气氛道具，按用户要求移除）:
 
 1. **倒计时** — mono-numeric display **inside a circular SVG progress ring** (`.ct-cd-ring`, depletes as time runs), 1/3/5/10/15-min presets + custom MM:SS, start/pause/resume/reset, last 10s pulse (ring+number turn cinnabar), 3-beep AudioContext chime at zero.
 2. **随机点名** — roster textarea (any whitespace/punctuation separator), spinning ticker before landing, white result card + iconified empty state + bounce reveal, "抽过不再抽" mode with chip-list history. Roster persists in `localStorage` (`ctPickerRoster`).
@@ -202,8 +204,9 @@ The eight tools:
 4. **音量监测**（原「音浪小球」） — microphone-driven bouncing visualization for classroom-noise awareness; four themes (ball / bubble / emoji / number). See "音浪小球 details" below.
 5. **随机分组** — fisher-yates shuffle + round-robin OR per-group chunking. Roster persists in `localStorage` (`ctGroupsRoster`).
 6. **座位表** — grid of `rows × cols` filled from a roster, click two seats to swap, prints via `window.print()` with `@media print` rules hiding everything else.
-7. **课堂音效** — eight buttons, all sounds synthesized with Web Audio (no audio files): applause / cheer / bell / chime / time-up / drumroll / correct / wrong.
-8. **简易白板** — 6-color palette + 4 brush sizes + eraser + undo (40-frame snapshot stack) + clear + save PNG. Supports both pointer and touch input. ResizeObserver preserves the drawing across fullscreen toggles.
+7. **简易白板** — 6-color palette + 4 brush sizes + eraser + undo (40-frame snapshot stack) + clear + save PNG. Supports both pointer and touch input. ResizeObserver preserves the drawing across fullscreen toggles.
+8. **评价量规** (`mountRubric`, `rubric`) — editable rubric grid (criteria × 优/良/合格, 可切 3/4 等级)，内置作文/口语表达/小组合作/空白模板，contenteditable 单元格 + 加减维度；`localStorage` (`ctRubric`)；「打印/PDF」经 `ctPrint`。借鉴 ketang「量规」但做成纯教师端可编辑+导出。
+9. **课堂活动模板** (`mountRoutine`, `routine`) — 思维结构脚手架：KWL / 3-2-1 反思 / 思考·配对·分享，三栏彩色标题 + 引导语 + 大输入区，当堂填写；`localStorage` (`ctRoutine`)；「打印/PDF」经 `ctPrint`。把 ketang 的 KWL/3-2-1/思享汇合并为一个可切换工具。
 
 ### 音浪小球 details
 
