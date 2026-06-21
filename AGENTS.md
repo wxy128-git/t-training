@@ -198,7 +198,7 @@ The eight tools:
 
 1. **倒计时** — mono-numeric display **inside a circular SVG progress ring** (`.ct-cd-ring`, depletes as time runs), 1/3/5/10/15-min presets + custom MM:SS, start/pause/resume/reset, last 10s pulse (ring+number turn cinnabar), 3-beep AudioContext chime at zero.
 2. **随机点名** — roster textarea (any whitespace/punctuation separator), spinning ticker before landing, white result card + iconified empty state + bounce reveal, "抽过不再抽" mode with chip-list history. Roster persists in `localStorage` (`ctPickerRoster`).
-3. **转盘抽奖** — Hi-DPI canvas wheel using the editorial palette, cubic-ease 4.2s deceleration, top pointer, auto-truncated labels, drop-shadow rim + cinnabar 中奖 result card (`.ct-wheel-win`).
+3. **小组计分板** (`mountScore`, data-tool `score`) — classroom points: 2–10 group cards, each with editable name + big mono score + −1/＋1/＋5 buttons; leader card auto-gets 👑 + cinnabar highlight; reset-to-zero; **persists to `localStorage` (`ctScoreGroups`)**. Score/count clicks full-re-render; name edits update on `input` without re-render (keeps focus). **(替换了原「转盘抽奖」`mountWheel`，2026-06-20 删除——与随机点名重复、低频。)**
 4. **音量监测**（原「音浪小球」） — microphone-driven bouncing visualization for classroom-noise awareness; four themes (ball / bubble / emoji / number). See "音浪小球 details" below.
 5. **随机分组** — fisher-yates shuffle + round-robin OR per-group chunking. Roster persists in `localStorage` (`ctGroupsRoster`).
 6. **座位表** — grid of `rows × cols` filled from a roster, click two seats to swap, prints via `window.print()` with `@media print` rules hiding everything else.

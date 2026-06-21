@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>课堂工具 · AI 教师培训中心</title>
-    <meta name="description" content="教师课堂常用互动小工具：倒计时、随机点名、转盘抽奖、音量监测、随机分组、座位表、课堂音效、简易白板。">
+    <meta name="description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、课堂音效、简易白板。">
     <meta property="og:title" content="课堂互动小工具集">
-    <meta property="og:description" content="教师课堂常用互动小工具：倒计时、随机点名、转盘抽奖、音量监测、随机分组、座位表、课堂音效、简易白板。">
+    <meta property="og:description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、课堂音效、简易白板。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://xylaoshi.pages.dev/classroom-tools.html">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/classroom.jpg">
@@ -174,24 +174,25 @@
         .ct-picker-history { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; justify-content: center; }
         .ct-history-chip { font-size: 12px; padding: 3px 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
 
-        /* Wheel */
-        .ct-wheel-wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; align-items: center; }
-        @media (max-width: 820px) { .ct-wheel-wrap { grid-template-columns: 1fr; } }
-        .ct-wheel-canvas-box { position: relative; display: flex; justify-content: center; }
-        #ct-wheel-canvas { max-width: 100%; height: auto; cursor: pointer; border-radius: 50%; box-shadow: 0 10px 38px -16px rgba(26,22,18,0.45); }
-        .ct-wheel-pointer {
-            position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 30px solid var(--ink);
-            filter: drop-shadow(0 4px 8px rgba(26,22,18,0.3));
-            z-index: 2;
-        }
-        .ct-wheel-result { text-align: center; font-size: 13.5px; color: var(--muted); min-height: 1.5em; }
-        .ct-wheel-result strong { color: var(--brand); font-size: 26px; font-weight: 800; display: block; }
-        .ct-wheel-win { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 30px; background: var(--brand-soft); border: 1px solid #f0c9c2; border-radius: 14px; animation: ct-land .5s cubic-bezier(.2,.7,.2,1); }
-        .ct-wheel-win-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--brand); }
+        /* 小组计分板 */
+        .ct-score-wrap { display: flex; flex-direction: column; gap: 20px; }
+        .ct-score-controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+        .ct-score-num { font-family: var(--font-mono); font-size: 16px; font-weight: 700; min-width: 26px; text-align: center; }
+        .ct-score-cnt { padding: 6px 15px; font-size: 17px; line-height: 1; }
+        .ct-score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+        .ct-score-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 26px 18px 20px; box-shadow: 0 1px 2px rgba(26,22,18,0.05); transition: border-color .18s, box-shadow .18s; }
+        .ct-score-card.leading { border-color: var(--brand); box-shadow: 0 12px 32px -16px rgba(192,57,43,0.45); }
+        .ct-score-crown { position: absolute; top: -15px; font-size: 26px; opacity: 0; transform: scale(.5); transition: opacity .25s, transform .25s; }
+        .ct-score-card.leading .ct-score-crown { opacity: 1; transform: scale(1); }
+        .ct-score-name { width: 100%; text-align: center; font-size: 16px; font-weight: 700; color: var(--ink); background: transparent; border: none; border-radius: 7px; padding: 4px 6px; font-family: inherit; }
+        .ct-score-name:hover { background: var(--soft-2); }
+        .ct-score-name:focus { background: var(--soft-2); outline: 2px solid var(--brand-soft); }
+        .ct-score-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: clamp(48px, 7vmin, 84px); font-weight: 700; color: var(--ink); line-height: 1; transition: color .18s; }
+        .ct-score-card.leading .ct-score-val { color: var(--brand); }
+        .ct-score-btns { display: flex; gap: 8px; width: 100%; justify-content: center; }
+        .ct-score-btns button { flex: 1; max-width: 60px; padding: 9px 0; font-size: 15px; font-weight: 700; font-family: var(--font-mono); border: 1px solid var(--line); background: var(--paper); color: var(--text); border-radius: 9px; cursor: pointer; transition: all .12s; }
+        .ct-score-btns button:hover { border-color: var(--ink); }
+        .ct-score-btns button.plus:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
 
         /* Bouncy balls / sound waves */
         .ct-balls-stage {
@@ -455,10 +456,10 @@
                 <div class="ct-tool-desc">输入花名册一次,公平随机抽取学生。支持"抽过不再抽",避免重复打扰。</div>
                 <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
             </div>
-            <div class="ct-tool-card" data-tool="wheel">
-                <div class="ct-tool-icon tone-3"><i class="ph-fill ph-circle-half-tilt"></i></div>
-                <div class="ct-tool-name">转盘抽奖</div>
-                <div class="ct-tool-desc">把奖品、惩罚或任意选项写进转盘——转动揭晓、带仪式感，适合抽奖、游戏、随机选答案（抽学生点名请用「随机点名」）。</div>
+            <div class="ct-tool-card" data-tool="score">
+                <div class="ct-tool-icon tone-3"><i class="ph-fill ph-trophy"></i></div>
+                <div class="ct-tool-name">小组计分板</div>
+                <div class="ct-tool-desc">课堂积分管理：给各小组实时加减分，大号显示、领先组自动标 👑，分数自动保存。配合点名、分组、音效用。</div>
                 <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
             </div>
             <div class="ct-tool-card" data-tool="balls">
@@ -524,7 +525,7 @@ let _toolCleanup = null;
 const TOOLS = {
     countdown:  { title: '倒计时',     mount: mountCountdown },
     picker:     { title: '随机点名',   mount: mountPicker },
-    wheel:      { title: '转盘抽奖',   mount: mountWheel },
+    score:      { title: '小组计分板', mount: mountScore },
     balls:      { title: '音量监测',   mount: mountBalls },
     groups:     { title: '随机分组',   mount: mountGroups },
     seating:    { title: '座位表',     mount: mountSeating },
@@ -823,155 +824,90 @@ function mountPicker(root) {
     return () => { if (timer) clearInterval(timer); };
 }
 
-/* ============== 3. 转盘抽奖 ============== */
-function mountWheel(root) {
+/* ============== 3. 小组计分板 ============== */
+function mountScore(root) {
+    const KEY = 'ctScoreGroups';
+    let groups;
+    try { groups = JSON.parse(localStorage.getItem(KEY)); } catch {}
+    if (!Array.isArray(groups) || !groups.length) {
+        groups = [1, 2, 3, 4].map(i => ({ name: '第 ' + i + ' 组', score: 0 }));
+    }
+
     root.innerHTML = `
-        <div class="ct-wheel-wrap">
-            <div>
-                <label class="ct-input-label" style="font-weight:500">转盘选项（每行一个，2-20 项）</label>
-                <textarea class="ct-textarea" id="wh-items" style="margin-top:10px">小组一\n小组二\n小组三\n小组四\n小组五\n小组六</textarea>
-                <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
-                    <button class="ct-btn-primary" id="wh-spin">转动转盘</button>
-                    <button class="ct-btn-secondary" id="wh-reset">清空记录</button>
+        <div class="ct-score-wrap">
+            <div class="ct-score-controls">
+                <div class="ct-input-group" style="justify-content:flex-start">
+                    <span class="ct-input-label">小组数</span>
+                    <button class="ct-btn-secondary ct-score-cnt" data-cd="-1">−</button>
+                    <span class="ct-score-num" id="sc-count"></span>
+                    <button class="ct-btn-secondary ct-score-cnt" data-cd="1">＋</button>
                 </div>
-                <div class="ct-wheel-result" id="wh-result" style="margin-top:24px"></div>
+                <button class="ct-btn-secondary" id="sc-reset">分数清零</button>
             </div>
-            <div>
-                <div class="ct-wheel-canvas-box">
-                    <div class="ct-wheel-pointer"></div>
-                    <canvas id="ct-wheel-canvas" width="460" height="460"></canvas>
-                </div>
-            </div>
+            <div class="ct-score-grid" id="sc-grid"></div>
+            <p class="ct-seating-hint">点组名可改名 · 加减分自动保存 · 领先组标 👑</p>
         </div>`;
 
-    const canvas = root.querySelector('#ct-wheel-canvas');
-    const ctx = canvas.getContext('2d');
-    const textarea = root.querySelector('#wh-items');
-    const result = root.querySelector('#wh-result');
+    const grid = root.querySelector('#sc-grid');
+    const countEl = root.querySelector('#sc-count');
 
-    const PALETTE = ['#c0392b', '#2c5282', '#2d6a4f', '#b08642', '#574a3d', '#962b1f', '#3a5070', '#1e3a32', '#a05a3e', '#6e3a26'];
+    function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(groups)); } catch {} }
 
-    let items = [];
-    let angle = 0;
-    let spinning = false;
-
-    function parse() {
-        return textarea.value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 20);
+    function render() {
+        countEl.textContent = groups.length;
+        const max = Math.max(...groups.map(g => g.score));
+        grid.innerHTML = groups.map((g, i) => {
+            const lead = g.score > 0 && g.score === max ? ' leading' : '';
+            return `<div class="ct-score-card${lead}">
+                <div class="ct-score-crown">👑</div>
+                <input class="ct-score-name" data-i="${i}" value="${esc(g.name)}" maxlength="10">
+                <div class="ct-score-val">${g.score}</div>
+                <div class="ct-score-btns">
+                    <button data-i="${i}" data-d="-1">−1</button>
+                    <button class="plus" data-i="${i}" data-d="1">＋1</button>
+                    <button class="plus" data-i="${i}" data-d="5">＋5</button>
+                </div>
+            </div>`;
+        }).join('');
     }
 
-    function draw() {
-        items = parse();
-        const W = canvas.width, H = canvas.height;
-        const cx = W / 2, cy = H / 2, r = Math.min(cx, cy) - 8;
-        ctx.clearRect(0, 0, W, H);
-        if (!items.length) {
-            ctx.fillStyle = '#faf7f0';
-            ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = '#e0d9c7'; ctx.lineWidth = 1.5; ctx.stroke();
-            ctx.fillStyle = '#8a7d6d';
-            ctx.font = '16px "Plus Jakarta Sans", "Noto Sans SC", sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('请输入选项', cx, cy);
-            return;
-        }
-        const n = items.length;
-        const slice = (Math.PI * 2) / n;
-        for (let i = 0; i < n; i++) {
-            const start = angle + i * slice;
-            const end = start + slice;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, r, start, end);
-            ctx.closePath();
-            ctx.fillStyle = PALETTE[i % PALETTE.length];
-            ctx.fill();
-            ctx.strokeStyle = '#faf7f0';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+    grid.addEventListener('click', e => {
+        const btn = e.target.closest('button[data-d]');
+        if (!btn) return;
+        const i = +btn.dataset.i, d = +btn.dataset.d;
+        groups[i].score += d;
+        save(); render();
+    });
+    grid.addEventListener('input', e => {
+        const inp = e.target.closest('.ct-score-name');
+        if (!inp) return;
+        groups[+inp.dataset.i].name = inp.value;
+        save();
+    });
 
-            // label
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(start + slice / 2);
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#faf7f0';
-            const fontSize = Math.max(11, Math.min(20, 360 / Math.max(n, 6)));
-            ctx.font = `600 ${fontSize}px "Plus Jakarta Sans", "Noto Sans SC", sans-serif`;
-            let label = items[i];
-            const maxLen = Math.max(4, Math.floor(18 - n / 2));
-            if (label.length > maxLen) label = label.slice(0, maxLen) + '…';
-            ctx.fillText(label, r - 16, 0);
-            ctx.restore();
-        }
-        // hub
-        ctx.beginPath();
-        ctx.arc(cx, cy, 22, 0, Math.PI * 2);
-        ctx.fillStyle = '#1a1612';
-        ctx.fill();
-        ctx.strokeStyle = '#faf7f0';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-    }
-
-    function spin() {
-        if (spinning) return;
-        items = parse();
-        if (items.length < 2) { result.textContent = '至少需要 2 个选项'; return; }
-        spinning = true;
-        result.textContent = '转动中…';
-        const n = items.length;
-        const targetIdx = Math.floor(Math.random() * n);
-        const slice = (Math.PI * 2) / n;
-        // We want pointer (at top, -PI/2) to land in the middle of target slice.
-        const pointerAngle = -Math.PI / 2;
-        const targetMid = angle + targetIdx * slice + slice / 2;
-        // We need targetMid + extra rotations ≡ pointerAngle (mod 2PI)
-        const turns = 5 + Math.random() * 3;
-        const finalAngle = pointerAngle - (targetIdx * slice + slice / 2) - Math.PI * 2 * turns;
-        const startAngle = angle;
-        const delta = finalAngle - ((angle) % (Math.PI * 2));
-        const duration = 4200;
-        const startTime = performance.now();
-        function ease(t) { return 1 - Math.pow(1 - t, 3); }
-        function step(now) {
-            const t = Math.min(1, (now - startTime) / duration);
-            angle = startAngle + delta * ease(t);
-            draw();
-            if (t < 1) requestAnimationFrame(step);
-            else {
-                spinning = false;
-                angle = angle % (Math.PI * 2);
-                result.innerHTML = `<div class="ct-wheel-win"><span class="ct-wheel-win-kicker">🎉 中奖</span><strong>${escapeHtml(items[targetIdx])}</strong></div>`;
+    root.querySelectorAll('.ct-score-cnt').forEach(b => {
+        b.addEventListener('click', () => {
+            const d = +b.dataset.cd;
+            const n = Math.max(2, Math.min(10, groups.length + d));
+            if (n === groups.length) return;
+            if (n > groups.length) {
+                for (let i = groups.length; i < n; i++) groups.push({ name: '第 ' + (i + 1) + ' 组', score: 0 });
+            } else {
+                groups = groups.slice(0, n);
             }
-        }
-        requestAnimationFrame(step);
-    }
+            save(); render();
+        });
+    });
 
-    function escapeHtml(s) {
-        return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
+    root.querySelector('#sc-reset').addEventListener('click', () => {
+        if (!confirm('确定把所有小组分数清零？')) return;
+        groups.forEach(g => g.score = 0);
+        save(); render();
+    });
 
-    textarea.addEventListener('input', () => { if (!spinning) { angle = 0; draw(); } });
-    root.querySelector('#wh-spin').addEventListener('click', spin);
-    root.querySelector('#wh-reset').addEventListener('click', () => { result.textContent = ''; });
-    canvas.addEventListener('click', spin);
-
-    // Hi-DPI
-    function resize() {
-        const dpr = window.devicePixelRatio || 1;
-        const css = Math.min(460, canvas.parentElement.clientWidth - 16);
-        canvas.style.width = css + 'px';
-        canvas.style.height = css + 'px';
-        canvas.width = css * dpr;
-        canvas.height = css * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        draw();
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    return () => { window.removeEventListener('resize', resize); };
+    render();
+    return () => {};
 }
 
 /* ============== 4. 音浪小球 (mic-driven bouncy balls) ============== */
