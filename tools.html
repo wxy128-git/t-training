@@ -17,6 +17,33 @@
     <link rel="canonical" href="https://xylaoshi.pages.dev/tools.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/style.css?v=20260619-nav">
+    <style>
+        /* tools 页专属：网格用 auto-fit + 封顶宽度，单卡分类不再被空列包围（不动共用的 .cards-grid-4） */
+        #tools-grid, #tools-grouped .cards-grid {
+            grid-template-columns: repeat(auto-fit, minmax(208px, 244px));
+            justify-content: start;
+        }
+        @media (max-width: 600px) {
+            #tools-grid, #tools-grouped .cards-grid { grid-template-columns: 1fr; }
+        }
+        /* 卡片「前往官网」可点性 */
+        .tool-card-go { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--muted); transition: color .15s, gap .15s; }
+        .tool-card:hover .tool-card-go { color: var(--brand); gap: 8px; }
+        .tool-card:hover .tool-card-arrow { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+        /* 页眉身份 */
+        .tt-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); font-weight: 600; margin-bottom: 9px; }
+        .tt-title { font-size: 1.9rem; font-weight: 800; color: var(--ink); letter-spacing: -.02em; margin: 0; display: inline-flex; align-items: center; gap: 13px; }
+        .tt-seal { font-family: "STKaiti","Kaiti SC","KaiTi","STSong","Songti SC",serif; display: inline-flex; align-items: center; justify-content: center; padding: 3px 9px; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: #fff; background: #c8402e; border-radius: 5px; transform: rotate(-6deg); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5), inset 0 0 0 3px #c8402e; }
+        /* 卡片标签 */
+        .tt-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px; }
+        .tt-tag { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 6px; line-height: 1.55; }
+        .tt-free { background: #e7f3ec; color: #2d6a4f; }
+        .tt-neutral { background: var(--soft-2); color: var(--text-soft); }
+        .tt-paid { background: var(--soft-2); color: var(--muted); }
+        .tt-cn { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 1px 6px; }
+        .tt-os { background: #e7edf6; color: #2c5282; }
+    </style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -24,14 +51,15 @@
 <main style="max-width:1280px;margin:0 auto;padding:40px 16px">
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>AI资源精选</span></div>
 
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:16px">
         <div>
-            <h1 style="font-size:1.75rem;font-weight:800;color:var(--ink)">AI资源精选</h1>
-            <p style="font-size:14px;color:var(--muted);margin-top:4px">精选好用的第三方 AI 产品，点击直达——覆盖备课、出题、创作全流程</p>
+            <div class="tt-kicker">AI · TOOLBOX</div>
+            <h1 class="tt-title">AI 资源精选 <span class="tt-seal">甄选</span></h1>
+            <p style="font-size:14px;color:var(--muted);margin-top:10px;max-width:36em;line-height:1.7">挑过的第三方 AI 产品，按「你要做什么」归类——免费 / 中文 / 能否直接用一眼看清，点开即走。</p>
         </div>
         <div style="position:relative">
             <i class="ph ph-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)"></i>
-            <input id="search" type="text" placeholder="搜索工具名称或描述…" oninput="renderTools()" style="padding:9px 14px 9px 36px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;width:min(240px, calc(100vw - 32px));font-family:inherit;outline:none;transition:all 0.15s" onfocus="this.style.borderColor='#4F46E5';this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow=''">
+            <input id="search" type="text" placeholder="搜索工具名称或描述…" oninput="renderTools()" style="padding:9px 14px 9px 36px;border:1px solid var(--line);border-radius:10px;font-size:13px;width:min(240px, calc(100vw - 32px));font-family:inherit;outline:none;transition:all 0.15s;background:var(--paper)" onfocus="this.style.borderColor='var(--brand)';this.style.boxShadow='0 0 0 3px var(--brand-soft)'" onblur="this.style.borderColor='var(--line)';this.style.boxShadow=''">
         </div>
     </div>
 
@@ -60,8 +88,41 @@
 <script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260617-pwreset"></script>
 <script>
-const CAT_ORDER = ['teaching','creation','advanced','communication','search','dev'];
-const CAT_LABELS = { teaching:'教学辅助', creation:'内容创作', advanced:'智能进阶', communication:'家校沟通', search:'智能搜索', dev:'智能开发' };
+// 按「老师要做什么」重分类（2026-06）
+const CAT_ORDER = ['plan','make','media','platform','more'];
+const CAT_LABELS = { plan:'备课·出题·检索', make:'课件·演示·动画', media:'图像·音视频·数字人', platform:'教研·AI 平台', more:'更多工具' };
+
+// 工具元数据（按工具名）：cat=新分类 / tags=小标签。标签为先填的默认值，需核对。
+const TOOL_META = {
+    'PrompterHub':   { cat:'plan', tags:['免费','中文'] },
+    'Prompt123':     { cat:'plan', tags:['免费','中文'] },
+    '快出题':         { cat:'plan', tags:['部分免费','中文'] },
+    '秘塔搜索':       { cat:'plan', tags:['免费','中文'] },
+    'AI好记':         { cat:'plan', tags:['部分免费','中文'] },
+    'Gamma':         { cat:'make', tags:['部分免费','海外'] },
+    '讯飞智文':       { cat:'make', tags:['部分免费','中文'] },
+    '飞象老师':       { cat:'make', tags:['部分免费','中文'] },
+    'anygen.io':     { cat:'media', tags:['部分免费','中文'] },
+    'Nano Banana':   { cat:'media', tags:['免费','海外'] },
+    '即梦AI':         { cat:'media', tags:['免费','中文'] },
+    '海绵音乐':       { cat:'media', tags:['部分免费','中文'] },
+    '可灵AI':         { cat:'media', tags:['部分免费','中文'] },
+    '飞影数字人':     { cat:'media', tags:['部分免费','中文'] },
+    '棒棒糖AI听评课': { cat:'platform', tags:['部分免费','中文'] },
+    'Coze':          { cat:'platform', tags:['免费','中文'] },
+    'Flowin':        { cat:'platform', tags:['部分免费','中文'] },
+    'WorkBuddy':     { cat:'platform', tags:['部分免费','中文'] }
+};
+const TAG_CLASS = { '免费':'tt-free', '部分免费':'tt-neutral', '付费':'tt-paid', '中文':'tt-cn', '海外':'tt-os' };
+
+// 把工具的分类归一到新方案 + 附上标签（未登记的工具落入「更多工具」）
+function applyMeta(list) {
+    return (list || []).map(t => {
+        const m = TOOL_META[t.name] || {};
+        return Object.assign({}, t, { category: m.cat || 'more', _tags: m.tags || [] });
+    });
+}
+
 let currentCat = 'all';
 let _allTools = [];
 
@@ -82,16 +143,19 @@ function setCat(key, btn) {
 }
 
 function toolCardHTML(t) {
+    const tags = (t._tags || []).map(tg => `<span class="tt-tag ${TAG_CLASS[tg] || 'tt-neutral'}">${tg}</span>`).join('');
+    const tagRow = tags ? `<div class="tt-tags">${tags}</div>` : '';
     return `
         <a href="${t.url}" target="_blank" rel="noopener" class="card tool-card" style="display:flex;flex-direction:column;position:relative">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px">
                 <div class="tool-card-icon ${t.bg} ${t.color}"><i class="ph-fill ${t.icon}"></i></div>
                 <div class="tool-card-arrow"><i class="ph-bold ph-arrow-up-right" style="font-size:11px"></i></div>
             </div>
-            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px">${t.name}</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.6;flex:1">${t.desc}</div>
-            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f8fafc">
-                <span style="font-size:11px;color:var(--muted)">${CAT_LABELS[t.category]||'其他'}</span>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px">${t.name}</div>
+            <div style="font-size:12.5px;color:var(--muted);line-height:1.65;flex:1">${t.desc}</div>
+            ${tagRow}
+            <div style="margin-top:11px;padding-top:10px;border-top:1px solid var(--line-soft)">
+                <span class="tool-card-go">前往官网 <i class="ph-bold ph-arrow-right" style="font-size:11px"></i></span>
             </div>
         </a>`;
 }
@@ -141,11 +205,11 @@ renderNav('tools');
 renderFooter();
 
 // 先用本地默认渲染避免白屏；Firestore 数据到了再替换。
-_allTools = (typeof DEFAULT_TOOLS !== 'undefined') ? JSON.parse(JSON.stringify(DEFAULT_TOOLS)) : [];
+_allTools = applyMeta((typeof DEFAULT_TOOLS !== 'undefined') ? JSON.parse(JSON.stringify(DEFAULT_TOOLS)) : []);
 buildFilterBar();
 renderTools();
 DB.getTools().then(tools => {
-    _allTools = tools;
+    _allTools = applyMeta(tools);
     buildFilterBar();
     renderTools();
 });
