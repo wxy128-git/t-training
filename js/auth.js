@@ -123,8 +123,12 @@ const Auth = {
         }
     },
 
-    async login(identifier, password) {
+    async login(identifier, password, remember) {
         const { authEmail } = parseIdentifier(identifier);
+        // 「记住我」：勾选=LOCAL（关浏览器仍登录），不勾=SESSION（关浏览器即退出，公用电脑更安全）
+        try {
+            await auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION);
+        } catch {}
         if (shouldUseAuthProxyFirst()) {
             try {
                 return await callAuthProxy('login', { email: authEmail, password });
@@ -183,6 +187,7 @@ const Auth = {
             }
         }
         try {
+            try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch {}
             const cred = await auth.createUserWithEmailAndPassword(authEmail, password);
             try {
                 await cred.user.updateProfile({ displayName: name });
@@ -222,10 +227,11 @@ const Auth = {
 
     async logout() {
         forgetProxyAuthSession();
-        rememberLastAuthUser(null);  // 清除乐观渲染缓存，刷新后正确显示未登录
-        try { await auth.signOut(); } catch {}
+        rememberLastAuthUser(null);
         _currentUser = null;
-        location.reload();
+        refreshAuthUI();                                                       // 立刻显示未登录（不整页 reload）
+        document.dispatchEvent(new CustomEvent('authRefresh', { detail: null }));  // 备课本→登录门 / 后台→reload
+        try { await auth.signOut(); } catch {}                                // 后台真正登出，清 Firebase 令牌
     }
 };
 
@@ -431,7 +437,10 @@ function showAuthModal(tab) {
             <div id="form-li" class="modal-body">
                 <div class="form-group"><label class="form-label">邮箱或手机号</label><input type="text" id="li-email" class="form-input" placeholder="your@email.com 或 13800138000"></div>
                 <div class="form-group"><label class="form-label">密码</label><input type="password" id="li-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
-                <div style="text-align:right;margin-top:-4px"><button type="button" onclick="switchAuthTab('forgot')" style="background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer;padding:0;font-family:inherit">忘记密码？</button></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-soft);cursor:pointer"><input type="checkbox" id="li-remember" style="cursor:pointer">记住我<span style="color:var(--muted);font-size:11px">（公用电脑勿勾）</span></label>
+                    <button type="button" onclick="switchAuthTab('forgot')" style="background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer;padding:0;font-family:inherit;white-space:nowrap">忘记密码？</button>
+                </div>
                 <div id="li-err" class="form-error" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="li-btn" onclick="handleLogin()">登录</button></div>
                 <p class="modal-footer-text">还没有账号？<button onclick="switchAuthTab('register')">立即注册</button></p>
@@ -534,7 +543,8 @@ async function handleLogin() {
     const btn = document.getElementById('li-btn');
     err.style.display = 'none';
     btn.disabled = true; btn.textContent = '登录中…';
-    const result = await Auth.login(identifier, pwd);
+    const remember = !!document.getElementById('li-remember')?.checked;
+    const result = await Auth.login(identifier, pwd, remember);
     btn.disabled = false; btn.textContent = '登录';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
     closeAuthModal();
