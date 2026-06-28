@@ -319,7 +319,9 @@ window.requireLogin = requireLogin;
 globalThis.requireLogin = requireLogin;
 
 /* ===== 共享导航渲染 ===== */
+let _navPage = '';
 function renderNav(currentPage) {
+    if (currentPage === undefined) currentPage = _navPage; else _navPage = currentPage;  // 记住当前页，供登录后原地重渲染
     const pages = [
         { key:'index',     href:'index.html',    label:'首页' },
         { key:'agents',    href:'agents.html',   label:'智能体空间' },
@@ -483,11 +485,15 @@ function switchAuthTab(tab) {
     }
 }
 
+// 登录/注册成功后，原地更新导航/页脚（不整页 reload）
+function refreshAuthUI() {
+    try { renderNav(); } catch {}
+    try { renderFooter(); } catch {}
+}
+
 function showWelcomeOverlay(kind, name) {
     const greeting = kind === 'register' ? '欢迎加入' : '欢迎回来';
-    const subtitle = kind === 'register'
-        ? '账号创建成功，正在为您准备个性化内容…'
-        : '正在为您加载最新内容…';
+    const subtitle = kind === 'register' ? '账号创建成功，正在为您准备…' : '正在为您加载…';
     const overlay = document.createElement('div');
     overlay.className = 'welcome-overlay';
     overlay.innerHTML = `
@@ -500,7 +506,25 @@ function showWelcomeOverlay(kind, name) {
         </div>`;
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('show'));
-    setTimeout(() => location.reload(), 1700);
+
+    // 不再整页 reload：等 Firebase 确认登录态（最少 0.7s、最多 1.4s 兜底），再原地更新导航/页脚，
+    // 并派发「仅登录/注册时触发」的 authRefresh（普通加载不会触发 → 不会死循环），让备课本/后台据此刷新内容。
+    let done = false;
+    const start = Date.now();
+    const finish = () => {
+        if (done) return; done = true;
+        document.removeEventListener('authChanged', onChange);
+        refreshAuthUI();
+        document.dispatchEvent(new CustomEvent('authRefresh', { detail: _currentUser }));
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.remove(), 340);
+    };
+    const onChange = () => {
+        document.removeEventListener('authChanged', onChange);
+        setTimeout(finish, Math.max(0, 700 - (Date.now() - start)));
+    };
+    document.addEventListener('authChanged', onChange);
+    setTimeout(finish, 1400);
 }
 
 async function handleLogin() {

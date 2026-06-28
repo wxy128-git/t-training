@@ -179,7 +179,7 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 - Section headers: top hairline + auto-counter "01 / 02 / 03" italic numeral in brand color (uses CSS counter on `.home-section`).
 - Hero is on `--soft` with a faint dot-grid radial mask; title 800-weight with the `.highlight` span italic + brand color; staggered fade-in animation on `.hero-content > *`. Homepage hero is **two-column** (`.hero-split`, 1.04fr/0.96fr, stacks ≤900px): left = copy + value-label strip (`.hero-values`, icon + 短句, replaced the old number stats), right = a "本周精选" spotlight card (`.hero-card`). Other pages keep the single-column hero/breadcrumb.
 
-**Welcome overlay**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + the user's name + a 3-dot pulse) for ~1.7s before reloading. This is what makes the login moment feel like something happened.
+**Welcome overlay + 登录提速 (2026-06-28)**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + name + 3-dot pulse). **不再整页 `location.reload()`**（旧版固定 1.7s 后 reload，慢）：现在等下一次 `authChanged`（Firebase 确认登录态）后，**最少 0.7s、最多 1.4s 兜底**，调 `refreshAuthUI()`（=`renderNav()`+`renderFooter()` 原地重渲染；`renderNav` 现记住 `_navPage`，故无参也能保持高亮）并派发**仅登录/注册时触发**的 `authRefresh` 事件，然后淡出。登录态内容页据此原地刷新：`workspace.html` → `loadWorks()`，`admin.html` → `location.reload()`（后台少见、reload 最稳；`authRefresh` 不在普通加载触发 → 无死循环）。`logout()` 仍 `reload`。登录感知耗时从 ~4–5s（含 reload 重下 SDK + 再读资料）降到 ~0.7–1.4s。`js/auth.js?v=20260628-login`（全站同步）。
 
 ## Navigation & Mobile
 
