@@ -226,12 +226,12 @@ const Auth = {
     },
 
     async logout() {
+        try { await auth.signOut(); } catch {}                                // 先真正登出：清掉本机 Firebase 令牌（本地操作、几毫秒完成）
         forgetProxyAuthSession();
         rememberLastAuthUser(null);
         _currentUser = null;
-        refreshAuthUI();                                                       // 立刻显示未登录（不整页 reload）
+        refreshAuthUI();                                                       // 登出确认后再切到未登录界面（原地更新，不整页 reload）
         document.dispatchEvent(new CustomEvent('authRefresh', { detail: null }));  // 备课本→登录门 / 后台→reload
-        try { await auth.signOut(); } catch {}                                // 后台真正登出，清 Firebase 令牌
     }
 };
 

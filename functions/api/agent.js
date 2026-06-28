@@ -42,6 +42,35 @@ async function verifyUser(idToken) {
     return d.users[0];
 }
 
+/* ---- 轻量限流：同一登录用户在短时间内问太多次就拦下 ----
+   作用：挡住"手滑狂点 / 脚本刷接口"，顺带控成本。
+   说明：Cloudflare 函数无持久状态，这里用「单实例内存」做软限流——
+        能稳稳挡住最常见的"短时间猛点"；Cloudflare 有多台服务器、跨服务器
+        非 100% 精确，但对登录后的培训场景足够，且零配置、不花钱、不占额度。
+        若以后要"每人每天封顶"等硬性额度，再升级到 KV/Durable Objects。 */
+const RATE_WINDOW_MS = 60 * 1000;   // 时间窗口：60 秒
+const RATE_MAX = 12;                // 每个用户 60 秒内最多 12 次（≈ 每 5 秒一次，正常用绰绰有余）
+const _rateMap = new Map();         // uid -> 最近请求的时间戳数组
+
+function checkRate(uid) {
+    const now = Date.now();
+    const recent = (_rateMap.get(uid) || []).filter(t => now - t < RATE_WINDOW_MS);
+    if (recent.length >= RATE_MAX) {
+        const retry = Math.max(1, Math.ceil((RATE_WINDOW_MS - (now - recent[0])) / 1000));
+        return { ok: false, retry };
+    }
+    recent.push(now);
+    _rateMap.set(uid, recent);
+    // 顺手清理过期用户，防内存无限增长
+    if (_rateMap.size > 5000) {
+        for (const [k, v] of _rateMap) {
+            const alive = v.filter(t => now - t < RATE_WINDOW_MS);
+            if (alive.length) _rateMap.set(k, alive); else _rateMap.delete(k);
+        }
+    }
+    return { ok: true };
+}
+
 export async function onRequestOptions() {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
@@ -62,10 +91,17 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
 
     // 登录校验（防盗刷）
+    let user;
     try {
-        await verifyUser(idToken);
+        user = await verifyUser(idToken);
     } catch (e) {
         return jsonResponse(e.statusCode || 401, { ok: false, msg: e.message });
+    }
+
+    // 限流：同一用户问太频繁就拦下（防手滑狂点 / 刷接口、控成本）
+    const rate = checkRate(user.localId);
+    if (!rate.ok) {
+        return jsonResponse(429, { ok: false, msg: `提问太频繁啦，请约 ${rate.retry} 秒后再试～` });
     }
 
     // 调用 DeepSeek（流式）
