@@ -10,8 +10,10 @@
    =================================================================== */
 
 const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
-const MODEL = 'deepseek-chat';            // DeepSeek-V3：通用、快、省（全站统一用它）
+const MODEL = 'deepseek-v4-flash';        // DeepSeek V4-Flash（旧 deepseek-chat 名 2026/07/24 停用，这是其正式替代）
 const TEMPERATURE = 0.6;
+// v4-flash 默认开「思考模式」（更慢更贵）；起草教学内容用非思考即可，显式关掉，等价于旧 deepseek-chat 的快/省/即时流式
+const THINKING = { type: 'disabled' };
 
 // 复用站点既有的 Firebase 公开配置校验 idToken（与 admin-users.js 一致的轻量方式）
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
@@ -117,6 +119,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
                 model: MODEL,
                 messages: messages.slice(-30),   // 限制上下文长度，控制成本
                 stream: true,
+                thinking: THINKING,              // 关掉思考模式：保持即时流式、低成本（非思考模式下 temperature 才生效）
                 temperature: TEMPERATURE
             })
         });
