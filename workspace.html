@@ -7,13 +7,36 @@
     <meta name="description" content="保存、管理你在智能体空间生成的备课内容——查看、复制、导出 Word / Markdown。">
     <meta name="robots" content="noindex">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260619-nav">
+    <link rel="stylesheet" href="css/style.css?v=20260630-workbook-nav">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
         .wb-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
         .wb-head h1 { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.025em; }
         .wb-head p { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
         #wb-count { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+
+        /* 检索栏：像教师的抽屉标签，不打断卡片阅读 */
+        .wb-controls { display: none; margin: 0 0 22px; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-xs); }
+        .wb-controls.active { display: block; }
+        .wb-search-row { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 12px; align-items: center; }
+        .wb-search { position: relative; min-width: 0; }
+        .wb-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--subtle); font-size: 17px; }
+        .wb-search input { width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); color: var(--ink); outline: none; padding: 11px 14px 11px 40px; font-size: 14px; transition: border-color .15s, box-shadow .15s, background .15s; }
+        .wb-search input:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .wb-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .wb-filter-pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--soft); color: var(--text-soft); padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+        .wb-filter-pill:hover { color: var(--ink); border-color: var(--subtle); }
+        .wb-filter-pill.active { color: var(--soft); border-color: var(--ink); background: var(--ink); }
+        .wb-select { border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); color: var(--text); padding: 8px 30px 8px 10px; font-size: 12.5px; outline: none; min-height: 36px; }
+        .wb-select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); background: var(--paper); }
+        .wb-clear { margin-left: auto; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 12.5px; font-family: inherit; padding: 7px 4px; }
+        .wb-clear:hover { color: var(--brand); }
+        .wb-statline { font-size: 12px; color: var(--muted); font-family: var(--font-mono); white-space: nowrap; }
+        @media (max-width: 720px) {
+            .wb-search-row { grid-template-columns: 1fr; }
+            .wb-statline { white-space: normal; }
+            .wb-clear { margin-left: 0; }
+        }
 
         /* 登录门 */
         #login-gate { display: none; min-height: 46vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: var(--muted); }
@@ -30,7 +53,9 @@
         .wb-card { display: flex; flex-direction: column; background: var(--paper); border: 1px solid rgba(26,22,18,0.08); border-radius: 16px; padding: 22px;
             box-shadow: 0 1px 2px rgba(26,22,18,0.05); transition: transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s cubic-bezier(.2,.7,.2,1), border-color .32s cubic-bezier(.2,.7,.2,1); }
         .wb-card:hover { transform: translateY(-3px); border-color: rgba(26,22,18,0.13); box-shadow: 0 2px 4px rgba(26,22,18,0.04), 0 10px 20px -10px rgba(26,22,18,0.10), 0 22px 44px -20px rgba(26,22,18,0.16); }
-        .wb-card-meta { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-family: var(--font-mono); }
+        .wb-card-meta { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-family: var(--font-mono); flex-wrap: wrap; }
+        .wb-type { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; background: var(--soft-2); color: var(--text-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 700; }
+        .wb-type.chat { background: var(--brand-soft); color: var(--brand-dark); }
         .wb-card-title { font-size: 15.5px; font-weight: 800; color: var(--ink); line-height: 1.4; margin: 0 0 8px; cursor: pointer;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .wb-card-title:hover { color: var(--brand); }
@@ -41,6 +66,8 @@
             background: var(--soft); border: 1px solid var(--line); border-radius: 7px; padding: 5px 9px; cursor: pointer; transition: all .15s; }
         .wb-card-actions button:hover { border-color: var(--ink); color: var(--ink); }
         .wb-card-actions button.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--brand-soft); }
+        .wb-filter-empty { display: none; text-align: center; padding: 54px 20px; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; background: rgba(255,255,255,.42); }
+        .wb-filter-empty i { font-size: 44px; display: block; margin-bottom: 12px; color: var(--subtle); }
 
         /* 查看弹层 */
         .wb-modal { position: fixed; inset: 0; background: rgba(26,22,18,0.45); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
@@ -51,6 +78,11 @@
         .wb-modal-head .meta { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
         .wb-modal-head .x { background: none; border: none; font-size: 24px; line-height: 1; color: var(--subtle); cursor: pointer; padding: 0 4px; }
         .wb-modal-body { padding: 24px; overflow-y: auto; }
+        .wb-modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 14px 24px; border-top: 1px solid var(--line); background: var(--soft); }
+        .wb-modal-foot button, .wb-modal-foot a { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-family: inherit; color: var(--text-soft); background: var(--paper); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; cursor: pointer; transition: all .15s; }
+        .wb-modal-foot button:hover, .wb-modal-foot a:hover { border-color: var(--ink); color: var(--ink); }
+        .wb-modal-foot a.primary { color: var(--soft); background: var(--ink); border-color: var(--ink); }
+        .wb-modal-foot a.primary:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
 
         /* markdown 渲染（弹层内） */
         .wb-md { color: var(--text); font-size: 14.5px; line-height: 1.9; }
@@ -93,10 +125,37 @@
 
     <!-- 已登录 -->
     <div id="wb-app" style="display:none">
+        <div class="wb-controls" id="wb-controls">
+            <div class="wb-search-row">
+                <div class="wb-search">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input id="wb-search" type="search" placeholder="搜索标题、智能体或正文内容…" oninput="updateWorkbookState({ q: this.value })">
+                </div>
+                <div class="wb-statline" id="wb-statline"></div>
+            </div>
+            <div class="wb-filter-row">
+                <button class="wb-filter-pill active" data-type="all" onclick="setWorkType('all')"><i class="ph ph-stack"></i> 全部</button>
+                <button class="wb-filter-pill" data-type="draft" onclick="setWorkType('draft')"><i class="ph ph-file-text"></i> 生成文稿</button>
+                <button class="wb-filter-pill" data-type="chat" onclick="setWorkType('chat')"><i class="ph ph-chats-circle"></i> 对话记录</button>
+                <select class="wb-select" id="wb-agent-filter" onchange="updateWorkbookState({ agent: this.value })" aria-label="按智能体筛选"></select>
+                <select class="wb-select" id="wb-sort" onchange="updateWorkbookState({ sort: this.value })" aria-label="排序方式">
+                    <option value="updated-desc">最近更新</option>
+                    <option value="created-desc">最近保存</option>
+                    <option value="title-asc">标题 A-Z</option>
+                    <option value="agent-asc">智能体名称</option>
+                </select>
+                <button class="wb-clear" onclick="resetWorkbookFilters()">清除筛选</button>
+            </div>
+        </div>
         <div id="wb-empty">
             <i class="ph ph-folder-open"></i>
             <p style="font-size:16px;font-weight:600;margin-bottom:6px">备课本还是空的</p>
             <p style="font-size:13px">去 <a href="agents.html">智能体空间</a> 生成内容，点「保存到备课本」就会出现在这里。</p>
+        </div>
+        <div class="wb-filter-empty" id="wb-filter-empty">
+            <i class="ph ph-funnel-simple"></i>
+            <p style="font-size:15px;font-weight:700;margin:0 0 6px;color:var(--ink)">没有符合条件的内容</p>
+            <p style="font-size:13px;margin:0">换个关键词，或清除筛选后再看。</p>
         </div>
         <div id="wb-grid"></div>
     </div>
@@ -113,6 +172,13 @@
             <button class="x" onclick="closeModal()" aria-label="关闭">×</button>
         </div>
         <div class="wb-modal-body"><div class="wb-md" id="wb-modal-body"></div></div>
+        <div class="wb-modal-foot">
+            <a class="primary" id="wb-modal-agent" href="agents.html" style="display:none"><i class="ph ph-robot"></i> 继续用该智能体</a>
+            <button onclick="copyActiveWork()"><i class="ph ph-copy"></i> 复制</button>
+            <button onclick="exportPdfActive()"><i class="ph ph-file-pdf"></i> PDF</button>
+            <button onclick="exportWordActive()"><i class="ph ph-file-doc"></i> Word</button>
+            <button onclick="exportMdActive()"><i class="ph ph-file-text"></i> MD</button>
+        </div>
     </div>
 </div>
 
@@ -125,9 +191,11 @@
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
-<script src="js/auth.js?v=20260628-logout"></script>
+<script src="js/auth.js?v=20260630-nav"></script>
 <script>
 let _works = [];
+let _activeWorkId = null;
+let _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc' };
 
 function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
@@ -135,6 +203,15 @@ function mdToHtml(md) { try { return window.marked ? marked.parse(md, { breaks:t
 function previewText(md) { const t = String(md || '').replace(/[#*_>`!\[\]()-]/g, '').replace(/\s+/g, ' ').trim(); return t.length > 130 ? t.slice(0, 130) + '…' : t; }
 function findWork(id) { return _works.find(w => w.id === id); }
 function safeName(s) { return (String(s || '备课内容').replace(/[\\/:*?"<>|]/g, '_').trim() || '备课内容').slice(0, 60); }
+function timeValue(s) { const n = Date.parse(s || ''); return Number.isFinite(n) ? n : 0; }
+function workType(w) {
+    if (w.workType) return w.workType;
+    if (w.agentType === 'chat' || /对话/.test(w.title || '') || /^# .*对话记录/m.test(w.content || '')) return 'chat';
+    return 'draft';
+}
+function workTypeLabel(w) { return workType(w) === 'chat' ? '对话记录' : '生成文稿'; }
+function workTypeIcon(w) { return workType(w) === 'chat' ? 'ph-chats-circle' : 'ph-file-text'; }
+function agentKey(w) { return w.agentId || w.agentName || 'unknown'; }
 function downloadBlob(filename, blob) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = filename;
@@ -142,15 +219,95 @@ function downloadBlob(filename, blob) {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+function updateWorkbookState(next) {
+    _wbState = { ..._wbState, ...next };
+    renderWorks();
+}
+
+function setWorkType(type) {
+    _wbState.type = type;
+    renderWorks();
+}
+
+function resetWorkbookFilters() {
+    _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc' };
+    renderWorks();
+}
+
+function renderFilterControls() {
+    const controls = document.getElementById('wb-controls');
+    if (controls) controls.classList.toggle('active', _works.length > 0);
+
+    const q = document.getElementById('wb-search');
+    if (q && q.value !== _wbState.q) q.value = _wbState.q;
+
+    document.querySelectorAll('.wb-filter-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === _wbState.type);
+    });
+
+    const sort = document.getElementById('wb-sort');
+    if (sort) sort.value = _wbState.sort;
+
+    const agentSelect = document.getElementById('wb-agent-filter');
+    if (!agentSelect) return;
+    const agents = [...new Map(_works.map(w => [agentKey(w), w.agentName || '未知智能体']))]
+        .sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
+    if (_wbState.agent !== 'all' && !agents.some(([key]) => key === _wbState.agent)) _wbState.agent = 'all';
+    agentSelect.innerHTML = `<option value="all">全部智能体</option>` + agents
+        .map(([key, name]) => `<option value="${escapeHtml(key)}">${escapeHtml(name)}</option>`)
+        .join('');
+    agentSelect.value = _wbState.agent;
+}
+
+function filteredWorks() {
+    const q = _wbState.q.trim().toLowerCase();
+    const list = _works.filter(w => {
+        const typeOk = _wbState.type === 'all' || workType(w) === _wbState.type;
+        const agentOk = _wbState.agent === 'all' || agentKey(w) === _wbState.agent;
+        const haystack = `${w.title || ''} ${w.agentName || ''} ${w.content || ''}`.toLowerCase();
+        const qOk = !q || haystack.includes(q);
+        return typeOk && agentOk && qOk;
+    });
+    return list.sort((a, b) => {
+        if (_wbState.sort === 'created-desc') return timeValue(b.createdAt) - timeValue(a.createdAt);
+        if (_wbState.sort === 'title-asc') return (a.title || '').localeCompare(b.title || '', 'zh-CN');
+        if (_wbState.sort === 'agent-asc') return (a.agentName || '').localeCompare(b.agentName || '', 'zh-CN');
+        return timeValue(b.updatedAt || b.createdAt) - timeValue(a.updatedAt || a.createdAt);
+    });
+}
+
 function renderWorks() {
     const grid = document.getElementById('wb-grid');
     const empty = document.getElementById('wb-empty');
+    const filterEmpty = document.getElementById('wb-filter-empty');
+    const statline = document.getElementById('wb-statline');
+    renderFilterControls();
     document.getElementById('wb-count').textContent = _works.length ? `共 ${_works.length} 条` : '';
-    if (!_works.length) { empty.style.display = ''; grid.style.display = 'none'; grid.innerHTML = ''; return; }
-    empty.style.display = 'none'; grid.style.display = 'grid';
-    grid.innerHTML = _works.map(w => `
+    if (!_works.length) {
+        empty.style.display = '';
+        if (filterEmpty) filterEmpty.style.display = 'none';
+        grid.style.display = 'none';
+        grid.innerHTML = '';
+        if (statline) statline.textContent = '';
+        return;
+    }
+    const list = filteredWorks();
+    empty.style.display = 'none';
+    if (statline) statline.textContent = list.length === _works.length ? `${_works.length} 条内容` : `${list.length} / ${_works.length} 条`;
+    if (!list.length) {
+        if (filterEmpty) filterEmpty.style.display = 'block';
+        grid.style.display = 'none';
+        grid.innerHTML = '';
+        return;
+    }
+    if (filterEmpty) filterEmpty.style.display = 'none';
+    grid.style.display = 'grid';
+    grid.innerHTML = list.map(w => `
         <div class="wb-card">
-            <div class="wb-card-meta"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')} · ${fmtDate(w.updatedAt || w.createdAt)}</div>
+            <div class="wb-card-meta">
+                <span class="wb-type ${workType(w)}"><i class="ph ${workTypeIcon(w)}"></i>${workTypeLabel(w)}</span>
+                <i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')} · ${fmtDate(w.updatedAt || w.createdAt)}
+            </div>
             <h3 class="wb-card-title" onclick="viewWork('${w.id}')">${escapeHtml(w.title || '未命名')}</h3>
             <p class="wb-card-preview" onclick="viewWork('${w.id}')">${escapeHtml(previewText(w.content))}</p>
             <div class="wb-card-actions">
@@ -167,17 +324,27 @@ function renderWorks() {
 
 function viewWork(id) {
     const w = findWork(id); if (!w) return;
+    _activeWorkId = id;
     document.getElementById('wb-modal-title').textContent = w.title || '未命名';
-    document.getElementById('wb-modal-meta').textContent = `${w.agentName || ''} · ${fmtDate(w.updatedAt || w.createdAt)}`;
+    document.getElementById('wb-modal-meta').textContent = `${workTypeLabel(w)} · ${w.agentName || ''} · ${fmtDate(w.updatedAt || w.createdAt)}`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
+    const agentLink = document.getElementById('wb-modal-agent');
+    if (agentLink && w.agentId) {
+        agentLink.href = `agents.html#${encodeURIComponent(w.agentId)}`;
+        agentLink.style.display = 'inline-flex';
+    } else if (agentLink) {
+        agentLink.style.display = 'none';
+    }
     document.getElementById('wb-modal').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
-function closeModal() { document.getElementById('wb-modal').classList.remove('active'); document.body.style.overflow = ''; }
+function closeModal() { document.getElementById('wb-modal').classList.remove('active'); document.body.style.overflow = ''; _activeWorkId = null; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 function copyWork(id) { const w = findWork(id); if (!w) return; navigator.clipboard.writeText(w.content || '').then(() => showToast('已复制到剪贴板 ✓')); }
 function exportMd(id) { const w = findWork(id); if (!w) return; downloadBlob(safeName(w.title) + '.md', new Blob([w.content || ''], { type: 'text/markdown;charset=utf-8' })); }
+function copyActiveWork() { if (_activeWorkId) copyWork(_activeWorkId); }
+function exportMdActive() { if (_activeWorkId) exportMd(_activeWorkId); }
 
 // 「教学文稿」排版样式：宋体正文 + 黑体标题 + 朱红点睛 + 表格/引用 + 落款；导出 Word / PDF 共用
 function docStyles() {
@@ -224,6 +391,8 @@ function exportPdf(id) {
     setTimeout(() => win.print(), 350);
     showToast('已打开打印窗口，选「另存为 PDF」即可');
 }
+function exportWordActive() { if (_activeWorkId) exportWord(_activeWorkId); }
+function exportPdfActive() { if (_activeWorkId) exportPdf(_activeWorkId); }
 
 async function doRename(id) {
     const w = findWork(id); if (!w) return;
@@ -247,10 +416,10 @@ async function loadWorks() {
     renderWorks();
 }
 
-renderNav('');
+renderNav('workspace');
 renderFooter();
 loadWorks();                                  // 乐观渲染（用缓存登录态）
-onAuthReady(() => { renderNav(''); renderFooter(); loadWorks(); });  // Firebase 就绪后校正
+onAuthReady(() => { renderNav('workspace'); renderFooter(); loadWorks(); });  // Firebase 就绪后校正
 document.addEventListener('authRefresh', () => loadWorks());  // 在本页登录后原地加载内容（不整页刷新）
 </script>
 <script src="js/assistant.js?v=20260617-pwreset"></script>

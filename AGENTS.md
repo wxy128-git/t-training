@@ -45,7 +45,7 @@
   - 导航改名：`AI工具`→`AI资源精选`、`全球资讯`→`AI 资讯`、`设计资源`→`课件素材`（nav/footer/页面标题/面包屑/kicker/admin/assistant 全对齐；nav key 不变）。
   - **「我的备课本」（saved works）MVP**：智能体「表单类」结果区新增「保存到备课本」按钮（`saveToWorkbook()` in `agents.html`，存到 Firestore `works`）。新页面 `workspace.html`（登录门 + 卡片墙 + 查看弹层 + 复制 / 导出 Word(.doc) / 导出 Markdown / 重命名 / 删除）。入口在 `renderNav` 登录态的用户名旁（`workbookLink`，桌面显示「备课本」、手机进抽屉）。`js/data.js` 加 `saveWork/getMyWorks/renameWork/deleteWork`（`getMyWorks` 用 `where uid==` + 前端排序，免复合索引）。Markdown 用 marked@9 渲染；Word 导出 = HTML blob 套 Office 命名空间存 `.doc`。
   - **依赖（必须手动做一次）**：Firebase Console → Firestore → Rules 加 `works` 集合规则（owner-only），否则保存/读取被拒。规则见本文件「Firestore Rule for works」。
-  - 缓存版本：`data.js` / `auth.js` → `?v=20260616-workbook`（保存范围 MVP 仅 form 类；chat 类、PPT 导出留待二期）。
+  - 缓存版本：`data.js` / `auth.js` → `?v=20260616-workbook`（保存范围 MVP 初期仅 form 类；chat 类已于 2026-06-30 补上，PPT 导出留待二期）。
 - **2026-06-16（卡片精修：全站统一卡片规范）**: 把各页"各写各的"卡片统一成一套「简约精美」规范（方向 A：极淡描边 + 分层柔影）。
   - 规范：圆角 **16px**、内距 **22px**、静止 = `1px solid rgba(26,22,18,0.08)` 描边 + 极淡微影 `0 1px 2px rgba(26,22,18,0.05)`（近乎贴纸）、hover = `translateY(-3px)` + **分层柔影**（`0 2px 4px… , 0 10px 20px -10px… , 0 22px 44px -20px rgba(26,22,18,0.16)`）+ 中性描边；图标块去掉彩色辉光、内圆角 12px、hover 仅 `scale(1.04)`（去旋转）。
   - 落点：`style.css` 加浓层的卡片块改成此规范（组里加入 `.resource-card`）；`.agent-card`（agents.html）、`.wb-card`（workspace.html）在各自 `<style>` 同步到同一组值（**这三类卡片样式在页面内联，改色/改卡需到对应文件**）。深色渐变卡（path-card / 文章封面）不在范围、保持原样。
@@ -64,6 +64,13 @@
   - **撤「提示词库」栏目，并入智能体**：从导航 (`renderNav`)、页脚、首页「配套资源」移除「提示词库」入口；智能体工作台头部新增 **「复制提示词」** 按钮（`copyAgentPrompt()`，复制当前智能体的 `a.system`，供老师拿到别处用）；`openAgent` 里记 `window._wsAgent`。**`prompts.html` 文件保留**（直链可达、admin 社区提示词面板仍在），只是退出主 IA——如要彻底删页/删 community_prompts 再单独定。
   - **悬浮助手重绘 + 改定位**（`js/assistant.js` + style.css）：卡通吉祥物 → **克制小药丸**「🧭 需要帮忙？」；面板从「AI 教学助教」改为 **「网站向导」**（帮你找智能体/工具/路径）；答案改为**优先引导到对应智能体**（备课→`#lesson-design`、出题→`#quiz-gen`、家校→`#parent-comm`），清掉对已撤提示词库的引用；**去掉打开/提问的登录门槛**（找功能不需登录；联系我们仍需登录）。删除全部 `.assistant-mascot/.mascot-*/.assistant-mini-*` 吉祥物 CSS。`assistant.js` 首次加上缓存版本号 `?v=20260617-guide`（全 13 页）。
   - 缓存版本：`css/style.css` / `js/auth.js` / `js/assistant.js` → `?v=20260617-guide`。
+
+- **2026-06-30（备课本闭环 + 资源导航分组）**:
+  - `agents.html` 的 chat 工作台新增「保存到备课本 / 复制对话 / 清空」操作条；保存时把 `_chatHistory` 整理成 Markdown 对话稿，继续写 Firestore `works`，不新增集合或规则。修正聊天历史里的 assistant 消息：从 `target.textContent` 改为保存 `callAgentAPI()` 流式返回的原始 Markdown，避免后续上下文和保存稿丢失标题、列表、表格标记。
+  - 表单类保存补充 `workType:'draft'`、`agentType`、`inputs`；对话类保存补充 `workType:'chat'`、`agentType:'chat'`，标题优先取首条用户消息片段，便于在备课本里检索。
+  - `workspace.html` 升级为可管理的「我的备课本」：关键词搜索、按内容类型（全部 / 生成文稿 / 对话记录）筛选、按智能体筛选、排序（最近更新 / 最近保存 / 标题 / 智能体名称）、筛选空状态；查看弹层底部新增「继续用该智能体」以及复制 / PDF / Word / MD 快捷操作。
+  - 共享导航 `renderNav()` 改为「首页 / 智能体空间 / 课堂工具 / 我的备课本 / 资源 ▾ / 联系我们」；资源下拉收纳 AI资源精选、课件素材、AI 资讯、学习路径、精选文章、提示词库（`prompts.html` 从主导航退出后重新作为二级资源入口保留）。移动端抽屉同步分「导航 / 资源 / 其他」。
+  - 缓存版本：`css/style.css` → `?v=20260630-workbook-nav`，`js/auth.js` → `?v=20260630-nav`（全站 HTML 同步）。
 
 ## Auth Lesson (Important)
 
@@ -97,7 +104,7 @@ To verify auth is healthy: in DevTools console, `firebase.auth().currentUser` sh
 | `tool_ratings` | per-tool 5-star ratings (not currently shown in UI) | logged-in users |
 | `subscribers` | newsletter sign-ups | anyone (create), admin (read/delete) |
 | `agent_usage` | 智能体使用计数（doc/agentId，`count`），驱动首页/智能体空间「热门」印章（added 2026-06-17） | read public；write 任意登录用户（`FieldValue.increment`）— **需在 Console 加规则，见下** |
-| `works` | **「我的备课本」** saved agent outputs (added 2026-06-16) — `{uid, agentId, agentName, title, content, createdAt, updatedAt}` | owner only (uid == request.auth.uid) — **rule must be added in Firebase Console, see below** |
+| `works` | **「我的备课本」** saved agent outputs (added 2026-06-16; expanded 2026-06-30) — `{uid, agentId, agentName, agentType, workType, title, content, inputs?, createdAt, updatedAt}` | owner only (uid == request.auth.uid) — **rule must be added in Firebase Console, see below** |
 | `contact_messages` | contact-form submissions | logged-in users (create), admin (read/update/delete) |
 
 Rules live in Firebase Console → Firestore → Rules. They are the source of truth — keep them in mind whenever a write fails.

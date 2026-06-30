@@ -328,31 +328,51 @@ globalThis.requireLogin = requireLogin;
 let _navPage = '';
 function renderNav(currentPage) {
     if (currentPage === undefined) currentPage = _navPage; else _navPage = currentPage;  // 记住当前页，供登录后原地重渲染
-    const pages = [
+    const primaryPages = [
         { key:'index',     href:'index.html',    label:'首页' },
         { key:'agents',    href:'agents.html',   label:'智能体空间' },
-        { key:'tools',     href:'tools.html',    label:'AI资源精选' },
-        { key:'classroom', href:'classroom-tools.html', label:'课堂工具' },
-        { key:'news',      href:'news.html',     label:'AI 资讯' },
-        { key:'paths',     href:'paths.html',    label:'学习路径' },
-        { key:'articles',  href:'articles.html',  label:'精选文章' },
-        { key:'resources', href:'resources.html', label:'课件素材' }
+        { key:'classroom', href:'classroom-tools.html', label:'课堂工具' }
+    ];
+    const resourcePages = [
+        { key:'tools',     href:'tools.html',     label:'AI资源精选', icon:'ph ph-toolbox', desc:'精选工具导航' },
+        { key:'resources', href:'resources.html', label:'课件素材', icon:'ph ph-folder-open', desc:'可下载素材' },
+        { key:'news',      href:'news.html',      label:'AI 资讯', icon:'ph ph-newspaper', desc:'教育 AI 动态' },
+        { key:'paths',     href:'paths.html',     label:'学习路径', icon:'ph ph-path', desc:'系统训练路线' },
+        { key:'articles',  href:'articles.html',  label:'精选文章', icon:'ph ph-article', desc:'方法与案例' },
+        { key:'prompts',   href:'prompts.html',   label:'提示词库', icon:'ph ph-quotes', desc:'可复用提示词' }
     ];
     const user = _currentUser;
-    const navLinks = pages.map(p => {
+    const navAnchor = (p, extraClass = '') => {
         const feature = p.key === 'agents' ? ' nav-feature' : '';
-        const icon = p.key === 'agents' ? '<i class="ph-fill ph-sparkle"></i>' : '';
-        return `<a href="${p.href}" class="nav-link${feature}${p.key === currentPage ? ' active' : ''}">${icon}${p.label}</a>`;
-    }).join('');
+        const icon = p.icon ? `<i class="${p.icon}"></i>` : (p.key === 'agents' ? '<i class="ph-fill ph-sparkle"></i>' : '');
+        return `<a href="${p.href}" class="nav-link${feature}${extraClass ? ` ${extraClass}` : ''}${p.key === currentPage ? ' active' : ''}">${icon}${p.label}</a>`;
+    };
+    const primaryLinks = primaryPages.map(p => navAnchor(p)).join('');
+    const workbookLink = user ? navAnchor({ key:'workspace', href:'workspace.html', label:'我的备课本', icon:'ph ph-notebook' }, 'nav-workbook') : '';
+    const resourceActive = resourcePages.some(p => p.key === currentPage);
+    const resourceItems = resourcePages.map(p => `
+        <a href="${p.href}" class="nav-dropdown-item${p.key === currentPage ? ' active' : ''}">
+            <i class="${p.icon}"></i>
+            <span>${p.label}</span>
+            <small>${p.desc}</small>
+        </a>`).join('');
+    const resourceMenu = `
+        <div class="nav-group" id="resource-nav-group">
+            <button type="button" class="nav-link nav-dropdown-trigger${resourceActive ? ' active' : ''}" aria-haspopup="true" aria-expanded="false" onclick="toggleResourceMenu(event)">
+                资源 <i class="ph ph-caret-down"></i>
+            </button>
+            <div class="nav-dropdown-menu" role="menu">${resourceItems}</div>
+        </div>`;
+    const navLinks = `${primaryLinks}${workbookLink}${resourceMenu}`;
+    const drawerPrimary = `${primaryLinks}${workbookLink}`;
+    const drawerResources = resourcePages.map(p => navAnchor(p)).join('');
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
     const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
-    const workbookLink = user ? `<a href="workspace.html" class="nav-link"><i class="ph ph-notebook"></i> 我的备课本</a>` : '';
     const authHtml = user
         ? `<div style="display:flex;align-items:center;gap:8px">
                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
                <span style="font-size:14px;color:#374151;font-weight:500" class="hm">${user.name}</span>
                ${user.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}
-               <a href="workspace.html" title="我的备课本" style="display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text-soft);font-weight:600;text-decoration:none;padding:6px 11px;border:1px solid var(--line);border-radius:8px;transition:border-color .15s,color .15s" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text-soft)'"><i class="ph ph-notebook"></i><span class="hm">备课本</span></a>
                <button class="btn-login" onclick="Auth.logout()">退出</button>
            </div>`
         : `<button class="btn-login" onclick="showAuthModal('login')">登录</button>
@@ -384,18 +404,37 @@ function renderNav(currentPage) {
                 <button class="nav-drawer-close" aria-label="关闭菜单" onclick="closeNavDrawer()"><i class="ph ph-x"></i></button>
             </div>
             <div class="nav-drawer-kicker">导航</div>
-            ${navLinks}
+            ${drawerPrimary}
+            <div class="nav-drawer-kicker">资源</div>
+            ${drawerResources}
             <div class="nav-drawer-kicker">其他</div>
-            ${workbookLink}
             ${contactLink}
             ${adminLink}
         </div>
     </div>`;
 }
 
+function closeResourceMenu() {
+    const g = document.getElementById('resource-nav-group');
+    if (!g) return;
+    g.classList.remove('open');
+    g.querySelector('.nav-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+}
+function toggleResourceMenu(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const g = event.currentTarget.closest('.nav-group');
+    if (!g) return;
+    const open = !g.classList.contains('open');
+    closeResourceMenu();
+    g.classList.toggle('open', open);
+    event.currentTarget.setAttribute('aria-expanded', String(open));
+}
+
 function openNavDrawer() {
     const d = document.getElementById('nav-drawer');
     if (!d) return;
+    closeResourceMenu();
     d.classList.add('open');
     document.body.style.overflow = 'hidden';
 }
@@ -407,6 +446,7 @@ function closeNavDrawer() {
 }
 // Close drawer when a nav link inside it is clicked
 document.addEventListener('click', (ev) => {
+    if (!ev.target.closest?.('.nav-group')) closeResourceMenu();
     const drawer = document.getElementById('nav-drawer');
     if (!drawer || !drawer.classList.contains('open')) return;
     const link = ev.target.closest('.nav-drawer-panel a.nav-link, .nav-drawer-panel button.nav-link');
@@ -415,6 +455,7 @@ document.addEventListener('click', (ev) => {
 // ESC closes
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') {
+        closeResourceMenu();
         const d = document.getElementById('nav-drawer');
         if (d?.classList.contains('open')) closeNavDrawer();
     }
