@@ -102,14 +102,64 @@
         .mm-video-preview-link img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; }
         .mm-video-preview-link span { position:absolute; right:14px; bottom:14px; z-index:1; display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border-radius:999px; background:rgba(26,22,18,.74); color:#fffdf8; font-size:12px; font-weight:800; backdrop-filter:blur(6px); }
         .mm-detail-visual.has-image { min-height: 320px; background: var(--soft-2); }
+        .mm-detail-visual.wide-image { min-height:0; aspect-ratio:16/9; background:#111; }
+        .mm-detail-visual.wide-image img { object-fit:contain; }
         .mm-detail-visual.has-video { min-height: 0; aspect-ratio:16/9; background:#111; }
+        .mm-detail-visual.has-demo { min-height:0; aspect-ratio:16/9; background:#142820; }
         .mm-detail-visual i { position:absolute; right:24px; bottom:18px; color:rgba(255,255,255,.9); font-size:68px; }
         .mm-detail-visual.has-image i { display:none; }
         .mm-detail-visual.has-video i { display:none; }
+        .mm-detail-visual.has-demo i { display:none; }
+        .mm-thumb.has-demo::before { display:none; }
+        .mm-thumb.has-demo::after { border-color:rgba(255,255,255,.26); box-shadow:inset 0 0 0 999px rgba(20,40,32,.04); }
+        .mm-thumb.has-demo .mark { display:none; }
+        .mm-fraction-demo { --frac-duration:8.8s; position:absolute; inset:0; display:grid; place-items:center; overflow:hidden; background:linear-gradient(135deg,#18372d 0%,#12241d 58%,#0d1814 100%); color:#fff8e8; isolation:isolate; }
+        .mm-fraction-demo::before { content:""; position:absolute; inset:0; opacity:.18; background-image:linear-gradient(rgba(255,255,255,.13) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.13) 1px, transparent 1px); background-size:26px 26px; mask-image:radial-gradient(circle at 48% 46%,#000 0 58%,transparent 84%); }
+        .frac-board { position:relative; width:100%; height:100%; display:grid; grid-template-rows:1fr auto; place-items:center; padding:22px; box-sizing:border-box; }
+        .frac-stage { position:relative; width:min(62%, 230px); aspect-ratio:1; display:grid; place-items:center; filter:drop-shadow(0 18px 18px rgba(0,0,0,.24)); }
+        .frac-disc { position:relative; width:100%; height:100%; border-radius:50%; background:conic-gradient(from -90deg,#f5c86f 0 100%); border:10px solid #d89543; box-shadow:inset 0 0 0 5px rgba(255,255,255,.34), inset -18px -22px 32px rgba(94,55,20,.23); animation:fracDisc var(--frac-duration) ease-in-out infinite; }
+        .frac-disc::before { content:""; position:absolute; inset:13%; border-radius:50%; background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.38), transparent 24%), radial-gradient(circle at 70% 62%, rgba(176,86,35,.22), transparent 18%); }
+        .frac-divider { position:absolute; left:50%; top:50%; width:2px; height:100%; background:rgba(87,48,18,.8); transform:translate(-50%,-50%); opacity:0; animation:fracLines var(--frac-duration) ease-in-out infinite; }
+        .frac-divider.y { width:100%; height:2px; }
+        .frac-slice-mark { position:absolute; right:18%; top:24%; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-family:var(--font-mono); font-size:15px; font-weight:800; color:#fff8e8; background:rgba(26,22,18,.5); opacity:0; transform:scale(.72); animation:fracSliceMark var(--frac-duration) ease-in-out infinite; }
+        .frac-equation { position:absolute; right:-22%; bottom:4%; width:68px; height:84px; display:grid; grid-template-rows:1fr 3px 1fr; place-items:center; border-radius:12px; background:#fff8e8; color:#1a1612; border:1px solid rgba(255,255,255,.72); box-shadow:0 18px 32px -20px rgba(0,0,0,.55); font-family:var(--font-mono); font-size:30px; font-weight:800; opacity:0; transform:translateY(10px) rotate(2deg); animation:fracEquation var(--frac-duration) ease-in-out infinite; }
+        .frac-equation span:nth-child(2) { width:42px; height:3px; background:#c0392b; border-radius:999px; }
+        .frac-caption { position:relative; width:min(82%, 360px); min-height:34px; margin-top:8px; font-size:13px; font-weight:800; letter-spacing:.02em; text-align:center; color:#fff8e8; }
+        .frac-step { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transform:translateY(8px); animation-duration:var(--frac-duration); animation-timing-function:ease-in-out; animation-iteration-count:infinite; }
+        .frac-step.s1 { animation-name:fracStep1; }
+        .frac-step.s2 { animation-name:fracStep2; }
+        .frac-step.s3 { animation-name:fracStep3; }
+        .frac-step.s4 { animation-name:fracStep4; }
+        .mm-fraction-demo.thumb .frac-board { padding:18px; }
+        .mm-fraction-demo.thumb .frac-stage { width:min(58%, 142px); }
+        .mm-fraction-demo.thumb .frac-disc { border-width:7px; }
+        .mm-fraction-demo.thumb .frac-equation { right:-34%; bottom:-2%; width:48px; height:60px; font-size:22px; border-radius:9px; }
+        .mm-fraction-demo.thumb .frac-equation span:nth-child(2) { width:30px; height:2px; }
+        .mm-fraction-demo.thumb .frac-caption { display:none; }
+        .mm-fraction-demo.thumb .frac-slice-mark { width:25px; height:25px; font-size:12px; }
+        @keyframes fracDisc {
+            0%, 22% { background:conic-gradient(from -90deg,#f5c86f 0 100%); transform:rotate(0deg) scale(.98); }
+            30%, 48% { background:conic-gradient(from -90deg,#f5c86f 0 25%,#f0bd61 0 50%,#f5c86f 0 75%,#f0bd61 0 100%); transform:rotate(0deg) scale(1); }
+            58%, 100% { background:conic-gradient(from -90deg,#c0392b 0 25%,#f0bd61 0 50%,#f5c86f 0 75%,#f0bd61 0 100%); transform:rotate(-2deg) scale(1); }
+        }
+        @keyframes fracLines { 0%,24%{opacity:0} 30%,100%{opacity:1} }
+        @keyframes fracSliceMark { 0%,50%{opacity:0; transform:scale(.72)} 60%,100%{opacity:1; transform:scale(1)} }
+        @keyframes fracEquation { 0%,68%{opacity:0; transform:translateY(10px) rotate(2deg)} 78%,100%{opacity:1; transform:translateY(0) rotate(-2deg)} }
+        @keyframes fracStep1 { 0%,20%{opacity:1; transform:translateY(0)} 27%,100%{opacity:0; transform:translateY(-8px)} }
+        @keyframes fracStep2 { 0%,24%{opacity:0; transform:translateY(8px)} 31%,46%{opacity:1; transform:translateY(0)} 54%,100%{opacity:0; transform:translateY(-8px)} }
+        @keyframes fracStep3 { 0%,50%{opacity:0; transform:translateY(8px)} 59%,68%{opacity:1; transform:translateY(0)} 76%,100%{opacity:0; transform:translateY(-8px)} }
+        @keyframes fracStep4 { 0%,72%{opacity:0; transform:translateY(8px)} 82%,100%{opacity:1; transform:translateY(0)} }
         .mm-detail h3 { margin:0 0 10px; color:var(--ink); font-size:15px; }
         .mm-detail p, .mm-detail li { color:var(--text-soft); font-size:13.5px; line-height:1.75; }
         .mm-prompt { background:#fffdf8; border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:0 12px 12px 0; padding:14px 15px; color:var(--text); font-size:13px; line-height:1.8; white-space:pre-wrap; }
         .mm-modal-foot { display:flex; justify-content:flex-end; gap:8px; padding:14px 24px; border-top:1px solid var(--line); background:var(--soft); }
+        @media (prefers-reduced-motion: reduce) {
+            .mm-fraction-demo *, .mm-fraction-demo *::before { animation:none !important; }
+            .frac-disc { background:conic-gradient(from -90deg,#c0392b 0 25%,#f0bd61 0 50%,#f5c86f 0 75%,#f0bd61 0 100%); }
+            .frac-divider, .frac-slice-mark, .frac-equation { opacity:1; transform:none; }
+            .frac-step { display:none; }
+            .frac-step.s4 { display:flex; opacity:1; transform:none; }
+        }
         @media (max-width: 960px) {
             .mm-hero { grid-template-columns: 1fr; }
             .mm-board { min-height: 360px; }
@@ -269,22 +319,47 @@ const CASES = [
     {
         id: 'math-motion', type: 'courseware', label: '课件', icon: 'ph-fill ph-presentation-chart', subject: '数学', level: '入门',
         title: '数学概念动效脚本',
-        desc: '先让大模型生成“动画脚本”，再用 PPT 或课件工具手工复现。',
-        use: '用于讲解分数、面积、轴对称等概念，把“怎么动”先设计清楚。',
+        desc: '让大模型先写出“怎么动”的课件脚本，再由教师在 PPT、Keynote 或希沃白板中复现。',
+        use: '用于小学数学“分数的初步认识”：先把一个整体平均分成 4 份，再取其中 1 份，帮助学生把图形动作和 1/4 的含义对应起来。',
+        demo: 'fraction',
         preview: 'linear-gradient(135deg,#e8d6a6 0%,#b08642 48%,#3d342b 100%)',
-        prompt: '请为小学数学“分数的意义”设计一个 4 步课件动画脚本：用一个圆形披萨从完整到平均分成 4 份，再高亮其中 1 份，最后出现 1/4 的概念。每一步说明画面元素、动画方式、教师提问和学生可能回答。语言简洁，可直接用于制作 PPT。',
-        steps: ['不要一上来生成图片，先生成动画脚本', '把元素、动作、提问分开写', 'PPT 中手动制作动画，更稳定可控', '必要时再为封面生成一张静态图'],
-        note: '数学概念的比例和标注要由教师检查，不能只看生成画面是否漂亮。'
+        prompt: `请为小学三年级数学“认识几分之一：1/4”设计一个可在 PPT 或希沃白板中复现的 4 步课件动效脚本。主题元素用一个圆形披萨或圆形纸片，必须表现“平均分”和“取其中 1 份”的关系。
+
+请按表格输出，每一步包含 5 列：
+1. 画面元素
+2. 动画动作
+3. 教师提问
+4. 学生可能回答
+5. PPT/希沃实现方法
+
+四步必须依次为：
+【第 1 步】出现一个完整圆形，说明它是一个整体，也可以叫单位“1”。
+【第 2 步】圆形被横竖两条分割线平均分成 4 份，强调每份大小相同。
+【第 3 步】高亮其中 1 份，其他 3 份变淡，提问“这一份是整体的几分之几？”。
+【第 4 步】在旁边出现分数 1/4，并解释分母 4 表示平均分成 4 份，分子 1 表示取其中 1 份。
+
+要求：语言适合教师直接照着制作课件；不要生成图片；不要写复杂代码；每步动画时长建议 1.5-2 秒；最后补充 2 个容易出错的地方和修正建议。`,
+        steps: ['先让大模型输出动效脚本，不直接生成图片或视频', '检查“平均分”是否准确：四份必须一样大，不能只是随意切成四块', '把脚本里的动作拆到 PPT：出现、擦除/切分、高亮、文字淡入', '教师再补充课堂提问和板书，确保学生说清楚分子、分母的意义'],
+        note: '数学动效的第一优先级是概念准确。视觉上再漂亮，也不能把“不平均分”讲成 1/4；建议教师在课件里手动画线和标注，保证比例可控。'
     },
     {
         id: 'class-poster', type: 'image', label: '图片', icon: 'ph-fill ph-seal-check', subject: '班主任', level: '入门',
         title: '班会主题海报',
-        desc: '生成班会封面或校园活动主视觉，重点控制文字留白和画面情绪。',
-        use: '用于班会、家长会、读书节等活动的电子屏或通知封面。',
+        desc: '先生成不含文字的班会背景图，再由教师在 PPT 或 Canva 中加标题和班级信息。',
+        use: '用于“学会合作”主题班会的导入页、电子屏封面或活动通知图。学生先观察画面中的分工、倾听和共同完成项目，再讨论合作的具体行为。',
+        image: '多模态素材/class-meeting-cooperation.png',
+        imageAlt: '学会合作主题班会海报背景：几名学生围绕项目桌协作，上方留有标题空白',
+        imageFit: 'contain',
         preview: 'linear-gradient(135deg,#fbeae6 0%,#c0392b 50%,#7a2c24 100%)',
-        prompt: '请生成一张班会主题海报背景图，主题是“学会合作”。画面为几个学生围绕一张桌子共同完成项目，但不出现清晰脸部；风格温暖、干净、适合中小学班会。中间偏上留出大面积空白用于后期添加标题，不包含任何文字、校徽、品牌标识。',
-        steps: ['先明确海报情绪：温暖、庄重、活泼或科技感', '要求不生成文字，把标题留给后期排版', '避免清晰学生脸部，减少隐私和肖像风险', '导入 Canva/PPT 后再加标题和校名'],
-        note: '涉及学生形象的画面尽量使用泛化人物，不使用真实学生照片做参考。'
+        prompt: `请生成一张 16:9 横版班会主题海报背景图，主题是“学会合作”。画面为几名泛化的中学生围绕项目桌共同完成一个班级项目，桌面上有计划纸、彩色便签、手工材料和简单模型，表现分工、倾听、共同决策的氛围。
+
+构图要求：主体人物放在画面下半部分和左右两侧；上方中间留出大面积干净空白，方便教师后期添加“学会合作”等标题。背景可以是明亮整洁的教室、黑板或软木板，但不要出现任何可读文字。
+
+风格要求：现代教育插画，温暖、干净、适合中小学班会课件封面；色彩克制，不要过度卡通，不要商业广告感。
+
+安全与版权要求：不出现清晰可识别的人脸，不使用真实学生照片风格，不出现校徽、品牌标识、水印、logo、文字、数字、口号或对话气泡。`,
+        steps: ['先明确用途：班会导入页或通知封面，而不是直接生成带字成品', '提示词中写清楚“上方留白、不生成文字”，标题和班级信息由教师后期排版', '要求人物泛化且不出现清晰脸部，减少学生肖像和隐私风险', '生成后导入 PPT/Canva，加上主题标题、班级、时间，并统一字体和色块'],
+        note: '班会海报建议把 AI 生成图当作“背景素材”，不要让模型直接写中文标题；中文标题、校名、班级和日期由教师后期添加，准确性和观感都会更稳定。'
     },
     {
         id: 'audio-opening', type: 'audio', label: '音频', icon: 'ph-fill ph-waveform', subject: '活动', level: '进阶',
@@ -309,12 +384,21 @@ const CASES = [
     {
         id: 'history-image', type: 'image', label: '图片', icon: 'ph-fill ph-bank', subject: '历史', level: '进阶',
         title: '历史情境观察图',
-        desc: '生成“可观察、可提问”的历史场景图，而不是追求影视化大片感。',
-        use: '用于历史课堂中的观察讨论：学生从服饰、工具、环境中推测时代特征。',
+        desc: '生成可供学生观察细节、提出证据的问题图，而不是把 AI 图当作真实史料。',
+        use: '用于初中历史课堂的情境观察：学生从陶器、布匹、农具、谷物、服饰、街道和摊位中提取信息，推测古代市集的交易方式与日常生活。',
+        image: '多模态素材/history-market-observation.png',
+        imageAlt: '古代市集观察图：摊位上的陶器、布匹、谷物、农具、竹篮和行人背影构成历史课堂观察材料',
+        imageFit: 'contain',
         preview: 'linear-gradient(135deg,#e4cfa9 0%,#8b6542 55%,#2b241d 100%)',
-        prompt: '请生成一张适合初中历史课堂观察讨论的场景图：古代集市的一角，包含摊位、陶器、布匹、木质工具和行人背影。画面真实但不血腥、不戏剧化，不出现现代物品，不出现可读文字。构图要有多个可观察细节，适合教师引导学生从图中提取历史信息。',
-        steps: ['把“观察目标”写进提示词', '明确不要现代物品和可读文字', '生成后逐项检查时代细节是否穿帮', '课堂上配合问题链使用'],
-        note: '历史图像容易出现时代混杂，不能直接当作史料，只能作为情境观察材料。'
+        prompt: `请生成一张 16:9 横版历史课堂观察图，主题是“古代市集的一角”。画面用于初中历史课堂观察讨论，重点不是戏剧冲突，而是让学生能从物品、服饰、工具、交易方式和建筑环境中提取信息。
+
+画面内容：木质摊位、陶器、布匹、竹篮、谷物、简单农具、手持衡器或称量工具、行人背影或侧影、摊主整理货物、古代街巷和瓦屋。请把多个可观察细节清楚分布在前景、中景和背景。
+
+风格要求：教育用途的历史情境插图，有真实质感但不过度电影化；色彩克制，构图清晰，适合投影到课堂屏幕让学生观察。
+
+限制要求：不要出现任何可读文字、招牌、数字、logo、水印；不要出现现代物品、塑料、电灯、汽车、自行车、水泥路、现代服装；不要血腥、战争或宫廷戏剧化场面；不要出现清晰可识别的人脸。生成后请提醒教师：该图只能作为情境观察材料，不能当作真实史料。`,
+        steps: ['先确定观察目标：让学生看物品、服饰、工具、交易方式和环境，而不是看热闹', '提示词中明确列出可观察细节，并要求前景、中景、背景都有信息', '生成后逐项检查是否混入现代物品、可读文字或明显时代穿帮', '课堂上配合问题链使用：你看到了什么？你据此推测什么？证据在哪里？'],
+        note: '历史 AI 图适合做情境导入和观察训练，但不能替代史料。教师应明确告诉学生：这是 AI 生成的观察材料，结论需要回到教材、文献或真实图像资料中验证。'
     }
 ];
 
@@ -339,9 +423,31 @@ function visibleCases() { return CASES.filter(c => currentFilter === 'all' || c.
 function visualClass(c) {
     if (c.video) return ' has-video';
     if (c.image) return ' has-image';
+    if (c.demo) return ' has-demo';
     return '';
 }
+function fractionDemoMarkup(mode = 'thumb') {
+    return `<div class="mm-fraction-demo ${mode}" aria-label="分数 1/4 概念动效预览">
+        <div class="frac-board">
+            <div class="frac-stage" aria-hidden="true">
+                <div class="frac-disc">
+                    <span class="frac-divider x"></span>
+                    <span class="frac-divider y"></span>
+                    <span class="frac-slice-mark">1份</span>
+                </div>
+                <div class="frac-equation"><span>1</span><span></span><span>4</span></div>
+            </div>
+            <div class="frac-caption" aria-hidden="true">
+                <span class="frac-step s1">一个整体，也可以叫单位“1”</span>
+                <span class="frac-step s2">平均分成 4 份，每份同样大</span>
+                <span class="frac-step s3">取其中 1 份</span>
+                <span class="frac-step s4">这一份就是整体的 1/4</span>
+            </div>
+        </div>
+    </div>`;
+}
 function visualMarkup(c, mode = 'thumb') {
+    if (c.demo === 'fraction') return fractionDemoMarkup(mode);
     if (mode === 'thumb' && c.video && c.image) {
         return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}"><span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>`;
     }
@@ -395,11 +501,10 @@ function openCase(id) {
     visual.style.setProperty('--preview', c.preview);
     visual.classList.toggle('has-image', !!c.image && !c.video);
     visual.classList.toggle('has-video', !!c.video);
-    visual.innerHTML = c.video
-        ? visualMarkup(c, 'detail')
-        : c.image
-            ? `${visualMarkup(c, 'detail')}<i class="${c.icon}"></i>`
-        : `<i class="${c.icon}"></i>`;
+    visual.classList.toggle('has-demo', !!c.demo);
+    visual.classList.toggle('wide-image', c.imageFit === 'contain');
+    const detailVisual = visualMarkup(c, 'detail');
+    visual.innerHTML = detailVisual || `<i class="${c.icon}"></i>`;
     document.getElementById('mm-modal-use').textContent = c.use;
     document.getElementById('mm-modal-steps').innerHTML = c.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('');
     document.getElementById('mm-modal-prompt').textContent = c.prompt;

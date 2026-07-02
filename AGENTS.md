@@ -79,6 +79,12 @@
   - 科学实验案例采用「关键帧 1/2/3 + 可灵 1→2、2→3 首尾帧」流程；页面内用 GIF 做 16:9 轻量预览，按钮打开压缩后的 MP4 原视频。弹窗视频区域固定 `aspect-ratio:16/9`，避免被右侧长提示词拉高形成黑屏感。
   - 本次同时保留登录闪烁优化：`js/auth.js?v=20260701-authsmooth` 继续通过欢迎层、`authChanged` 和原地刷新减少登录完成时的整页闪动。
 
+- **2026-07-02（多模态工作坊案例补充）**:
+  - 「数学概念动效脚本」改为页面内 CSS 动效案例（不新增外部媒体）：`demo:'fraction'` 触发 `fractionDemoMarkup()`，用 4 步循环展示“整体 → 平均分成 4 份 → 取 1 份 → 1/4”。详情区加 `has-demo` 并固定 16:9；遵守 `prefers-reduced-motion`，降级为静态最终帧。
+  - 「班会主题海报」新增发布素材 `多模态素材/class-meeting-cooperation.png`，作为“学会合作”班会封面背景。案例强调“AI 只生成无字背景图，中文标题/班级/日期由教师后期添加”，避免模型直接生成中文文字和真实学生肖像。
+  - 「历史情境观察图」新增发布素材 `多模态素材/history-market-observation.png`，用于学生观察陶器、布匹、谷物、农具、衡器、服饰和市集环境。案例明确该图是 AI 情境观察材料，不能替代真实史料；课堂结论要回到教材、文献或真实图像资料中验证。
+  - 横版教学素材可设置 `imageFit:'contain'`，详情弹窗会加 `.wide-image`，用完整 16:9 展示，避免裁掉海报留白或历史观察细节。
+
 ## Auth Lesson (Important)
 
 **The single biggest bug we hit during the migration**: production logins were routed through `/api/auth-proxy` first, which only stashes the ID token in `localStorage` and never calls the Firebase JS SDK. That left `firebase.auth().currentUser` as `null`, so every Firestore request went out unauthenticated — `getUsers`, article writes, subscribe lookups all 403'd even though the UI showed the admin as "logged in".
