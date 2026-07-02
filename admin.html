@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 · AI 教师培训中心</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260630-workbook-nav">
+    <link rel="stylesheet" href="css/style.css?v=20260701-multimodal">
     <style>
         .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); }
         .admin-sidebar { background: var(--ink); padding: 24px 14px; position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto; }
@@ -504,7 +504,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
-<script src="js/auth.js?v=20260630-nav"></script>
+<script src="js/auth.js?v=20260701-authsmooth"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];
@@ -1326,8 +1326,18 @@ onAuthReady(async (user) => {
     }
 });
 
-// 后台在本页登录后整页刷新一次最稳（authRefresh 只在登录/注册时触发，普通加载不会 → 不死循环）
-document.addEventListener('authRefresh', () => location.reload());
+// 登录/注册成功后原地进入后台，避免整页 reload 造成闪屏。
+document.addEventListener('authRefresh', async () => {
+    renderNav('admin');
+    if (Auth.isAdmin()) {
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('admin-app').style.display = 'block';
+        try { await initAdmin(); } catch(e) { showToast('初始化失败：' + e.message); }
+    } else {
+        document.getElementById('login-gate').style.display = 'flex';
+        document.getElementById('admin-app').style.display = 'none';
+    }
+});
 </script>
 <script src="js/assistant.js?v=20260617-pwreset"></script>
 </body>

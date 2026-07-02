@@ -331,6 +331,7 @@ function renderNav(currentPage) {
     const primaryPages = [
         { key:'index',     href:'index.html',    label:'首页' },
         { key:'agents',    href:'agents.html',   label:'智能体空间' },
+        { key:'multimodal', href:'multimodal.html', label:'多模态工作坊', icon:'ph ph-images-square' },
         { key:'classroom', href:'classroom-tools.html', label:'课堂工具' }
     ];
     const resourcePages = [
@@ -564,10 +565,18 @@ function showWelcomeOverlay(kind, name) {
     const finish = () => {
         if (done) return; done = true;
         document.removeEventListener('authChanged', onChange);
+        overlay.classList.add('settling');
         refreshAuthUI();
         document.dispatchEvent(new CustomEvent('authRefresh', { detail: _currentUser }));
-        overlay.classList.remove('show');
-        setTimeout(() => overlay.remove(), 340);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    overlay.classList.remove('settling');
+                    overlay.classList.remove('show');
+                    setTimeout(() => overlay.remove(), 340);
+                }, 120);
+            });
+        });
     };
     const onChange = () => {
         document.removeEventListener('authChanged', onChange);
@@ -588,8 +597,8 @@ async function handleLogin() {
     const result = await Auth.login(identifier, pwd, remember);
     btn.disabled = false; btn.textContent = '登录';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
-    closeAuthModal();
     showWelcomeOverlay('login', Auth.getCurrentUser()?.name);
+    closeAuthModal();
 }
 
 async function handleRegister() {
@@ -604,8 +613,8 @@ async function handleRegister() {
     const result = await Auth.register(name, identifier, school, pwd);
     btn.disabled = false; btn.textContent = '创建账号';
     if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
-    closeAuthModal();
     showWelcomeOverlay('register', name);
+    closeAuthModal();
 }
 
 async function handleForgotPassword() {
@@ -670,6 +679,7 @@ function renderFooter() {
             <div class="footer-col"><h4>功能导航</h4><ul>
                 <li><a href="index.html">首页</a></li>
                 <li><a href="agents.html">智能体空间</a></li>
+                <li><a href="multimodal.html">多模态工作坊</a></li>
                 <li><a href="tools.html">AI资源精选</a></li>
                 <li><a href="news.html">AI 资讯</a></li>
                 <li><a href="paths.html">学习路径</a></li>

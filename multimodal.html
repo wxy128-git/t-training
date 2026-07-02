@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态工作坊 · AI 教师培训中心</title>
+    <meta name="description" content="面向中小学教师的多模态 AI 案例库：展示图片、视频、音频、数字人等生成成果，并拆解提示词、工具选择和课堂使用方式。">
+    <meta property="og:title" content="多模态工作坊 · AI 教师培训中心">
+    <meta property="og:description" content="看生成成果，也看怎么生成：图片、视频、音频、数字人等多模态教学案例与提示词复盘。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/multimodal.html">
+    <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/resources.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/resources.jpg">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/multimodal.html">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css?v=20260701-multimodal">
+    <style>
+        .mm-wrap { max-width: 1240px; margin: 0 auto; padding: 48px 24px 88px; }
+        .mm-hero { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(320px, .98fr); gap: 48px; align-items: center; padding: 18px 0 54px; border-bottom: 1px solid var(--line); }
+        .mm-kicker { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); margin-bottom: 16px; }
+        .mm-title { margin: 0; color: var(--ink); font-size: clamp(34px, 5vw, 60px); font-weight: 800; letter-spacing: -.03em; line-height: 1.08; }
+        .mm-title em { color: var(--brand); font-style: italic; }
+        .mm-sub { max-width: 640px; margin: 18px 0 0; color: var(--text-soft); font-size: 15px; line-height: 1.85; }
+        .mm-note { display: inline-flex; align-items: flex-start; gap: 9px; margin-top: 24px; padding: 12px 15px; border: 1px dashed var(--line); border-radius: 12px; background: var(--paper); color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+        .mm-note i { color: var(--ochre); font-size: 17px; margin-top: 1px; }
+        .mm-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+        .mm-primary, .mm-secondary { display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 12px 18px; font-weight: 700; font-size: 14px; transition: transform .16s, background .16s, border-color .16s; }
+        .mm-primary { background: var(--ink); color: var(--soft); border: 1px solid var(--ink); }
+        .mm-primary:hover { background: var(--brand); border-color: var(--brand); transform: translateY(-1px); }
+        .mm-secondary { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+        .mm-secondary:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+        .mm-board { position: relative; min-height: 430px; }
+        .mm-print { position: absolute; background: var(--paper); border: 1px solid rgba(26,22,18,.11); border-radius: 14px; box-shadow: 0 18px 42px -24px rgba(26,22,18,.38), 0 2px 7px rgba(26,22,18,.05); overflow: hidden; }
+        .mm-print.one { inset: 0 18% auto 0; height: 250px; transform: rotate(-2deg); }
+        .mm-print.two { right: 0; top: 78px; width: 50%; height: 250px; transform: rotate(3deg); }
+        .mm-print.three { left: 12%; right: 8%; bottom: 0; height: 155px; transform: rotate(-1deg); }
+        .mm-print .cap { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); background: rgba(245,240,228,.72); }
+        .mm-scene { height: calc(100% - 36px); position: relative; overflow: hidden; }
+        .mm-scene img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .mm-scene.ancient { background: linear-gradient(145deg,#f8ecd5 0%,#d9e6e3 48%,#58756f 100%); }
+        .mm-scene.ancient::before { content:""; position:absolute; left:18%; bottom:0; width:34%; height:58%; background:rgba(26,22,18,.72); clip-path:polygon(50% 0,100% 100%,0 100%); }
+        .mm-scene.ancient::after { content:""; position:absolute; right:11%; top:16%; width:58px; height:58px; border-radius:50%; background:rgba(255,246,207,.88); box-shadow:0 0 34px rgba(255,246,207,.7); }
+        .mm-scene.ancient.has-image::before,
+        .mm-scene.ancient.has-image::after { display: none; }
+        .mm-scene.video { background: linear-gradient(135deg,#203848,#5d8790); display:grid; grid-template-columns:repeat(3,1fr); gap:7px; padding:12px; }
+        .mm-scene.video span { border-radius:8px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.2); position:relative; }
+        .mm-scene.video span::after { content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); border-left:13px solid rgba(255,255,255,.84); border-top:8px solid transparent; border-bottom:8px solid transparent; }
+        .mm-scene.prompt { background: #fffdf8; padding: 16px 18px; color: var(--text); font-size: 13px; line-height: 1.75; }
+        .mm-scene.prompt b { color: var(--brand); }
+
+        .mm-toolbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 30px 0 22px; }
+        .mm-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+        .mm-tab { border: 1px solid var(--line); background: var(--paper); color: var(--text-soft); border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+        .mm-tab:hover { color: var(--ink); border-color: var(--subtle); }
+        .mm-tab.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
+        .mm-count { font-family: var(--font-mono); color: var(--muted); font-size: 12px; }
+        .mm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+        .mm-card { display: flex; flex-direction: column; background: var(--paper); border: 1px solid rgba(26,22,18,.08); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(26,22,18,.05); transition: transform .25s, box-shadow .25s, border-color .25s; }
+        .mm-card:hover { transform: translateY(-3px); border-color: rgba(26,22,18,.14); box-shadow: 0 2px 4px rgba(26,22,18,.04), 0 10px 20px -10px rgba(26,22,18,.10), 0 22px 44px -20px rgba(26,22,18,.16); }
+        .mm-thumb { height: 180px; position: relative; overflow: hidden; background: var(--soft-2); }
+        .mm-thumb::before { content:""; position:absolute; inset:0; opacity:.95; background: var(--preview); }
+        .mm-thumb::after { content:""; position:absolute; inset:18px; border:1px solid rgba(255,255,255,.45); border-radius:14px; }
+        .mm-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+        .mm-thumb video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; background:#111; }
+        .mm-thumb.has-image::before { display:none; }
+        .mm-thumb.has-video::before { display:none; }
+        .mm-thumb.has-image::after { border-color:rgba(255,255,255,.55); box-shadow:inset 0 0 0 999px rgba(26,22,18,.02); }
+        .mm-thumb.has-video::after { border-color:rgba(255,255,255,.52); box-shadow:inset 0 0 0 999px rgba(26,22,18,.05); }
+        .mm-thumb .type { position: absolute; left: 14px; top: 14px; z-index:1; display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:999px; background:rgba(255,255,255,.86); color:var(--ink); font-size:11.5px; font-weight:800; }
+        .mm-thumb .mark { position:absolute; right:16px; bottom:14px; z-index:1; color:rgba(255,255,255,.9); font-size:52px; }
+        .mm-thumb.has-image .mark { display:none; }
+        .mm-thumb.has-video .mark { display:none; }
+        .mm-video-badge { position:absolute; right:14px; bottom:14px; z-index:1; display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:rgba(26,22,18,.74); color:#fffdf8; font-size:11.5px; font-weight:800; backdrop-filter:blur(6px); }
+        .mm-card-body { padding: 18px 18px 16px; display:flex; flex-direction:column; flex:1; }
+        .mm-meta { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+        .mm-chip { font-size:11px; padding:3px 8px; border-radius:999px; background:var(--soft-2); color:var(--muted); font-weight:700; }
+        .mm-card h3 { margin:0 0 8px; color:var(--ink); font-size:16px; line-height:1.35; }
+        .mm-card p { margin:0; color:var(--text-soft); font-size:13px; line-height:1.7; flex:1; }
+        .mm-card-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--line-soft); }
+        .mm-small-btn { border:1px solid var(--line); background:var(--soft); color:var(--text-soft); border-radius:8px; padding:7px 10px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:5px; transition:all .15s; }
+        .mm-small-btn:hover { border-color:var(--ink); color:var(--ink); background:var(--paper); }
+        .mm-empty { display:none; grid-column:1/-1; padding:54px 20px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:16px; background:rgba(255,255,255,.42); }
+        .mm-empty i { display:block; font-size:42px; color:var(--subtle); margin-bottom:10px; }
+
+        .mm-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; z-index: 250; background: rgba(26,22,18,.46); }
+        .mm-modal.active { display: flex; }
+        .mm-modal-box { width: min(920px, 100%); max-height: 88vh; display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-lg); }
+        .mm-modal-head { display:flex; gap:14px; justify-content:space-between; align-items:flex-start; padding:20px 24px; border-bottom:1px solid var(--line); }
+        .mm-modal-head h2 { margin:0 0 6px; color:var(--ink); font-size:21px; }
+        .mm-modal-head .meta { color:var(--muted); font-family:var(--font-mono); font-size:12px; }
+        .mm-modal-head button { border:0; background:transparent; font-size:24px; color:var(--subtle); cursor:pointer; }
+        .mm-modal-body { overflow:auto; padding:24px; display:grid; grid-template-columns:.9fr 1.1fr; gap:22px; align-items:start; }
+        .mm-detail-visual { min-height: 260px; border-radius:16px; background:var(--preview); position:relative; overflow:hidden; }
+        .mm-detail-visual img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+        .mm-detail-visual video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; background:#111; }
+        .mm-detail-visual iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#111; }
+        .mm-video-preview-link { position:absolute; inset:0; display:block; background:#111; color:#fffdf8; overflow:hidden; }
+        .mm-video-preview-link img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; }
+        .mm-video-preview-link span { position:absolute; right:14px; bottom:14px; z-index:1; display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border-radius:999px; background:rgba(26,22,18,.74); color:#fffdf8; font-size:12px; font-weight:800; backdrop-filter:blur(6px); }
+        .mm-detail-visual.has-image { min-height: 320px; background: var(--soft-2); }
+        .mm-detail-visual.has-video { min-height: 0; aspect-ratio:16/9; background:#111; }
+        .mm-detail-visual i { position:absolute; right:24px; bottom:18px; color:rgba(255,255,255,.9); font-size:68px; }
+        .mm-detail-visual.has-image i { display:none; }
+        .mm-detail-visual.has-video i { display:none; }
+        .mm-detail h3 { margin:0 0 10px; color:var(--ink); font-size:15px; }
+        .mm-detail p, .mm-detail li { color:var(--text-soft); font-size:13.5px; line-height:1.75; }
+        .mm-prompt { background:#fffdf8; border:1px solid var(--line); border-left:4px solid var(--brand); border-radius:0 12px 12px 0; padding:14px 15px; color:var(--text); font-size:13px; line-height:1.8; white-space:pre-wrap; }
+        .mm-modal-foot { display:flex; justify-content:flex-end; gap:8px; padding:14px 24px; border-top:1px solid var(--line); background:var(--soft); }
+        @media (max-width: 960px) {
+            .mm-hero { grid-template-columns: 1fr; }
+            .mm-board { min-height: 360px; }
+            .mm-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+            .mm-modal-body { grid-template-columns:1fr; }
+        }
+        @media (max-width: 640px) {
+            .mm-wrap { padding: 36px 18px 72px; }
+            .mm-board { min-height: 300px; }
+            .mm-print.one { right: 12%; height: 190px; }
+            .mm-print.two { top: 66px; width: 54%; height: 190px; }
+            .mm-print.three { left: 6%; right: 4%; height: 130px; }
+            .mm-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div id="main-nav"></div>
+
+<main class="mm-wrap">
+    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>多模态工作坊</span></div>
+
+    <section class="mm-hero">
+        <div>
+            <div class="mm-kicker">Multimodal Studio · 教学素材生成案例</div>
+            <h1 class="mm-title">多模态<em>工作坊</em></h1>
+            <p class="mm-sub">这里不直接调用图片、视频或音频生成模型，而是把适合教师的多模态案例拆开：成果长什么样、提示词怎么写、工具怎么选、课堂里怎么用。你可以复制提示词，到相应工具中低成本复现。</p>
+            <div class="mm-note"><i class="ph ph-info"></i><span>为控制平台成本，本站首版只做案例展示与生成方法复盘，不提供站内图片/视频生成接口，也不会消耗你的智能体额度。</span></div>
+            <div class="mm-actions">
+                <a class="mm-primary" href="#mm-cases"><i class="ph-fill ph-images-square"></i> 查看案例</a>
+                <a class="mm-secondary" href="tools.html"><i class="ph ph-toolbox"></i> 找生成工具</a>
+            </div>
+        </div>
+        <div class="mm-board" aria-hidden="true">
+            <div class="mm-print one"><div class="cap"><span>IMAGE CASE</span><span>语文 · 意境图</span></div><div class="mm-scene ancient has-image"><img src="多模态素材/古诗意境.png" alt="古诗意境图预览"></div></div>
+            <div class="mm-print two"><div class="cap"><span>VIDEO STORYBOARD</span><span>科学 · 实验演示</span></div><div class="mm-scene video"><span></span><span></span><span></span></div></div>
+            <div class="mm-print three"><div class="cap"><span>PROMPT NOTE</span><span>可复制复盘</span></div><div class="mm-scene prompt">角色：<b>中小学教师</b><br>目标：生成可用于课堂导入的视觉素材<br>约束：真实、清晰、避免版权角色</div></div>
+        </div>
+    </section>
+
+    <section id="mm-cases">
+        <div class="mm-toolbar">
+            <div class="mm-tabs" id="mm-tabs"></div>
+            <div class="mm-count" id="mm-count"></div>
+        </div>
+        <div class="mm-grid" id="mm-grid"></div>
+    </section>
+</main>
+
+<div class="mm-modal" id="mm-modal" onclick="if(event.target===this)closeCaseModal()">
+    <div class="mm-modal-box">
+        <div class="mm-modal-head">
+            <div>
+                <h2 id="mm-modal-title"></h2>
+                <div class="meta" id="mm-modal-meta"></div>
+            </div>
+            <button onclick="closeCaseModal()" aria-label="关闭">×</button>
+        </div>
+        <div class="mm-modal-body">
+            <div class="mm-detail-visual" id="mm-modal-visual"></div>
+            <div class="mm-detail">
+                <h3>课堂用途</h3>
+                <p id="mm-modal-use"></p>
+                <h3>生成步骤</h3>
+                <ol id="mm-modal-steps"></ol>
+                <h3>提示词</h3>
+                <div class="mm-prompt" id="mm-modal-prompt"></div>
+                <h3>教师提醒</h3>
+                <p id="mm-modal-note"></p>
+            </div>
+        </div>
+        <div class="mm-modal-foot">
+            <button class="mm-small-btn" onclick="copyActivePrompt()"><i class="ph ph-copy"></i> 复制提示词</button>
+            <button class="mm-small-btn" onclick="closeCaseModal()"><i class="ph ph-check"></i> 完成</button>
+        </div>
+    </div>
+</div>
+
+<div id="main-footer"></div>
+
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js?v=20260615-authflash"></script>
+<script src="js/data.js?v=20260617-hot"></script>
+<script src="js/auth.js?v=20260701-authsmooth"></script>
+<script>
+const CASES = [
+    {
+        id: 'poem-image', type: 'image', label: '图片', icon: 'ph-fill ph-image-square', subject: '语文', level: '入门',
+        title: '古诗意境导入图',
+        desc: '为古诗课堂生成一张不指向具体版权形象的意境图，适合放在导入页或学习单封面。',
+        use: '用于《望庐山瀑布》《山居秋暝》等古诗导入，让学生先观察画面，再回到诗句寻找意象。',
+        image: '多模态素材/古诗意境.png',
+        imageAlt: '古诗意境山水图，远山、瀑布、松树与晨雾构成课堂导入画面',
+        preview: 'linear-gradient(135deg,#f2d8a7 0%,#8fb6ad 48%,#2d4a3a 100%)',
+        prompt: '请生成一张适合小学高年级语文古诗课堂导入的意境插图：远山、瀑布、晨雾、松树，画面留出上方空白用于标题排版。风格为中国水墨与现代课件插画结合，色彩克制，构图清晰，不出现人物脸部，不包含文字，不模仿任何在世艺术家。',
+        steps: ['先写清楚课文主题和关键意象', '要求画面留白，方便放入课件标题', '生成后筛掉文字错乱、人物脸部不自然的版本', '放入课件前再压缩图片，避免文件过大'],
+        note: '不要要求模型模仿名家风格；用于公开展示前，建议选择平台允许教育使用的生成结果。'
+    },
+    {
+        id: 'science-video', type: 'video', label: '视频', icon: 'ph-fill ph-film-strip', subject: '科学', level: '进阶',
+        title: '科学实验三镜头短视频',
+        desc: '把“热空气上升”拆成装置、现象、解释 3 个镜头，用热水和纸螺旋做安全演示。',
+        use: '用于小学科学“空气受热会上升”的课前预习或课堂导入。学生先观察纸螺旋受暖空气带动旋转，再回到实验现象解释空气运动方向。',
+        image: '多模态素材/science-hot-air-03.png',
+        imageAlt: '热空气上升实验结论帧：烧杯热水上方的纸螺旋、上升气流箭头和空白结论卡',
+        video: '多模态素材/science-hot-air-web.mp4',
+        videoAlt: '科学实验短视频：热水上方的暖空气上升并带动白色纸螺旋旋转',
+        animation: '多模态素材/science-hot-air-preview.gif',
+        preview: 'linear-gradient(135deg,#203848 0%,#5d8790 58%,#d5e6df 100%)',
+        prompt: `先用图像模型生成 3 张 16:9 关键帧：同一间小学科学教室、同一张实验桌、同一个透明烧杯、同一个支架和白色纸螺旋。实验用热水，不出现明火；画面不出现任何文字、数字、logo或水印。
+
+【关键帧 1：装置】
+透明烧杯中有热水，水面有轻微蒸汽；白色纸螺旋用细线悬挂在烧杯上方，暂时不画箭头。构图干净，器材完整，适合说明实验准备。
+
+【关键帧 2：现象】
+保持同一装置和镜头，加入半透明橙色上升箭头和轻微蒸汽；纸螺旋略微旋转，表现热空气向上运动并带动纸螺旋。
+
+【关键帧 3：解释】
+保持同一装置，继续显示上升箭头和旋转纸螺旋；右侧加入一块空白结论卡，不写任何文字，留给教师后期添加“空气受热会上升”等字幕。
+
+可灵首尾帧生成建议：
+【1 → 2】
+保持原图的教室、实验桌、烧杯、支架和纸螺旋完全一致。5秒短片，镜头轻微推近。热水上方的蒸汽缓慢上升，半透明橙色气流箭头逐渐出现并向上移动，纸螺旋轻轻旋转。动作幅度小，器材不要变形，不添加文字、字幕、人物、logo或额外器材。
+
+【2 → 3】
+保持原图的教室、实验桌、烧杯、支架和纸螺旋完全一致。5秒短片，镜头平稳，气流箭头持续向上，纸螺旋继续轻轻旋转，画面右侧自然出现空白结论卡。不要生成可读文字，不卡通化夸张，不添加人物、logo或额外器材。`,
+        steps: ['先生成 3 张关键帧：装置、现象、解释，保持器材和镜头一致', '在可灵中用 1→2、2→3 做两段首尾帧视频，每段约 5 秒', '提示词强调“不出现明火、不添加文字、器材不变形、动作幅度小”', '合并两段视频后，再由教师后期添加字幕、配音或结论卡文字'],
+        note: '科学实验视频要优先保证原理准确：热水加热周围空气，暖空气向上运动，带动轻纸螺旋旋转；不要表现成纸片被神奇托起。'
+    },
+    {
+        id: 'english-scene', type: 'video', label: '视频', icon: 'ph-fill ph-chats-circle', subject: '英语', level: '进阶',
+        title: '英语情景对话动画',
+        desc: '用 5 张同风格关键帧和可灵首尾帧生成一段图书馆找书对话动画，适合做小学英语口语导入。',
+        use: '用于小学英语“在图书馆找书 / 询问喜好”的情景导入。学生先看两名学生找书、指向书架、选择图书的过程，再分角色补全或模仿对话。',
+        video: '多模态素材/英语情景对话动画-web.m4v',
+        videoAlt: '英语情景对话动画：两名学生在图书馆讨论找书并选择绿色图书',
+        preview: 'linear-gradient(135deg,#334c7a 0%,#87a9ca 55%,#f5e0b7 100%)',
+        prompt: `先用图像模型生成 5 张连续关键帧：同一间明亮图书馆、同一男孩和女孩、统一卡通风格、校服一致、桌面和书架位置尽量稳定。再在可灵中按相邻图片做 4 段首尾帧视频，每段 720p、5 秒、16:9、单条生成。
+
+【1 → 2】
+保持原图的卡通风格、人物身份、服装、图书馆背景完全一致。5秒短片，镜头轻微推近。男孩自然眨眼并微笑，先抬起食指提出问题，说“Can you help me find a book?” 女孩看向男孩，点头微笑回答“Sure, let's look together.” 最后两人自然竖起大拇指。动作幅度小，手指稳定，脸部不变形，不添加文字、字幕、logo或额外人物。
+
+【2 → 3】
+保持原图的卡通风格、人物身份、校服、图书馆背景完全一致。5秒短片，镜头轻微推近。两名学生先微笑确认，然后女孩自然抬起右手指向右侧书架，说“Look! The storybooks are over there.” 男孩看向女孩并点头微笑，说“Great!” 动作幅度小，手指稳定，脸部不变形，不添加文字、字幕、logo或额外人物。
+
+【3 → 4】
+保持原图的卡通风格、人物身份、校服、图书馆背景完全一致。5秒短片，镜头轻微推近。女孩继续指向右侧书架，男孩转头看向她并露出高兴表情，轻轻握拳表示赞同。女孩说“The English books are on that shelf.” 男孩回答“Great! Let’s choose one.” 动作幅度小，手指稳定，脸部不变形，不添加文字、字幕、logo或额外人物。
+
+【4 → 5】
+保持原图的卡通风格、人物身份、校服、图书馆背景完全一致。5秒短片，镜头轻微推近。女孩放下手臂回到座位姿态，男孩自然伸手介绍桌上的书，微笑说“Which book do you like?” 女孩看向男孩并回答“I like this green book.” 动作幅度小，手指稳定，脸部不变形，不添加文字、字幕、logo或额外人物。`,
+        steps: ['用 ChatGPT 先生成 5 张连续关键帧，固定人物、服装、图书馆背景和画面比例', '在可灵中按 1→2、2→3、3→4、4→5 分别使用首尾帧生成 5 秒视频', '每段提示词都写清楚动作幅度小、脸部不变形、不添加字幕或额外人物', '把四段视频按顺序合并成完整动画，再由教师按需后期添加字幕或配音'],
+        note: '视频模型不适合直接生成英文字幕。口语课中建议把字幕、听力音频或角色台词由教师后期添加和校对，确保语言准确。'
+    },
+    {
+        id: 'math-motion', type: 'courseware', label: '课件', icon: 'ph-fill ph-presentation-chart', subject: '数学', level: '入门',
+        title: '数学概念动效脚本',
+        desc: '先让大模型生成“动画脚本”，再用 PPT 或课件工具手工复现。',
+        use: '用于讲解分数、面积、轴对称等概念，把“怎么动”先设计清楚。',
+        preview: 'linear-gradient(135deg,#e8d6a6 0%,#b08642 48%,#3d342b 100%)',
+        prompt: '请为小学数学“分数的意义”设计一个 4 步课件动画脚本：用一个圆形披萨从完整到平均分成 4 份，再高亮其中 1 份，最后出现 1/4 的概念。每一步说明画面元素、动画方式、教师提问和学生可能回答。语言简洁，可直接用于制作 PPT。',
+        steps: ['不要一上来生成图片，先生成动画脚本', '把元素、动作、提问分开写', 'PPT 中手动制作动画，更稳定可控', '必要时再为封面生成一张静态图'],
+        note: '数学概念的比例和标注要由教师检查，不能只看生成画面是否漂亮。'
+    },
+    {
+        id: 'class-poster', type: 'image', label: '图片', icon: 'ph-fill ph-seal-check', subject: '班主任', level: '入门',
+        title: '班会主题海报',
+        desc: '生成班会封面或校园活动主视觉，重点控制文字留白和画面情绪。',
+        use: '用于班会、家长会、读书节等活动的电子屏或通知封面。',
+        preview: 'linear-gradient(135deg,#fbeae6 0%,#c0392b 50%,#7a2c24 100%)',
+        prompt: '请生成一张班会主题海报背景图，主题是“学会合作”。画面为几个学生围绕一张桌子共同完成项目，但不出现清晰脸部；风格温暖、干净、适合中小学班会。中间偏上留出大面积空白用于后期添加标题，不包含任何文字、校徽、品牌标识。',
+        steps: ['先明确海报情绪：温暖、庄重、活泼或科技感', '要求不生成文字，把标题留给后期排版', '避免清晰学生脸部，减少隐私和肖像风险', '导入 Canva/PPT 后再加标题和校名'],
+        note: '涉及学生形象的画面尽量使用泛化人物，不使用真实学生照片做参考。'
+    },
+    {
+        id: 'audio-opening', type: 'audio', label: '音频', icon: 'ph-fill ph-waveform', subject: '活动', level: '进阶',
+        title: '校园活动开场音乐',
+        desc: '先写音乐描述，再用音乐生成工具做短片头或背景音乐。',
+        use: '用于读书节、科技节、班级展示等活动开场，营造统一氛围。',
+        preview: 'linear-gradient(135deg,#243b53 0%,#2f6a72 50%,#d9cdb8 100%)',
+        prompt: '生成一段 20 秒校园科技节开场音乐：节奏明快但不吵闹，带有轻微电子音色和温暖弦乐，适合中小学活动开场。情绪关键词：探索、合作、明亮、期待。不要人声，不要歌词，结尾自然收束，方便接主持人讲话。',
+        steps: ['先定活动类型和情绪关键词', '控制时长，避免生成完整歌曲后难剪辑', '优先选择无歌词版本，减少版权和内容风险', '导出后控制音量，避免压过主持人'],
+        note: '音乐平台的版权协议差异较大，公开活动前要确认可用范围。'
+    },
+    {
+        id: 'digital-human', type: 'avatar', label: '数字人', icon: 'ph-fill ph-user-focus', subject: '家校', level: '高级',
+        title: '家长会说明视频',
+        desc: '把通知文本变成数字人口播脚本，但内容仍由教师审核。',
+        use: '用于家长会前说明流程、材料准备、注意事项，减少重复沟通。',
+        preview: 'linear-gradient(135deg,#e7ede8 0%,#2d4a3a 52%,#1a1612 100%)',
+        prompt: '请帮我把以下家长会通知改写成 60 秒数字人口播脚本。要求：语气亲切、信息清楚、分三段：开场问候、会议安排、家长准备事项。不要夸张宣传，不要制造焦虑。输出包含：口播稿、字幕分句、画面建议。通知内容：[在这里粘贴原通知]',
+        steps: ['先用文本模型改写口播稿', '教师审核事实信息和语气', '再粘到数字人工具生成视频', '字幕建议由教师确认后再导出'],
+        note: '家校沟通内容必须准确，不能让模型自行补充时间、地点、费用等关键信息。'
+    },
+    {
+        id: 'history-image', type: 'image', label: '图片', icon: 'ph-fill ph-bank', subject: '历史', level: '进阶',
+        title: '历史情境观察图',
+        desc: '生成“可观察、可提问”的历史场景图，而不是追求影视化大片感。',
+        use: '用于历史课堂中的观察讨论：学生从服饰、工具、环境中推测时代特征。',
+        preview: 'linear-gradient(135deg,#e4cfa9 0%,#8b6542 55%,#2b241d 100%)',
+        prompt: '请生成一张适合初中历史课堂观察讨论的场景图：古代集市的一角，包含摊位、陶器、布匹、木质工具和行人背影。画面真实但不血腥、不戏剧化，不出现现代物品，不出现可读文字。构图要有多个可观察细节，适合教师引导学生从图中提取历史信息。',
+        steps: ['把“观察目标”写进提示词', '明确不要现代物品和可读文字', '生成后逐项检查时代细节是否穿帮', '课堂上配合问题链使用'],
+        note: '历史图像容易出现时代混杂，不能直接当作史料，只能作为情境观察材料。'
+    }
+];
+
+const FILTERS = [
+    { key: 'all', label: '全部' },
+    { key: 'image', label: '图片' },
+    { key: 'video', label: '视频' },
+    { key: 'audio', label: '音频' },
+    { key: 'avatar', label: '数字人' },
+    { key: 'courseware', label: '课件' }
+];
+let currentFilter = 'all';
+let activeCaseId = null;
+
+function renderTabs() {
+    document.getElementById('mm-tabs').innerHTML = FILTERS.map(f =>
+        `<button class="mm-tab${f.key === currentFilter ? ' active' : ''}" onclick="setFilter('${f.key}')">${f.label}</button>`
+    ).join('');
+}
+function setFilter(key) { currentFilter = key; renderCases(); }
+function visibleCases() { return CASES.filter(c => currentFilter === 'all' || c.type === currentFilter); }
+function visualClass(c) {
+    if (c.video) return ' has-video';
+    if (c.image) return ' has-image';
+    return '';
+}
+function visualMarkup(c, mode = 'thumb') {
+    if (mode === 'thumb' && c.video && c.image) {
+        return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}"><span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>`;
+    }
+    if (mode === 'detail' && c.animation && c.video) {
+        return `<a class="mm-video-preview-link" href="${escapeHtml(c.video)}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.videoAlt || c.title)}"><img src="${escapeHtml(c.animation)}" alt="${escapeHtml(c.videoAlt || c.title)}"><span><i class="ph-fill ph-play"></i> 打开原视频</span></a>`;
+    }
+    if (mode === 'detail' && c.video) {
+        const playerSrc = `media-player.html?src=${encodeURIComponent(c.video)}${c.image ? `&poster=${encodeURIComponent(c.image)}` : ''}`;
+        return `<iframe src="${escapeHtml(playerSrc)}" title="${escapeHtml(c.videoAlt || c.title)}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+    }
+    if (c.video) {
+        const detailAttrs = mode === 'detail' ? 'controls muted autoplay loop ' : 'muted ';
+        const preload = mode === 'detail' ? 'auto' : 'metadata';
+        const posterAttr = c.image ? ` poster="${escapeHtml(c.image)}"` : '';
+        const badge = mode === 'thumb' ? '<span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>' : '';
+        return `<video ${detailAttrs}playsinline preload="${preload}" src="${escapeHtml(c.video)}"${posterAttr} aria-label="${escapeHtml(c.videoAlt || c.title)}"></video>${badge}`;
+    }
+    if (c.image) return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}">`;
+    return '';
+}
+function renderCases() {
+    renderTabs();
+    const list = visibleCases();
+    document.getElementById('mm-count').textContent = `${list.length} 个案例`;
+    document.getElementById('mm-grid').innerHTML = list.length ? list.map(c => `
+        <article class="mm-card">
+            <div class="mm-thumb${visualClass(c)}" style="--preview:${c.preview}">
+                ${visualMarkup(c, 'thumb')}
+                <span class="type"><i class="${c.icon}"></i>${c.label}</span>
+                <i class="${c.icon} mark"></i>
+            </div>
+            <div class="mm-card-body">
+                <div class="mm-meta"><span class="mm-chip">${c.subject}</span><span class="mm-chip">${c.level}</span></div>
+                <h3>${escapeHtml(c.title)}</h3>
+                <p>${escapeHtml(c.desc)}</p>
+                <div class="mm-card-actions">
+                    <button class="mm-small-btn" onclick="openCase('${c.id}')"><i class="ph ph-list-magnifying-glass"></i> 看步骤</button>
+                    <button class="mm-small-btn" onclick="copyPrompt('${c.id}')"><i class="ph ph-copy"></i> 复制提示词</button>
+                </div>
+            </div>
+        </article>
+    `).join('') : '<div class="mm-empty" style="display:block"><i class="ph ph-funnel-simple"></i>暂无匹配案例</div>';
+}
+function findCase(id) { return CASES.find(c => c.id === id); }
+function openCase(id) {
+    const c = findCase(id); if (!c) return;
+    activeCaseId = id;
+    document.getElementById('mm-modal-title').textContent = c.title;
+    document.getElementById('mm-modal-meta').textContent = `${c.label} · ${c.subject} · ${c.level}`;
+    const visual = document.getElementById('mm-modal-visual');
+    visual.style.setProperty('--preview', c.preview);
+    visual.classList.toggle('has-image', !!c.image && !c.video);
+    visual.classList.toggle('has-video', !!c.video);
+    visual.innerHTML = c.video
+        ? visualMarkup(c, 'detail')
+        : c.image
+            ? `${visualMarkup(c, 'detail')}<i class="${c.icon}"></i>`
+        : `<i class="${c.icon}"></i>`;
+    document.getElementById('mm-modal-use').textContent = c.use;
+    document.getElementById('mm-modal-steps').innerHTML = c.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+    document.getElementById('mm-modal-prompt').textContent = c.prompt;
+    document.getElementById('mm-modal-note').textContent = c.note;
+    document.getElementById('mm-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeCaseModal() {
+    const media = document.getElementById('mm-modal-visual').querySelector('video');
+    if (media) {
+        media.pause();
+        media.currentTime = 0;
+    }
+    const frame = document.getElementById('mm-modal-visual').querySelector('iframe');
+    if (frame) frame.src = 'about:blank';
+    document.getElementById('mm-modal').classList.remove('active');
+    document.body.style.overflow = '';
+    activeCaseId = null;
+}
+function copyPrompt(id) {
+    const c = findCase(id); if (!c) return;
+    navigator.clipboard.writeText(c.prompt).then(() => showToast('提示词已复制 ✓'));
+}
+function copyActivePrompt() { if (activeCaseId) copyPrompt(activeCaseId); }
+function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCaseModal(); });
+
+renderNav('multimodal');
+renderFooter();
+renderCases();
+onAuthReady(() => { renderNav('multimodal'); renderFooter(); });
+</script>
+<script src="js/assistant.js?v=20260617-pwreset"></script>
+</body>
+</html>

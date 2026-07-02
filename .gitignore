@@ -2,3 +2,16 @@
 .netlify/
 .wrangler/
 node_modules/
+
+# Local source media for the multimodal workshop; publish optimized web assets only.
+多模态素材/1.png
+多模态素材/2.png
+多模态素材/3.png
+多模态素材/4.png
+多模态素材/5.png
+多模态素材/english-dialogue-*.mp4
+多模态素材/英语情景对话动画.mp4
+多模态素材/science-hot-air-01-02.mp4
+多模态素材/science-hot-air-02-03.mp4
+多模态素材/science-hot-air-full.mp4
+多模态素材/science-hot-air-full.mov

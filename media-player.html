@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>媒体预览</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background: #111;
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            background: #111;
+        }
+        .error {
+            min-height: 100%;
+            display: grid;
+            place-items: center;
+            color: #f8f2e7;
+            font: 14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<script>
+const params = new URLSearchParams(location.search);
+const src = params.get('src') || '';
+const poster = params.get('poster') || '';
+const allowed = src.startsWith('多模态素材/') && !src.includes('..');
+
+if (!allowed) {
+    document.body.innerHTML = '<div class="error">无法加载媒体素材</div>';
+} else {
+    const video = document.createElement('video');
+    video.src = src;
+    if (poster && poster.startsWith('多模态素材/') && !poster.includes('..')) video.poster = poster;
+    video.controls = true;
+    video.autoplay = true;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    document.body.appendChild(video);
+}
+</script>
+</body>
+</html>

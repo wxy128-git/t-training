@@ -953,6 +953,7 @@ button, input, textarea, select { font: inherit; }
     opacity: 0; transition: opacity 0.32s ease;
 }
 .welcome-overlay.show { opacity: 1; }
+.welcome-overlay.settling { background: rgba(250,247,240,0.96); }
 .welcome-card {
     background: var(--paper);
     border: 1px solid var(--line);
@@ -1913,7 +1914,7 @@ tr:hover td { background: var(--soft); }
     margin: 14px 14px 6px;
     font-weight: 500;
 }
-@media (max-width: 1080px) {
+@media (max-width: 1160px) {
     .site-nav { display: none !important; }
     .nav-hamburger { display: inline-flex; }
 }
