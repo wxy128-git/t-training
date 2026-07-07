@@ -12,11 +12,12 @@
 ## Architecture
 
 - Plain HTML/CSS/JS, no bundler. Pages render skeletons (or in-code defaults), then JS pulls data from Firestore via the global `DB` object in `js/data.js`.
-- Four Cloudflare Pages Functions under `functions/api/`:
+- Five Cloudflare Pages Functions under `functions/api/`:
   - `auth-proxy.js` — server-side login/register fallback when the browser can't reach Firebase Auth directly. Stores an ID token in `localStorage` under the key in `window.PROXY_AUTH_SESSION_KEY`. **Should now only run as a network-failure fallback** (see "Auth Lesson" below).
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
   - `rss-proxy.js` — generic CORS-friendly RSS fetcher for the news page; used as one of several loaders.
   - `agent.js` — 智能体后端代理（2026-06-09）：持 `DEEPSEEK_API_KEY` 转发到 DeepSeek（model `deepseek-v4-flash` + `thinking:{type:'disabled'}` 非思考模式；旧名 `deepseek-chat` 于 2026/07/24 停用，已于 2026-06-29 迁移——v4-flash 默认开思考模式更慢更贵，必须显式 disable 才等价旧 deepseek-chat），用 `accounts:lookup` 校验 Firebase idToken 防盗刷，把上游 SSE 解析成纯文本增量流式回传。前端 `agents.html` 的 `callAgentAPI()` POST `{ messages, idToken }` 调用它。未配密钥时返回 501。**限流 (2026-06-29)**：`checkRate(uid)` 软限流——同一登录用户 60 秒内最多 `RATE_MAX=12` 次，超出返回 429 `{ok:false,msg:"提问太频繁啦，请约 N 秒后再试～"}`（前端 `callAgentAPI` 的 `!res.ok` 分支已会显示该 msg，无需改前端）。实现是**单实例内存** `Map`（uid→时间戳数组，>5000 条时清理过期），零配置、不占额度，挡"手滑狂点/刷接口"；Cloudflare 多实例跨服务器非 100% 精确，要"每人每天硬封顶"再升级 KV/Durable Objects。调阈值改 `RATE_WINDOW_MS`/`RATE_MAX` 两常量即可。
+  - `analytics.js` — 站内统计接口（2026-07-07）：`POST {action:'track'}` 写入 Firestore `analytics_events`，`POST {action:'summary'}` 仅管理员可读聚合结果。写入/读取都走 Firebase service account，前端不需要也不应开放 `analytics_events` 的匿名写规则。事件只记录访问和功能动作（page_view / agent_run / workbook_* / multimodal_*），不记录智能体输入、生成正文、备课本内容、IP、userAgent 或屏幕指纹信息。
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
@@ -84,6 +85,12 @@
   - 「班会主题海报」新增发布素材 `多模态素材/class-meeting-cooperation.png`，作为“学会合作”班会封面背景。案例强调“AI 只生成无字背景图，中文标题/班级/日期由教师后期添加”，避免模型直接生成中文文字和真实学生肖像。
   - 「历史情境观察图」新增发布素材 `多模态素材/history-market-observation.png`，用于学生观察陶器、布匹、谷物、农具、衡器、服饰和市集环境。案例明确该图是 AI 情境观察材料，不能替代真实史料；课堂结论要回到教材、文献或真实图像资料中验证。
   - 横版教学素材可设置 `imageFit:'contain'`，详情弹窗会加 `.wide-image`，用完整 16:9 展示，避免裁掉海报留白或历史观察细节。
+
+- **2026-07-07（站内数据看板，本地开发未上线）**:
+  - 新增 `js/analytics.js`，挂到正式用户页面（不挂 `admin.html`），自动记录 `page_view`；智能体生成成功记录 `agent_run`，进入智能体记录 `agent_open`；备课本记录 `workbook_view/open/save`；多模态记录 `multimodal_case_open/video_open`。
+  - 新增 `functions/api/analytics.js`，使用 Cloudflare Pages Function + Firebase service account 写入/汇总 `analytics_events`。管理员看板通过 `Auth.getIdToken()` 调 `/api/analytics` 的 `summary` 动作；非管理员不可读汇总。
+  - `admin.html` 新增「数据看板」侧栏面板：近 7/14/30/60/90 天筛选，显示新增用户、唯一访客、页面浏览、登录用户活跃、智能体生成、备课本使用、多模态使用；包含每日趋势、热门智能体、热门多模态案例和登录用户使用明细。
+  - 统计口径：访客以浏览器本地随机 visitorId 去重；新增用户来自 `users.joinedAt`；不保存 IP、userAgent、屏幕尺寸、时区，不保存智能体输入/输出正文，不读取备课本正文。若访问量超过当前 6000 条事件查询上限，应升级为每日预聚合集合或 KV/Durable Objects。
 
 ## Auth Lesson (Important)
 
@@ -155,7 +162,7 @@ match /agent_usage/{agentId} {
 | `news.html` | RSS-aggregated industry news. Nav display name **「AI 资讯」** (renamed 2026-06-16 from "全球资讯"; key stays `news`) |
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
-| `admin.html` | Admin dashboard: dashboard, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users |
+| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users. 数据看板从 `/api/analytics` 拉取汇总，新增用户仍用 Firestore `users.joinedAt` 在前端按天聚合。 |
 | `workspace.html` | **「我的备课本」**(added 2026-06-16) — per-user saved agent outputs. Self-gated (shows login prompt if logged out; entry only shown in nav when logged in). Card wall + view modal + copy / export Word(.doc) / **export PDF** / export Markdown / rename / delete. Reads `works` where `uid == current user`. **导出排版 (2026-06-19)**：新增 `docStyles()`/`docHtml()` 一套「教学文稿」样式（宋体正文 + 黑体标题 + 朱红小标〔左竖条〕+ 表格表头底色 + 引用框 + 顶部信息条 + 底部落款「本文由 AI 起草、教师修改定稿 · 教研甄选」印）；**导出 Word 重写为内联整套样式**、**新增「导出 PDF」**（`exportPdf` 开打印窗 → 另存 PDF，与 Word 共用 `docHtml`）；查看弹窗 `.wb-md` 预览同步升级到同款。 |
 
 ## Key JS Files
@@ -163,6 +170,7 @@ match /agent_usage/{agentId} {
 - `js/data.js` — `DEFAULT_TOOLS / DEFAULT_PROMPTS / DEFAULT_PATHS / DEFAULT_ARTICLES / DEFAULT_RESOURCES` are used as fallbacks/seeds; `DB` object wraps all Firestore reads/writes (one or more methods per collection).
 - `js/firebase-config.js` — initializes Firebase, exposes `auth` and `db`, defines `_currentUser`, `onAuthReady`, dispatches `authChanged` events.
 - `js/auth.js` — `Auth` object (login/register/logout, getIdToken, **`sendPasswordReset`**), `renderNav` / `renderFooter` (every page calls these), `requireLogin`, `showAuthModal`, `showWelcomeOverlay`, **hamburger drawer state** (`openNavDrawer` / `closeNavDrawer`). The auth modal has **three views** toggled by `switchAuthTab('login'|'register'|'forgot')`: login (`#form-li`, with a 「忘记密码？」link), register (`#form-rg`), and **forgot-password (`#form-fp`, added 2026-06-17)**. Forgot flow: `handleForgotPassword()` → `Auth.sendPasswordReset(identifier)` → Firebase `auth.sendPasswordResetEmail`. **Phone-number accounts are rejected client-side** (their `tel_…@xylaoshi.tel` address can't receive mail — they must contact admin). Result shows in `#fp-msg` styled `.form-success` (green) or `.form-error` (red). The Firebase project has **email-enumeration protection ON**, so a reset for an *unregistered* email also returns success (no account leak) — only real accounts actually receive mail. Reset link lands on Firebase's own hosted reset page (no custom page needed).
+- `js/analytics.js` — front-end event tracker for the admin data dashboard. Creates a random local visitor id, waits for `onAuthReady` when available, then POSTs to `/api/analytics`. Keep it non-blocking: all failures are swallowed so analytics never affects learning pages.
 - `js/assistant.js` — floating AI-assistant launcher + the contact-feedback modal that writes to `contact_messages`.
 
 ## Design Language

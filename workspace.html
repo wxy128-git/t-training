@@ -192,9 +192,11 @@
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260701-authsmooth"></script>
+<script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 let _works = [];
 let _activeWorkId = null;
+let _workbookViewTracked = false;
 let _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc' };
 
 function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
@@ -325,6 +327,12 @@ function renderWorks() {
 function viewWork(id) {
     const w = findWork(id); if (!w) return;
     _activeWorkId = id;
+    if (window.Analytics) Analytics.track('workbook_open', {
+        feature: 'workspace',
+        targetId: w.agentId || '',
+        targetName: w.agentName || '',
+        meta: { workType: workType(w) }
+    });
     document.getElementById('wb-modal-title').textContent = w.title || '未命名';
     document.getElementById('wb-modal-meta').textContent = `${workTypeLabel(w)} · ${w.agentName || ''} · ${fmtDate(w.updatedAt || w.createdAt)}`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
@@ -414,6 +422,10 @@ async function loadWorks() {
     document.getElementById('login-gate').style.display = 'none'; document.getElementById('wb-app').style.display = '';
     try { _works = await DB.getMyWorks(user.uid); } catch (e) { _works = []; console.warn('getMyWorks:', e.message); }
     renderWorks();
+    if (!_workbookViewTracked && window.Analytics) {
+        _workbookViewTracked = true;
+        Analytics.track('workbook_view', { feature: 'workspace', meta: { workCount: _works.length } });
+    }
 }
 
 renderNav('workspace');

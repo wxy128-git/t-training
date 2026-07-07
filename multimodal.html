@@ -247,6 +247,7 @@
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260701-authsmooth"></script>
+<script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CASES = [
     {
@@ -452,7 +453,7 @@ function visualMarkup(c, mode = 'thumb') {
         return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}"><span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>`;
     }
     if (mode === 'detail' && c.animation && c.video) {
-        return `<a class="mm-video-preview-link" href="${escapeHtml(c.video)}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.videoAlt || c.title)}"><img src="${escapeHtml(c.animation)}" alt="${escapeHtml(c.videoAlt || c.title)}"><span><i class="ph-fill ph-play"></i> 打开原视频</span></a>`;
+        return `<a class="mm-video-preview-link" href="${escapeHtml(c.video)}" target="_blank" rel="noopener" onclick="trackVideoOpen('${c.id}')" aria-label="${escapeHtml(c.videoAlt || c.title)}"><img src="${escapeHtml(c.animation)}" alt="${escapeHtml(c.videoAlt || c.title)}"><span><i class="ph-fill ph-play"></i> 打开原视频</span></a>`;
     }
     if (mode === 'detail' && c.video) {
         const playerSrc = `media-player.html?src=${encodeURIComponent(c.video)}${c.image ? `&poster=${encodeURIComponent(c.image)}` : ''}`;
@@ -492,9 +493,24 @@ function renderCases() {
     `).join('') : '<div class="mm-empty" style="display:block"><i class="ph ph-funnel-simple"></i>暂无匹配案例</div>';
 }
 function findCase(id) { return CASES.find(c => c.id === id); }
+function trackVideoOpen(id) {
+    const c = findCase(id); if (!c || !window.Analytics) return;
+    Analytics.track('multimodal_video_open', {
+        feature: 'multimodal',
+        targetId: c.id,
+        targetName: c.title,
+        meta: { type: c.type, subject: c.subject }
+    });
+}
 function openCase(id) {
     const c = findCase(id); if (!c) return;
     activeCaseId = id;
+    if (window.Analytics) Analytics.track('multimodal_case_open', {
+        feature: 'multimodal',
+        targetId: c.id,
+        targetName: c.title,
+        meta: { type: c.type, subject: c.subject, level: c.level }
+    });
     document.getElementById('mm-modal-title').textContent = c.title;
     document.getElementById('mm-modal-meta').textContent = `${c.label} · ${c.subject} · ${c.level}`;
     const visual = document.getElementById('mm-modal-visual');

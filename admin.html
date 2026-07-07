@@ -26,6 +26,41 @@
         .admin-content { padding: 36px; background: var(--soft); }
         .stat-card { background: var(--paper); border-radius: var(--r-md); padding: 22px 26px; border: 1px solid var(--line); transition: border-color 0.15s, box-shadow 0.15s; }
         .stat-card:hover { border-color: var(--ink); box-shadow: var(--shadow-sm); }
+        .analytics-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:20px; }
+        .analytics-title { display:flex; flex-direction:column; gap:6px; }
+        .analytics-title h2 { font-size:1.3rem; font-weight:800; margin:0; }
+        .analytics-title p { font-size:13px; color:var(--muted); margin:0; line-height:1.7; }
+        .analytics-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .analytics-select { height:38px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--paper); color:var(--ink); padding:0 12px; font:inherit; font-size:13px; }
+        .analytics-refresh { height:38px; border:1px solid var(--ink); border-radius:var(--r-sm); background:var(--ink); color:var(--soft); padding:0 14px; font:inherit; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+        .analytics-refresh:disabled { opacity:.55; cursor:not-allowed; }
+        .analytics-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(154px,1fr)); gap:14px; margin-bottom:18px; }
+        .analytics-kpi { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-height:108px; display:flex; flex-direction:column; justify-content:space-between; }
+        .analytics-kpi span { font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+        .analytics-kpi strong { font-size:1.8rem; color:var(--ink); line-height:1; }
+        .analytics-kpi small { font-size:11px; color:var(--subtle); }
+        .analytics-grid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:16px; align-items:start; }
+        .analytics-box { background:var(--paper); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+        .analytics-box-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 18px; border-bottom:1px solid var(--line); }
+        .analytics-box-head h3 { font-size:14px; font-weight:800; margin:0; color:var(--ink); }
+        .analytics-box-head span { font-size:12px; color:var(--subtle); }
+        .analytics-trend { padding:12px 18px 16px; display:flex; flex-direction:column; gap:9px; }
+        .analytics-trend-row { display:grid; grid-template-columns:76px 1fr 44px 44px 44px 44px; gap:10px; align-items:center; font-size:12px; color:var(--muted); }
+        .analytics-trend-row.head { color:var(--subtle); font-size:11px; padding-bottom:4px; border-bottom:1px dashed var(--line); }
+        .analytics-bar-track { height:8px; border-radius:999px; background:#f1e8dc; overflow:hidden; }
+        .analytics-bar { height:100%; min-width:2px; border-radius:999px; background:linear-gradient(90deg,#c0392b,#2d6a4f); }
+        .analytics-list { padding:12px 18px 16px; display:flex; flex-direction:column; gap:8px; }
+        .analytics-rank { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; font-size:13px; color:var(--ink); padding:8px 0; border-bottom:1px solid rgba(26,22,18,.06); }
+        .analytics-rank:last-child { border-bottom:none; }
+        .analytics-rank small { display:block; color:var(--subtle); margin-top:2px; }
+        .analytics-pill { font-family:var(--font-mono); font-size:11px; color:var(--brand); background:var(--brand-soft); border-radius:999px; padding:2px 8px; }
+        .analytics-user-table td, .analytics-user-table th { white-space:nowrap; }
+        .analytics-user-table td:first-child { white-space:normal; min-width:150px; }
+        .analytics-user-main { font-weight:700; color:var(--ink); }
+        .analytics-user-sub { font-size:12px; color:var(--subtle); margin-top:2px; }
+        .analytics-empty, .analytics-error { padding:34px 18px; color:var(--muted); font-size:13px; text-align:center; line-height:1.7; }
+        .analytics-error { color:var(--brand); }
+        .analytics-note { margin-top:12px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#fffaf2; color:var(--muted); font-size:12.5px; line-height:1.7; }
         .modal-admin { display: none; position: fixed; inset: 0; background: rgba(26,22,18,0.55); z-index: 500; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; }
         .modal-admin.active { display: flex; }
         .panel { display: none; }
@@ -40,6 +75,9 @@
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; padding: 14px; }
             .admin-content { padding: 24px 18px; }
+            .analytics-head { flex-direction:column; }
+            .analytics-grid { grid-template-columns:1fr; }
+            .analytics-trend-row { grid-template-columns:70px 1fr 36px 36px 36px 36px; gap:7px; }
         }
     </style>
 </head>
@@ -72,6 +110,7 @@
         <div class="admin-sidebar">
             <div style="color:#64748b;font-size:11px;font-weight:600;padding:8px 12px;letter-spacing:0.05em;margin-bottom:8px">管理后台</div>
             <div class="sidebar-item active" onclick="switchPanel('dashboard',this)"><i class="ph ph-squares-four"></i>概览</div>
+            <div class="sidebar-item" onclick="switchPanel('analytics',this)"><i class="ph ph-chart-line-up"></i>数据看板</div>
             <div class="sidebar-item" onclick="switchPanel('announcements',this)"><i class="ph ph-megaphone"></i>公告管理</div>
             <div class="sidebar-item" onclick="switchPanel('community-prompts',this)"><i class="ph ph-chats-circle"></i>社区提示词</div>
             <div class="sidebar-item" onclick="switchPanel('subscribers',this)"><i class="ph ph-envelope-simple"></i>邮件订阅</div>
@@ -100,6 +139,32 @@
                     <p style="font-size:13px;color:#64748b;margin-bottom:12px">数据已同步至 Firebase Firestore，所有注册用户均可看到最新内容。</p>
                     <button onclick="seedDatabase()" style="padding:10px 20px;background:#10B981;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px"><i class="ph ph-database"></i>初始化数据库（写入默认工具和提示词）</button>
                     <p style="font-size:12px;color:#94a3b8;margin-top:8px"><i class="ph ph-info"></i> 仅在 Firestore 为空时需要执行，已有数据将被覆盖</p>
+                </div>
+            </div>
+
+            <!-- Analytics -->
+            <div class="panel" id="panel-analytics">
+                <div class="analytics-head">
+                    <div class="analytics-title">
+                        <h2>数据看板</h2>
+                        <p>查看每日新增用户、网站访客，以及智能体、备课本、多模态工作坊的使用情况。</p>
+                    </div>
+                    <div class="analytics-toolbar">
+                        <select id="analytics-range" class="analytics-select" onchange="renderAnalyticsPanel(true)">
+                            <option value="7">近 7 天</option>
+                            <option value="14" selected>近 14 天</option>
+                            <option value="30">近 30 天</option>
+                            <option value="60">近 60 天</option>
+                            <option value="90">近 90 天</option>
+                        </select>
+                        <button id="analytics-refresh" class="analytics-refresh" onclick="renderAnalyticsPanel(true)"><i class="ph ph-arrow-clockwise"></i>刷新</button>
+                    </div>
+                </div>
+                <div id="analytics-content">
+                    <div class="analytics-empty">切换到数据看板后加载统计数据。</div>
+                </div>
+                <div class="analytics-note">
+                    统计口径：访客用浏览器本地随机 ID 去重；登录用户以 Firebase uid 识别。本站只记录访问和功能动作，不记录智能体输入、生成正文、备课本内容或 IP 地址。
                 </div>
             </div>
 
@@ -509,6 +574,8 @@
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];
 let _cpFilter = 'pending';
+let _analyticsLoaded = false;
+let _analyticsLoading = false;
 
 // ===== GATE =====
 async function gateLogin() {
@@ -550,6 +617,7 @@ async function switchPanel(name, el) {
     document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
     document.getElementById('panel-' + name).classList.add('active');
     el.classList.add('active');
+    if (name === 'analytics') await renderAnalyticsPanel();
     if (name === 'announcements') await renderAnnTable();
     if (name === 'community-prompts') await renderCPTable();
     if (name === 'subscribers') await renderSubsTable();
@@ -571,6 +639,8 @@ async function initAdmin() {
     ]);
     const pendingCPs = cps.filter(p => p.status === 'pending').length;
     const pendingMsgs = msgs.filter(m => !m.handled).length;
+    _adminTools = tools; _adminPrompts = prompts; _adminUsers = users; _adminAnn = ann;
+    _adminCPs = cps; _adminSubs = subs; _adminArticles = articles;
     document.getElementById('dash-stats').innerHTML = [
         { label:'注册用户', value: users.length, icon:'ph-users', color:'#574a3d' },
         { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#2d6a4f' },
@@ -588,6 +658,212 @@ async function initAdmin() {
             </div>
             <div style="font-size:2rem;font-weight:800;color:#0f172a">${s.value}</div>
         </div>`).join('');
+}
+
+// ===== ANALYTICS =====
+function analyticsEscape(str) {
+    return String(str || '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+}
+
+function analyticsDay(value) {
+    if (!value) return '';
+    const date = typeof value?.toDate === 'function' ? value.toDate() : new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+function analyticsDateTime(value) {
+    if (!value) return '—';
+    const date = typeof value?.toDate === 'function' ? value.toDate() : new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleString('zh-CN', { hour12:false, month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
+function analyticsDayLabel(day) {
+    return String(day || '').slice(5).replace('-', '/');
+}
+
+function analyticsActionLabel(action) {
+    return {
+        page_view: '访问页面',
+        agent_open: '打开智能体',
+        agent_run: '生成智能体内容',
+        workbook_view: '进入备课本',
+        workbook_open: '查看备课内容',
+        workbook_save: '保存到备课本',
+        multimodal_case_open: '打开多模态案例',
+        multimodal_video_open: '打开多模态视频'
+    }[action] || action || '—';
+}
+
+function analyticsUserLookup() {
+    return new Map((_adminUsers || []).map(u => [u.uid, u]));
+}
+
+function analyticsNewUsersByDay(days) {
+    const set = new Set(days);
+    const map = new Map(days.map(day => [day, 0]));
+    (_adminUsers || []).forEach(u => {
+        const day = analyticsDay(u.joinedAt);
+        if (set.has(day)) map.set(day, (map.get(day) || 0) + 1);
+    });
+    return map;
+}
+
+async function fetchAnalyticsSummary(days) {
+    const adminIdToken = await Auth.getIdToken();
+    const res = await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'summary', adminIdToken, days })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.msg || `统计接口返回 ${res.status}`);
+    return data;
+}
+
+function renderAnalyticsKpis(summary, newUsers) {
+    const t = summary.totals || {};
+    const kpis = [
+        { label:'新增用户', value:newUsers, icon:'ph-user-plus', note:`${summary.range.startDay} 至 ${summary.range.endDay}` },
+        { label:'唯一访客', value:t.visitors || 0, icon:'ph-users', note:'按浏览器访客 ID 去重' },
+        { label:'页面浏览', value:t.pageViews || 0, icon:'ph-eye', note:'含登录与未登录访问' },
+        { label:'登录用户活跃', value:t.loggedUsers || 0, icon:'ph-identification-card', note:'有记录行为的登录用户' },
+        { label:'智能体生成', value:t.agentRuns || 0, icon:'ph-robot', note:'完成模型生成次数' },
+        { label:'备课本使用', value:t.workbookUses || 0, icon:'ph-notebook', note:'访问、打开或保存' },
+        { label:'多模态使用', value:t.multimodalUses || 0, icon:'ph-images-square', note:'访问、打开案例或视频' }
+    ];
+    return `<div class="analytics-kpis">${kpis.map(k => `
+        <div class="analytics-kpi">
+            <span><i class="ph ${k.icon}"></i>${k.label}</span>
+            <strong>${Number(k.value || 0).toLocaleString('zh-CN')}</strong>
+            <small>${analyticsEscape(k.note)}</small>
+        </div>`).join('')}</div>`;
+}
+
+function renderAnalyticsTrend(summary, newUsersByDay) {
+    const daily = summary.daily || [];
+    const maxVisitors = Math.max(1, ...daily.map(d => d.visitors || 0));
+    return `<div class="analytics-box">
+        <div class="analytics-box-head">
+            <h3>每日趋势</h3>
+            <span>新用户 / 访客 / 智能体 / 备课本 / 多模态</span>
+        </div>
+        <div class="analytics-trend">
+            <div class="analytics-trend-row head"><span>日期</span><span>访客规模</span><span>新</span><span>访</span><span>体</span><span>本/模</span></div>
+            ${daily.map(d => {
+                const width = Math.max(2, Math.round(((d.visitors || 0) / maxVisitors) * 100));
+                const newUsers = newUsersByDay.get(d.day) || 0;
+                const featureSum = (d.workbookUses || 0) + (d.multimodalUses || 0);
+                return `<div class="analytics-trend-row">
+                    <span>${analyticsDayLabel(d.day)}</span>
+                    <div class="analytics-bar-track"><div class="analytics-bar" style="width:${width}%"></div></div>
+                    <span>${newUsers}</span>
+                    <span>${d.visitors || 0}</span>
+                    <span>${d.agentRuns || 0}</span>
+                    <span>${featureSum}</span>
+                </div>`;
+            }).join('')}
+        </div>
+    </div>`;
+}
+
+function renderAnalyticsRanks(title, subtitle, rows, emptyText) {
+    return `<div class="analytics-box">
+        <div class="analytics-box-head">
+            <h3>${analyticsEscape(title)}</h3>
+            <span>${analyticsEscape(subtitle)}</span>
+        </div>
+        <div class="analytics-list">
+            ${rows && rows.length ? rows.map((r, i) => `
+                <div class="analytics-rank">
+                    <div>${analyticsEscape(r.name || r.id || '未命名')}<small>#${i + 1} · ${analyticsEscape(r.id || '')}</small></div>
+                    <span class="analytics-pill">${r.count || 0}</span>
+                </div>`).join('') : `<div class="analytics-empty">${analyticsEscape(emptyText)}</div>`}
+        </div>
+    </div>`;
+}
+
+function renderAnalyticsUsers(summary) {
+    const byUid = analyticsUserLookup();
+    const rows = (summary.users || []).map(row => {
+        const user = byUid.get(row.uid) || {};
+        return {
+            ...row,
+            name: row.name || user.name || '未命名用户',
+            account: row.account || user.email || user.phone || '',
+            school: row.school || user.school || ''
+        };
+    });
+    return `<div class="analytics-box" style="grid-column:1/-1">
+        <div class="analytics-box-head">
+            <h3>登录用户使用明细</h3>
+            <span>最近有行为记录的 80 位用户</span>
+        </div>
+        <div class="table-wrap">
+            <table class="analytics-user-table">
+                <thead><tr><th>用户</th><th>单位</th><th>访问</th><th>智能体</th><th>备课本</th><th>多模态</th><th>最近动作</th><th>最近时间</th></tr></thead>
+                <tbody>
+                    ${rows.length ? rows.map(r => `
+                        <tr>
+                            <td><div class="analytics-user-main">${analyticsEscape(r.name)}</div><div class="analytics-user-sub">${analyticsEscape(r.account || r.uid)}</div></td>
+                            <td>${analyticsEscape(r.school || '—')}</td>
+                            <td>${r.visits || 0}</td>
+                            <td>${r.agentRuns || 0}</td>
+                            <td>${r.workbookUses || 0}</td>
+                            <td>${r.multimodalUses || 0}</td>
+                            <td>${analyticsEscape(analyticsActionLabel(r.lastAction))}</td>
+                            <td>${analyticsDateTime(r.lastSeen)}</td>
+                        </tr>`).join('') : '<tr><td colspan="8"><div class="analytics-empty">这一时间段还没有登录用户使用记录。</div></td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    </div>`;
+}
+
+function renderAnalyticsContent(summary) {
+    const days = (summary.daily || []).map(d => d.day);
+    const newUsersByDay = analyticsNewUsersByDay(days);
+    const newUsers = [...newUsersByDay.values()].reduce((sum, n) => sum + n, 0);
+    const truncated = summary.truncated
+        ? '<div class="analytics-note">当前时间段事件超过 6000 条，本次看板只统计最近 6000 条。后续如果访问量变大，需要升级为每日预聚合。</div>'
+        : '';
+    document.getElementById('analytics-content').innerHTML = `
+        ${renderAnalyticsKpis(summary, newUsers)}
+        <div class="analytics-grid">
+            ${renderAnalyticsTrend(summary, newUsersByDay)}
+            <div style="display:flex;flex-direction:column;gap:16px">
+                ${renderAnalyticsRanks('热门智能体', '按生成次数', summary.topAgents || [], '暂无智能体生成记录')}
+                ${renderAnalyticsRanks('热门多模态案例', '按案例/视频打开次数', summary.topMultimodal || [], '暂无多模态使用记录')}
+            </div>
+            ${renderAnalyticsUsers(summary)}
+        </div>
+        ${truncated}`;
+}
+
+function renderAnalyticsError(error) {
+    const msg = error?.message || '统计数据加载失败';
+    document.getElementById('analytics-content').innerHTML = `<div class="analytics-box"><div class="analytics-error">${analyticsEscape(msg)}<br>如果是在本地静态预览，这是正常的：/api/analytics 需要 Cloudflare Pages Functions 环境。</div></div>`;
+}
+
+async function renderAnalyticsPanel(force = false) {
+    if (_analyticsLoading) return;
+    if (_analyticsLoaded && !force) return;
+    const range = Number(document.getElementById('analytics-range')?.value || 14);
+    const btn = document.getElementById('analytics-refresh');
+    _analyticsLoading = true;
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i>加载中'; }
+    document.getElementById('analytics-content').innerHTML = '<div class="analytics-box"><div class="analytics-empty">正在读取统计数据…</div></div>';
+    try {
+        const summary = await fetchAnalyticsSummary(range);
+        renderAnalyticsContent(summary);
+        _analyticsLoaded = true;
+    } catch (error) {
+        renderAnalyticsError(error);
+    } finally {
+        _analyticsLoading = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph ph-arrow-clockwise"></i>刷新'; }
+    }
 }
 
 // ===== MODAL HELPERS =====

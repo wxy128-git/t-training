@@ -234,6 +234,7 @@
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260617-hot"></script>
 <script src="js/auth.js?v=20260701-authsmooth"></script>
+<script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260619-prompts"></script>
 <script>
 /* ===================================================================
@@ -357,6 +358,12 @@ function openAgent(id, skipGuard) {
     document.getElementById('ws-name').textContent = a.name;
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
     window._wsAgent = a;   // 供「复制提示词」使用
+    if (window.Analytics) Analytics.track('agent_open', {
+        feature: 'agents',
+        targetId: a.id,
+        targetName: a.name,
+        meta: { agentType: a.type, category: c.name }
+    });
 
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -482,6 +489,12 @@ async function runForm(aid) {
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
+        if (window.Analytics) Analytics.track('agent_run', {
+            feature: 'agents',
+            targetId: aid,
+            targetName: a ? a.name : '',
+            meta: { agentType: a ? a.type : 'form' }
+        });
     } catch (e) {
         body.className = 'ws-out-body placeholder';
         body.innerHTML = `<div><i class="ph ph-warning"></i><p>生成失败：${e.message}</p></div>`;
@@ -511,6 +524,12 @@ async function saveToWorkbook(aid) {
             title: `${a ? a.name : '生成结果'} · ${new Date().toLocaleDateString('zh-CN')}`,
             content: _lastResult,
             inputs: _lastInputs || {}
+        });
+        if (window.Analytics) Analytics.track('workbook_save', {
+            feature: 'workspace',
+            targetId: aid,
+            targetName: a ? a.name : '',
+            meta: { source: 'agent_form' }
         });
         btn.classList.add('copied'); btn.innerHTML = '<i class="ph ph-check"></i> 已保存';
         showToast('已保存到「我的备课本」✓');
@@ -637,6 +656,12 @@ async function sendChat(aid) {
         });
         _chatHistory.push({ role: 'assistant', content: assistantText });
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
+        if (window.Analytics) Analytics.track('agent_run', {
+            feature: 'agents',
+            targetId: aid,
+            targetName: a ? a.name : '',
+            meta: { agentType: 'chat' }
+        });
         updateChatActions();
     } catch (e) {
         const last = _chatHistory[_chatHistory.length - 1];
@@ -695,6 +720,12 @@ async function saveChatToWorkbook(aid) {
             workType: 'chat',
             title: chatWorkTitle(aid),
             content
+        });
+        if (window.Analytics) Analytics.track('workbook_save', {
+            feature: 'workspace',
+            targetId: aid,
+            targetName: a ? a.name : '',
+            meta: { source: 'agent_chat' }
         });
         btn.classList.add('copied'); btn.innerHTML = '<i class="ph ph-check"></i> 已保存';
         showToast('对话已保存到「我的备课本」✓');
