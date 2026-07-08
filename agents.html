@@ -290,40 +290,327 @@ const GRADE_LEVEL = {
     '初中七年级': 7, '初中八年级': 8, '初中九年级': 9,
     '高中一年级': 10, '高中二年级': 11, '高中三年级': 12
 };
-const QUIZ_KNOWLEDGE_RULES = [
+const SUBJECT_GRADE_RULES = [
     {
-        pattern: /一元一次方程|一次方程|解一元一次方程/,
-        subject: '数学',
+        subject: '物理',
+        minLevel: 8,
+        minGrade: '初中八年级',
+        lowerSubject: '科学',
+        lowerScope: '小学和初中七年级更适合用“科学”承接声、光、电、力等直观现象'
+    },
+    {
+        subject: '化学',
+        minLevel: 9,
+        minGrade: '初中九年级',
+        lowerSubject: '科学',
+        lowerScope: '小学和初中低年级更适合讲物质变化、溶解、燃烧、空气和水等可观察现象'
+    },
+    {
+        subject: '生物',
+        minLevel: 7,
+        minGrade: '初中七年级',
+        lowerSubject: '科学',
+        lowerScope: '小学阶段更适合讲植物生长、动物特征、人体健康等科学主题'
+    },
+    {
+        subject: '历史',
+        minLevel: 7,
+        minGrade: '初中七年级',
+        lowerSubject: '语文 / 综合实践',
+        lowerScope: '小学阶段更适合用故事阅读、传统文化或主题活动承接历史素材'
+    },
+    {
+        subject: '地理',
+        minLevel: 7,
+        minGrade: '初中七年级',
+        lowerSubject: '科学 / 综合实践',
+        lowerScope: '小学阶段更适合讲地图方向、家乡环境、天气观察等生活化主题'
+    }
+];
+const KNOWLEDGE_COMPATIBILITY_RULES = [
+    {
+        pattern: /一元一次方程|解一元一次方程/,
+        subjects: ['数学'],
         minLevel: 7,
         minGrade: '初中七年级',
         label: '一元一次方程',
+        lowerGradeAlternatives: '未知数可以先讲成“空格里的数”或“天平两边一样重”，配合 20 以内加减法、找规律、简单等量关系。',
         alternatives: {
             '语文': '拼音、识字写字、词语搭配、句子排序、短文阅读',
             '数学': '20以内加减法、认识图形、比较大小、简单分类'
         }
     },
     {
-        pattern: /二元一次方程|二次函数|反比例函数|勾股定理|相似三角形/,
-        subject: '数学',
+        pattern: /二元一次方程|二元一次方程组/,
+        subjects: ['数学'],
+        minLevel: 7,
+        minGrade: '初中七年级',
+        label: '二元一次方程',
+        lowerGradeAlternatives: '可先讲一个未知数、简单等量关系、列表找规律或生活中的数量关系。',
+        alternatives: {
+            '语文': '课文理解、词语积累、句子排序、短文阅读',
+            '数学': '数的认识、四则运算、简单数量关系'
+        }
+    },
+    {
+        pattern: /一次函数|反比例函数|勾股定理/,
+        subjects: ['数学'],
         minLevel: 8,
         minGrade: '初中八年级',
         label: '初中数学内容',
+        lowerGradeAlternatives: '可先讲数的认识、四则运算、图形与位置、简单数量关系或用生活例子建立变化意识。',
         alternatives: {
             '语文': '课文理解、词语积累、标点使用、看图写话',
             '数学': '数的认识、四则运算、图形与位置'
         }
     },
     {
-        pattern: /导数|函数极限|数列|立体几何|圆锥曲线/,
-        subject: '数学',
-        minLevel: 10,
-        minGrade: '高中一年级',
-        label: '高中数学内容',
+        pattern: /二次函数|相似三角形|锐角三角函数/,
+        subjects: ['数学'],
+        minLevel: 9,
+        minGrade: '初中九年级',
+        label: '初中高阶数学内容',
+        lowerGradeAlternatives: '可先讲一次函数、基本图形性质、比例关系或生活中的变化关系。',
         alternatives: {
             '数学': '同年级教材中的函数、几何或代数基础内容'
         }
+    },
+    {
+        pattern: /导数|函数极限|数列|立体几何|圆锥曲线|空间向量/,
+        subjects: ['数学'],
+        minLevel: 10,
+        minGrade: '高中一年级',
+        label: '高中数学内容',
+        lowerGradeAlternatives: '可先讲初中函数图像、一次函数、几何直观或简单数列规律。',
+        alternatives: {
+            '数学': '同年级教材中的函数、几何或代数基础内容'
+        }
+    },
+    {
+        pattern: /函数|自变量|因变量|函数图像|一次函数|正比例函数/,
+        subjects: ['数学'],
+        minLevel: 8,
+        minGrade: '初中八年级',
+        label: '函数',
+        lowerGradeAlternatives: '可先讲“一个量变了，另一个量跟着变”的生活关系，比如买铅笔的支数和总价、步数和路程。',
+        alternatives: {
+            '数学': '数的认识、四则运算、找规律、简单数量关系'
+        }
+    },
+    {
+        pattern: /通货膨胀|通货紧缩|财政政策|货币政策|宏观经济|供求关系/,
+        subjects: ['政治（道法）'],
+        minLevel: 10,
+        minGrade: '高中一年级',
+        label: '经济学概念',
+        lowerGradeAlternatives: '可先讲“东西变贵了”“零花钱购买力变少了”“买的人多价格可能会上涨”等生活现象。',
+        alternatives: {
+            '政治（道法）': '规则意识、消费选择、劳动与收入、生活中的经济现象',
+            '数学': '价格比较、加减乘除、简单统计图'
+        }
+    },
+    {
+        pattern: /定语从句|状语从句|宾语从句|被动语态/,
+        subjects: ['英语'],
+        minLevel: 8,
+        minGrade: '初中八年级',
+        label: '英语复杂语法',
+        lowerGradeAlternatives: '可先讲颜色、数字、日常问候、一般现在时、简单句型或情景对话。',
+        alternatives: {
+            '英语': '单词认读、日常问候、一般现在时、简单情景对话',
+            '语文': '拼音、识字写字、词语搭配、句子表达'
+        }
+    },
+    {
+        pattern: /非谓语动词|虚拟语气|倒装句|名词性从句/,
+        subjects: ['英语'],
+        minLevel: 10,
+        minGrade: '高中一年级',
+        label: '高中英语语法',
+        lowerGradeAlternatives: '可先讲初中核心句型、时态、被动语态、宾语从句或阅读理解策略。',
+        alternatives: {
+            '英语': '同年级教材中的词汇、句型、阅读或写作基础'
+        }
+    },
+    {
+        pattern: /欧姆定律|电阻|串联电路|并联电路|电压|电流/,
+        subjects: ['物理'],
+        minLevel: 8,
+        minGrade: '初中八年级',
+        label: '电学概念',
+        lowerGradeAlternatives: '可先讲安全用电、简单电路、开关控制灯泡这类直观经验。',
+        alternatives: {
+            '科学': '简单电路、安全用电、观察电池和小灯泡',
+            '物理': '声、光、力等同年级基础内容'
+        }
+    },
+    {
+        pattern: /化学方程式|酸碱盐|物质的量|氧化还原|离子方程式/,
+        subjects: ['化学'],
+        minLevel: 9,
+        minGrade: '初中九年级',
+        label: '化学概念',
+        lowerGradeAlternatives: '可先讲物质变化、溶解、燃烧、空气和水等可观察的科学现象。',
+        alternatives: {
+            '科学': '水的三态变化、溶解、空气、燃烧现象',
+            '化学': '物质变化、空气、水、化学式入门'
+        }
+    },
+    {
+        pattern: /孟德尔|遗传规律|DNA|基因|染色体|减数分裂/,
+        subjects: ['生物'],
+        minLevel: 8,
+        minGrade: '初中八年级',
+        label: '遗传学概念',
+        lowerGradeAlternatives: '可先讲动物和植物的基本特征、生命现象、健康生活或简单遗传现象。',
+        alternatives: {
+            '科学': '植物生长、动物特征、人体健康、生命现象观察',
+            '生物': '细胞、植物、动物或人体基础内容'
+        }
+    },
+    {
+        pattern: /鸦片战争|辛亥革命|戊戌变法|新航路开辟|秦朝统一|资本主义制度/,
+        subjects: ['历史'],
+        minLevel: 7,
+        minGrade: '初中七年级',
+        label: '历史课程内容',
+        lowerGradeAlternatives: '可先讲历史人物故事、传统节日、家乡文化或课文中的相关背景。',
+        alternatives: {
+            '语文': '课文背景、人物故事、传统文化、阅读理解',
+            '历史': '同年级教材中的历史人物、事件或时代背景'
+        }
+    },
+    {
+        pattern: /经纬网|等高线|气候类型|板块运动|洋流|地形图/,
+        subjects: ['地理'],
+        minLevel: 7,
+        minGrade: '初中七年级',
+        label: '地理课程内容',
+        lowerGradeAlternatives: '可先讲方向、地图符号、家乡环境、天气观察或简单位置描述。',
+        alternatives: {
+            '科学': '天气观察、家乡环境、地图方向、自然现象',
+            '地理': '同年级教材中的地图、地球或区域基础内容'
+        }
+    },
+    {
+        pattern: /议论文|论点|论据|论证方法/,
+        subjects: ['语文'],
+        minLevel: 8,
+        minGrade: '初中八年级',
+        label: '议论文写作/阅读',
+        lowerGradeAlternatives: '可先讲看图写话、记叙文、观察日记、写人记事或简单说明。',
+        alternatives: {
+            '语文': '看图写话、记叙文、观察日记、写人记事、短文阅读'
+        }
+    },
+    {
+        pattern: /高考作文|任务驱动型作文|思辨性作文/,
+        subjects: ['语文'],
+        minLevel: 10,
+        minGrade: '高中一年级',
+        label: '高中作文要求',
+        lowerGradeAlternatives: '可先讲记叙文、说明文、读后感、材料概括或观点表达入门。',
+        alternatives: {
+            '语文': '同年级教材对应的阅读、表达或写作训练'
+        }
+    },
+    {
+        pattern: /高考备考|高考冲刺|新高考|选科|生涯规划|职业规划|职业生涯|升学规划/,
+        minLevel: 10,
+        minGrade: '高中一年级',
+        label: '高中升学/生涯主题',
+        lowerGradeAlternatives: '可改为习惯养成、认识自我、时间管理、同伴合作、安全教育或理想启蒙。',
+        alternatives: {
+            '语文': '成长故事、理想启蒙、阅读分享、表达训练'
+        }
     }
 ];
+const CURRICULUM_VALIDATION = {
+    'lesson-design': {
+        textKeys: ['topic', 'goal', 'note'],
+        textLabel: '课题',
+        action: '设计教案',
+        toast: '学科、年级和课题不匹配，已停止生成'
+    },
+    'courseware-outline': {
+        textKeys: ['topic'],
+        textLabel: '课题',
+        action: '生成课件大纲',
+        toast: '学科、年级和课题不匹配，已停止生成'
+    },
+    'micro-script': {
+        textKeys: ['topic', 'point'],
+        textLabel: '知识点',
+        ignoreSubject: true,
+        action: '撰写微课脚本',
+        toast: '学段和知识点不匹配，已停止生成'
+    },
+    'lesson-hook': {
+        textKeys: ['topic'],
+        textLabel: '课题',
+        action: '设计课堂导入',
+        toast: '学科、年级和课题不匹配，已停止生成'
+    },
+    'layered-q': {
+        textKeys: ['topic'],
+        textLabel: '知识点/课文',
+        action: '设计问题链',
+        toast: '学科、年级和知识点不匹配，已停止生成'
+    },
+    'concept-explainer': {
+        textKeys: ['concept'],
+        textLabel: '概念',
+        ignoreSubject: true,
+        action: '解释概念',
+        toast: '概念和学段不匹配，已停止生成'
+    },
+    'class-activity': {
+        textKeys: ['topic'],
+        textLabel: '课题/教学目标',
+        gradeKey: null,
+        action: '设计课堂活动',
+        toast: '学科和课题不匹配，已停止生成'
+    },
+    'quiz-gen': {
+        textKeys: ['point'],
+        textLabel: '知识点/范围',
+        action: '出题',
+        toast: '学科、年级和知识点不匹配，已停止生成'
+    },
+    'homework-grader': {
+        textKeys: ['question', 'answer', 'standard'],
+        textLabel: '题目/作答',
+        gradeKey: null,
+        action: '批改作业',
+        toast: '学科和题目内容不匹配，已停止生成'
+    },
+    'essay-review': {
+        textKeys: ['title', 'text', 'focus'],
+        textLabel: '作文题目/正文',
+        ignoreSubject: true,
+        action: '评改作文',
+        toast: '学段和作文要求不匹配，已停止生成'
+    },
+    'exam-paper': {
+        textKeys: ['scope', 'mix'],
+        textLabel: '考查范围',
+        action: '组卷',
+        toast: '学科、年级和考查范围不匹配，已停止生成'
+    },
+    'error-diagnosis': {
+        textKeys: ['errors'],
+        textLabel: '错题/常错情况',
+        action: '诊断错题',
+        toast: '学科、年级和错题内容不匹配，已停止生成'
+    },
+    'class-meeting': {
+        textKeys: ['theme', 'form'],
+        textLabel: '班会主题',
+        ignoreSubject: true,
+        action: '设计主题班会',
+        toast: '年级和班会主题不匹配，已停止生成'
+    }
+};
 const HANDWRITING_ASSIST = {
     'homework-grader': {
         title: '手写作业先转文字',
@@ -660,34 +947,111 @@ function gradeLevel(grade) {
     return GRADE_LEVEL[grade] || 0;
 }
 
-function validateQuizInputs(inputs) {
-    const subject = inputs.subject || '';
-    const grade = inputs.grade || '';
-    const point = inputs.point || '';
+function fieldText(value) {
+    if (Array.isArray(value)) return value.join('、');
+    return value || '';
+}
+
+function validationText(inputs, config) {
+    const keys = config.textKeys || (config.textKey ? [config.textKey] : []);
+    return keys.map(key => fieldText(inputs[key])).filter(Boolean).join('\n');
+}
+
+function ruleSubjects(rule) {
+    return rule.subjects || (rule.subject ? [rule.subject] : []);
+}
+
+function subjectLabel(rule) {
+    const subjects = ruleSubjects(rule);
+    return subjects.join(' / ');
+}
+
+function configSubject(inputs, config) {
+    if (config.ignoreSubject) return '';
+    const key = config.subjectKey === undefined ? 'subject' : config.subjectKey;
+    return key ? (inputs[key] || '') : '';
+}
+
+function configGrade(inputs, config) {
+    const key = config.gradeKey === undefined ? 'grade' : config.gradeKey;
+    return key ? (inputs[key] || '') : '';
+}
+
+function stopMessage(config) {
+    return config.action ? `不适合直接${config.action}` : '当前输入不适合直接生成';
+}
+
+function validateSubjectGrade(a, inputs, config) {
+    const subject = configSubject(inputs, config);
+    const grade = configGrade(inputs, config);
     const level = gradeLevel(grade);
-    const rule = QUIZ_KNOWLEDGE_RULES.find(r => r.pattern.test(point));
+    if (!subject || !level) return { ok: true };
+
+    const rule = SUBJECT_GRADE_RULES.find(r => r.subject === subject && level < r.minLevel);
     if (!rule) return { ok: true };
 
-    const reasons = [];
-    if (subject && subject !== rule.subject) reasons.push(`「${rule.label}」属于${rule.subject}知识点，不属于${subject}学科。`);
-    if (level && level < rule.minLevel) reasons.push(`「${rule.label}」通常不早于${rule.minGrade}学习，不适合${grade}直接出题。`);
-    if (!reasons.length) return { ok: true };
-
-    const alternatives = rule.alternatives[subject] || rule.alternatives[rule.subject] || '请选择与当前学科、年级一致的教材知识点';
     return {
         ok: false,
         title: '参数需要调整',
-        message: reasons.join(''),
+        message: `「${subject}」通常不早于${rule.minGrade}作为独立学科学习，${grade}${stopMessage(config)}。`,
+        toast: config.toast || '学科和年级不匹配，已停止生成',
         suggestions: [
-            `如果继续使用「${subject}${grade}」，建议把知识点改为：${alternatives}。`,
-            `如果确实要考查「${rule.label}」，建议将学科改为「${rule.subject}」，年级改为「${rule.minGrade}」或更高。`
+            `如果面向${grade}，建议将学科改为「${rule.lowerSubject}」，并选择${rule.lowerScope}。`,
+            `如果确实要使用「${subject}」，建议将年级改为「${rule.minGrade}」或更高。`
         ]
     };
 }
 
+function validateCurriculumInputs(a, inputs) {
+    const config = CURRICULUM_VALIDATION[a.id];
+    if (!config) return { ok: true };
+    const subjectGradeResult = validateSubjectGrade(a, inputs, config);
+    if (!subjectGradeResult.ok) return subjectGradeResult;
+
+    const subject = configSubject(inputs, config);
+    const grade = configGrade(inputs, config);
+    const text = validationText(inputs, config);
+    const level = gradeLevel(grade);
+    const rule = KNOWLEDGE_COMPATIBILITY_RULES.find(r => r.pattern.test(text));
+    if (!rule) return { ok: true };
+
+    const reasons = [];
+    const subjects = ruleSubjects(rule);
+    const targetSubject = subjectLabel(rule);
+    if (subject && subjects.length && !subjects.includes(subject)) {
+        reasons.push(`「${rule.label}」属于${targetSubject}相关内容，不属于${subject}学科。`);
+    }
+    if (level && rule.minLevel && level < rule.minLevel) {
+        reasons.push(`「${rule.label}」通常不早于${rule.minGrade}系统学习，${grade}${stopMessage(config)}。`);
+    }
+    if (!reasons.length) return { ok: true };
+
+    const alternativesBySubject = rule.alternatives || {};
+    const firstSubject = subjects[0] || '';
+    const alternatives = alternativesBySubject[subject] || alternativesBySubject[firstSubject] || '请选择与当前学科、年级一致的教材内容';
+    const suggestions = [];
+    if (grade && level && rule.minLevel && level < rule.minLevel) {
+        suggestions.push(`如果面向${grade}，建议改为：${rule.lowerGradeAlternatives || alternatives}。`);
+    } else if (subject) {
+        suggestions.push(`如果继续使用「${subject}」，建议把${config.textLabel || '内容'}改为：${alternatives}。`);
+    }
+    const changeParts = [];
+    if (subject && subjects.length && !subjects.includes(subject)) changeParts.push(`学科改为「${targetSubject}」`);
+    if (grade && rule.minGrade && level && level < rule.minLevel) changeParts.push(`年级改为「${rule.minGrade}」或更高`);
+    if (changeParts.length) {
+        suggestions.push(`如果确实要处理「${rule.label}」，建议${changeParts.join('，')}。`);
+    }
+    return {
+        ok: false,
+        title: '参数需要调整',
+        message: reasons.join(''),
+        toast: config.toast,
+        suggestions
+    };
+}
+
 function validateAgentInputs(a, inputs) {
-    if (a.id === 'quiz-gen') return validateQuizInputs(inputs);
-    return { ok: true };
+    return validateCurriculumInputs(a, inputs);
 }
 
 function showInputValidation(result) {
@@ -712,7 +1076,7 @@ async function runForm(aid) {
     const validation = validateAgentInputs(a, inputs);
     if (!validation.ok) {
         showInputValidation(validation);
-        showToast('学科、年级和知识点不匹配，已停止生成');
+        showToast(validation.toast || '当前输入不匹配，已停止生成');
         return false;
     }
 
@@ -1072,15 +1436,24 @@ async function callAgentAPI({ agent, inputs, history, onToken }) {
 }
 
 // 把表单输入拼成一段给模型的提示
+function curriculumGuard(agent) {
+    const config = CURRICULUM_VALIDATION[agent.id];
+    if (!config) return '';
+    const dimensions = [];
+    if (!config.ignoreSubject && (config.subjectKey === undefined || config.subjectKey)) dimensions.push('学科');
+    if (config.gradeKey === undefined || config.gradeKey) dimensions.push('年级/学段');
+    dimensions.push(config.textLabel || '内容');
+    const action = config.action || '继续生成';
+    return `请先判断${dimensions.join('、')}是否匹配中国大陆中小学课程体系和学生认知基础；如果明显不匹配，请不要${action}，先输出“参数需要调整”，说明原因，并给出适合当前学科/学段的替代建议，或建议用户调整学科/年级。\n\n`;
+}
+
 function buildUserPrompt(agent, inputs) {
     const lines = agent.fields.map(f => {
         const v = inputs[f.key];
         const val = Array.isArray(v) ? v.join('、') : (v || '');
         return val ? `【${f.label}】${val}` : null;
     }).filter(Boolean);
-    const guard = agent.id === 'quiz-gen'
-        ? '请先判断学科、年级、知识点是否匹配中国大陆中小学课程体系；如果明显不匹配，请不要出题，先说明原因并给出修改建议。\n\n'
-        : '';
+    const guard = curriculumGuard(agent);
     return `${guard}请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中国大陆中小学教学实际。`;
 }
 
