@@ -75,10 +75,7 @@
             background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), transparent 60%); mix-blend-mode: screen; }
         .seal.sm { width: auto; height: auto; padding: 4px 8px; font-size: 12px; }
         .card-seal { position: absolute; top: 12px; right: 12px; z-index: 2; }
-        /* 页眉甄选印 */
         .agents-head { position: relative; }
-        .agents-head-seal { position: absolute; top: 4px; right: 2px; }
-        @media (max-width: 600px) { .agents-head-seal { display: none; } }
 
         /* ===== 工作台 ===== */
         .ws-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; }
@@ -111,6 +108,14 @@
         .field .chips { display: flex; flex-wrap: wrap; gap: 7px; }
         .field .chip-opt { padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--soft); font-size: 12.5px; color: var(--text); cursor: pointer; transition: all .14s; user-select: none; }
         .field .chip-opt.on { background: var(--ink); color: var(--soft); border-color: var(--ink); }
+        .hw-assist { border: 1px solid var(--line); background: #fffaf2; border-radius: 14px; padding: 13px 14px; margin: -2px 0 16px; }
+        .hw-assist-top { display: flex; gap: 10px; align-items: flex-start; }
+        .hw-assist-ico { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); flex-shrink: 0; font-size: 17px; }
+        .hw-assist-title { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 3px; }
+        .hw-assist-copy { font-size: 12.5px; color: var(--muted); line-height: 1.65; }
+        .hw-assist-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+        .hw-assist-actions button { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--paper); color: var(--text); border-radius: 999px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+        .hw-assist-actions button:hover { border-color: var(--brand); color: var(--brand); }
 
         .ws-run { width: 100%; margin-top: 6px; padding: 13px; border: none; border-radius: var(--r-md); background: var(--brand); color: #fff; font-size: 14.5px; font-weight: 700; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s, transform .1s; }
         .ws-run:hover { background: var(--brand-dark); }
@@ -185,7 +190,6 @@
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
 
     <div class="agents-head" style="margin-bottom:8px">
-        <span class="seal agents-head-seal">甄选</span>
         <div class="page-kicker">Agents · 教师 AI 工作台</div>
         <h1 class="page-title">智能体<em>空间</em></h1>
         <p class="page-sub">把常见的教学任务交给专门调教过的 AI 智能体——从教学设计、微课脚本到智能出题、作业批改、家校沟通。选一个，给出你的要点，AI 起草初稿，你再打磨定稿。</p>
@@ -264,6 +268,87 @@ function setCat(key) {
 
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
+const QUIZ_POINT_PLACEHOLDERS = {
+    '语文': '如：拼音复习 / 识字写字 / 句子排序',
+    '数学': '如：20以内加减法 / 小数乘法 / 一元一次方程',
+    '英语': '如：一般现在时 / 颜色词 / 购物对话',
+    '物理': '如：欧姆定律 / 浮力 / 速度计算',
+    '化学': '如：酸碱盐 / 化学方程式配平 / 物质分类',
+    '生物': '如：细胞结构 / 光合作用 / 遗传与变异',
+    '政治（道法）': '如：规则意识 / 依法履行义务 / 集体生活',
+    '历史': '如：秦朝统一 / 鸦片战争 / 新航路开辟',
+    '地理': '如：中国行政区划 / 等高线 / 气候类型',
+    '科学': '如：水的三态变化 / 植物生长 / 简单电路',
+    '音乐': '如：节奏型 / 民歌欣赏 / 旋律进行',
+    '美术': '如：色彩冷暖 / 线条表现 / 构图',
+    '体育': '如：立定跳远 / 篮球运球 / 安全运动',
+    '信息技术': '如：信息安全 / Scratch循环 / 表格处理',
+    '综合实践': '如：垃圾分类调查 / 校园植物观察 / 劳动方案'
+};
+const GRADE_LEVEL = {
+    '小学一年级': 1, '小学二年级': 2, '小学三年级': 3, '小学四年级': 4, '小学五年级': 5, '小学六年级': 6,
+    '初中七年级': 7, '初中八年级': 8, '初中九年级': 9,
+    '高中一年级': 10, '高中二年级': 11, '高中三年级': 12
+};
+const QUIZ_KNOWLEDGE_RULES = [
+    {
+        pattern: /一元一次方程|一次方程|解一元一次方程/,
+        subject: '数学',
+        minLevel: 7,
+        minGrade: '初中七年级',
+        label: '一元一次方程',
+        alternatives: {
+            '语文': '拼音、识字写字、词语搭配、句子排序、短文阅读',
+            '数学': '20以内加减法、认识图形、比较大小、简单分类'
+        }
+    },
+    {
+        pattern: /二元一次方程|二次函数|反比例函数|勾股定理|相似三角形/,
+        subject: '数学',
+        minLevel: 8,
+        minGrade: '初中八年级',
+        label: '初中数学内容',
+        alternatives: {
+            '语文': '课文理解、词语积累、标点使用、看图写话',
+            '数学': '数的认识、四则运算、图形与位置'
+        }
+    },
+    {
+        pattern: /导数|函数极限|数列|立体几何|圆锥曲线/,
+        subject: '数学',
+        minLevel: 10,
+        minGrade: '高中一年级',
+        label: '高中数学内容',
+        alternatives: {
+            '数学': '同年级教材中的函数、几何或代数基础内容'
+        }
+    }
+];
+const HANDWRITING_ASSIST = {
+    'homework-grader': {
+        title: '手写作业先转文字',
+        copy: '拍照后用手机相册、微信/QQ、WPS 或扫描工具识别文字，粘贴前遮挡姓名，重点校对数字、单位和符号。',
+        fields: {
+            question: '题目：\n（粘贴 OCR 识别后的题目，必要时补充图片中看不清的条件）',
+            answer: '学生作答：\n（粘贴学生答案或解题过程；看不清的字可标注“疑似……”）',
+            standard: '参考答案：\n（可选；没有标准答案可留空）'
+        }
+    },
+    'essay-review': {
+        title: '作文拍照识别后再评改',
+        copy: '先把手写作文 OCR 成文字，再快速校对错别字和段落。建议保留学生原句，不要先替学生润色。',
+        fields: {
+            text: '作文正文：\n（粘贴 OCR 识别后的全文；按原文分段；无法识别的字可用“□”标记）\n\n教师补充：\n（可选：本次重点看立意、结构、语言或书写规范）'
+        }
+    },
+    'error-diagnosis': {
+        title: '错题不用全文录入',
+        copy: '可以只粘贴题目关键条件、学生错误答案和教师观察。多名学生同类错误可合并输入。',
+        fields: {
+            errors: '错题/常错情况：\n1. 题目关键条件：\n   学生错误答案：\n   教师观察：\n\n2. 题目关键条件：\n   学生错误答案：\n   教师观察：'
+        }
+    }
+};
 
 function cardHtml(a, allowSeal, featured) {
     const c = CAT_MAP[a.cat];
@@ -373,6 +458,7 @@ function openAgent(id, skipGuard) {
 }
 
 function backToHome() {
+    clearAgentWorkState();
     document.getElementById('view-workspace').style.display = 'none';
     document.getElementById('view-home').style.display = '';
     history.replaceState(null, '', location.pathname);
@@ -394,11 +480,14 @@ function copyAgentPrompt() {
 
 /* ---------- form 工作台 ---------- */
 function buildForm(a) {
+    clearAgentWorkState({ keepAgent: true });
     const fieldsHtml = a.fields.map(f => renderField(a.id, f)).join('');
+    const handwritingAssist = handwritingAssistMarkup(a);
     document.getElementById('ws-body').innerHTML = `
     <div class="ws-form-layout">
         <div class="ws-panel ws-input-col">
             <div class="ws-panel-head"><i class="ph ph-sliders-horizontal"></i> 填写信息 <span class="mono">INPUT</span></div>
+            ${handwritingAssist}
             <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
                 ${fieldsHtml}
                 <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> 开始生成</button>
@@ -423,6 +512,42 @@ function buildForm(a) {
     document.querySelectorAll('#agent-form .chip-opt').forEach(ch => {
         ch.addEventListener('click', () => ch.classList.toggle('on'));
     });
+    initAgentFormHelpers(a);
+}
+
+function handwritingAssistMarkup(a) {
+    const cfg = HANDWRITING_ASSIST[a.id];
+    if (!cfg) return '';
+    return `<div class="hw-assist">
+        <div class="hw-assist-top">
+            <div class="hw-assist-ico"><i class="ph ph-scan"></i></div>
+            <div>
+                <div class="hw-assist-title">${escapeHtml(cfg.title)}</div>
+                <div class="hw-assist-copy">${escapeHtml(cfg.copy)}</div>
+                <div class="hw-assist-actions">
+                    <button type="button" onclick="insertHandwritingTemplate('${a.id}', false)"><i class="ph ph-textbox"></i> 插入粘贴模板</button>
+                    <button type="button" onclick="insertHandwritingTemplate('${a.id}', true)"><i class="ph ph-plus-circle"></i> 只填空白项</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+function insertHandwritingTemplate(aid, onlyEmpty) {
+    const cfg = HANDWRITING_ASSIST[aid];
+    const form = document.getElementById('agent-form');
+    if (!cfg || !form) return;
+    Object.entries(cfg.fields).forEach(([key, value]) => {
+        const el = form.querySelector(`[name="${key}"]`);
+        if (!el) return;
+        if (onlyEmpty && el.value.trim()) return;
+        el.value = value;
+        if (el.tagName === 'TEXTAREA') {
+            el.style.height = 'auto';
+            el.style.height = Math.max(el.scrollHeight + 8, 96) + 'px';
+        }
+    });
+    showToast(onlyEmpty ? '已填入空白模板' : '已插入粘贴模板');
 }
 
 function renderField(aid, f) {
@@ -459,6 +584,123 @@ function collectInputs(a) {
 
 let _lastResult = '';
 let _lastInputs = null;
+let _formRunSeq = 0;
+let _lastAuthUid = Auth.getCurrentUser()?.uid || '';
+
+function currentAuthUid() {
+    return Auth.getCurrentUser()?.uid || '';
+}
+
+function clearAgentWorkState(options = {}) {
+    _formRunSeq++;
+    _chatRunSeq++;
+    _lastResult = '';
+    _lastInputs = null;
+    _editing = false;
+    _chatHistory = [];
+    if (!options.keepAgent) window._wsAgent = null;
+
+    const actions = document.getElementById('out-actions');
+    if (actions) actions.style.display = 'none';
+    const body = document.getElementById('out-body');
+    if (body) {
+        body.className = 'ws-out-body placeholder';
+        body.innerHTML = '<div><i class="ph ph-cursor-click"></i><p>填好左侧信息后点击「开始生成」<br>结果会显示在这里</p></div>';
+    }
+    const chatActions = document.getElementById('chat-actions');
+    if (chatActions) chatActions.style.display = 'none';
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) { chatInput.value = ''; autoGrow(chatInput); }
+}
+
+function hasAgentWorkState() {
+    const body = document.getElementById('out-body');
+    const bodyHasContent = body && !body.classList.contains('placeholder') && body.textContent.trim();
+    return !!(_lastResult || _lastInputs || _editing || _chatHistory.length || bodyHasContent);
+}
+
+function resetAgentWorkspaceForAuth(nextUid) {
+    const workspace = document.getElementById('view-workspace');
+    const inWorkspace = workspace && workspace.style.display !== 'none';
+    const shouldExitWorkspace = inWorkspace && (hasAgentWorkState() || !nextUid || !!_lastAuthUid);
+    if (shouldExitWorkspace) {
+        clearAgentWorkState();
+        document.getElementById('view-workspace').style.display = 'none';
+        document.getElementById('view-home').style.display = '';
+        history.replaceState(null, '', location.pathname);
+        document.title = '智能体空间 · AI 教师培训中心';
+        if (nextUid) showToast('已切换账号，上一位用户的智能体结果已清空');
+    } else if (hasAgentWorkState()) {
+        clearAgentWorkState();
+    }
+}
+
+function handleAgentAuthUser(nextUser) {
+    const nextUid = nextUser?.uid || '';
+    if (nextUid !== _lastAuthUid) resetAgentWorkspaceForAuth(nextUid);
+    _lastAuthUid = nextUid;
+}
+
+function quizPointPlaceholder(subject) {
+    return QUIZ_POINT_PLACEHOLDERS[subject] || '如：本课重点知识 / 单元复习范围';
+}
+
+function initAgentFormHelpers(a) {
+    if (a.id !== 'quiz-gen') return;
+    const form = document.getElementById('agent-form');
+    const subject = form?.querySelector('[name="subject"]');
+    const point = form?.querySelector('[name="point"]');
+    if (!subject || !point) return;
+    const sync = () => { point.placeholder = quizPointPlaceholder(subject.value); };
+    subject.addEventListener('change', sync);
+    sync();
+}
+
+function gradeLevel(grade) {
+    return GRADE_LEVEL[grade] || 0;
+}
+
+function validateQuizInputs(inputs) {
+    const subject = inputs.subject || '';
+    const grade = inputs.grade || '';
+    const point = inputs.point || '';
+    const level = gradeLevel(grade);
+    const rule = QUIZ_KNOWLEDGE_RULES.find(r => r.pattern.test(point));
+    if (!rule) return { ok: true };
+
+    const reasons = [];
+    if (subject && subject !== rule.subject) reasons.push(`「${rule.label}」属于${rule.subject}知识点，不属于${subject}学科。`);
+    if (level && level < rule.minLevel) reasons.push(`「${rule.label}」通常不早于${rule.minGrade}学习，不适合${grade}直接出题。`);
+    if (!reasons.length) return { ok: true };
+
+    const alternatives = rule.alternatives[subject] || rule.alternatives[rule.subject] || '请选择与当前学科、年级一致的教材知识点';
+    return {
+        ok: false,
+        title: '参数需要调整',
+        message: reasons.join(''),
+        suggestions: [
+            `如果继续使用「${subject}${grade}」，建议把知识点改为：${alternatives}。`,
+            `如果确实要考查「${rule.label}」，建议将学科改为「${rule.subject}」，年级改为「${rule.minGrade}」或更高。`
+        ]
+    };
+}
+
+function validateAgentInputs(a, inputs) {
+    if (a.id === 'quiz-gen') return validateQuizInputs(inputs);
+    return { ok: true };
+}
+
+function showInputValidation(result) {
+    const actions = document.getElementById('out-actions');
+    const body = document.getElementById('out-body');
+    if (actions) actions.style.display = 'none';
+    if (!body) return;
+    _lastResult = '';
+    _lastInputs = null;
+    body.className = 'ws-out-body md';
+    body.innerHTML = mdToHtml(`### ${result.title || '参数需要调整'}\n\n${result.message || '当前输入不适合直接生成。'}\n\n${(result.suggestions || []).map(s => `- ${s}`).join('\n')}`);
+}
+
 async function runForm(aid) {
     const a = AGENTS.find(x => x.id === aid);
     if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return false;
@@ -467,10 +709,18 @@ async function runForm(aid) {
     // 必填校验
     const missing = a.fields.filter(f => f.required && (!inputs[f.key] || (Array.isArray(inputs[f.key]) && !inputs[f.key].length)));
     if (missing.length) { showToast(`请填写：${missing.map(m => m.label).join('、')}`); return false; }
+    const validation = validateAgentInputs(a, inputs);
+    if (!validation.ok) {
+        showInputValidation(validation);
+        showToast('学科、年级和知识点不匹配，已停止生成');
+        return false;
+    }
 
     const btn = document.getElementById('run-btn');
     const body = document.getElementById('out-body');
     const actions = document.getElementById('out-actions');
+    const runSeq = ++_formRunSeq;
+    const ownerUid = currentAuthUid();
     btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 生成中…';
     actions.style.display = 'none';
     body.className = 'ws-out-body md';
@@ -483,8 +733,12 @@ async function runForm(aid) {
     try {
         await callAgentAPI({
             agent: a, inputs,
-            onToken: (full) => { _lastResult = full; body.innerHTML = mdToHtml(full) + ' '; body.classList.add('cursor-blink'); }
+            onToken: (full) => {
+                if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return;
+                _lastResult = full; body.innerHTML = mdToHtml(full) + ' '; body.classList.add('cursor-blink');
+            }
         });
+        if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return false;
         body.classList.remove('cursor-blink');
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
@@ -496,10 +750,13 @@ async function runForm(aid) {
             meta: { agentType: a ? a.type : 'form' }
         });
     } catch (e) {
+        if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return false;
         body.className = 'ws-out-body placeholder';
         body.innerHTML = `<div><i class="ph ph-warning"></i><p>生成失败：${e.message}</p></div>`;
     }
-    btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-sparkle"></i> 开始生成';
+    if (runSeq === _formRunSeq && currentAuthUid() === ownerUid) {
+        btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-sparkle"></i> 开始生成';
+    }
     return false;
 }
 
@@ -580,7 +837,9 @@ function toggleEdit() {
 
 /* ---------- chat 工作台 ---------- */
 let _chatHistory = [];
+let _chatRunSeq = 0;
 function buildChat(a) {
+    clearAgentWorkState({ keepAgent: true });
     _chatHistory = [];
     const starters = (a.starters || []).map(s =>
         `<button onclick="quickChat('${a.id}', this.textContent)">${s}</button>`).join('');
@@ -649,11 +908,17 @@ async function sendChat(aid) {
     const target = pushChat('bot', '', a);
     target.parentElement.parentElement.classList.add('cursor-blink');
     let assistantText = '';
+    const runSeq = ++_chatRunSeq;
+    const ownerUid = currentAuthUid();
     try {
         await callAgentAPI({
             agent: a, inputs: {}, history: _chatHistory,
-            onToken: (full) => { assistantText = full; target.innerHTML = mdToHtml(full); stream.scrollTop = stream.scrollHeight; }
+            onToken: (full) => {
+                if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
+                assistantText = full; target.innerHTML = mdToHtml(full); stream.scrollTop = stream.scrollHeight;
+            }
         });
+        if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
         _chatHistory.push({ role: 'assistant', content: assistantText });
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
         if (window.Analytics) Analytics.track('agent_run', {
@@ -664,14 +929,17 @@ async function sendChat(aid) {
         });
         updateChatActions();
     } catch (e) {
+        if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
         const last = _chatHistory[_chatHistory.length - 1];
         if (last?.role === 'user' && last.content === text) _chatHistory.pop();
         target.innerHTML = `<span style="color:var(--brand)">出错了：${e.message}</span>`;
         updateChatActions();
     }
-    target.parentElement.parentElement.classList.remove('cursor-blink');
-    sendBtn.disabled = false;
-    input.focus();
+    if (runSeq === _chatRunSeq && currentAuthUid() === ownerUid) {
+        target.parentElement.parentElement.classList.remove('cursor-blink');
+        sendBtn.disabled = false;
+        input.focus();
+    }
 }
 
 function chatTranscript(aid) {
@@ -810,7 +1078,10 @@ function buildUserPrompt(agent, inputs) {
         const val = Array.isArray(v) ? v.join('、') : (v || '');
         return val ? `【${f.label}】${val}` : null;
     }).filter(Boolean);
-    return `请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中国大陆中小学教学实际。`;
+    const guard = agent.id === 'quiz-gen'
+        ? '请先判断学科、年级、知识点是否匹配中国大陆中小学课程体系；如果明显不匹配，请不要出题，先说明原因并给出修改建议。\n\n'
+        : '';
+    return `${guard}请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中国大陆中小学教学实际。`;
 }
 
 /* ---------- 工具函数 ---------- */
@@ -846,7 +1117,11 @@ window.addEventListener('hashchange', () => {
     else if (document.getElementById('view-workspace').style.display !== 'none') backToHome();
 });
 
-onAuthReady(() => {
+document.addEventListener('authChanged', event => handleAgentAuthUser(event.detail));
+document.addEventListener('authRefresh', event => handleAgentAuthUser(event.detail));
+
+onAuthReady((user) => {
+    handleAgentAuthUser(user);
     renderNav('agents');
     renderFooter();
 });

@@ -345,13 +345,14 @@ ${i.size ? `按 ${i.size} 人计，` : ''}建议 4 人一组、异质分组（�
     fields: [
         { key: 'subject', label: '学科', type: 'select', options: SUBJECTS, required: true },
         { key: 'grade', label: '年级', type: 'select', options: GRADES, required: true },
-        { key: 'point', label: '知识点/范围', type: 'text', placeholder: '如：一元一次方程的应用', required: true },
+        { key: 'point', label: '知识点/范围', type: 'text', placeholder: '如：拼音复习 / 识字写字 / 句子排序', required: true },
         { key: 'types', label: '题型', type: 'chips', options: ['选择题','填空题','判断题','计算/解答题','简答题','应用题'], required: true },
         { key: 'count', label: '数量', type: 'select', options: ['5 题','10 题','15 题','20 题'] },
         { key: 'level', label: '难度', type: 'select', options: ['基础','中等','偏难','梯度（易到难）'] }
     ],
     system: `你是命题专家，依据知识点和课标命制题目，题干严谨、无歧义、难度匹配。
-任务：按用户指定的知识点、题型、难度与数量出题，并配答案与解析。
+前置校验：出题前必须先判断用户给定的“学科、年级、知识点/范围”是否符合中国大陆中小学课程体系。若明显不匹配（如语文学科要求出一元一次方程、小学低年级要求初中代数/高中函数等），不得继续出题；请先输出“参数需要调整”，说明不匹配原因，并给出 2-3 个适合当前学科年级的知识点，或建议用户改成正确学科/年级。
+任务：在校验通过后，按用户指定的知识点、题型、难度与数量出题，并配答案与解析。
 输出要求：用 Markdown，先按题型分组列出题目（编号、必要时标分值），再单设"参考答案与解析"一节，逐题给出答案与简要解析（说明思路与易错点）。题量与用户要求一致。
 约束：题干表述规范、选项干扰合理、难度与年级匹配；贴合大陆教材与课标。语气严谨。`,
     sample: (i) => `# ${i.point || '（知识点）'} · 练习题
@@ -382,18 +383,18 @@ ${i.grade || ''}${i.subject || ''}　·　难度：${i.level || '中等'}　·�
     name: '作业批改助手', keywords: '批改 订正 错因 反馈',
     tagline: '批改 + 错因 + 订正建议',
     desc: '粘贴题目和学生作答，给出对错判断、错因分析和有针对性的订正与讲评建议。',
-    intro: '它不只是判对错，还会分析学生「为什么错」，并给出订正方向和讲评建议，帮你把批改变成有效反馈。适合疑难作业的精批。',
+    intro: '它不只是判对错，还会分析学生「为什么错」。手写作业可先用手机或扫描工具识别成文字，校对后粘贴进来，适合疑难作业的精批。',
     type: 'form',
     fields: [
         { key: 'subject', label: '学科', type: 'select', options: SUBJECTS, required: true },
-        { key: 'question', label: '题目', type: 'textarea', rows: 3, placeholder: '粘贴题目原文', required: true },
-        { key: 'answer', label: '学生作答', type: 'textarea', rows: 4, placeholder: '粘贴学生的解答过程或答案', required: true },
+        { key: 'question', label: '题目', type: 'textarea', rows: 3, placeholder: '粘贴题目原文；手写题可先 OCR 识别后粘贴', required: true },
+        { key: 'answer', label: '学生作答', type: 'textarea', rows: 4, placeholder: '粘贴学生答案或解题过程；看不清处可标“疑似/□”', required: true },
         { key: 'standard', label: '参考答案', type: 'textarea', rows: 2, placeholder: '如有标准答案可填，便于更准批改', hint: '可选' }
     ],
     system: `你是耐心细致的批改老师。
 任务：根据用户粘贴的题目与学生作答（有参考答案则参照），判断正误并给出有针对性的订正与讲评。
 输出要求：用 Markdown，依次——判定（对/错/部分对）；错因分析（定位到概念/计算/审题/表达哪一类，并还原学生的思维过程）；订正建议（具体、可执行、分步）；给老师的讲评提示。
-约束：先肯定可取之处再指出问题；错因要追到根源而非只说"算错了"。语气鼓励、就事论事。`,
+约束：先肯定可取之处再指出问题；错因要追到根源而非只说"算错了"。若输入来自 OCR 且存在缺字、乱码、□ 或“疑似”标注，先指出需要教师核对的位置，不要对不清楚的信息强行判错。语气鼓励、就事论事。`,
     sample: (i) => `# 批改结果
 
 **题目**：${(i.question || '（题目）').slice(0, 50)}${(i.question || '').length > 50 ? '…' : ''}
@@ -417,21 +418,21 @@ ${i.grade || ''}${i.subject || ''}　·　难度：${i.level || '中等'}　·�
 },
 {
     id: 'essay-review', cat: 'assess', icon: 'ph-pen-nib',
-    name: '作文评改', keywords: '作文 批改 评语 写作 修改',
+    name: '作文评改', keywords: '作文 批改 评语 写作 修改 手写 OCR',
     tagline: '评分 + 评语 + 逐段建议',
     desc: '粘贴学生作文，给出总评、亮点、问题诊断和逐段修改建议，附一段鼓励性评语。',
-    intro: '它会从立意、结构、语言、书写规范多维度评析作文，既指出问题也肯定亮点，并给出可操作的修改方向和一段写给学生的评语。',
+    intro: '它会从立意、结构、语言、书写规范多维度评析作文。手写作文可先拍照 OCR 成文字，保留学生原句并简单校对后再提交。',
     type: 'form',
     fields: [
         { key: 'grade', label: '年级', type: 'select', options: GRADES, required: true },
         { key: 'title', label: '作文题目', type: 'text', placeholder: '如：那一刻，我长大了', required: true },
-        { key: 'text', label: '作文正文', type: 'textarea', rows: 7, placeholder: '粘贴学生作文全文', required: true },
+        { key: 'text', label: '作文正文', type: 'textarea', rows: 7, placeholder: '粘贴学生作文全文；手写作文请先 OCR 识别并校对段落', required: true },
         { key: 'focus', label: '评改侧重', type: 'chips', options: ['立意中心','结构条理','语言表达','细节描写','书写规范'] }
     ],
     system: `你是语文写作指导老师，评改兼顾鼓励与指导，先肯定亮点再指出问题。
 任务：根据用户粘贴的学生作文（按学段与评改侧重），给出评改。
 输出要求：用 Markdown，依次——总评（含星级与一句话定位）；亮点 👍（具体到词句）；可提升 ✏️（问题诊断，具体到句段）；逐段微调示例（给"原句→改后"对比）；给学生的评语（真诚、不套话）。
-约束：建议具体可操作、保护写作积极性；贴合学段写作要求与评改侧重。语气真诚、有温度。`,
+约束：建议具体可操作、保护写作积极性；贴合学段写作要求与评改侧重。若正文疑似 OCR 识别结果，遇到缺字、乱码、□ 或明显断句错误时，先提醒教师核对，不要把识别错误当成学生表达问题。语气真诚、有温度。`,
     sample: (i) => `# 作文评改：《${i.title || '（题目）'}》
 **学段**：${i.grade || ''}　|　侧重：${(i.focus && i.focus.length) ? i.focus.join('、') : '综合'}
 
@@ -505,17 +506,17 @@ ${i.grade || ''}${i.subject || ''}　·　难度：${i.level || '中等'}　·�
     name: '错题诊断', keywords: '错题 诊断 漏洞 补救 讲评',
     tagline: '知识漏洞 + 补救方案',
     desc: '输入一批典型错题（或学生常错的地方），诊断背后的知识漏洞并给出补救教学建议。',
-    intro: '把学生集中出错的题目丢给它，它会归纳出共性的知识盲点和思维误区，告诉你该补什么、怎么补，让讲评更有的放矢。',
+    intro: '不用完整录入每张作业。把题目关键条件、学生错误答案和你的观察粘贴进来，它会归纳共性漏洞，告诉你该补什么、怎么补。',
     type: 'form',
     fields: [
         { key: 'subject', label: '学科', type: 'select', options: SUBJECTS, required: true },
         { key: 'grade', label: '年级', type: 'select', options: GRADES, required: true },
-        { key: 'errors', label: '错题/常错情况', type: 'textarea', rows: 5, placeholder: '粘贴几道学生集中出错的题，或描述错误表现', required: true }
+        { key: 'errors', label: '错题/常错情况', type: 'textarea', rows: 5, placeholder: '可只粘贴题目关键条件、学生错误答案和教师观察', required: true }
     ],
     system: `你是学习诊断专家，从一批错题中归纳共性的知识漏洞与思维误区。
 任务：根据用户输入的典型错题/常错点，诊断背后的问题并给出补救建议。
 输出要求：用 Markdown，依次——一、错误归类；二、根因分析（知识漏洞/思维误区/习惯）；三、补救方案（针对性练习与教学策略，可用表格）；四、讲评建议。
-约束：从现象追到根因、给出可操作的补救路径，避免泛泛而谈；贴合学段与学科。语气专业、建设性。`,
+约束：从现象追到根因、给出可操作的补救路径，避免泛泛而谈；贴合学段与学科。若输入来自 OCR 或简略摘录，先区分“信息不足”和“学生真实错误”，不把识别缺失当成知识漏洞。语气专业、建设性。`,
     sample: (i) => `# 错题诊断报告（${i.grade || ''}${i.subject || ''}）
 
 ## 一、错误归类

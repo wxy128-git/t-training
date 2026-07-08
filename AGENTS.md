@@ -58,7 +58,7 @@
   - **`.agent-card` 样式迁移**：从 agents.html 内联**移到 `css/style.css`**（共享给首页橱窗 + agents.html）；agents.html 仅保留 `.agent-grid/.agent-section/.featured-grid` 等页面布局。新增 `.home-feat-grid/.home-cat-grid/.mini/.cat-sub` 等首页橱窗样式。
   - 导航分组（第二层「资源 ▾ 下拉」）尚未做，待定。缓存版本：`css/style.css` → `?v=20260617-agentfirst`（全站 14 处同步）。
   - **微调（同日）**：① 「AI 智能体」副标题去掉自我标榜的「这是本站的核心」→「按真实教学场景设计，填好参数就出结果。」；② hero 右侧 spotlight 卡（吆喝感重、与下方重复）改为安静的 **「AI 智能体 · 5 大场景」面板**（`.hc-scenes`，`#hero-scenes` 由首页脚本按 AGENT_CATS + 计数渲染，整行可点）；③ **修首页 hero→首区「幽灵间距」**：`#announcements-section:empty{display:none}`（空公告不再占 flex gap）+ `.home-main` 顶部内距 88→48。缓存版本：`css/style.css` → `?v=20260617-herob`。
-  - **签名视觉（红笔/印章，克制·更轻）**：一套「教师」母题，整页只点几处。① **手绘红笔下划线**：`.hero h1 .underline::after` 改为内嵌 SVG 笔触（data-URI，朱砂、细），用于首页 H1「你的课堂」。② **印章徽记** `.seal`（朱砂双线、微旋转）盖在智能体卡右上角 `.card-seal`。③ **红笔对勾**（已于 2026-06-17 回滚——观感不佳，hero 价值条恢复 Phosphor 图标；`.rp-check` 样式已删）。母题样式在 style.css「签名视觉」块。**更新 (2026-06-19)**：首页改版后用的是**实心朱印**（`.hp-seal*`，朱砂阴文楷体）；为与首页统一，**agents.html 在自己的内联 `<style>` 里把 `.seal` 覆盖成同款实心朱印**（`.seal` 仅 agents.html 在用，安全），页眉加「甄选」印 (`.agents-head-seal`)、「常用推荐」精选卡盖「精选」印（`cardHtml(a,false,true)`），分区卡仍按用量盖「热门」印。另：**全站轻量一致层**——`style.css` 加了 `body::before` 稿纸纹理（固定·极淡·顶部加重），并清除了子页残留冷色（Tailwind 石板灰/靛蓝→编辑式暖调）；`css/style.css?v=20260619-texture`。
+  - **签名视觉（红笔/印章，克制·更轻）**：一套「教师」母题，整页只点几处。① **手绘红笔下划线**：`.hero h1 .underline::after` 改为内嵌 SVG 笔触（data-URI，朱砂、细），用于首页 H1「你的课堂」。② **印章徽记** `.seal`（朱砂双线、微旋转）盖在智能体卡右上角 `.card-seal`。③ **红笔对勾**（已于 2026-06-17 回滚——观感不佳，hero 价值条恢复 Phosphor 图标；`.rp-check` 样式已删）。母题样式在 style.css「签名视觉」块。**更新 (2026-06-19)**：首页改版后用的是**实心朱印**（`.hp-seal*`，朱砂阴文楷体）；为与首页统一，**agents.html 在自己的内联 `<style>` 里把 `.seal` 覆盖成同款实心朱印**（`.seal` 仅 agents.html 在用，安全），「常用推荐」精选卡盖「精选」印（`cardHtml(a,false,true)`），分区卡仍按用量盖「热门」印。**更新 (2026-07-08)**：页眉独立「甄选」印已移除，勿恢复 `agents-head-seal`。另：**全站轻量一致层**——`style.css` 加了 `body::before` 稿纸纹理（固定·极淡·顶部加重），并清除了子页残留冷色（Tailwind 石板灰/靛蓝→编辑式暖调）；`css/style.css?v=20260619-texture`。
   - **印章改为「热门」按使用频率（2026-06-17）**：原固定 4 个「精选」印 → 改为**全站使用频率最高的 2 个**盖「热门」印，自动顶替。计数：智能体每次「生成/对话」成功后 `DB.bumpAgentUsage(id)` 写 Firestore `agent_usage/{id}.count`（`FieldValue.increment`）；`DB.getTopAgents(2)` 读出 Top-2。`window.TOP_AGENTS` 先用种子 `['lesson-design','quiz-gen']`，数据返回后覆盖并重渲染。**显示去重**：homepage 在 `#feat-agents` 盖；agents.html 在**分区卡**盖、**「常用推荐」行传 `cardHtml(a,false)` 不盖**（避免同一智能体出现两次被盖两个印）。无 `agent_usage` 规则/数据时回退到种子，不报错。缓存版本：`data.js`/`css/style.css` → `?v=20260617-hot`。
 
 - **2026-06-17（提示词并入智能体 + 悬浮助手重绘）**:
@@ -91,6 +91,15 @@
   - 新增 `functions/api/analytics.js`，使用 Cloudflare Pages Function + Firebase service account 写入/汇总 `analytics_events`。管理员看板通过 `Auth.getIdToken()` 调 `/api/analytics` 的 `summary` 动作；非管理员不可读汇总。
   - `admin.html` 新增「数据看板」侧栏面板：近 7/14/30/60/90 天筛选，显示新增用户、唯一访客、页面浏览、登录用户活跃、智能体生成、备课本使用、多模态使用；包含每日趋势、热门智能体、热门多模态案例和登录用户使用明细。
   - 统计口径：访客以浏览器本地随机 visitorId 去重；新增用户来自 `users.joinedAt`；不保存 IP、userAgent、屏幕尺寸、时区，不保存智能体输入/输出正文，不读取备课本正文。若访问量超过当前 6000 条事件查询上限，应升级为每日预聚合集合或 KV/Durable Objects。
+
+- **2026-07-08（智能出题校验 + 账号切换清理，本地开发未上线）**:
+  - `agents.html` 为「智能出题」新增前端课程适配预检：对明显不匹配的组合先拦截，不调用模型，例如“语文 / 小学一年级 / 一元一次方程”。提示会显示不匹配原因，并建议改成当前学科年级适合的知识点，或改成正确学科/年级。维护时新增规则改 `QUIZ_KNOWLEDGE_RULES`；年级顺序改 `GRADE_LEVEL`。
+  - `js/agents-data.js` 强化 `quiz-gen.system`：模型出题前必须先校验学科、年级、知识点/范围是否符合大陆中小学课程体系；明显不匹配时不得出题，只输出“参数需要调整”和修改建议。`buildUserPrompt()` 也对 `quiz-gen` 追加同样的校验要求作为兜底。
+  - `agents.html` 的智能体工作台现在监听 `authChanged` / `authRefresh`。退出、登录态变空、或已知用户切换为另一个 uid 时，会中止旧的流式回调、清空 `_lastResult/_lastInputs/_chatHistory` 和输出 DOM，并返回智能体列表，避免 A 用户生成内容在 B 用户登录后仍显示。首次打开深链且登录态刚恢复时，如果没有旧内容，不会误关空白工作台。
+  - 「智能出题」知识点 placeholder 改为随学科动态切换，默认不再用“一元一次方程”作为通用示例。
+  - 作业批改助手、作文评改、错题诊断新增轻量“手写作业转文字”辅助条：提示先用手机/微信/QQ/WPS/扫描工具 OCR，再遮挡姓名、校对后粘贴；提供“插入粘贴模板 / 只填空白项”按钮，分别填入题目/学生作答/作文正文/错题摘录等结构化模板。站内不接入图片识别 API，不产生多模态识别成本。
+  - `js/agents-data.js` 同步调整三个批改类智能体的 placeholder / intro / system，明确输入可能来自 OCR；遇到缺字、乱码、`□` 或“疑似”标注时先提醒教师核对，不把识别错误当成学生错误。
+  - 移除 `agents.html` 页眉右上角独立「甄选」印（`agents-head-seal`），避免在导航/用户名区域附近出现多余圆角矩形；卡片内「精选/热门」印保留。
 
 ## Auth Lesson (Important)
 
