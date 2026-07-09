@@ -78,25 +78,37 @@
         .agents-head { position: relative; }
 
         /* ===== 工作台 ===== */
-        .ws-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; }
-        .ws-top { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
+        .ws-wrap { max-width: 1320px; margin: 0 auto; padding: 24px 24px 76px; }
+        .ws-top { display: grid; grid-template-columns: auto auto minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 13px 0 16px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
         .ws-back { flex-shrink: 0; width: 42px; height: 42px; border-radius: 11px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 19px; transition: background .15s, border-color .15s; }
         .ws-back:hover { background: var(--soft-2); border-color: var(--subtle); }
         .ws-ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 27px; flex-shrink: 0; }
         .ws-titles h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.02em; }
         .ws-titles p { font-size: 13.5px; color: var(--muted); margin: 6px 0 0; line-height: 1.7; max-width: 640px; }
         .ws-cat-tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; margin-bottom: 4px; }
+        .ws-status { display: flex; align-items: center; gap: 8px; justify-self: end; flex-wrap: wrap; }
+        .ws-model-badge { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
+        .ws-model-badge strong { color: var(--ink); font-weight: 700; }
+        .ws-model-badge i { color: var(--brand); font-size: 15px; }
+        @media (max-width: 760px) {
+            .ws-top { grid-template-columns: auto auto minmax(0,1fr); align-items: flex-start; }
+            .ws-status { grid-column: 1 / -1; justify-self: start; }
+        }
 
-        /* form 工作台：左输入右输出 */
-        .ws-form-layout { display: grid; grid-template-columns: minmax(300px, 0.85fr) 1.15fr; gap: 26px; align-items: start; }
-        @media (max-width: 860px) { .ws-form-layout { grid-template-columns: 1fr; } }
-        /* 左侧参数栏吸顶跟随，避免与右侧长结果产生突兀高度差 */
-        .ws-input-col { position: sticky; top: 18px; align-self: start; }
-        @media (max-width: 860px) { .ws-input-col { position: static; } }
-
-        .ws-panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; }
+        /* form 工作台：参数台 + 文稿台 */
+        .ws-form-layout { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
+        .ws-panel { background: var(--paper); border: 1px solid rgba(26,22,18,.1); border-radius: 18px; box-shadow: 0 1px 2px rgba(26,22,18,.04); overflow: hidden; }
+        .ws-input-col { position: sticky; top: 92px; align-self: start; height: clamp(520px, calc(100vh - 150px), 760px); padding: 18px; display: flex; flex-direction: column; }
+        .ws-input-scroll { min-height: 0; overflow: auto; padding-right: 4px; }
+        .ws-input-col.is-collapsed { height: auto; }
+        .ws-input-col.is-collapsed .ws-input-scroll { display: none; }
+        .ws-input-col.is-collapsed .ws-input-summary { display: block; }
+        .ws-input-summary { display: none; border: 1px solid var(--line); background: var(--soft); border-radius: 14px; padding: 12px 13px; font-size: 12.5px; color: var(--text); line-height: 1.7; }
+        .ws-input-summary b { color: var(--ink); font-weight: 800; }
         .ws-panel-head { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 18px; }
         .ws-panel-head .mono { font-family: var(--font-mono); font-size: 10.5px; color: var(--subtle); margin-left: auto; letter-spacing: .05em; }
+        .ws-toggle-input { border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; padding: 5px 9px; font: inherit; font-size: 11.5px; cursor: pointer; }
+        .ws-toggle-input:hover { color: var(--ink); border-color: var(--subtle); background: var(--soft-2); }
 
         .field { margin-bottom: 16px; }
         .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
@@ -123,19 +135,29 @@
         .ws-run:disabled { opacity: .55; cursor: not-allowed; }
 
         /* 输出区 */
-        .ws-out-panel { min-height: 340px; display: flex; flex-direction: column; }
-        .ws-edit-area { width: 100%; flex: 1; min-height: 360px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--soft); padding: 14px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--ink); resize: vertical; outline: none; }
-        .ws-edit-area:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .ws-out-panel { height: clamp(520px, calc(100vh - 150px), 760px); display: flex; flex-direction: column; }
+        .ws-edit-area { width: 100%; flex: 1; min-height: 0; border: none; border-radius: 0; background: var(--soft); padding: 20px 22px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--ink); resize: none; outline: none; }
+        .ws-edit-area:focus { background: var(--paper); box-shadow: inset 0 0 0 3px var(--brand-soft); }
         .ws-mini-btn.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
-        .ws-out-head { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+        .ws-out-head { display: flex; align-items: center; gap: 10px; padding: 15px 18px; border-bottom: 1px solid var(--line-soft); background: linear-gradient(180deg, var(--paper), var(--soft)); flex-shrink: 0; }
         .ws-out-head .label { font-size: 13px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 7px; }
         .ws-out-actions { margin-left: auto; display: flex; gap: 7px; }
         .ws-mini-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border: 1px solid var(--line); background: var(--paper); border-radius: var(--r-sm); font-size: 12px; color: var(--text); cursor: pointer; font-family: inherit; transition: all .14s; }
         .ws-mini-btn:hover { background: var(--soft-2); color: var(--ink); }
         .ws-mini-btn.copied { color: var(--success); border-color: var(--success); }
-        .ws-out-body { flex: 1; font-size: 14px; line-height: 1.85; color: var(--text); }
+        .ws-out-body { flex: 1; min-height: 0; overflow: auto; padding: 20px 22px; font-size: 14px; line-height: 1.85; color: var(--text); }
         .ws-out-body.placeholder { display: grid; place-items: center; text-align: center; color: var(--subtle); }
         .ws-out-body.placeholder .ph { font-size: 50px; display: block; margin-bottom: 14px; opacity: .6; }
+        @media (max-width: 900px) {
+            .ws-form-layout { grid-template-columns: 1fr; }
+            .ws-input-col { position: static; height: auto; max-height: none; }
+            .ws-out-panel { height: min(72vh, 680px); min-height: 460px; }
+        }
+        @media (max-width: 600px) {
+            .ws-out-head { display: block; }
+            .ws-out-actions { margin: 12px 0 0; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .ws-mini-btn { justify-content: center; white-space: nowrap; }
+        }
         /* markdown 渲染样式 */
         .md h1, .md h2, .md h3 { color: var(--ink); font-weight: 700; line-height: 1.3; margin: 1.2em 0 .5em; }
         .md h1 { font-size: 20px; } .md h2 { font-size: 17px; } .md h3 { font-size: 15px; }
@@ -178,7 +200,7 @@
         .chat-actions { display: flex; align-items: center; justify-content: flex-end; gap: 7px; margin: 0 0 10px; flex-wrap: wrap; }
         .chat-actions .ws-mini-btn { background: var(--paper); }
 
-        .api-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 24px; padding: 13px 16px; background: var(--soft-2); border: 1px dashed var(--line); border-radius: var(--r-md); font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+        .api-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; padding: 13px 16px; background: var(--soft-2); border: 1px dashed var(--line); border-radius: var(--r-md); font-size: 12.5px; color: var(--muted); line-height: 1.7; }
         .api-note i { color: var(--ochre); font-size: 16px; margin-top: 1px; flex-shrink: 0; }
         .work-title-modal { position: fixed; inset: 0; z-index: 650; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(26,22,18,.46); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
         .work-title-modal.active { display: flex; }
@@ -233,12 +255,15 @@
                 <h1 id="ws-name"></h1>
                 <p id="ws-intro"></p>
             </div>
-            <button class="ws-mini-btn" id="ws-copyprompt" onclick="copyAgentPrompt()" style="margin-left:auto;align-self:center;flex-shrink:0" title="复制这个智能体的提示词，方便拿到别的 AI 里用"><i class="ph ph-copy"></i> 复制提示词</button>
+            <div class="ws-status">
+                <a class="ws-mini-btn" href="workspace.html"><i class="ph ph-notebook"></i> 备课本</a>
+                <span class="ws-model-badge" id="ws-model-badge"><i class="ph ph-cpu"></i><span>模型服务：<strong id="ws-model-name">智能体路由</strong></span></span>
+            </div>
         </div>
         <div id="ws-body"></div>
         <div class="api-note">
             <i class="ph ph-sparkle"></i>
-            <span>内容由 <strong>DeepSeek</strong> 大模型实时生成，仅供参考，请结合教学实际核对后使用。</span>
+            <span>内容由 <strong id="api-model-name">本站智能体模型服务</strong> 实时生成，仅供参考，请结合教学实际核对后使用。</span>
         </div>
     </div>
 </div>
@@ -281,6 +306,7 @@
 const CATS = window.AGENT_CATS;
 const AGENTS = window.AGENTS;
 const CAT_MAP = Object.fromEntries(CATS.map(c => [c.key, c]));
+const PROVIDER_LABELS = { deepseek: 'DeepSeek', zhipu: '智谱 GLM-5.2' };
 let currentCat = 'all';
 
 /* ---------- 卡片墙 ---------- */
@@ -762,7 +788,8 @@ function openAgent(id, skipGuard) {
     document.getElementById('ws-cat').innerHTML = `<i class="ph ph-circle-fill" style="font-size:6px;color:${c.color}"></i><span style="color:${c.color}">${c.name}</span>`;
     document.getElementById('ws-name').textContent = a.name;
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
-    window._wsAgent = a;   // 供「复制提示词」使用
+    setAgentModelLabel('智能体路由');
+    window._wsAgent = a;
     if (window.Analytics) Analytics.track('agent_open', {
         feature: 'agents',
         targetId: a.id,
@@ -785,19 +812,6 @@ function backToHome() {
     document.title = '智能体空间 · AI 教师培训中心';
 }
 
-// 复制当前智能体的提示词（角色设定），方便老师拿到别的 AI 里用
-function copyAgentPrompt() {
-    const a = window._wsAgent;
-    if (!a) return;
-    const text = a.system || a.intro || a.desc || '';
-    if (!text) { showToast('这个智能体暂无可复制的提示词'); return; }
-    navigator.clipboard.writeText(text).then(() => {
-        const b = document.getElementById('ws-copyprompt');
-        if (b) { const o = b.innerHTML; b.innerHTML = '<i class="ph ph-check"></i> 已复制'; setTimeout(() => { b.innerHTML = o; }, 1800); }
-        showToast('提示词已复制 ✓ 可粘到任意 AI 里用');
-    }).catch(() => showToast('复制失败，请重试'));
-}
-
 /* ---------- form 工作台 ---------- */
 function buildForm(a) {
     clearAgentWorkState({ keepAgent: true });
@@ -805,17 +819,24 @@ function buildForm(a) {
     const handwritingAssist = handwritingAssistMarkup(a);
     document.getElementById('ws-body').innerHTML = `
     <div class="ws-form-layout">
-        <div class="ws-panel ws-input-col">
-            <div class="ws-panel-head"><i class="ph ph-sliders-horizontal"></i> 填写信息 <span class="mono">INPUT</span></div>
-            ${handwritingAssist}
-            <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
-                ${fieldsHtml}
-                <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> 开始生成</button>
-            </form>
+        <div class="ws-panel ws-input-col" id="ws-input-panel">
+            <div class="ws-panel-head">
+                <i class="ph ph-sliders-horizontal"></i> 任务参数
+                <span class="mono">INPUT</span>
+                <button type="button" class="ws-toggle-input" id="ws-input-toggle" onclick="toggleInputPanel()">收起</button>
+            </div>
+            <div class="ws-input-summary" id="ws-input-summary"></div>
+            <div class="ws-input-scroll" id="ws-input-scroll">
+                ${handwritingAssist}
+                <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
+                    ${fieldsHtml}
+                    <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> 开始生成</button>
+                </form>
+            </div>
         </div>
         <div class="ws-panel ws-out-panel">
             <div class="ws-out-head">
-                <span class="label"><i class="ph ph-file-text"></i> 生成结果</span>
+                <span class="label"><i class="ph ph-file-text"></i> 文稿工作区</span>
                 <div class="ws-out-actions" id="out-actions" style="display:none">
                     <button class="ws-mini-btn" id="save-btn" onclick="saveToWorkbook('${a.id}')"><i class="ph ph-bookmark-simple"></i> 保存到备课本</button>
                     <button class="ws-mini-btn" id="edit-btn" onclick="toggleEdit()"><i class="ph ph-pencil-simple"></i> 编辑</button>
@@ -824,7 +845,7 @@ function buildForm(a) {
                 </div>
             </div>
             <div class="ws-out-body placeholder" id="out-body">
-                <div><i class="ph ph-cursor-click"></i><p>填好左侧信息后点击「开始生成」<br>结果会显示在这里</p></div>
+                <div><i class="ph ph-cursor-click"></i><p>填好任务参数后点击「开始生成」<br>文稿会显示在这里</p></div>
             </div>
         </div>
     </div>`;
@@ -902,6 +923,46 @@ function collectInputs(a) {
     return data;
 }
 
+function setAgentModelLabel(label) {
+    const text = label || '智能体路由';
+    const head = document.getElementById('ws-model-name');
+    const note = document.getElementById('api-model-name');
+    if (head) head.textContent = text;
+    if (note) note.textContent = text;
+}
+
+function summarizeInputs(a, inputs) {
+    const priority = ['grade','subject','topic','point','concept','scope','theme','title','scene','name'];
+    const parts = [];
+    priority.forEach(key => {
+        const field = a.fields.find(f => f.key === key);
+        const value = fieldText(inputs[key]);
+        if (field && value) parts.push(`<b>${escapeHtml(field.label)}</b>：${escapeHtml(value)}`);
+    });
+    if (!parts.length) {
+        a.fields.slice(0, 3).forEach(field => {
+            const value = fieldText(inputs[field.key]);
+            if (value) parts.push(`<b>${escapeHtml(field.label)}</b>：${escapeHtml(value)}`);
+        });
+    }
+    return parts.slice(0, 5).join('<br>');
+}
+
+function updateInputSummary(a, inputs) {
+    const box = document.getElementById('ws-input-summary');
+    if (!box) return;
+    box.innerHTML = summarizeInputs(a, inputs) || '已填写任务参数。';
+}
+
+function toggleInputPanel(forceOpen) {
+    const panel = document.getElementById('ws-input-panel');
+    const btn = document.getElementById('ws-input-toggle');
+    if (!panel || !btn) return;
+    const collapsed = forceOpen === true ? false : forceOpen === false ? true : !panel.classList.contains('is-collapsed');
+    panel.classList.toggle('is-collapsed', collapsed);
+    btn.textContent = collapsed ? '展开' : '收起';
+}
+
 let _lastResult = '';
 let _lastInputs = null;
 let _formRunSeq = 0;
@@ -925,8 +986,10 @@ function clearAgentWorkState(options = {}) {
     const body = document.getElementById('out-body');
     if (body) {
         body.className = 'ws-out-body placeholder';
-        body.innerHTML = '<div><i class="ph ph-cursor-click"></i><p>填好左侧信息后点击「开始生成」<br>结果会显示在这里</p></div>';
+        body.innerHTML = '<div><i class="ph ph-cursor-click"></i><p>填好任务参数后点击「开始生成」<br>文稿会显示在这里</p></div>';
     }
+    toggleInputPanel(true);
+    setAgentModelLabel('智能体路由');
     const chatActions = document.getElementById('chat-actions');
     if (chatActions) chatActions.style.display = 'none';
     const chatInput = document.getElementById('chat-input');
@@ -1112,6 +1175,7 @@ async function runForm(aid) {
         showToast(validation.toast || '当前输入不匹配，已停止生成');
         return false;
     }
+    updateInputSummary(a, inputs);
 
     const btn = document.getElementById('run-btn');
     const body = document.getElementById('out-body');
@@ -1139,6 +1203,7 @@ async function runForm(aid) {
         body.classList.remove('cursor-blink');
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
+        toggleInputPanel(false);
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
         if (window.Analytics) Analytics.track('agent_run', {
             feature: 'agents',
@@ -1534,7 +1599,7 @@ function clearChat(aid) {
 
 /* ===================================================================
    智能体执行：调用同源后端代理 /api/agent
-   （由 functions/api/agent.js 持 DeepSeek 密钥转发，密钥永不出现在前端）
+   （由 functions/api/agent.js 持模型密钥转发，密钥永不出现在前端）
    前端只负责：① 组装发给模型的消息  ② 带上登录令牌  ③ 读流式纯文本
    =================================================================== */
 async function callAgentAPI({ agent, inputs, history, onToken }) {
@@ -1555,12 +1620,19 @@ async function callAgentAPI({ agent, inputs, history, onToken }) {
     const res = await fetch('/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, idToken })
+        body: JSON.stringify({ messages, idToken, agentId: agent.id })
     });
     if (!res.ok || !res.body) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.msg || `请求失败（${res.status}）`);
     }
+    const provider = res.headers.get('X-Agent-Provider');
+    const model = res.headers.get('X-Agent-Model');
+    const fallbackFrom = res.headers.get('X-Agent-Fallback-From');
+    const providerLabel = PROVIDER_LABELS[provider] || provider;
+    const fallbackLabel = PROVIDER_LABELS[fallbackFrom] || fallbackFrom;
+    const modelLabel = providerLabel && model ? `${providerLabel} · ${model}` : (providerLabel || model || '');
+    if (modelLabel) setAgentModelLabel(fallbackLabel ? `${modelLabel}（由 ${fallbackLabel} 回退）` : modelLabel);
 
     // ③ 读取后端转发的纯文本增量流
     const reader = res.body.getReader();
