@@ -7,16 +7,22 @@
     <meta name="description" content="保存、管理你在智能体空间生成的备课内容——查看、复制、导出 Word / Markdown。">
     <meta name="robots" content="noindex">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260701-multimodal">
+    <link rel="stylesheet" href="css/style.css?v=20260709-navpersonal">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
-        .wb-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
-        .wb-head h1 { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.025em; }
-        .wb-head p { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+        .wb-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: end; margin-bottom: 24px; padding: 6px 0 24px; border-bottom: 2px solid var(--ink); }
+        .wb-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); font-weight: 700; margin-bottom: 10px; }
+        .wb-head h1 { font-family: var(--font-display); font-size: clamp(34px, 4vw, 50px); line-height: 1.04; font-weight: 850; color: var(--ink); margin: 0; letter-spacing: -0.03em; }
+        .wb-head h1 em { color: var(--brand); font-style: normal; }
+        .wb-head p { font-size: 14.5px; color: var(--text); margin: 12px 0 0; max-width: 43em; line-height: 1.75; }
+        .wb-metrics { display: grid; grid-template-columns: repeat(3, minmax(78px,1fr)); gap: 8px; min-width: 282px; }
+        .wb-metric { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); padding: 10px 12px; box-shadow: 0 10px 24px -22px rgba(26,22,18,.38); }
+        .wb-metric b { display: block; font-family: var(--font-display); font-size: 24px; line-height: 1; color: var(--ink); }
+        .wb-metric span { display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted); }
         #wb-count { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
 
         /* 检索栏：像教师的抽屉标签，不打断卡片阅读 */
-        .wb-controls { display: none; margin: 0 0 22px; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-xs); }
+        .wb-controls { display: none; margin: 0 0 24px; padding: 16px; background: rgba(255,255,255,.5); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-xs); }
         .wb-controls.active { display: block; }
         .wb-search-row { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 12px; align-items: center; }
         .wb-search { position: relative; min-width: 0; }
@@ -32,7 +38,12 @@
         .wb-clear { margin-left: auto; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 12.5px; font-family: inherit; padding: 7px 4px; }
         .wb-clear:hover { color: var(--brand); }
         .wb-statline { font-size: 12px; color: var(--muted); font-family: var(--font-mono); white-space: nowrap; }
+        .wb-view-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+        .wb-view-toggle button { width: 30px; height: 30px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; display: inline-grid; place-items: center; font-size: 16px; }
+        .wb-view-toggle button.active { background: var(--ink); color: var(--soft); }
         @media (max-width: 720px) {
+            .wb-head { grid-template-columns: 1fr; gap: 16px; }
+            .wb-metrics { min-width: 0; width: 100%; }
             .wb-search-row { grid-template-columns: 1fr; }
             .wb-statline { white-space: normal; }
             .wb-clear { margin-left: 0; }
@@ -52,35 +63,49 @@
         #wb-error .btn-primary { margin-top: 14px; width: auto; padding: 10px 24px; }
 
         /* 卡片墙 */
-        #wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-        .wb-card { display: flex; flex-direction: column; background: var(--paper); border: 1px solid rgba(26,22,18,0.08); border-radius: 16px; padding: 22px;
-            box-shadow: 0 1px 2px rgba(26,22,18,0.05); transition: transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s cubic-bezier(.2,.7,.2,1), border-color .32s cubic-bezier(.2,.7,.2,1); }
-        .wb-card:hover { transform: translateY(-3px); border-color: rgba(26,22,18,0.13); box-shadow: 0 2px 4px rgba(26,22,18,0.04), 0 10px 20px -10px rgba(26,22,18,0.10), 0 22px 44px -20px rgba(26,22,18,0.16); }
-        .wb-card-meta { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-family: var(--font-mono); flex-wrap: wrap; }
-        .wb-type { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; background: var(--soft-2); color: var(--text-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 700; }
+        #wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(308px, 1fr)); gap: 16px; }
+        .wb-card { position: relative; display: flex; flex-direction: column; min-height: 252px; background: #fffdf8; border: 1px solid rgba(26,22,18,0.09); border-radius: 14px; padding: 22px;
+            box-shadow: 0 1px 2px rgba(26,22,18,0.05); overflow: hidden; transition: transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s cubic-bezier(.2,.7,.2,1), border-color .32s cubic-bezier(.2,.7,.2,1); }
+        .wb-card:hover { transform: translateY(-3px); border-color: rgba(26,22,18,0.14); box-shadow: 0 2px 4px rgba(26,22,18,0.04), 0 10px 20px -10px rgba(26,22,18,0.10), 0 22px 44px -20px rgba(26,22,18,0.16); }
+        .wb-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+        .wb-card-meta { min-width: 0; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); flex-wrap: wrap; }
+        .wb-type { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--soft-2); color: var(--text-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 750; }
         .wb-type.chat { background: var(--brand-soft); color: var(--brand-dark); }
-        .wb-card-title { font-size: 15.5px; font-weight: 800; color: var(--ink); line-height: 1.4; margin: 0 0 8px; cursor: pointer;
+        .wb-card-agent { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wb-card-date { font-family: var(--font-mono); color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+        .wb-card-title { font-size: 16px; font-weight: 850; color: var(--ink); line-height: 1.42; margin: 0 0 9px; cursor: pointer;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .wb-card-title:hover { color: var(--brand); }
-        .wb-card-preview { font-size: 13px; color: var(--text-soft); line-height: 1.7; margin: 0 0 16px; flex: 1; cursor: pointer;
+        .wb-card-preview { font-size: 13px; color: var(--text-soft); line-height: 1.76; margin: 0 0 16px; flex: 1; cursor: pointer;
             display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .wb-card-actions { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
         .wb-card-actions button { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-family: inherit; color: var(--text-soft);
-            background: var(--soft); border: 1px solid var(--line); border-radius: 7px; padding: 5px 9px; cursor: pointer; transition: all .15s; }
-        .wb-card-actions button:hover { border-color: var(--ink); color: var(--ink); }
+            background: var(--soft); border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; cursor: pointer; transition: all .15s; }
+        .wb-card-actions button.primary { color: #fff; background: var(--ink); border-color: var(--ink); }
+        .wb-card-actions button:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+        .wb-card-actions button.primary:hover { border-color: var(--brand); background: var(--brand); color: #fff; }
         .wb-card-actions button.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--brand-soft); }
+        #wb-grid.wb-list { grid-template-columns: 1fr; }
+        #wb-grid.wb-list .wb-card { min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 16px; align-items: center; }
+        #wb-grid.wb-list .wb-card-preview { -webkit-line-clamp: 2; margin-bottom: 0; }
+        #wb-grid.wb-list .wb-card-actions { border-top: 0; padding-top: 0; justify-content: flex-end; max-width: 300px; }
+        @media (max-width: 760px) {
+            #wb-grid.wb-list .wb-card { grid-template-columns: 1fr; }
+            #wb-grid.wb-list .wb-card-actions { justify-content: flex-start; max-width: none; border-top: 1px solid var(--line-soft); padding-top: 14px; }
+        }
         .wb-filter-empty { display: none; text-align: center; padding: 54px 20px; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; background: rgba(255,255,255,.42); }
         .wb-filter-empty i { font-size: 44px; display: block; margin-bottom: 12px; color: var(--subtle); }
 
         /* 查看弹层 */
         .wb-modal { position: fixed; inset: 0; background: rgba(26,22,18,0.45); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
         .wb-modal.active { display: flex; }
-        .wb-modal-box { background: var(--paper); border-radius: var(--r-lg); width: min(760px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow: hidden; }
-        .wb-modal-head { padding: 20px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-        .wb-modal-head h2 { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--ink); margin: 0 0 4px; }
-        .wb-modal-head .meta { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+        .wb-modal-box { background: #fffdf8; border-radius: var(--r-lg); width: min(820px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow: hidden; }
+        .wb-modal-head { padding: 22px 26px 18px; border-bottom: 2px solid var(--brand); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--paper); }
+        .wb-modal-head h2 { font-family: var(--font-display); font-size: 20px; font-weight: 850; color: var(--ink); margin: 0 0 8px; line-height: 1.35; }
+        .wb-modal-head .meta { font-size: 12px; color: var(--muted); font-family: var(--font-mono); display: flex; gap: 7px; flex-wrap: wrap; }
+        .wb-modal-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.6); padding: 3px 8px; }
         .wb-modal-head .x { background: none; border: none; font-size: 24px; line-height: 1; color: var(--subtle); cursor: pointer; padding: 0 4px; }
-        .wb-modal-body { padding: 24px; overflow-y: auto; }
+        .wb-modal-body { padding: 28px 34px; overflow-y: auto; }
         .wb-modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 14px 24px; border-top: 1px solid var(--line); background: var(--soft); }
         .wb-modal-foot button, .wb-modal-foot a { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-family: inherit; color: var(--text-soft); background: var(--paper); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; cursor: pointer; transition: all .15s; }
         .wb-modal-foot button:hover, .wb-modal-foot a:hover { border-color: var(--ink); color: var(--ink); }
@@ -113,10 +138,15 @@
 
     <div class="wb-head">
         <div>
-            <h1>我的备课本</h1>
-            <p>你在智能体空间保存的内容都在这里——可查看、复制、导出 Word / Markdown</p>
+            <div class="wb-kicker">PERSONAL WORKBENCH</div>
+            <h1>我的<em>备课本</em></h1>
+            <p>把智能体空间生成的教学设计、题目、批改建议和对话记录收进一个地方，随时查看、复制和导出成可继续修改的文稿。</p>
         </div>
-        <span id="wb-count"></span>
+        <div class="wb-metrics" aria-label="备课本统计">
+            <div class="wb-metric"><b id="wb-total-metric">0</b><span>全部内容</span></div>
+            <div class="wb-metric"><b id="wb-draft-metric">0</b><span>生成文稿</span></div>
+            <div class="wb-metric"><b id="wb-chat-metric">0</b><span>对话记录</span></div>
+        </div>
     </div>
 
     <!-- 未登录 -->
@@ -147,6 +177,10 @@
                     <option value="title-asc">标题 A-Z</option>
                     <option value="agent-asc">智能体名称</option>
                 </select>
+                <div class="wb-view-toggle" aria-label="切换显示方式">
+                    <button type="button" data-view="cards" class="active" onclick="setWorkbookView('cards')" title="卡片视图" aria-label="卡片视图"><i class="ph ph-squares-four"></i></button>
+                    <button type="button" data-view="list" onclick="setWorkbookView('list')" title="列表视图" aria-label="列表视图"><i class="ph ph-list-bullets"></i></button>
+                </div>
                 <button class="wb-clear" onclick="resetWorkbookFilters()">清除筛选</button>
             </div>
         </div>
@@ -200,13 +234,13 @@
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260709-proxyworks"></script>
+<script src="js/auth.js?v=20260709-navpersonal"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 let _works = [];
 let _activeWorkId = null;
 let _workbookViewTracked = false;
-let _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc' };
+let _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc', view: 'cards' };
 let _wbError = '';
 
 function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
@@ -224,6 +258,61 @@ function workType(w) {
 function workTypeLabel(w) { return workType(w) === 'chat' ? '对话记录' : '生成文稿'; }
 function workTypeIcon(w) { return workType(w) === 'chat' ? 'ph-chats-circle' : 'ph-file-text'; }
 function agentKey(w) { return w.agentId || w.agentName || 'unknown'; }
+function titlePart(value, max = 28) {
+    const raw = Array.isArray(value) ? value.join('、') : String(value || '');
+    return raw.replace(/[#*_>`\[\]（）()《》]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function firstInput(inputs, keys, max) {
+    for (const key of keys) {
+        const val = titlePart(inputs?.[key], max);
+        if (val) return val;
+    }
+    return '';
+}
+function contentHeading(content) {
+    const match = String(content || '').match(/^#{1,3}\s+(.+)$/m);
+    return match ? titlePart(match[1], 36) : '';
+}
+function isGenericWorkTitle(w) {
+    const title = String(w.title || '').trim();
+    const agent = String(w.agentName || '').trim();
+    if (!title) return true;
+    if (agent && (title === agent || title.startsWith(`${agent} ·`) || title.startsWith(`${agent}对话 ·`))) return true;
+    return /^(生成结果|智能体)\s*[·-]/.test(title);
+}
+function inferredWorkTitle(w) {
+    const inputs = w.inputs || {};
+    const subject = firstInput(inputs, ['subject'], 10);
+    const grade = firstInput(inputs, ['grade'], 12);
+    const topic = firstInput(inputs, ['topic','point','concept','scope','theme','title','scene','name'], 30);
+    const excerpt = firstInput(inputs, ['question','errors','detail','happened','text'], 28);
+    const base = topic || excerpt || contentHeading(w.content);
+    const id = w.agentId || '';
+    const partsByAgent = {
+        'lesson-design': [grade, subject, base, '教学设计'],
+        'courseware-outline': [grade, subject, base, '课件大纲'],
+        'micro-script': [grade, base, '微课脚本'],
+        'lesson-hook': [grade, subject, base, '情境导入'],
+        'layered-q': [grade, subject, base, '分层提问'],
+        'concept-explainer': [grade, base, '概念解释'],
+        'class-activity': [subject, base, '课堂活动'],
+        'quiz-gen': [grade, subject, base, firstInput(inputs, ['types'], 18) || '练习题'],
+        'homework-grader': [subject, excerpt || base, '作业批改'],
+        'essay-review': [grade, base ? `《${base}》` : '', '作文评改'],
+        'exam-paper': [grade, subject, base, '单元组卷'],
+        'error-diagnosis': [grade, subject, excerpt || base, '错题诊断'],
+        'parent-comm': [base || excerpt, '家校沟通'],
+        'student-comment': [base, '学生评语'],
+        'class-meeting': [grade, base, '班会方案'],
+        'teaching-reflection': [base, '教学反思'],
+        'lesson-observe': [base, '听评课观察']
+    };
+    const parts = partsByAgent[id] || [grade, subject, base || w.agentName];
+    return (parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim() || w.title || '未命名').slice(0, 72);
+}
+function displayWorkTitle(w) {
+    return isGenericWorkTitle(w) ? inferredWorkTitle(w) : (w.title || inferredWorkTitle(w));
+}
 function downloadBlob(filename, blob) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = filename;
@@ -242,7 +331,12 @@ function setWorkType(type) {
 }
 
 function resetWorkbookFilters() {
-    _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc' };
+    _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc', view: _wbState.view || 'cards' };
+    renderWorks();
+}
+
+function setWorkbookView(view) {
+    _wbState.view = view === 'list' ? 'list' : 'cards';
     renderWorks();
 }
 
@@ -260,6 +354,10 @@ function renderFilterControls() {
     const sort = document.getElementById('wb-sort');
     if (sort) sort.value = _wbState.sort;
 
+    document.querySelectorAll('.wb-view-toggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === _wbState.view);
+    });
+
     const agentSelect = document.getElementById('wb-agent-filter');
     if (!agentSelect) return;
     const agents = [...new Map(_works.map(w => [agentKey(w), w.agentName || '未知智能体']))]
@@ -276,7 +374,7 @@ function filteredWorks() {
     const list = _works.filter(w => {
         const typeOk = _wbState.type === 'all' || workType(w) === _wbState.type;
         const agentOk = _wbState.agent === 'all' || agentKey(w) === _wbState.agent;
-        const haystack = `${w.title || ''} ${w.agentName || ''} ${w.content || ''}`.toLowerCase();
+        const haystack = `${displayWorkTitle(w)} ${w.title || ''} ${w.agentName || ''} ${w.content || ''}`.toLowerCase();
         const qOk = !q || haystack.includes(q);
         return typeOk && agentOk && qOk;
     });
@@ -296,7 +394,12 @@ function renderWorks() {
     const filterEmpty = document.getElementById('wb-filter-empty');
     const statline = document.getElementById('wb-statline');
     renderFilterControls();
-    document.getElementById('wb-count').textContent = _works.length ? `共 ${_works.length} 条` : '';
+    const totalMetric = document.getElementById('wb-total-metric');
+    const draftMetric = document.getElementById('wb-draft-metric');
+    const chatMetric = document.getElementById('wb-chat-metric');
+    if (totalMetric) totalMetric.textContent = _works.length;
+    if (draftMetric) draftMetric.textContent = _works.filter(w => workType(w) === 'draft').length;
+    if (chatMetric) chatMetric.textContent = _works.filter(w => workType(w) === 'chat').length;
     if (_wbError) {
         if (errorBox) errorBox.style.display = 'block';
         if (errorMsg) errorMsg.textContent = _wbError;
@@ -327,16 +430,22 @@ function renderWorks() {
     }
     if (filterEmpty) filterEmpty.style.display = 'none';
     grid.style.display = 'grid';
+    grid.classList.toggle('wb-list', _wbState.view === 'list');
     grid.innerHTML = list.map(w => `
-        <div class="wb-card">
-            <div class="wb-card-meta">
-                <span class="wb-type ${workType(w)}"><i class="ph ${workTypeIcon(w)}"></i>${workTypeLabel(w)}</span>
-                <i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')} · ${fmtDate(w.updatedAt || w.createdAt)}
+        <div class="wb-card ${workType(w)}">
+            <div>
+                <div class="wb-card-top">
+                    <div class="wb-card-meta">
+                        <span class="wb-type ${workType(w)}"><i class="ph ${workTypeIcon(w)}"></i>${workTypeLabel(w)}</span>
+                        <span class="wb-card-agent"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
+                    </div>
+                    <span class="wb-card-date">${fmtDate(w.updatedAt || w.createdAt)}</span>
+                </div>
+                <h3 class="wb-card-title" onclick="viewWork('${w.id}')">${escapeHtml(displayWorkTitle(w))}</h3>
+                <p class="wb-card-preview" onclick="viewWork('${w.id}')">${escapeHtml(previewText(w.content))}</p>
             </div>
-            <h3 class="wb-card-title" onclick="viewWork('${w.id}')">${escapeHtml(w.title || '未命名')}</h3>
-            <p class="wb-card-preview" onclick="viewWork('${w.id}')">${escapeHtml(previewText(w.content))}</p>
             <div class="wb-card-actions">
-                <button onclick="viewWork('${w.id}')"><i class="ph ph-eye"></i> 查看</button>
+                <button class="primary" onclick="viewWork('${w.id}')"><i class="ph ph-eye"></i> 查看</button>
                 <button onclick="copyWork('${w.id}')"><i class="ph ph-copy"></i> 复制</button>
                 <button onclick="exportPdf('${w.id}')"><i class="ph ph-file-pdf"></i> PDF</button>
                 <button onclick="exportWord('${w.id}')"><i class="ph ph-file-doc"></i> Word</button>
@@ -356,8 +465,11 @@ function viewWork(id) {
         targetName: w.agentName || '',
         meta: { workType: workType(w) }
     });
-    document.getElementById('wb-modal-title').textContent = w.title || '未命名';
-    document.getElementById('wb-modal-meta').textContent = `${workTypeLabel(w)} · ${w.agentName || ''} · ${fmtDate(w.updatedAt || w.createdAt)}`;
+    document.getElementById('wb-modal-title').textContent = displayWorkTitle(w);
+    document.getElementById('wb-modal-meta').innerHTML = `
+        <span class="wb-modal-chip"><i class="ph ${workTypeIcon(w)}"></i>${escapeHtml(workTypeLabel(w))}</span>
+        <span class="wb-modal-chip"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
+        <span class="wb-modal-chip"><i class="ph ph-calendar-blank"></i>${fmtDate(w.updatedAt || w.createdAt)}</span>`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
     const agentLink = document.getElementById('wb-modal-agent');
     if (agentLink && w.agentId) {
@@ -373,7 +485,7 @@ function closeModal() { document.getElementById('wb-modal').classList.remove('ac
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 function copyWork(id) { const w = findWork(id); if (!w) return; navigator.clipboard.writeText(w.content || '').then(() => showToast('已复制到剪贴板 ✓')); }
-function exportMd(id) { const w = findWork(id); if (!w) return; downloadBlob(safeName(w.title) + '.md', new Blob([w.content || ''], { type: 'text/markdown;charset=utf-8' })); }
+function exportMd(id) { const w = findWork(id); if (!w) return; downloadBlob(safeName(displayWorkTitle(w)) + '.md', new Blob([w.content || ''], { type: 'text/markdown;charset=utf-8' })); }
 function copyActiveWork() { if (_activeWorkId) copyWork(_activeWorkId); }
 function exportMdActive() { if (_activeWorkId) exportMd(_activeWorkId); }
 
@@ -406,11 +518,11 @@ function docStyles() {
 }
 function docHtml(w) {
     const meta = `AI 教师培训中心 · ${escapeHtml(w.agentName || '智能体')} · ${fmtDate(w.updatedAt || w.createdAt)}`;
-    return `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(w.title || '文稿')}</title><style>${docStyles()}</style></head><body><div class="doc-meta">${meta}</div>${mdToHtml(w.content)}<div class="doc-foot">本文由 AI 起草、教师修改定稿<span class="seal">教研甄选</span></div></body></html>`;
+    return `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${escapeHtml(displayWorkTitle(w))}</title><style>${docStyles()}</style></head><body><div class="doc-meta">${meta}</div>${mdToHtml(w.content)}<div class="doc-foot">本文由 AI 起草、教师修改定稿<span class="seal">教研甄选</span></div></body></html>`;
 }
 function exportWord(id) {
     const w = findWork(id); if (!w) return;
-    downloadBlob(safeName(w.title) + '.doc', new Blob(['﻿', docHtml(w)], { type: 'application/msword' }));
+    downloadBlob(safeName(displayWorkTitle(w)) + '.doc', new Blob(['﻿', docHtml(w)], { type: 'application/msword' }));
 }
 function exportPdf(id) {
     const w = findWork(id); if (!w) return;

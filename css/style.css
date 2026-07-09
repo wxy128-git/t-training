@@ -318,6 +318,29 @@ button, input, textarea, select { font: inherit; }
 .nav-link.nav-feature.active::before { display: none; }
 .nav-link.nav-feature i { font-size: 12.5px; margin-right: 4px; }
 .auth-area { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.nav-user-area { display: flex; align-items: center; gap: 8px; }
+.nav-user-tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: rgba(255,255,255,.58);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: border-color .15s, background .15s, color .15s;
+}
+.nav-user-tool i { font-size: 15px; color: var(--brand); }
+.nav-user-tool span { line-height: 1; }
+.nav-user-tool:hover,
+.nav-user-tool.active {
+    border-color: rgba(192,57,43,.28);
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+}
 .btn-login { padding: 8px 16px; font-size: 13.5px; color: var(--text); font-weight: 500; border-radius: var(--r-sm); background: transparent; border: 1px solid var(--line); cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
 .btn-login:hover { color: var(--ink); border-color: var(--ink); }
 .btn-register {
@@ -1925,6 +1948,18 @@ tr:hover td { background: var(--soft); }
     .site-logo-text span { display: none; }
     .site-nav { max-width: calc(100vw - 190px); }
     .auth-area { gap: 6px; }
+    .nav-user-area { gap: 6px; }
+    .nav-user-area .hm,
+    .nav-user-area .admin-badge { display: none; }
+    .nav-user-tool {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+    }
+    .nav-user-tool i { font-size: 16px; }
+    .nav-user-tool span { display: none; }
     .btn-login { padding: 7px 12px; font-size: 12.5px; }
     .btn-register { padding: 8px 14px; font-size: 12.5px; }
     .user-avatar { width: 32px; height: 32px; font-size: 13px; }
@@ -1941,6 +1976,7 @@ tr:hover td { background: var(--soft); }
     .announcement { padding: 14px 16px; }
 }
 @media (max-width: 560px) {
+    .site-logo-text { display: none; }
     .hero { padding: 56px 18px 48px; }
     .hero h1 { font-size: 38px; letter-spacing: -0.025em; }
     .hero p { font-size: 15.5px; margin-bottom: 28px; }

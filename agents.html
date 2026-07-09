@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260701-multimodal">
+    <link rel="stylesheet" href="css/style.css?v=20260709-navpersonal">
     <style>
         /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -180,6 +180,21 @@
 
         .api-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 24px; padding: 13px 16px; background: var(--soft-2); border: 1px dashed var(--line); border-radius: var(--r-md); font-size: 12.5px; color: var(--muted); line-height: 1.7; }
         .api-note i { color: var(--ochre); font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+        .work-title-modal { position: fixed; inset: 0; z-index: 650; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(26,22,18,.46); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .work-title-modal.active { display: flex; }
+        .work-title-box { width: min(440px, 100%); background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 22px; }
+        .work-title-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+        .work-title-ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); flex-shrink: 0; font-size: 18px; }
+        .work-title-head h3 { margin: 0; font-size: 17px; color: var(--ink); font-weight: 800; }
+        .work-title-head p { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
+        .work-title-box label { display: block; font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 7px; }
+        .work-title-box input { width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); color: var(--ink); outline: none; padding: 11px 12px; font: inherit; font-size: 14px; }
+        .work-title-box input:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .work-title-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+        .work-title-actions button { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 13px; background: var(--paper); color: var(--text); cursor: pointer; font: inherit; font-size: 13px; }
+        .work-title-actions button.primary { background: var(--ink); border-color: var(--ink); color: var(--soft); font-weight: 700; }
+        .work-title-actions button:hover { border-color: var(--ink); color: var(--ink); }
+        .work-title-actions button.primary:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
     </style>
 </head>
 <body>
@@ -228,6 +243,24 @@
     </div>
 </div>
 
+<div class="work-title-modal" id="work-title-modal" onclick="if(event.target===this)closeWorkTitleModal(false)">
+    <div class="work-title-box" role="dialog" aria-modal="true" aria-labelledby="work-title-heading">
+        <div class="work-title-head">
+            <div class="work-title-ico"><i class="ph ph-notebook"></i></div>
+            <div>
+                <h3 id="work-title-heading">保存到备课本</h3>
+                <p id="work-title-source">给这条内容起一个便于以后查找的标题。</p>
+            </div>
+        </div>
+        <label for="work-title-input">标题</label>
+        <input id="work-title-input" type="text" maxlength="80" autocomplete="off">
+        <div class="work-title-actions">
+            <button type="button" onclick="closeWorkTitleModal(false)">取消</button>
+            <button type="button" class="primary" onclick="closeWorkTitleModal(true)">保存</button>
+        </div>
+    </div>
+</div>
+
 <div id="main-footer"></div>
 
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -237,7 +270,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260709-proxyworks"></script>
+<script src="js/auth.js?v=20260709-navpersonal"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260619-prompts"></script>
 <script>
@@ -1124,6 +1157,110 @@ async function runForm(aid) {
     return false;
 }
 
+let _workTitleResolve = null;
+
+function cleanWorkTitlePart(value, max = 24) {
+    const raw = Array.isArray(value) ? value.join('、') : String(value || '');
+    return raw
+        .replace(/[#*_>`\[\]（）()《》]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, max);
+}
+
+function pickInput(inputs, keys, max) {
+    for (const key of keys) {
+        const val = cleanWorkTitlePart(inputs?.[key], max);
+        if (val) return val;
+    }
+    return '';
+}
+
+function markdownHeading(content) {
+    const match = String(content || '').match(/^#{1,3}\s+(.+)$/m);
+    return match ? cleanWorkTitlePart(match[1], 34) : '';
+}
+
+function compactWorkTitle(parts, fallback) {
+    const title = parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    return (title || fallback || '备课内容').slice(0, 72);
+}
+
+function buildWorkTitle(agent, inputs, content, type = 'draft') {
+    const subject = pickInput(inputs, ['subject'], 10);
+    const grade = pickInput(inputs, ['grade'], 12);
+    const topic = pickInput(inputs, ['topic','point','concept','scope','theme','title','scene','name'], 30);
+    const excerpt = pickInput(inputs, ['question','errors','detail','happened','text'], 28);
+    const heading = markdownHeading(content);
+    const base = topic || excerpt || heading;
+    const fallback = `${agent ? agent.name : '生成结果'} · ${new Date().toLocaleDateString('zh-CN')}`;
+    const id = agent?.id || '';
+
+    const templates = {
+        'lesson-design': ['教学设计', [grade, subject, base, '教学设计']],
+        'courseware-outline': ['课件大纲', [grade, subject, base, '课件大纲']],
+        'micro-script': ['微课脚本', [grade, base, '微课脚本']],
+        'lesson-hook': ['情境导入', [grade, subject, base, '情境导入']],
+        'layered-q': ['分层提问', [grade, subject, base, '分层提问']],
+        'concept-explainer': ['概念解释', [grade, base, '概念解释']],
+        'class-activity': ['课堂活动', [subject, base, '课堂活动']],
+        'quiz-gen': ['练习题', [grade, subject, base, pickInput(inputs, ['types'], 18) || '练习题']],
+        'homework-grader': ['作业批改', [subject, excerpt || base, '作业批改']],
+        'essay-review': ['作文评改', [grade, base ? `《${base}》` : '', '作文评改']],
+        'exam-paper': ['单元组卷', [grade, subject, base, '单元组卷']],
+        'error-diagnosis': ['错题诊断', [grade, subject, excerpt || base, '错题诊断']],
+        'parent-comm': ['家校沟通', [base || excerpt, '家校沟通']],
+        'student-comment': ['学生评语', [base, '学生评语']],
+        'class-meeting': ['班会方案', [grade, base, '班会方案']],
+        'teaching-reflection': ['教学反思', [base, '教学反思']],
+        'lesson-observe': ['听评课观察', [base, '听评课观察']]
+    };
+    if (type === 'chat') return compactWorkTitle([agent?.name ? `${agent.name}对话` : '智能体对话', base], fallback);
+    const tpl = templates[id];
+    return compactWorkTitle(tpl ? tpl[1] : [grade, subject, base || agent?.name], fallback);
+}
+
+function confirmWorkbookTitle(suggestedTitle, sourceName) {
+    return new Promise(resolve => {
+        const modal = document.getElementById('work-title-modal');
+        const input = document.getElementById('work-title-input');
+        const source = document.getElementById('work-title-source');
+        if (!modal || !input) {
+            const title = prompt('保存标题：', suggestedTitle || '备课内容');
+            resolve(title ? title.trim() : '');
+            return;
+        }
+        _workTitleResolve = resolve;
+        input.value = suggestedTitle || '备课内容';
+        if (source) source.textContent = sourceName ? `来源：${sourceName}。可以先改成更方便查找的标题。` : '可以先改成更方便查找的标题。';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { input.focus(); input.select(); }, 30);
+    });
+}
+
+function closeWorkTitleModal(save) {
+    const modal = document.getElementById('work-title-modal');
+    const input = document.getElementById('work-title-input');
+    const title = save ? cleanWorkTitlePart(input?.value, 80) : '';
+    if (save && !title) {
+        showToast('请输入保存标题');
+        input?.focus();
+        return;
+    }
+    if (modal) modal.classList.remove('active');
+    document.body.style.overflow = '';
+    if (_workTitleResolve) _workTitleResolve(title);
+    _workTitleResolve = null;
+}
+
+document.addEventListener('keydown', e => {
+    const modal = document.getElementById('work-title-modal');
+    if (!modal?.classList.contains('active')) return;
+    if (e.key === 'Escape') closeWorkTitleModal(false);
+    if (e.key === 'Enter' && document.activeElement?.id === 'work-title-input') closeWorkTitleModal(true);
+});
+
 async function saveToWorkbook(aid) {
     // 编辑态下先把最新文本存回
     if (_editing) { const ta = document.getElementById('edit-area'); if (ta) _lastResult = ta.value; }
@@ -1132,6 +1269,8 @@ async function saveToWorkbook(aid) {
     const a = AGENTS.find(x => x.id === aid);
     const user = Auth.getCurrentUser();
     if (!user) { showToast('请先登录后保存'); return; }
+    const title = await confirmWorkbookTitle(buildWorkTitle(a, _lastInputs || {}, _lastResult, 'draft'), a ? a.name : '智能体');
+    if (!title) return;
     const btn = document.getElementById('save-btn');
     const orig = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 保存中…';
@@ -1142,7 +1281,7 @@ async function saveToWorkbook(aid) {
             agentName: a ? a.name : '',
             agentType: a ? a.type : 'form',
             workType: 'draft',
-            title: `${a ? a.name : '生成结果'} · ${new Date().toLocaleDateString('zh-CN')}`,
+            title,
             content: _lastResult,
             inputs: _lastInputs || {}
         });
@@ -1340,6 +1479,8 @@ async function saveChatToWorkbook(aid) {
     const a = AGENTS.find(x => x.id === aid);
     const user = Auth.getCurrentUser();
     if (!user) { showToast('请先登录后保存'); return; }
+    const title = await confirmWorkbookTitle(chatWorkTitle(aid), a ? a.name : '智能体');
+    if (!title) return;
     const btn = document.getElementById('chat-save-btn');
     const orig = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 保存中…';
@@ -1350,7 +1491,7 @@ async function saveChatToWorkbook(aid) {
             agentName: a ? a.name : '',
             agentType: 'chat',
             workType: 'chat',
-            title: chatWorkTitle(aid),
+            title,
             content
         });
         if (window.Analytics) Analytics.track('workbook_save', {

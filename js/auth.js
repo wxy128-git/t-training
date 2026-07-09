@@ -379,7 +379,11 @@ function renderNav(currentPage) {
         return `<a href="${p.href}" class="nav-link${feature}${extraClass ? ` ${extraClass}` : ''}${p.key === currentPage ? ' active' : ''}">${icon}${p.label}</a>`;
     };
     const primaryLinks = primaryPages.map(p => navAnchor(p)).join('');
-    const workbookLink = user ? navAnchor({ key:'workspace', href:'workspace.html', label:'我的备课本', icon:'ph ph-notebook' }, 'nav-workbook') : '';
+    const workbookPage = { key:'workspace', href:'workspace.html', label:'备课本', icon:'ph ph-notebook' };
+    const workbookQuickLink = user
+        ? `<a href="${workbookPage.href}" class="nav-user-tool${currentPage === 'workspace' ? ' active' : ''}" aria-label="我的备课本" title="我的备课本"><i class="${workbookPage.icon}"></i><span>${workbookPage.label}</span></a>`
+        : '';
+    const workbookDrawerLink = user ? navAnchor({ ...workbookPage, label:'我的备课本' }, 'nav-workbook') : '';
     const resourceActive = resourcePages.some(p => p.key === currentPage);
     const resourceItems = resourcePages.map(p => `
         <a href="${p.href}" class="nav-dropdown-item${p.key === currentPage ? ' active' : ''}">
@@ -394,13 +398,14 @@ function renderNav(currentPage) {
             </button>
             <div class="nav-dropdown-menu" role="menu">${resourceItems}</div>
         </div>`;
-    const navLinks = `${primaryLinks}${workbookLink}${resourceMenu}`;
-    const drawerPrimary = `${primaryLinks}${workbookLink}`;
+    const navLinks = `${primaryLinks}${resourceMenu}`;
+    const drawerPrimary = primaryLinks;
     const drawerResources = resourcePages.map(p => navAnchor(p)).join('');
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
     const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
     const authHtml = user
-        ? `<div style="display:flex;align-items:center;gap:8px">
+        ? `<div class="nav-user-area">
+               ${workbookQuickLink}
                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
                <span style="font-size:14px;color:#374151;font-weight:500" class="hm">${user.name}</span>
                ${user.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}
@@ -436,6 +441,7 @@ function renderNav(currentPage) {
             </div>
             <div class="nav-drawer-kicker">导航</div>
             ${drawerPrimary}
+            ${workbookDrawerLink ? `<div class="nav-drawer-kicker">我的</div>${workbookDrawerLink}` : ''}
             <div class="nav-drawer-kicker">资源</div>
             ${drawerResources}
             <div class="nav-drawer-kicker">其他</div>
