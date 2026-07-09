@@ -208,7 +208,7 @@
         notice.innerHTML = `
             <div class="migration-notice-head">
                 <div>
-                    <p class="migration-notice-title" id="migration-notice-title">小鱼老师 AI 培训已迁移</p>
+                    <p class="migration-notice-title" id="migration-notice-title">本网站已迁移</p>
                     <p class="migration-notice-text">当前 Netlify 旧地址将停止维护，请改用 Cloudflare 新地址访问。</p>
                     <span class="migration-notice-url">${PRIMARY_SITE_ORIGIN}/</span>
                 </div>

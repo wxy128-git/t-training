@@ -117,7 +117,7 @@
   - `functions/api/agent.js` 新增智谱 GLM-5.2 路由：`ZHIPU_API_KEY` + `glm-5.2` + `thinking:{type:'disabled'}` + `max_tokens:8192`。默认优先 GLM 的智能体：`lesson-design`、`concept-explainer`、`quiz-gen`、`exam-paper`、`error-diagnosis`；可用 Cloudflare env `ZHIPU_AGENT_IDS` 覆盖（逗号分隔），也可用 `AGENT_DEFAULT_PROVIDER` 调整默认供应商。未配置 `ZHIPU_API_KEY` 时仍走 DeepSeek；GLM 调用失败时回退 DeepSeek。
 - **2026-07-09（Netlify 旧域名迁移通知）**:
   - 旧 Netlify 地址仍然有效并随 GitHub 更新，说明 Netlify 后台还绑定同一个 repo/branch；这不是代码里仍有 Netlify Functions 或 `netlify.toml`。当前代码已无 Netlify 部署配置。
-  - `js/assistant.js` 增加旧域名专用迁移悬浮通知：仅当 `location.hostname === 'xylaoshi.netlify.app'` 时显示，提示新地址 `https://xylaoshi.pages.dev/`，并提供“前往新地址 / 复制新地址”。Cloudflare 正式站不会显示该通知。
+  - `js/assistant.js` 增加旧域名专用迁移悬浮通知：仅当 `location.hostname === 'xylaoshi.netlify.app'` 时显示，提示新地址 `https://xylaoshi.pages.dev/`，并提供“前往新地址 / 复制新地址”。Cloudflare 正式站不会显示该通知。通知标题保持中性“本网站已迁移”，不要使用站长姓名或昵称。
   - 退场流程：先把迁移通知发布到旧域名；确认旧域名可见后，在 Netlify 后台关闭自动部署或断开 GitHub 绑定，避免继续同步；需要留提示期就保留最后一次 deploy，准备彻底停用时再 delete site / unpublish site。不要先删除站点，否则访问者看不到迁移通知。
 
 ## Auth Lesson (Important)
