@@ -12,6 +12,9 @@
         '怎样用 AI 做课件和课堂素材？',
         '如何写一个好用的教学提示词？'
     ];
+    const PRIMARY_SITE_ORIGIN = 'https://xylaoshi.pages.dev';
+    const LEGACY_NETLIFY_HOSTS = new Set(['xylaoshi.netlify.app']);
+    const MIGRATION_NOTICE_KEY = 'xylaoshi-netlify-migration-dismissed';
 
     let assistantPanel;
     let assistantMessages;
@@ -59,6 +62,180 @@
         node.textContent = message;
         node.classList.add('show');
         setTimeout(() => node.classList.remove('show'), 2200);
+    }
+
+    function primarySiteUrl() {
+        const path = location.pathname || '/';
+        return `${PRIMARY_SITE_ORIGIN}${path}${location.search || ''}${location.hash || ''}`;
+    }
+
+    function buildMigrationNotice() {
+        if (!LEGACY_NETLIFY_HOSTS.has(location.hostname)) return;
+        try {
+            if (sessionStorage.getItem(MIGRATION_NOTICE_KEY) === '1') return;
+        } catch {
+            // Session storage may be unavailable in strict browser modes.
+        }
+
+        if (!document.getElementById('migration-notice-style')) {
+            const style = document.createElement('style');
+            style.id = 'migration-notice-style';
+            style.textContent = `
+                .migration-notice {
+                    position: fixed;
+                    left: 22px;
+                    bottom: 22px;
+                    z-index: 680;
+                    width: min(430px, calc(100vw - 44px));
+                    padding: 16px;
+                    display: grid;
+                    gap: 12px;
+                    color: #1a1612;
+                    background: rgba(255, 253, 247, 0.97);
+                    border: 1px solid rgba(26, 22, 18, 0.13);
+                    border-radius: 14px;
+                    box-shadow: 0 10px 34px -22px rgba(26,22,18,0.28), 0 2px 8px rgba(26,22,18,0.08);
+                    backdrop-filter: blur(14px);
+                    font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+                }
+                .migration-notice::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0 auto 0 0;
+                    width: 4px;
+                    border-radius: 14px 0 0 14px;
+                    background: #c0392b;
+                }
+                .migration-notice-head {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    gap: 12px;
+                }
+                .migration-notice-title {
+                    margin: 0;
+                    font-size: 16px;
+                    font-weight: 800;
+                    line-height: 1.35;
+                }
+                .migration-notice-text {
+                    margin: 5px 0 0;
+                    color: rgba(26, 22, 18, 0.72);
+                    font-size: 13px;
+                    line-height: 1.65;
+                }
+                .migration-notice-url {
+                    display: inline-flex;
+                    max-width: 100%;
+                    margin-top: 2px;
+                    color: #8f2b20;
+                    font-size: 12px;
+                    font-weight: 700;
+                    line-height: 1.5;
+                    word-break: break-all;
+                }
+                .migration-notice-close {
+                    flex: 0 0 auto;
+                    width: 32px;
+                    height: 32px;
+                    display: grid;
+                    place-items: center;
+                    border: 1px solid rgba(26, 22, 18, 0.12);
+                    border-radius: 999px;
+                    background: #fff;
+                    color: rgba(26, 22, 18, 0.62);
+                    cursor: pointer;
+                    font-size: 18px;
+                    line-height: 1;
+                }
+                .migration-notice-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .migration-notice-primary,
+                .migration-notice-secondary {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 36px;
+                    padding: 0 13px;
+                    border-radius: 999px;
+                    font-size: 13px;
+                    font-weight: 750;
+                    text-decoration: none;
+                    cursor: pointer;
+                    font-family: inherit;
+                }
+                .migration-notice-primary {
+                    border: 1px solid #1a1612;
+                    background: #1a1612;
+                    color: #fff;
+                }
+                .migration-notice-secondary {
+                    border: 1px solid rgba(26, 22, 18, 0.12);
+                    background: #fff;
+                    color: #1a1612;
+                }
+                .migration-notice-primary:focus-visible,
+                .migration-notice-secondary:focus-visible,
+                .migration-notice-close:focus-visible {
+                    outline: 3px solid rgba(192, 57, 43, 0.25);
+                    outline-offset: 2px;
+                }
+                @media (max-width: 640px) {
+                    .migration-notice {
+                        top: 74px;
+                        bottom: auto;
+                        left: 12px;
+                        right: 12px;
+                        width: auto;
+                        padding: 14px;
+                    }
+                    .migration-notice-title { font-size: 15px; }
+                    .migration-notice-actions { display: grid; grid-template-columns: 1fr 1fr; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const targetUrl = primarySiteUrl();
+        const notice = document.createElement('aside');
+        notice.className = 'migration-notice';
+        notice.setAttribute('role', 'dialog');
+        notice.setAttribute('aria-live', 'polite');
+        notice.setAttribute('aria-labelledby', 'migration-notice-title');
+        notice.innerHTML = `
+            <div class="migration-notice-head">
+                <div>
+                    <p class="migration-notice-title" id="migration-notice-title">小鱼老师 AI 培训已迁移</p>
+                    <p class="migration-notice-text">当前 Netlify 旧地址将停止维护，请改用 Cloudflare 新地址访问。</p>
+                    <span class="migration-notice-url">${PRIMARY_SITE_ORIGIN}/</span>
+                </div>
+                <button type="button" class="migration-notice-close" aria-label="关闭迁移通知">×</button>
+            </div>
+            <div class="migration-notice-actions">
+                <a class="migration-notice-primary" href="${escapeHtml(targetUrl)}">前往新地址</a>
+                <button type="button" class="migration-notice-secondary">复制新地址</button>
+            </div>
+        `;
+        notice.querySelector('.migration-notice-close').addEventListener('click', () => {
+            try {
+                sessionStorage.setItem(MIGRATION_NOTICE_KEY, '1');
+            } catch {
+                // Ignore storage failures; closing still removes the current notice.
+            }
+            notice.remove();
+        });
+        notice.querySelector('.migration-notice-secondary').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(`${PRIMARY_SITE_ORIGIN}/`);
+                toast('新地址已复制');
+            } catch {
+                toast('复制失败，请手动复制新地址');
+            }
+        });
+        document.body.appendChild(notice);
     }
 
     function getCurrentUser() {
@@ -453,6 +630,7 @@
     globalThis.closeContactModal = closeContactModal;
 
     document.addEventListener('DOMContentLoaded', () => {
+        buildMigrationNotice();
         buildAssistant();
         buildContactModal();
     });
