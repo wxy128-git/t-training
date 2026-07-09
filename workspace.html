@@ -47,6 +47,9 @@
         #wb-empty { display: none; text-align: center; padding: 64px 20px; color: var(--muted); }
         #wb-empty i { font-size: 52px; display: block; margin-bottom: 14px; color: var(--subtle); }
         #wb-empty a { color: var(--brand); font-weight: 600; border-bottom: 1px solid var(--brand); }
+        #wb-error { display: none; text-align: center; padding: 54px 20px; color: var(--muted); border: 1px dashed rgba(192,57,43,.35); border-radius: 16px; background: #fff7f5; }
+        #wb-error i { font-size: 46px; display: block; margin-bottom: 12px; color: var(--brand); }
+        #wb-error .btn-primary { margin-top: 14px; width: auto; padding: 10px 24px; }
 
         /* 卡片墙 */
         #wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
@@ -157,6 +160,12 @@
             <p style="font-size:15px;font-weight:700;margin:0 0 6px;color:var(--ink)">没有符合条件的内容</p>
             <p style="font-size:13px;margin:0">换个关键词，或清除筛选后再看。</p>
         </div>
+        <div id="wb-error">
+            <i class="ph ph-warning-circle"></i>
+            <p style="font-size:16px;font-weight:700;margin:0 0 6px;color:var(--ink)">备课本加载失败</p>
+            <p id="wb-error-msg" style="font-size:13px;margin:0">请稍后重试。</p>
+            <button class="btn-primary" onclick="loadWorks()">重新加载</button>
+        </div>
         <div id="wb-grid"></div>
     </div>
 </main>
@@ -190,14 +199,15 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260617-hot"></script>
-<script src="js/auth.js?v=20260701-authsmooth"></script>
+<script src="js/data.js?v=20260709-proxyworks"></script>
+<script src="js/auth.js?v=20260709-proxyworks"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 let _works = [];
 let _activeWorkId = null;
 let _workbookViewTracked = false;
 let _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc' };
+let _wbError = '';
 
 function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
@@ -281,10 +291,23 @@ function filteredWorks() {
 function renderWorks() {
     const grid = document.getElementById('wb-grid');
     const empty = document.getElementById('wb-empty');
+    const errorBox = document.getElementById('wb-error');
+    const errorMsg = document.getElementById('wb-error-msg');
     const filterEmpty = document.getElementById('wb-filter-empty');
     const statline = document.getElementById('wb-statline');
     renderFilterControls();
     document.getElementById('wb-count').textContent = _works.length ? `共 ${_works.length} 条` : '';
+    if (_wbError) {
+        if (errorBox) errorBox.style.display = 'block';
+        if (errorMsg) errorMsg.textContent = _wbError;
+        empty.style.display = 'none';
+        if (filterEmpty) filterEmpty.style.display = 'none';
+        grid.style.display = 'none';
+        grid.innerHTML = '';
+        if (statline) statline.textContent = '';
+        return;
+    }
+    if (errorBox) errorBox.style.display = 'none';
     if (!_works.length) {
         empty.style.display = '';
         if (filterEmpty) filterEmpty.style.display = 'none';
@@ -418,9 +441,22 @@ async function doDelete(id) {
 
 async function loadWorks() {
     const user = Auth.getCurrentUser();
-    if (!user) { document.getElementById('login-gate').style.display = 'flex'; document.getElementById('wb-app').style.display = 'none'; return; }
+    if (!user) {
+        _wbError = '';
+        document.getElementById('login-gate').style.display = 'flex';
+        document.getElementById('wb-app').style.display = 'none';
+        return;
+    }
     document.getElementById('login-gate').style.display = 'none'; document.getElementById('wb-app').style.display = '';
-    try { _works = await DB.getMyWorks(user.uid); } catch (e) { _works = []; console.warn('getMyWorks:', e.message); }
+    try {
+        _works = await DB.getMyWorks(user.uid);
+        _wbError = '';
+    } catch (e) {
+        _works = [];
+        _wbError = e.message || '无法读取已保存的备课内容，请稍后重试。';
+        console.warn('getMyWorks:', e.message);
+        showToast('备课本加载失败，请稍后重试');
+    }
     renderWorks();
     if (!_workbookViewTracked && window.Analytics) {
         _workbookViewTracked = true;

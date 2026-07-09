@@ -445,6 +445,38 @@ const DEFAULT_RESOURCES = [
     }
 ];
 
+/* ===== 同源 API 代理 ===== */
+function shouldFallbackWorksAPI(error) {
+    const status = Number(error?.status || 0);
+    return !status || status === 404 || status === 501 || status >= 502;
+}
+
+async function callWorksAPI(action, payload = {}) {
+    if (typeof Auth === 'undefined' || !Auth.getIdToken) {
+        const error = new Error('认证模块尚未就绪');
+        error.status = 0;
+        throw error;
+    }
+    let response;
+    try {
+        response = await fetch('/api/works', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, idToken: await Auth.getIdToken(), ...payload })
+        });
+    } catch(e) {
+        e.status = 0;
+        throw e;
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false) {
+        const error = new Error(data.msg || `备课本接口请求失败（${response.status}）`);
+        error.status = response.status;
+        throw error;
+    }
+    return data;
+}
+
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
     async getTools() {
@@ -697,21 +729,48 @@ const DB = {
 
     /* ===== 我的备课本（saved works）===== */
     async saveWork(work) {
+        try {
+            const data = await callWorksAPI('create', { work });
+            return data.id;
+        } catch(e) {
+            if (!shouldFallbackWorksAPI(e)) throw e;
+            console.warn('saveWork API fallback:', e.message);
+        }
         const now = new Date().toISOString();
         const ref = await db.collection('works').add({ ...work, createdAt: now, updatedAt: now });
         return ref.id;
     },
     async getMyWorks(uid) {
-        // 不用 orderBy 避免复合索引，按时间在前端排序
+        try {
+            const data = await callWorksAPI('list');
+            return (data.works || []).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+        } catch(e) {
+            if (!shouldFallbackWorksAPI(e)) throw e;
+            console.warn('getMyWorks API fallback:', e.message);
+        }
         const snap = await db.collection('works').where('uid', '==', uid).get();
         return snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
             .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
     },
     async renameWork(id, title) {
+        try {
+            await callWorksAPI('rename', { id, title });
+            return;
+        } catch(e) {
+            if (!shouldFallbackWorksAPI(e)) throw e;
+            console.warn('renameWork API fallback:', e.message);
+        }
         await db.collection('works').doc(id).update({ title, updatedAt: new Date().toISOString() });
     },
     async deleteWork(id) {
+        try {
+            await callWorksAPI('delete', { id });
+            return;
+        } catch(e) {
+            if (!shouldFallbackWorksAPI(e)) throw e;
+            console.warn('deleteWork API fallback:', e.message);
+        }
         await db.collection('works').doc(id).delete();
     },
 

@@ -12,12 +12,13 @@
 ## Architecture
 
 - Plain HTML/CSS/JS, no bundler. Pages render skeletons (or in-code defaults), then JS pulls data from Firestore via the global `DB` object in `js/data.js`.
-- Five Cloudflare Pages Functions under `functions/api/`:
-  - `auth-proxy.js` — server-side login/register fallback when the browser can't reach Firebase Auth directly. Stores an ID token in `localStorage` under the key in `window.PROXY_AUTH_SESSION_KEY`. **Should now only run as a network-failure fallback** (see "Auth Lesson" below).
+- Six Cloudflare Pages Functions under `functions/api/`:
+  - `auth-proxy.js` — server-side Firebase Auth proxy. **Login now uses this first** so users in mainland networks can sign in quickly without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Registration still prefers the Firebase SDK first to avoid duplicate-account edge cases. Stores an ID token + refresh token in `localStorage` under `window.PROXY_AUTH_SESSION_KEY`; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
   - `rss-proxy.js` — generic CORS-friendly RSS fetcher for the news page; used as one of several loaders.
   - `agent.js` — 智能体后端代理（2026-06-09）：持 `DEEPSEEK_API_KEY` 转发到 DeepSeek（model `deepseek-v4-flash` + `thinking:{type:'disabled'}` 非思考模式；旧名 `deepseek-chat` 于 2026/07/24 停用，已于 2026-06-29 迁移——v4-flash 默认开思考模式更慢更贵，必须显式 disable 才等价旧 deepseek-chat），用 `accounts:lookup` 校验 Firebase idToken 防盗刷，把上游 SSE 解析成纯文本增量流式回传。前端 `agents.html` 的 `callAgentAPI()` POST `{ messages, idToken }` 调用它。未配密钥时返回 501。**限流 (2026-06-29)**：`checkRate(uid)` 软限流——同一登录用户 60 秒内最多 `RATE_MAX=12` 次，超出返回 429 `{ok:false,msg:"提问太频繁啦，请约 N 秒后再试～"}`（前端 `callAgentAPI` 的 `!res.ok` 分支已会显示该 msg，无需改前端）。实现是**单实例内存** `Map`（uid→时间戳数组，>5000 条时清理过期），零配置、不占额度，挡"手滑狂点/刷接口"；Cloudflare 多实例跨服务器非 100% 精确，要"每人每天硬封顶"再升级 KV/Durable Objects。调阈值改 `RATE_WINDOW_MS`/`RATE_MAX` 两常量即可。
   - `analytics.js` — 站内统计接口（2026-07-07）：`POST {action:'track'}` 写入 Firestore `analytics_events`，`POST {action:'summary'}` 仅管理员可读聚合结果。写入/读取都走 Firebase service account，前端不需要也不应开放 `analytics_events` 的匿名写规则。事件只记录访问和功能动作（page_view / agent_run / workbook_* / multimodal_*），不记录智能体输入、生成正文、备课本内容、IP、userAgent 或屏幕指纹信息。
+  - `works.js` — 我的备课本代理（2026-07-09）：`POST {action:'list'|'create'|'rename'|'delete', idToken, ...}`，先用 Firebase `accounts:lookup` 校验登录用户，再用 Firebase service account 访问 Firestore `works`，并强制只能读写当前 uid 的内容。前端 `DB.saveWork/getMyWorks/renameWork/deleteWork` 优先走 `/api/works`，失败时才退回浏览器 Firestore SDK；解决不连 VPN 时备课本能进页面但内容加载不出来的问题。
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
@@ -103,11 +104,11 @@
 
 ## Auth Lesson (Important)
 
-**The single biggest bug we hit during the migration**: production logins were routed through `/api/auth-proxy` first, which only stashes the ID token in `localStorage` and never calls the Firebase JS SDK. That left `firebase.auth().currentUser` as `null`, so every Firestore request went out unauthenticated — `getUsers`, article writes, subscribe lookups all 403'd even though the UI showed the admin as "logged in".
+**Old lesson from migration**: proxy-only login stashes an ID token in `localStorage` but does not immediately populate `firebase.auth().currentUser`; direct Firestore SDK calls then look unauthenticated.
 
-**Fix**: `shouldUseAuthProxyFirst()` in `js/auth.js` now always returns `false`. The Firebase JS SDK runs first; the proxy is only invoked from the `auth/network-request-failed` fallback branch. If you ever consider re-enabling proxy-first, remember it cannot satisfy Firestore security rules that read `request.auth`.
+**Current fix (2026-07-09)**: login intentionally uses `/api/auth-proxy` first for speed in no-VPN mainland networks, then starts a background Firebase SDK sign-in. Features that must work without VPN should not depend only on browser Firestore SDK. The main example is「我的备课本」: `js/data.js` work methods now call `/api/works` first, and `/api/works` enforces ownership server-side with the user idToken + service account. `Auth.getIdToken()` also prefers a valid proxy token before asking Firebase SDK, and uses `/api/auth-proxy` action `refresh` to refresh an expired proxy token before falling back to Firebase SDK.
 
-To verify auth is healthy: in DevTools console, `firebase.auth().currentUser` should be a non-null object after login.
+To verify full SDK auth is healthy when network allows: in DevTools console, `firebase.auth().currentUser` should eventually be non-null after login. To verify no-VPN workbook support, check `/api/works` responses instead of Firestore SDK state.
 
 ## Auth & Admin
 
@@ -176,7 +177,7 @@ match /agent_usage/{agentId} {
 
 ## Key JS Files
 
-- `js/data.js` — `DEFAULT_TOOLS / DEFAULT_PROMPTS / DEFAULT_PATHS / DEFAULT_ARTICLES / DEFAULT_RESOURCES` are used as fallbacks/seeds; `DB` object wraps all Firestore reads/writes (one or more methods per collection).
+- `js/data.js` — `DEFAULT_TOOLS / DEFAULT_PROMPTS / DEFAULT_PATHS / DEFAULT_ARTICLES / DEFAULT_RESOURCES` are used as fallbacks/seeds; `DB` object wraps Firestore reads/writes. Work-book methods (`saveWork/getMyWorks/renameWork/deleteWork`) now prefer `/api/works` and fall back to direct Firestore only for local/dev or temporary API failure.
 - `js/firebase-config.js` — initializes Firebase, exposes `auth` and `db`, defines `_currentUser`, `onAuthReady`, dispatches `authChanged` events.
 - `js/auth.js` — `Auth` object (login/register/logout, getIdToken, **`sendPasswordReset`**), `renderNav` / `renderFooter` (every page calls these), `requireLogin`, `showAuthModal`, `showWelcomeOverlay`, **hamburger drawer state** (`openNavDrawer` / `closeNavDrawer`). The auth modal has **three views** toggled by `switchAuthTab('login'|'register'|'forgot')`: login (`#form-li`, with a 「忘记密码？」link), register (`#form-rg`), and **forgot-password (`#form-fp`, added 2026-06-17)**. Forgot flow: `handleForgotPassword()` → `Auth.sendPasswordReset(identifier)` → Firebase `auth.sendPasswordResetEmail`. **Phone-number accounts are rejected client-side** (their `tel_…@xylaoshi.tel` address can't receive mail — they must contact admin). Result shows in `#fp-msg` styled `.form-success` (green) or `.form-error` (red). The Firebase project has **email-enumeration protection ON**, so a reset for an *unregistered* email also returns success (no account leak) — only real accounts actually receive mail. Reset link lands on Firebase's own hosted reset page (no custom page needed).
 - `js/analytics.js` — front-end event tracker for the admin data dashboard. Creates a random local visitor id, waits for `onAuthReady` when available, then POSTs to `/api/analytics`. Keep it non-blocking: all failures are swallowed so analytics never affects learning pages.

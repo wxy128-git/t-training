@@ -1,6 +1,7 @@
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
 const FIREBASE_AUTH_BASE = 'https://identitytoolkit.googleapis.com/v1';
+const FIREBASE_TOKEN_BASE = 'https://securetoken.googleapis.com/v1';
 const FIRESTORE_USER_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users`;
 const ADMIN_EMAIL = 'admin@xylaoshi.com';
 
@@ -46,6 +47,35 @@ async function callFirebaseAuth(endpoint, payload) {
         throw error;
     }
     return data;
+}
+
+async function refreshFirebaseToken(refreshToken) {
+    const response = await fetch(`${FIREBASE_TOKEN_BASE}/token?key=${FIREBASE_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        const code = data?.error?.message;
+        const error = new Error(firebaseErrorMessage(code) || '登录状态已过期，请重新登录');
+        error.code = code;
+        throw error;
+    }
+    return {
+        idToken: data.id_token,
+        refreshToken: data.refresh_token || refreshToken,
+        expiresIn: data.expires_in,
+        localId: data.user_id
+    };
+}
+
+async function lookupIdToken(idToken) {
+    const data = await callFirebaseAuth('accounts:lookup', { idToken });
+    return data.users?.[0] || null;
 }
 
 function firestoreFields(profile) {
@@ -124,7 +154,20 @@ export async function onRequestPost({ request }) {
         return jsonResponse(400, { ok: false, msg: '请求格式不正确' });
     }
 
-    const { action, email, password } = payload || {};
+    const { action, email, password, refreshToken } = payload || {};
+    if (action === 'refresh') {
+        if (!refreshToken) return jsonResponse(400, { ok: false, msg: '缺少刷新令牌' });
+        try {
+            const authData = await refreshFirebaseToken(refreshToken);
+            const lookup = await lookupIdToken(authData.idToken);
+            const profile = await readUserProfile(authData.idToken, authData.localId);
+            const user = userFromAuth({ ...authData, email: lookup?.email || '' }, profile || {});
+            return jsonResponse(200, { ok: true, ...authData, user });
+        } catch(error) {
+            return jsonResponse(401, { ok: false, msg: error.message, code: error.code || 'AUTH_REFRESH_ERROR' });
+        }
+    }
+
     if (!email || !password || password.length < 6) {
         return jsonResponse(400, { ok: false, msg: '请填写有效账号和至少 6 位密码' });
     }

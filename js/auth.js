@@ -36,26 +36,27 @@ function forgetProxyAuthSession() {
     } catch {}
 }
 
-function getStoredProxyAuthSession() {
+function getStoredProxyAuthSession(options = {}) {
     try {
         const raw = localStorage.getItem(window.PROXY_AUTH_SESSION_KEY);
         if (!raw) return null;
         const session = JSON.parse(raw);
-        if (!session?.idToken || (session.expiresAt && Date.now() > session.expiresAt)) {
+        const expired = session.expiresAt && Date.now() > session.expiresAt;
+        if (!session?.idToken || (expired && !options.allowExpired && !session.refreshToken)) {
             localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
             return null;
         }
+        if (expired && !options.allowExpired) return null;
         return session;
     } catch {
         return null;
     }
 }
 
-function shouldUseAuthProxyFirst() {
-    // Proxy login skips the Firebase JS SDK, leaving auth.currentUser null,
-    // so Firestore writes get rejected even though the UI shows "logged in".
-    // Always go through the JS SDK; proxy stays as a network-failure fallback.
-    return false;
+function shouldUseAuthProxyFirst(action = 'login') {
+    // 登录优先走同源 Cloudflare 代理：国内网络不连 VPN 时，Firebase JS SDK 往往要等很久才超时。
+    // 注册仍优先走 Firebase SDK，避免代理注册成功后再本地 createUser 触发 email-already-in-use。
+    return action === 'login';
 }
 
 function shouldTryFirebaseAfterProxy(error) {
@@ -89,13 +90,40 @@ async function callAuthProxy(action, payload) {
     return { ok: true, viaProxy: true };
 }
 
+async function refreshProxyAuthSession() {
+    const session = getStoredProxyAuthSession({ allowExpired: true });
+    if (!session?.refreshToken) return null;
+    try {
+        await callAuthProxy('refresh', { refreshToken: session.refreshToken });
+        return getStoredProxyAuthSession();
+    } catch(e) {
+        forgetProxyAuthSession();
+        throw e;
+    }
+}
+
+function syncFirebaseAuthAfterProxy(authEmail, password, remember) {
+    Promise.resolve().then(async () => {
+        try {
+            await auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION);
+        } catch {}
+        try {
+            await auth.signInWithEmailAndPassword(authEmail, password);
+        } catch(e) {
+            console.warn('firebaseAuthSyncAfterProxy:', e.code || e.message);
+        }
+    });
+}
+
 const Auth = {
     getCurrentUser() { return _currentUser; },
     isAdmin() { return _currentUser?.isAdmin === true; },
     async getIdToken() {
-        if (auth.currentUser) return auth.currentUser.getIdToken(true);
         const proxySession = getStoredProxyAuthSession();
         if (proxySession?.idToken) return proxySession.idToken;
+        const refreshedProxySession = await refreshProxyAuthSession().catch(() => null);
+        if (refreshedProxySession?.idToken) return refreshedProxySession.idToken;
+        if (auth.currentUser) return auth.currentUser.getIdToken(false);
         throw new Error('登录状态已过期，请重新登录');
     },
 
@@ -129,9 +157,11 @@ const Auth = {
         try {
             await auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION);
         } catch {}
-        if (shouldUseAuthProxyFirst()) {
+        if (shouldUseAuthProxyFirst('login')) {
             try {
-                return await callAuthProxy('login', { email: authEmail, password });
+                const result = await callAuthProxy('login', { email: authEmail, password });
+                syncFirebaseAuthAfterProxy(authEmail, password, remember);
+                return result;
             } catch(proxyError) {
                 if (!shouldTryFirebaseAfterProxy(proxyError)) {
                     return { ok: false, msg: `登录失败：${proxyError.message}` };
@@ -176,7 +206,7 @@ const Auth = {
             isAdmin: authEmail === ADMIN_EMAIL,
             joinedAt: new Date().toISOString()
         };
-        if (shouldUseAuthProxyFirst()) {
+        if (shouldUseAuthProxyFirst('register')) {
             try {
                 return await callAuthProxy('register', { email: authEmail, password, profile: userData });
             } catch(proxyError) {
