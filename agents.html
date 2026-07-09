@@ -1657,7 +1657,7 @@ function curriculumGuard(agent) {
     if (config.gradeKey === undefined || config.gradeKey) dimensions.push('年级/学段');
     dimensions.push(config.textLabel || '内容');
     const action = config.action || '继续生成';
-    return `请先判断${dimensions.join('、')}是否匹配中国大陆中小学课程体系和学生认知基础；如果明显不匹配，请不要${action}，先输出“参数需要调整”，说明原因，并给出适合当前学科/学段的替代建议，或建议用户调整学科/年级。\n\n`;
+    return `请先在内部判断${dimensions.join('、')}是否匹配现行中小学课程体系和学生认知基础；如果明显不匹配，请不要${action}，先输出“参数需要调整”，说明原因，并给出适合当前学科/学段的替代建议，或建议用户调整学科/年级。如果匹配，不要输出任何适配判断过程或通过性说明，直接进入结果正文。\n\n`;
 }
 
 function buildUserPrompt(agent, inputs) {
@@ -1667,7 +1667,7 @@ function buildUserPrompt(agent, inputs) {
         return val ? `【${f.label}】${val}` : null;
     }).filter(Boolean);
     const guard = curriculumGuard(agent);
-    return `${guard}请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中国大陆中小学教学实际。`;
+    return `${guard}请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中小学教学实际。不要输出适配判断过程、通过性说明或地域政治表述；除非参数明显不匹配，否则不要出现“参数需要调整”。必要时使用“现行课程标准”“教材要求”“教学实际”等中性说法。`;
 }
 
 /* ---------- 工具函数 ---------- */
