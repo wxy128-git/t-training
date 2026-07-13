@@ -74,6 +74,8 @@
         .wb-type.chat { background: var(--brand-soft); color: var(--brand-dark); }
         .wb-project-tag, .wb-review-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid #c5d7e0; border-radius: 5px; background: #f2f7f9; color: #245b78; font-family: var(--font-sans); font-size: 11px; font-weight: 650; }
         .wb-review-tag { border-color: #bedbd3; background: #eef8f5; color: #287a68; }
+        .wb-review-tag.needs-revision { border-color: #dfc28d; background: #fff7e8; color: #875c0e; }
+        .wb-review-tag.pending { border-color: var(--line); background: var(--soft); color: var(--muted); }
         .wb-card-agent { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .wb-card-date { font-family: var(--font-mono); color: var(--muted); font-size: 11.5px; white-space: nowrap; }
         .wb-card-title { font-size: 16px; font-weight: 850; color: var(--ink); line-height: 1.42; margin: 0 0 9px; cursor: pointer;
@@ -267,7 +269,22 @@ function workTypeIcon(w) { return workType(w) === 'chat' ? 'ph-chats-circle' : '
 function agentKey(w) { return w.agentId || w.agentName || 'unknown'; }
 function workProjectId(w) { return w.inputs?._projectId || 'unassigned'; }
 function workProjectTitle(w) { return w.inputs?._projectTitle || '未归入项目'; }
-function workReviewed(w) { return w.inputs?._reviewStatus === 'reviewed' || (Array.isArray(w.inputs?._reviewChecks) && w.inputs._reviewChecks.length === 4); }
+function workReviewStatus(w) {
+    if (w.inputs?._reviewStatus === 'reviewed' || (Array.isArray(w.inputs?._reviewChecks) && w.inputs._reviewChecks.length === 4 && w.inputs?._reviewStatus !== 'needs_revision')) return 'reviewed';
+    if (w.inputs?._reviewStatus === 'needs_revision') return 'needs_revision';
+    if (w.inputs?._reviewStatus === 'draft' && workType(w) === 'draft') return 'pending';
+    return '';
+}
+function workReviewed(w) { return workReviewStatus(w) === 'reviewed'; }
+function workReviewBadge(w, modal = false) {
+    const status = workReviewStatus(w);
+    if (!status) return '';
+    const labels = status === 'reviewed'
+        ? ['ph-shield-check', modal ? '教师已核验' : '已核验']
+        : (status === 'needs_revision' ? ['ph-warning-circle', '待修改'] : ['ph-clock', '待核验']);
+    const badgeClass = status === 'needs_revision' ? 'needs-revision' : status;
+    return `<span class="${modal ? 'wb-modal-chip' : `wb-review-tag ${status === 'reviewed' ? '' : badgeClass}`}"><i class="ph ${labels[0]}"></i>${labels[1]}</span>`;
+}
 function titlePart(value, max = 28) {
     const raw = Array.isArray(value) ? value.join('、') : String(value || '');
     return raw.replace(/[#*_>`\[\]（）()《》]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -462,7 +479,7 @@ function renderWorks() {
                     <div class="wb-card-meta">
                         <span class="wb-type ${workType(w)}"><i class="ph ${workTypeIcon(w)}"></i>${workTypeLabel(w)}</span>
                         <span class="wb-project-tag"><i class="ph ph-folder-notch"></i>${escapeHtml(workProjectTitle(w))}</span>
-                        ${workReviewed(w) ? '<span class="wb-review-tag"><i class="ph ph-shield-check"></i>已核验</span>' : ''}
+                        ${workReviewBadge(w)}
                         <span class="wb-card-agent"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
                     </div>
                     <span class="wb-card-date">${fmtDate(w.updatedAt || w.createdAt)}</span>
@@ -495,7 +512,7 @@ function viewWork(id) {
     document.getElementById('wb-modal-meta').innerHTML = `
         <span class="wb-modal-chip"><i class="ph ${workTypeIcon(w)}"></i>${escapeHtml(workTypeLabel(w))}</span>
         <span class="wb-modal-chip"><i class="ph ph-folder-notch"></i>${escapeHtml(workProjectTitle(w))}</span>
-        ${workReviewed(w) ? '<span class="wb-modal-chip"><i class="ph ph-shield-check"></i>教师已核验</span>' : ''}
+        ${workReviewBadge(w, true)}
         <span class="wb-modal-chip"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
         <span class="wb-modal-chip"><i class="ph ph-calendar-blank"></i>${fmtDate(w.updatedAt || w.createdAt)}</span>`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
