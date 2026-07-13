@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 · AI 教师培训中心</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260709-navpersonal">
+    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
     <style>
         .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); }
         .admin-sidebar { background: var(--ink); padding: 24px 14px; position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto; }
@@ -61,6 +61,14 @@
         .analytics-empty, .analytics-error { padding:34px 18px; color:var(--muted); font-size:13px; text-align:center; line-height:1.7; }
         .analytics-error { color:var(--brand); }
         .analytics-note { margin-top:12px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#fffaf2; color:var(--muted); font-size:12.5px; line-height:1.7; }
+        .analytics-funnel { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; padding:16px 18px; }
+        .analytics-funnel-step { position:relative; min-height:92px; border:1px solid var(--line); border-radius:10px; background:var(--soft); padding:12px; }
+        .analytics-funnel-step:not(:last-child)::after { content:""; position:absolute; right:-11px; top:50%; width:10px; height:1px; background:var(--line); }
+        .analytics-funnel-step small { display:block; color:var(--muted); font-size:11px; }
+        .analytics-funnel-step strong { display:block; margin-top:8px; color:var(--ink); font-size:1.55rem; line-height:1; }
+        .analytics-funnel-step span { display:block; margin-top:6px; color:var(--subtle); font-family:var(--font-mono); font-size:10px; }
+        .analytics-quality { display:flex; flex-wrap:wrap; gap:8px 16px; padding:0 18px 16px; color:var(--muted); font-size:11.5px; }
+        .analytics-quality b { color:var(--ink); }
         .modal-admin { display: none; position: fixed; inset: 0; background: rgba(26,22,18,0.55); z-index: 500; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; }
         .modal-admin.active { display: flex; }
         .panel { display: none; }
@@ -78,6 +86,8 @@
             .analytics-head { flex-direction:column; }
             .analytics-grid { grid-template-columns:1fr; }
             .analytics-trend-row { grid-template-columns:70px 1fr 36px 36px 36px 36px; gap:7px; }
+            .analytics-funnel { grid-template-columns:1fr 1fr; }
+            .analytics-funnel-step:not(:last-child)::after { display:none; }
         }
     </style>
 </head>
@@ -569,7 +579,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260709-navpersonal"></script>
+<script src="js/auth.js?v=20260712-workbench"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];
@@ -688,6 +698,12 @@ function analyticsActionLabel(action) {
         page_view: '访问页面',
         agent_open: '打开智能体',
         agent_run: '生成智能体内容',
+        generation_failed: '智能体生成失败',
+        draft_restored: '恢复本地草稿',
+        project_saved: '保存教学项目',
+        teacher_reviewed: '完成教师核验',
+        result_feedback: '提交结果反馈',
+        workflow_continue: '继续教学流程',
         workbook_view: '进入备课本',
         workbook_open: '查看备课内容',
         workbook_save: '保存到备课本',
@@ -730,13 +746,17 @@ function renderAnalyticsKpis(summary, newUsers) {
         { label:'页面浏览', value:t.pageViews || 0, icon:'ph-eye', note:'含登录与未登录访问' },
         { label:'登录用户活跃', value:t.loggedUsers || 0, icon:'ph-identification-card', note:'有记录行为的登录用户' },
         { label:'智能体生成', value:t.agentRuns || 0, icon:'ph-robot', note:'完成模型生成次数' },
+        { label:'教师完成核验', value:t.teacherReviews || 0, icon:'ph-shield-check', note:'四项质量清单全部确认' },
+        { label:'成果保存', value:t.workbookSaves || 0, icon:'ph-floppy-disk', note:'保存到备课本的成果数' },
+        { label:'生成失败', value:t.generationFailures || 0, icon:'ph-warning-circle', note:'网络、限流或模型失败' },
+        { label:'平均生成耗时', value:t.averageGenerationMs ? `${(t.averageGenerationMs / 1000).toFixed(1)}s` : '—', icon:'ph-timer', note:'有耗时记录的成功生成' },
         { label:'备课本使用', value:t.workbookUses || 0, icon:'ph-notebook', note:'访问、打开或保存' },
         { label:'多模态使用', value:t.multimodalUses || 0, icon:'ph-images-square', note:'访问、打开案例或视频' }
     ];
     return `<div class="analytics-kpis">${kpis.map(k => `
         <div class="analytics-kpi">
             <span><i class="ph ${k.icon}"></i>${k.label}</span>
-            <strong>${Number(k.value || 0).toLocaleString('zh-CN')}</strong>
+            <strong>${typeof k.value === 'number' ? Number(k.value || 0).toLocaleString('zh-CN') : analyticsEscape(k.value)}</strong>
             <small>${analyticsEscape(k.note)}</small>
         </div>`).join('')}</div>`;
 }
@@ -764,6 +784,37 @@ function renderAnalyticsTrend(summary, newUsersByDay) {
                     <span>${featureSum}</span>
                 </div>`;
             }).join('')}
+        </div>
+    </div>`;
+}
+
+function analyticsFeedbackLabel(reason) {
+    return {
+        usable: '基本可用',
+        generic: '过于笼统',
+        level_mismatch: '年级不符',
+        facts_check: '事实待核验',
+        hard_to_apply: '课堂难实施'
+    }[reason] || reason || '未分类';
+}
+
+function renderAnalyticsFunnel(summary) {
+    const steps = summary.funnel || [];
+    const t = summary.totals || {};
+    const feedback = summary.feedbackReasons || [];
+    return `<div class="analytics-box" style="grid-column:1/-1">
+        <div class="analytics-box-head">
+            <h3>教学任务完成漏斗</h3>
+            <span>按会话去重；比例相对“进入任务”</span>
+        </div>
+        <div class="analytics-funnel">
+            ${steps.map(step => `<div class="analytics-funnel-step"><small>${analyticsEscape(step.label)}</small><strong>${step.count || 0}</strong><span>${step.rate || 0}%</span></div>`).join('') || '<div class="analytics-empty">暂无任务漏斗数据</div>'}
+        </div>
+        <div class="analytics-quality">
+            <span>新建/更新项目 <b>${t.projectSaves || 0}</b></span>
+            <span>继续下一步 <b>${t.workflowContinues || 0}</b></span>
+            <span>生成失败 <b>${t.generationFailures || 0}</b></span>
+            ${feedback.map(item => `<span>${analyticsEscape(analyticsFeedbackLabel(item.reason))} <b>${item.count || 0}</b></span>`).join('')}
         </div>
     </div>`;
 }
@@ -836,6 +887,7 @@ function renderAnalyticsContent(summary) {
                 ${renderAnalyticsRanks('热门智能体', '按生成次数', summary.topAgents || [], '暂无智能体生成记录')}
                 ${renderAnalyticsRanks('热门多模态案例', '按案例/视频打开次数', summary.topMultimodal || [], '暂无多模态使用记录')}
             </div>
+            ${renderAnalyticsFunnel(summary)}
             ${renderAnalyticsUsers(summary)}
         </div>
         ${truncated}`;

@@ -417,11 +417,12 @@ function renderNav(currentPage) {
     const el = document.getElementById('main-nav');
     if (!el) return;
     el.innerHTML = `
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
     <header class="site-header">
         <div class="site-header-inner">
             <a href="index.html" class="site-logo">
                 <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
-                <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Training Hub</span></div>
+                <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Practice Hub</span></div>
             </a>
             <nav class="site-nav">${navLinks}${contactLink}${adminLink}</nav>
             <div class="auth-area">
@@ -449,6 +450,11 @@ function renderNav(currentPage) {
             ${adminLink}
         </div>
     </div>`;
+    const main = document.querySelector('main');
+    if (main) {
+        if (!main.id) main.id = 'main-content';
+        el.querySelector('.skip-link')?.setAttribute('href', `#${main.id}`);
+    }
 }
 
 function closeResourceMenu() {
@@ -723,7 +729,7 @@ function renderFooter() {
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
             <div class="footer-col"><h4>关于平台</h4>
-                <p style="font-size:13px;color:#475569;line-height:1.8">本平台专为在职教师 AI 培训设计，持续收录全球优质 AI 教育资源，所有工具均经过实际教学场景验证。</p>
+                <p style="font-size:13px;color:#64748b;line-height:1.8">面向在职教师的 AI 教学实践平台，支持备课、课堂、评价、家校沟通与教学复盘。</p>
                 <p style="font-size:13px;color:#475569;margin-top:8px">欢迎教师分享 AI 教学案例，共建社区智识库。</p>
             </div>
             <div class="footer-col"><h4>订阅动态</h4>

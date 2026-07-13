@@ -18,6 +18,12 @@ const EVENT_ACTIONS = new Set([
     'page_view',
     'agent_open',
     'agent_run',
+    'generation_failed',
+    'draft_restored',
+    'project_saved',
+    'teacher_reviewed',
+    'result_feedback',
+    'workflow_continue',
     'workbook_view',
     'workbook_open',
     'workbook_save',
@@ -370,6 +376,9 @@ function emptyDaily(days) {
             visitors: 0,
             pageViews: 0,
             agentRuns: 0,
+            generationFailures: 0,
+            teacherReviews: 0,
+            workbookSaves: 0,
             workbookUses: 0,
             multimodalUses: 0,
             _visitors: new Set()
@@ -393,8 +402,23 @@ function summarizeEvents(events, days) {
     const visitors = new Set();
     const loggedUsers = new Set();
     let agentRuns = 0;
+    let generationFailures = 0;
+    let teacherReviews = 0;
+    let workbookSaves = 0;
+    let projectSaves = 0;
+    let workflowContinues = 0;
+    let totalGenerationMs = 0;
+    let generationDurationCount = 0;
     let workbookUses = 0;
     let multimodalUses = 0;
+    const feedbackReasons = new Map();
+    const funnelSets = {
+        opened: new Set(),
+        generated: new Set(),
+        reviewed: new Set(),
+        saved: new Set(),
+        continued: new Set()
+    };
 
     function userRow(e) {
         if (!e.uid) return null;
@@ -419,6 +443,7 @@ function summarizeEvents(events, days) {
         const day = e.day || (e.ts ? chinaDay(new Date(e.ts)) : '');
         const d = daily.get(day);
         const visitorKey = e.visitorId || e.uid || e.sessionId || '';
+        const sessionKey = e.sessionId || e.uid || e.visitorId || '';
         if (e.action === 'page_view') {
             pageViews += 1;
             if (visitorKey) visitors.add(visitorKey);
@@ -445,10 +470,36 @@ function summarizeEvents(events, days) {
             agentRuns += 1;
             if (d) d.agentRuns += 1;
             if (row) row.agentRuns += 1;
+            if (sessionKey) funnelSets.generated.add(sessionKey);
+            const duration = Number(e.meta?.durationMs || 0);
+            if (duration > 0 && duration < 10 * 60 * 1000) {
+                totalGenerationMs += duration;
+                generationDurationCount += 1;
+            }
             const key = e.targetId || e.targetName || 'unknown';
             const item = topAgents.get(key) || { id: e.targetId || key, name: e.targetName || key, count: 0 };
             item.count += 1;
             topAgents.set(key, item);
+        }
+
+        if (e.action === 'agent_open' && sessionKey) funnelSets.opened.add(sessionKey);
+        if (e.action === 'generation_failed') {
+            generationFailures += 1;
+            if (d) d.generationFailures += 1;
+        }
+        if (e.action === 'teacher_reviewed') {
+            teacherReviews += 1;
+            if (d) d.teacherReviews += 1;
+            if (sessionKey) funnelSets.reviewed.add(sessionKey);
+        }
+        if (e.action === 'project_saved') projectSaves += 1;
+        if (e.action === 'workflow_continue') {
+            workflowContinues += 1;
+            if (sessionKey) funnelSets.continued.add(sessionKey);
+        }
+        if (e.action === 'result_feedback') {
+            const reason = clampString(e.meta?.reason || 'unknown', 80);
+            feedbackReasons.set(reason, (feedbackReasons.get(reason) || 0) + 1);
         }
 
         const isWorkbook = e.action === 'workbook_save' || e.action === 'workbook_open' || e.action === 'workbook_view';
@@ -456,6 +507,11 @@ function summarizeEvents(events, days) {
             workbookUses += 1;
             if (d) d.workbookUses += 1;
             if (row) row.workbookUses += 1;
+        }
+        if (e.action === 'workbook_save') {
+            workbookSaves += 1;
+            if (d) d.workbookSaves += 1;
+            if (sessionKey) funnelSets.saved.add(sessionKey);
         }
 
         const isMultimodal = e.action === 'multimodal_case_open' || e.action === 'multimodal_video_open' || (e.action === 'page_view' && e.feature === 'multimodal');
@@ -494,12 +550,28 @@ function summarizeEvents(events, days) {
             account: e.userEmail || e.userPhone || ''
         }));
 
+    const openedSessions = funnelSets.opened.size;
+    const withinOpened = set => [...set].filter(id => funnelSets.opened.has(id)).length;
+    const funnel = [
+        ['opened', '进入任务', funnelSets.opened.size],
+        ['generated', '成功生成', withinOpened(funnelSets.generated)],
+        ['reviewed', '完成核验', withinOpened(funnelSets.reviewed)],
+        ['saved', '保存成果', withinOpened(funnelSets.saved)],
+        ['continued', '继续下一步', withinOpened(funnelSets.continued)]
+    ].map(([key, label, count]) => ({ key, label, count, rate: openedSessions ? Math.round(count / openedSessions * 100) : 0 }));
+
     return {
         totals: {
             visitors: visitors.size,
             pageViews,
             loggedUsers: loggedUsers.size,
             agentRuns,
+            generationFailures,
+            teacherReviews,
+            workbookSaves,
+            projectSaves,
+            workflowContinues,
+            averageGenerationMs: generationDurationCount ? Math.round(totalGenerationMs / generationDurationCount) : 0,
             workbookUses,
             multimodalUses,
             eventCount: events.length
@@ -508,6 +580,8 @@ function summarizeEvents(events, days) {
         users: userRows,
         topAgents: sortedTop(topAgents),
         topMultimodal: sortedTop(topMultimodal),
+        funnel,
+        feedbackReasons: [...feedbackReasons.entries()].map(([reason, count]) => ({ reason, count })).sort((a, b) => b.count - a.count),
         recent
     };
 }

@@ -12,11 +12,11 @@
    =================================================================== */
 
 window.AGENT_CATS = [
-    { key: 'plan',   name: '备课设计', color: '#2d6a4f', soft: '#e6f0ea' },
-    { key: 'class',  name: '课堂教学', color: '#2c5282', soft: '#e7edf6' },
-    { key: 'assess', name: '作业评价', color: '#c0392b', soft: '#fbeae6' },
-    { key: 'home',   name: '班级家校', color: '#b07d2a', soft: '#f6eed9' },
-    { key: 'growth', name: '教师发展', color: '#7a4f86', soft: '#efe7f2' }
+    { key: 'plan',   name: '备课设计', color: '#287a68', soft: '#e5f2ef' },
+    { key: 'class',  name: '课堂教学', color: '#245b78', soft: '#e7f0f5' },
+    { key: 'assess', name: '作业评价', color: '#a24b45', soft: '#f8eceb' },
+    { key: 'home',   name: '班级家校', color: '#9a681d', soft: '#faf1df' },
+    { key: 'growth', name: '教师发展', color: '#5c6e7b', soft: '#edf1f3' }
 ];
 
 /* 常用选项 */

@@ -16,24 +16,23 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260709-navpersonal">
+    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
     <style>
-        /* ===== 智能体空间 · 页面专属样式（基于全站 editorial token） ===== */
-        .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
-        .page-title { font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
-        .page-title em { font-style: italic; color: var(--brand); }
+        /* ===== 智能体空间 · 页面专属样式（现代教研工作台） ===== */
+        .page-kicker { font-family: var(--font-mono); font-size: 10.5px; color: var(--brand); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 13px; font-weight: 600; }
+        .page-title { font-size: clamp(32px, 4.2vw, 48px); font-weight: 760; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
         .page-sub { font-size: 14.5px; color: var(--muted); margin-top: 14px; line-height: 1.75; max-width: 620px; }
 
         /* 搜索 + 筛选条 */
         .agents-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 30px 0 8px; }
         .agent-search { position: relative; flex: 1; min-width: 240px; max-width: 380px; }
         .agent-search i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--subtle); font-size: 17px; }
-        .agent-search input { width: 100%; padding: 11px 16px 11px 42px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); font-size: 14px; color: var(--ink); outline: none; transition: border-color .15s, box-shadow .15s; }
+        .agent-search input { width: 100%; min-height: 44px; padding: 11px 16px 11px 42px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); font-size: 14px; color: var(--ink); outline: none; transition: border-color .15s, box-shadow .15s; }
         .agent-search input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
         .agent-count { font-family: var(--font-mono); font-size: 12px; color: var(--subtle); white-space: nowrap; }
 
         .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 36px; }
-        .filter-pill { padding: 8px 16px; font-size: 13px; font-weight: 500; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; cursor: pointer; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+        .filter-pill { min-height: 44px; padding: 8px 14px; font-size: 13px; font-weight: 550; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 7px; cursor: pointer; font-family: inherit; transition: color .15s, background .15s, border-color .15s; display: inline-flex; align-items: center; gap: 6px; }
         .filter-pill:hover { color: var(--ink); border-color: var(--subtle); }
         .filter-pill.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
         .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
@@ -60,21 +59,9 @@
         @media (max-width: 980px) { .featured-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .featured-grid { grid-template-columns: 1fr; } }
         /* 精选卡片：细品牌色顶饰，强化「起点」感 */
-        .featured-grid .agent-card { border-color: var(--brand-soft); }
-        .featured-grid .agent-card::before { opacity: .5; background: var(--brand); }
+        .featured-grid .agent-card { border-color: #b9ceda; }
+        .featured-grid .agent-card::before { opacity: .7; background: var(--brand); }
 
-        /* 朱印：实心款，与首页一致（2026-06-19 深修）——覆盖 style.css 的描边款 */
-        .seal { font-family: "STKaiti","Kaiti SC","KaiTi","STSong","Songti SC",serif;
-            display: inline-flex; align-items: center; justify-content: center;
-            width: auto; height: auto; padding: 5px 9px; border: none; border-radius: 5px;
-            color: #fff; background: #c8402e; font-size: 13px; font-weight: 700; letter-spacing: 1px;
-            line-height: 1; transform: rotate(-7deg); position: relative;
-            box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5), inset 0 0 0 3px #c8402e; }
-        .seal::before { display: none; }
-        .seal::after { content: ""; position: absolute; inset: 0; border-radius: 5px;
-            background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), transparent 60%); mix-blend-mode: screen; }
-        .seal.sm { width: auto; height: auto; padding: 4px 8px; font-size: 12px; }
-        .card-seal { position: absolute; top: 12px; right: 12px; z-index: 2; }
         .agents-head { position: relative; }
 
         /* ===== 工作台 ===== */
@@ -84,20 +71,32 @@
         .ws-back:hover { background: var(--soft-2); border-color: var(--subtle); }
         .ws-ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 27px; flex-shrink: 0; }
         .ws-titles h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.02em; }
+        .ws-titles { min-width: 0; }
         .ws-titles p { font-size: 13.5px; color: var(--muted); margin: 6px 0 0; line-height: 1.7; max-width: 640px; }
         .ws-cat-tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; margin-bottom: 4px; }
         .ws-status { display: flex; align-items: center; gap: 8px; justify-self: end; flex-wrap: wrap; }
         .ws-model-badge { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
         .ws-model-badge strong { color: var(--ink); font-weight: 700; }
         .ws-model-badge i { color: var(--brand); font-size: 15px; }
+        .ws-projectbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: center; margin: -2px 0 18px; padding: 13px 15px; border: 1px solid #bfd1dc; border-radius: 10px; background: #f5f9fb; }
+        .ws-projectbar.is-empty { border-style: dashed; border-color: var(--line); background: var(--paper); }
+        .ws-project-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; background: #e7f0f5; color: #245b78; font-size: 18px; }
+        .ws-project-copy { min-width: 0; }
+        .ws-project-label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; color: #245b78; font-weight: 700; margin-bottom: 3px; }
+        .ws-project-copy b { display: block; color: var(--ink); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ws-project-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+        .ws-project-action { min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--text); padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .ws-project-action:hover { color: #245b78; border-color: #8fb3c6; }
         @media (max-width: 760px) {
             .ws-top { grid-template-columns: auto auto minmax(0,1fr); align-items: flex-start; }
             .ws-status { grid-column: 1 / -1; justify-self: start; }
+            .ws-projectbar { grid-template-columns: auto minmax(0,1fr); }
+            .ws-project-action { grid-column: 1 / -1; justify-content: center; }
         }
 
         /* form 工作台：参数台 + 文稿台 */
         .ws-form-layout { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
-        .ws-panel { background: var(--paper); border: 1px solid rgba(26,22,18,.1); border-radius: 18px; box-shadow: 0 1px 2px rgba(26,22,18,.04); overflow: hidden; }
+        .ws-panel { min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-xs); overflow: hidden; }
         .ws-input-col { position: sticky; top: 92px; align-self: start; height: clamp(520px, calc(100vh - 150px), 760px); padding: 18px; display: flex; flex-direction: column; }
         .ws-input-scroll { min-height: 0; overflow: auto; padding-right: 4px; }
         .ws-input-col.is-collapsed { height: auto; }
@@ -111,14 +110,17 @@
         .ws-toggle-input:hover { color: var(--ink); border-color: var(--subtle); background: var(--soft-2); }
 
         .field { margin-bottom: 16px; }
-        .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
-        .field label .req { color: var(--brand); margin-left: 2px; }
-        .field label .hint { font-weight: 400; color: var(--subtle); font-size: 11.5px; margin-left: 6px; }
+        .field label, .field .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+        .field label .req, .field .field-label .req { color: var(--danger); margin-left: 2px; }
+        .field label .hint, .field .field-label .hint { font-weight: 400; color: var(--subtle); font-size: 11.5px; margin-left: 6px; }
         .field input, .field select, .field textarea { width: 100%; padding: 10px 13px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); font-size: 13.5px; color: var(--ink); outline: none; font-family: inherit; transition: border-color .15s, box-shadow .15s, background .15s; }
         .field textarea { resize: vertical; line-height: 1.65; }
         .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .field.has-error input, .field.has-error select, .field.has-error textarea, .field.has-error .chips { border-color: var(--danger); }
+        .field-error { display: none; margin: 6px 0 0; color: var(--danger); font-size: 11.5px; line-height: 1.5; }
+        .field.has-error .field-error { display: block; }
         .field .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-        .field .chip-opt { padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--soft); font-size: 12.5px; color: var(--text); cursor: pointer; transition: all .14s; user-select: none; }
+        .field .chip-opt { min-height: 44px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); font-size: 12.5px; color: var(--text); cursor: pointer; transition: color .14s, background .14s, border-color .14s; user-select: none; }
         .field .chip-opt.on { background: var(--ink); color: var(--soft); border-color: var(--ink); }
         .hw-assist { border: 1px solid var(--line); background: #fffaf2; border-radius: 14px; padding: 13px 14px; margin: -2px 0 16px; }
         .hw-assist-top { display: flex; gap: 10px; align-items: flex-start; }
@@ -133,6 +135,10 @@
         .ws-run:hover { background: var(--brand-dark); }
         .ws-run:active { transform: scale(.99); }
         .ws-run:disabled { opacity: .55; cursor: not-allowed; }
+        .ws-draft-state { display: flex; align-items: center; gap: 7px; min-height: 28px; margin: -7px 0 12px; padding: 5px 8px; border-radius: 6px; background: var(--soft); color: var(--muted); font-size: 11.5px; }
+        .ws-draft-state i { color: var(--success); font-size: 14px; }
+        .ws-draft-state button { margin-left: auto; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 11.5px; cursor: pointer; padding: 4px; }
+        .ws-draft-state button:hover { color: var(--danger); }
 
         /* 输出区 */
         .ws-out-panel { height: clamp(520px, calc(100vh - 150px), 760px); display: flex; flex-direction: column; }
@@ -148,15 +154,44 @@
         .ws-out-body { flex: 1; min-height: 0; overflow: auto; padding: 20px 22px; font-size: 14px; line-height: 1.85; color: var(--text); }
         .ws-out-body.placeholder { display: grid; place-items: center; text-align: center; color: var(--subtle); }
         .ws-out-body.placeholder .ph { font-size: 50px; display: block; margin-bottom: 14px; opacity: .6; }
+        .ws-out-body[aria-busy="true"] { background: linear-gradient(110deg, var(--soft) 8%, #fff 18%, var(--soft) 33%); background-size: 240% 100%; animation: ws-loading 1.4s linear infinite; }
+        @keyframes ws-loading { to { background-position-x: -240%; } }
+        .ws-error-state { width: min(460px, 100%); margin: auto; padding: 20px; border: 1px solid #e4b8b3; border-radius: 10px; background: #fff7f6; text-align: left; }
+        .ws-error-state i { color: var(--danger) !important; margin: 0 0 9px !important; }
+        .ws-error-state b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 5px; }
+        .ws-error-state p { margin: 0; color: var(--text); font-size: 12.5px; line-height: 1.65; }
+        .ws-error-state button { margin-top: 12px; min-height: 40px; border: 1px solid var(--ink); border-radius: 7px; background: var(--ink); color: #fff; font: inherit; font-size: 12.5px; font-weight: 650; padding: 8px 13px; cursor: pointer; }
+        .ws-review-panel { flex-shrink: 0; border-top: 1px solid var(--line); background: var(--paper); }
+        .ws-review-panel[hidden] { display: none; }
+        .ws-review-panel summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 12px 18px; color: var(--ink); font-size: 12.5px; font-weight: 750; cursor: pointer; }
+        .ws-review-panel summary::-webkit-details-marker { display: none; }
+        .ws-review-panel summary .review-state { margin-left: auto; color: var(--muted); font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; }
+        .ws-review-content { padding: 0 18px 15px; }
+        .ws-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; }
+        .ws-review-item { min-height: 40px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--text); padding: 8px 10px; font-size: 11.5px; cursor: pointer; }
+        .ws-review-item:has(input:checked) { border-color: #77aa9d; background: #eef8f5; color: #1e6758; }
+        .ws-review-item input { accent-color: var(--success); }
+        .ws-feedback { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+        .ws-feedback > span { font-size: 11.5px; color: var(--muted); margin-right: 2px; }
+        .ws-feedback button { min-height: 34px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--muted); font: inherit; font-size: 11px; padding: 6px 9px; cursor: pointer; }
+        .ws-feedback button.active { border-color: #245b78; color: #245b78; background: #edf5f8; }
+        .ws-next { display: none; align-items: center; gap: 7px; flex-wrap: wrap; padding: 12px 18px; border-top: 1px solid var(--line); background: #f5f9fb; }
+        .ws-next.active { display: flex; }
+        .ws-next > span { color: var(--muted); font-size: 11.5px; margin-right: 2px; }
+        .ws-next button, .ws-next a { min-height: 36px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #b7ccd7; border-radius: 7px; background: var(--paper); color: #245b78; font: inherit; font-size: 11.5px; font-weight: 650; padding: 7px 10px; cursor: pointer; text-decoration: none; }
+        .ws-next button:hover, .ws-next a:hover { border-color: #245b78; background: #edf5f8; }
+        @media (max-width: 620px) { .ws-review-grid { grid-template-columns: 1fr; } }
         @media (max-width: 900px) {
             .ws-form-layout { grid-template-columns: 1fr; }
             .ws-input-col { position: static; height: auto; max-height: none; }
             .ws-out-panel { height: min(72vh, 680px); min-height: 460px; }
         }
         @media (max-width: 600px) {
+            .ws-wrap { padding-left: 16px; padding-right: 16px; }
+            .ws-titles p { overflow-wrap: anywhere; }
             .ws-out-head { display: block; }
             .ws-out-actions { margin: 12px 0 0; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-            .ws-mini-btn { justify-content: center; white-space: nowrap; }
+            .ws-mini-btn { min-height: 44px; justify-content: center; white-space: nowrap; }
         }
         /* markdown 渲染样式 */
         .md h1, .md h2, .md h3 { color: var(--ink); font-weight: 700; line-height: 1.3; margin: 1.2em 0 .5em; }
@@ -202,7 +237,7 @@
 
         .api-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; padding: 13px 16px; background: var(--soft-2); border: 1px dashed var(--line); border-radius: var(--r-md); font-size: 12.5px; color: var(--muted); line-height: 1.7; }
         .api-note i { color: var(--ochre); font-size: 16px; margin-top: 1px; flex-shrink: 0; }
-        .work-title-modal { position: fixed; inset: 0; z-index: 650; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(26,22,18,.46); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .work-title-modal { position: fixed; inset: 0; z-index: 650; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(23,33,43,.48); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
         .work-title-modal.active { display: flex; }
         .work-title-box { width: min(440px, 100%); background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 22px; }
         .work-title-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
@@ -217,6 +252,27 @@
         .work-title-actions button.primary { background: var(--ink); border-color: var(--ink); color: var(--soft); font-weight: 700; }
         .work-title-actions button:hover { border-color: var(--ink); color: var(--ink); }
         .work-title-actions button.primary:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+        .project-modal { position: fixed; inset: 0; z-index: 660; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(23,33,43,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .project-modal.active { display: flex; }
+        .project-box { width: min(680px,100%); max-height: 90vh; overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg); padding: 22px; }
+        .project-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+        .project-head i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 9px; background: #e7f0f5; color: #245b78; font-size: 20px; flex-shrink: 0; }
+        .project-head h2 { margin: 0; color: var(--ink); font-size: 19px; }
+        .project-head p { margin: 5px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+        .project-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
+        .project-field { display: flex; flex-direction: column; gap: 6px; }
+        .project-field.wide { grid-column: 1 / -1; }
+        .project-field label { color: var(--text); font-size: 12px; font-weight: 650; }
+        .project-field input, .project-field select, .project-field textarea { width: 100%; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--ink); padding: 10px 11px; font: inherit; font-size: 13px; outline: 0; }
+        .project-field input:focus, .project-field select:focus, .project-field textarea:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
+        .project-field textarea { resize: vertical; line-height: 1.55; }
+        .project-default { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--muted); font-size: 12px; }
+        .project-default input { accent-color: var(--brand); }
+        .project-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
+        .project-actions button { min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--text); padding: 8px 13px; font: inherit; font-size: 12.5px; cursor: pointer; }
+        .project-actions .danger { margin-right: auto; color: var(--danger); }
+        .project-actions .primary { border-color: var(--ink); background: var(--ink); color: #fff; font-weight: 700; }
+        @media (max-width: 620px) { .project-grid { grid-template-columns: 1fr; } .project-field.wide { grid-column: auto; } .project-actions { flex-wrap: wrap; } }
     </style>
 </head>
 <body>
@@ -227,15 +283,15 @@
     <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
 
     <div class="agents-head" style="margin-bottom:8px">
-        <div class="page-kicker">Agents · 教师 AI 工作台</div>
-        <h1 class="page-title">智能体<em>空间</em></h1>
-        <p class="page-sub">把常见的教学任务交给专门调教过的 AI 智能体——从教学设计、微课脚本到智能出题、作业批改、家校沟通。选一个，给出你的要点，AI 起草初稿，你再打磨定稿。</p>
+        <div class="page-kicker">Agent workspace · 按教学任务选择</div>
+        <h1 class="page-title">智能体工作台</h1>
+        <p class="page-sub">按备课、课堂、评价、家校与教师发展查找专业智能体。填写真实任务参数，获得可编辑初稿，并在核对后保存到备课本。</p>
     </div>
 
     <div class="agents-toolbar">
         <div class="agent-search">
             <i class="ph ph-magnifying-glass"></i>
-            <input type="text" id="agent-search" placeholder="搜索智能体，如「出题」「评语」「微课」…" oninput="applyFilter()">
+            <input type="search" id="agent-search" aria-label="搜索智能体" autocomplete="off" placeholder="搜索任务，如「出题」「评语」「微课」…" oninput="applyFilter()">
         </div>
         <span class="agent-count" id="agent-count"></span>
     </div>
@@ -260,11 +316,51 @@
                 <span class="ws-model-badge" id="ws-model-badge"><i class="ph ph-cpu"></i><span>模型服务：<strong id="ws-model-name">智能体路由</strong></span></span>
             </div>
         </div>
+        <section class="ws-projectbar is-empty" id="ws-projectbar" aria-label="当前教学项目">
+            <div class="ws-project-icon"><i class="ph ph-folder-notch-open"></i></div>
+            <div class="ws-project-copy">
+                <span class="ws-project-label">TEACHING PROJECT</span>
+                <b id="ws-project-title">尚未设置教学项目</b>
+                <small id="ws-project-meta">设置一次学科、年级、课题与学情，后续智能体会自动复用。</small>
+            </div>
+            <button type="button" class="ws-project-action" onclick="openProjectModal()"><i class="ph ph-pencil-simple"></i><span id="ws-project-action-label">新建项目</span></button>
+        </section>
         <div id="ws-body"></div>
         <div class="api-note">
             <i class="ph ph-sparkle"></i>
             <span>内容由 <strong id="api-model-name">本站智能体模型服务</strong> 实时生成，仅供参考，请结合教学实际核对后使用。</span>
         </div>
+    </div>
+</div>
+
+<div class="project-modal" id="project-modal" onclick="if(event.target===this)closeProjectModal()">
+    <div class="project-box" role="dialog" aria-modal="true" aria-labelledby="project-modal-title">
+        <div class="project-head">
+            <i class="ph ph-folder-notch-open"></i>
+            <div>
+                <h2 id="project-modal-title">教学项目</h2>
+                <p>教学背景只需填写一次。当前版本保存在这台设备上，保存成果时会一并写入项目名称。</p>
+            </div>
+        </div>
+        <form id="project-form" onsubmit="saveProjectFromModal(); return false;">
+            <input type="hidden" id="project-id">
+            <div class="project-grid">
+                <div class="project-field wide"><label for="project-title">项目名称 <span class="req">*</span></label><input id="project-title" type="text" maxlength="80" required placeholder="如：八年级数学 · 一次函数单元"></div>
+                <div class="project-field"><label for="project-subject">学科</label><select id="project-subject"></select></div>
+                <div class="project-field"><label for="project-grade">年级</label><select id="project-grade"></select></div>
+                <div class="project-field"><label for="project-textbook">教材版本</label><input id="project-textbook" type="text" maxlength="80" placeholder="如：人教版八年级上册"></div>
+                <div class="project-field"><label for="project-class-size">班级人数</label><input id="project-class-size" type="number" min="1" max="120" inputmode="numeric" placeholder="如：45"></div>
+                <div class="project-field wide"><label for="project-topic">当前课题或单元</label><input id="project-topic" type="text" maxlength="120" placeholder="如：一次函数的图像与性质"></div>
+                <div class="project-field wide"><label for="project-profile">学情概况</label><textarea id="project-profile" rows="3" maxlength="600" placeholder="如：基础差异较大，能完成简单坐标描点，但对变量关系理解不足"></textarea></div>
+                <div class="project-field wide"><label for="project-goal">本次主要目标</label><textarea id="project-goal" rows="2" maxlength="600" placeholder="如：能结合图像解释 k、b 对一次函数变化的影响"></textarea></div>
+            </div>
+            <label class="project-default"><input id="project-save-default" type="checkbox" checked> 将学科、年级和班级信息保存为本设备默认背景</label>
+            <div class="project-actions">
+                <button type="button" class="danger" id="project-clear" onclick="clearCurrentProject()">清除当前项目</button>
+                <button type="button" onclick="closeProjectModal()">取消</button>
+                <button type="submit" class="primary">保存并应用</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -295,9 +391,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260709-navpersonal"></script>
+<script src="js/auth.js?v=20260712-workbench"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
-<script src="js/agents-data.js?v=20260619-prompts"></script>
+<script src="js/agents-data.js?v=20260712-workbench"></script>
+<script src="js/teaching-projects.js?v=20260712-project-flow"></script>
 <script>
 /* ===================================================================
    智能体空间 · 页面逻辑
@@ -307,13 +404,14 @@ const CATS = window.AGENT_CATS;
 const AGENTS = window.AGENTS;
 const CAT_MAP = Object.fromEntries(CATS.map(c => [c.key, c]));
 const PROVIDER_LABELS = { deepseek: 'DeepSeek', zhipu: '智谱 GLM-5.2' };
-let currentCat = 'all';
+const requestedCat = new URLSearchParams(location.search).get('cat');
+let currentCat = CATS.some(category => category.key === requestedCat) ? requestedCat : 'all';
 
 /* ---------- 卡片墙 ---------- */
 function renderFilterBar() {
-    const all = `<button class="filter-pill active" data-cat="all" onclick="setCat('all')">全部</button>`;
+    const all = `<button class="filter-pill${currentCat === 'all' ? ' active' : ''}" data-cat="all" onclick="setCat('all')">全部</button>`;
     const rest = CATS.map(c =>
-        `<button class="filter-pill" data-cat="${c.key}" onclick="setCat('${c.key}')"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`
+        `<button class="filter-pill${currentCat === c.key ? ' active' : ''}" data-cat="${c.key}" onclick="setCat('${c.key}')"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`
     ).join('');
     document.getElementById('filter-bar').innerHTML = all + rest;
 }
@@ -698,13 +796,13 @@ const HANDWRITING_ASSIST = {
 
 function cardHtml(a, allowSeal, featured) {
     const c = CAT_MAP[a.cat];
-    // 精选区盖「精选」印；其余按使用频率给 Top-N 盖「热门」印（常用推荐行传 allowSeal=false 避免重复）
-    const seal = featured
-        ? '<span class="seal sm card-seal">精选</span>'
+    // 状态标签只表达真实的导航作用或使用频次，不再使用装饰性印章。
+    const state = featured
+        ? '<span class="agent-state recommended">建议起点</span>'
         : ((allowSeal !== false && (window.TOP_AGENTS || []).includes(a.id))
-            ? '<span class="seal sm card-seal">热门</span>' : '');
-    return `<div class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')">
-        ${seal}
+            ? '<span class="agent-state">常用</span>' : '');
+    return `<button type="button" class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')" aria-label="打开${escapeHtml(a.name)}">
+        ${state}
         <div class="agent-card-top">
             <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
             <div>
@@ -717,7 +815,7 @@ function cardHtml(a, allowSeal, featured) {
             <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : 'AI 起草'}</span>
             <span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span>
         </div>
-    </div>`;
+    </button>`;
 }
 
 function applyFilter() {
@@ -735,8 +833,8 @@ function renderHome() {
         html += `<div class="agent-section">
             <div class="agent-section-head featured-head">
                 <div class="sec-ico" style="background:var(--brand-soft);color:var(--brand)"><i class="ph-fill ph-star"></i></div>
-                <span class="sec-title">常用推荐</span>
-                <span class="sec-sub">不知从哪开始？先试这几个</span>
+                <span class="sec-title">推荐起点</span>
+                <span class="sec-sub">覆盖最常见的教学任务</span>
             </div>
             <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, false, true)).join('')}</div>
         </div>`;
@@ -790,6 +888,7 @@ function openAgent(id, skipGuard) {
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
     setAgentModelLabel('智能体路由');
     window._wsAgent = a;
+    renderActiveProject();
     if (window.Analytics) Analytics.track('agent_open', {
         feature: 'agents',
         targetId: a.id,
@@ -827,6 +926,10 @@ function buildForm(a) {
             </div>
             <div class="ws-input-summary" id="ws-input-summary"></div>
             <div class="ws-input-scroll" id="ws-input-scroll">
+                <div class="ws-draft-state" id="ws-draft-state" role="status" aria-live="polite">
+                    <i class="ph ph-cloud-check"></i><span>输入会自动保存在这台设备上</span>
+                    <button type="button" onclick="clearCurrentDraft('${a.id}')">清空草稿</button>
+                </div>
                 ${handwritingAssist}
                 <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
                     ${fieldsHtml}
@@ -844,16 +947,40 @@ function buildForm(a) {
                     <button class="ws-mini-btn" onclick="runForm('${a.id}')"><i class="ph ph-arrows-clockwise"></i> 重新生成</button>
                 </div>
             </div>
-            <div class="ws-out-body placeholder" id="out-body">
+            <div class="ws-out-body placeholder" id="out-body" role="status" aria-live="polite" aria-busy="false">
                 <div><i class="ph ph-cursor-click"></i><p>填好任务参数后点击「开始生成」<br>文稿会显示在这里</p></div>
             </div>
+            <details class="ws-review-panel" id="ws-review-panel" hidden>
+                <summary><i class="ph ph-shield-check"></i>教师核验清单 <span class="review-state" id="review-state">0 / 4</span></summary>
+                <div class="ws-review-content">
+                    <div class="ws-review-grid">
+                        <label class="ws-review-item"><input type="checkbox" data-review="alignment" onchange="updateTeacherReview('${a.id}')">目标、活动与评价一致</label>
+                        <label class="ws-review-item"><input type="checkbox" data-review="level" onchange="updateTeacherReview('${a.id}')">难度适合当前学生</label>
+                        <label class="ws-review-item"><input type="checkbox" data-review="facts" onchange="updateTeacherReview('${a.id}')">事实与教材依据已核对</label>
+                        <label class="ws-review-item"><input type="checkbox" data-review="feasibility" onchange="updateTeacherReview('${a.id}')">课时与课堂条件可实施</label>
+                    </div>
+                    <div class="ws-feedback" aria-label="结果反馈">
+                        <span>这份初稿：</span>
+                        <button type="button" data-feedback="usable" onclick="setResultFeedback(this,'${a.id}')">基本可用</button>
+                        <button type="button" data-feedback="generic" onclick="setResultFeedback(this,'${a.id}')">过于笼统</button>
+                        <button type="button" data-feedback="level_mismatch" onclick="setResultFeedback(this,'${a.id}')">年级不符</button>
+                        <button type="button" data-feedback="facts_check" onclick="setResultFeedback(this,'${a.id}')">事实待核验</button>
+                        <button type="button" data-feedback="hard_to_apply" onclick="setResultFeedback(this,'${a.id}')">课堂难实施</button>
+                    </div>
+                </div>
+            </details>
+            <div class="ws-next" id="ws-next" aria-label="下一步任务"></div>
         </div>
     </div>`;
     // 恢复 chip 多选监听
     document.querySelectorAll('#agent-form .chip-opt').forEach(ch => {
-        ch.addEventListener('click', () => ch.classList.toggle('on'));
+        ch.addEventListener('click', () => {
+            const selected = ch.classList.toggle('on');
+            ch.setAttribute('aria-pressed', String(selected));
+        });
     });
     initAgentFormHelpers(a);
+    initTeachingProjectForm(a);
 }
 
 function handwritingAssistMarkup(a) {
@@ -894,18 +1021,22 @@ function insertHandwritingTemplate(aid, onlyEmpty) {
 function renderField(aid, f) {
     const req = f.required ? '<span class="req">*</span>' : '';
     const hint = f.hint ? `<span class="hint">${f.hint}</span>` : '';
-    const label = `<label>${f.label}${req}${hint}</label>`;
+    const fieldId = `agent-${aid}-${f.key}`;
+    const labelId = `${fieldId}-label`;
+    const label = f.type === 'chips'
+        ? `<div class="field-label" id="${labelId}">${f.label}${req}${hint}</div>`
+        : `<label for="${fieldId}">${f.label}${req}${hint}</label>`;
     let control = '';
     if (f.type === 'textarea') {
-        control = `<textarea name="${f.key}" rows="${f.rows || 4}" placeholder="${f.placeholder || ''}"></textarea>`;
+        control = `<textarea id="${fieldId}" name="${f.key}" rows="${f.rows || 4}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`;
     } else if (f.type === 'select') {
-        control = `<select name="${f.key}">${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
+        control = `<select id="${fieldId}" name="${f.key}" ${f.required ? 'required' : ''}>${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
     } else if (f.type === 'chips') {
-        control = `<div class="chips" data-key="${f.key}">${f.options.map(o => `<span class="chip-opt">${o}</span>`).join('')}</div>`;
+        control = `<div class="chips" data-key="${f.key}" role="group" aria-labelledby="${labelId}">${f.options.map(o => `<button type="button" class="chip-opt" aria-pressed="false">${o}</button>`).join('')}</div>`;
     } else {
-        control = `<input type="${f.type || 'text'}" name="${f.key}" placeholder="${f.placeholder || ''}">`;
+        control = `<input id="${fieldId}" type="${f.type || 'text'}" name="${f.key}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`;
     }
-    return `<div class="field">${label}${control}</div>`;
+    return `<div class="field" data-field="${f.key}">${label}${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
 }
 
 function collectInputs(a) {
@@ -921,6 +1052,284 @@ function collectInputs(a) {
         }
     });
     return data;
+}
+
+/* ---------- 教学项目、默认背景与本地草稿 ---------- */
+let _draftSaveTimer = null;
+let _workflowCarryInputs = null;
+let _resultFeedback = '';
+let _reviewTracked = false;
+
+function projectSummary(project) {
+    return [project?.grade, project?.subject, project?.textbook, project?.topic].filter(Boolean).join(' · ');
+}
+
+function renderActiveProject() {
+    const project = window.TeachingProjects?.getActiveProject?.();
+    const bar = document.getElementById('ws-projectbar');
+    if (!bar) return;
+    bar.classList.toggle('is-empty', !project);
+    document.getElementById('ws-project-title').textContent = project?.title || '尚未设置教学项目';
+    document.getElementById('ws-project-meta').textContent = project
+        ? (projectSummary(project) || '已建立项目，可在不同智能体之间复用背景。')
+        : '设置一次学科、年级、课题与学情，后续智能体会自动复用。';
+    document.getElementById('ws-project-action-label').textContent = project ? '编辑项目' : '新建项目';
+}
+
+function populateProjectOptions() {
+    const subject = document.getElementById('project-subject');
+    const grade = document.getElementById('project-grade');
+    if (subject && !subject.options.length) {
+        subject.innerHTML = '<option value="">未指定</option>' + SUBJECTS.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
+    }
+    if (grade && !grade.options.length) {
+        grade.innerHTML = '<option value="">未指定</option>' + GRADES.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
+    }
+}
+
+function currentFormProjectSeed() {
+    const agent = window._wsAgent;
+    const inputs = agent?.type === 'form' && document.getElementById('agent-form') ? collectInputs(agent) : {};
+    return {
+        subject: inputs.subject || '',
+        grade: inputs.grade || '',
+        topic: inputs.topic || inputs.point || inputs.concept || inputs.scope || '',
+        goal: inputs.goal || '',
+        classProfile: inputs.note || ''
+    };
+}
+
+function openProjectModal(skipGuard) {
+    if (!skipGuard && typeof requireLogin === 'function' && !requireLogin(() => openProjectModal(true), '请先登录后建立教学项目')) return;
+    populateProjectOptions();
+    const active = window.TeachingProjects?.getActiveProject?.();
+    const profile = window.TeachingProjects?.getProfile?.() || {};
+    const seed = { ...profile, ...currentFormProjectSeed(), ...(active || {}) };
+    document.getElementById('project-id').value = seed.id || '';
+    document.getElementById('project-title').value = seed.title || [seed.grade, seed.subject, seed.topic].filter(Boolean).join(' · ');
+    document.getElementById('project-subject').value = seed.subject || '';
+    document.getElementById('project-grade').value = seed.grade || '';
+    document.getElementById('project-textbook').value = seed.textbook || '';
+    document.getElementById('project-class-size').value = seed.classSize || '';
+    document.getElementById('project-topic').value = seed.topic || '';
+    document.getElementById('project-profile').value = seed.classProfile || '';
+    document.getElementById('project-goal').value = seed.goal || '';
+    document.getElementById('project-clear').style.visibility = active ? 'visible' : 'hidden';
+    document.getElementById('project-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('project-title')?.focus(), 30);
+}
+
+function closeProjectModal() {
+    document.getElementById('project-modal')?.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function projectFormValue(id) {
+    return document.getElementById(id)?.value?.trim() || '';
+}
+
+function saveProjectFromModal() {
+    const title = projectFormValue('project-title');
+    if (!title) {
+        document.getElementById('project-title')?.focus();
+        showToast('请填写项目名称');
+        return;
+    }
+    const existing = window.TeachingProjects?.getActiveProject?.();
+    const project = window.TeachingProjects?.setActiveProject?.({
+        id: projectFormValue('project-id') || existing?.id,
+        createdAt: existing?.createdAt,
+        title,
+        subject: projectFormValue('project-subject'),
+        grade: projectFormValue('project-grade'),
+        textbook: projectFormValue('project-textbook'),
+        classSize: projectFormValue('project-class-size'),
+        topic: projectFormValue('project-topic'),
+        classProfile: projectFormValue('project-profile'),
+        goal: projectFormValue('project-goal')
+    });
+    if (document.getElementById('project-save-default')?.checked) window.TeachingProjects?.saveProfile?.(project);
+    closeProjectModal();
+    renderActiveProject();
+    if (window._wsAgent?.type === 'form') {
+        applyProjectToForm(window._wsAgent, project, true);
+        scheduleDraftSave(window._wsAgent, '项目背景已应用并保存');
+    }
+    if (window.Analytics) Analytics.track('project_saved', {
+        feature: 'agents', targetId: window._wsAgent?.id || '', meta: { hasSubject: !!project.subject, hasGrade: !!project.grade }
+    });
+    showToast('教学项目已保存并应用');
+}
+
+function clearCurrentProject() {
+    if (!confirm('清除当前教学项目？已自动保存的表单草稿不会删除。')) return;
+    window.TeachingProjects?.clearActiveProject?.();
+    closeProjectModal();
+    renderActiveProject();
+    showToast('已清除当前教学项目');
+}
+
+function setFormInputValue(form, field, value, overwrite) {
+    if (value === undefined || value === null || value === '') return;
+    if (field.type === 'chips') {
+        const values = Array.isArray(value) ? value : String(value).split('、');
+        const group = form.querySelector(`.chips[data-key="${field.key}"]`);
+        const alreadySelected = group?.querySelector('.chip-opt.on');
+        group?.querySelectorAll('.chip-opt').forEach(button => {
+            if (!overwrite && alreadySelected) return;
+            const selected = values.includes(button.textContent.trim());
+            button.classList.toggle('on', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+        return;
+    }
+    const control = form.querySelector(`[name="${field.key}"]`);
+    if (!control || (!overwrite && control.value.trim())) return;
+    control.value = value;
+    if (control.tagName === 'TEXTAREA') {
+        control.style.height = 'auto';
+        control.style.height = Math.max(control.scrollHeight + 8, 72) + 'px';
+    }
+}
+
+function applyInputValues(agent, values, overwrite) {
+    const form = document.getElementById('agent-form');
+    if (!form || !values) return;
+    agent.fields.forEach(field => setFormInputValue(form, field, values[field.key], overwrite));
+}
+
+function projectInputValues(project) {
+    if (!project) return {};
+    const note = [project.textbook ? `教材：${project.textbook}` : '', project.classSize ? `班级约 ${project.classSize} 人` : '', project.classProfile].filter(Boolean).join('；');
+    return {
+        subject: project.subject,
+        grade: project.grade,
+        topic: project.topic,
+        point: project.topic,
+        concept: project.topic,
+        scope: project.topic,
+        goal: project.goal,
+        note
+    };
+}
+
+function applyProjectToForm(agent, project, overwrite) {
+    applyInputValues(agent, projectInputValues(project), overwrite);
+}
+
+function formatDraftTime(value) {
+    try { return new Date(value).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }); }
+    catch { return ''; }
+}
+
+function updateDraftState(text, saved) {
+    const box = document.getElementById('ws-draft-state');
+    if (!box) return;
+    const icon = box.querySelector('i');
+    const span = box.querySelector('span');
+    if (icon) icon.className = saved ? 'ph ph-cloud-check' : 'ph ph-cloud-arrow-up';
+    if (span) span.textContent = text;
+}
+
+function currentReviewState() {
+    return [...document.querySelectorAll('#ws-review-panel [data-review]')]
+        .filter(input => input.checked).map(input => input.dataset.review);
+}
+
+function persistCurrentDraft(agent, statusText) {
+    if (!agent || agent.type !== 'form' || !document.getElementById('agent-form')) return;
+    const inputs = collectInputs(agent);
+    _lastInputs = inputs;
+    if (_editing) {
+        const editor = document.getElementById('edit-area');
+        if (editor) _lastResult = editor.value;
+    }
+    const project = window.TeachingProjects?.getActiveProject?.();
+    const ok = window.TeachingProjects?.saveDraft?.(agent.id, {
+        inputs,
+        result: _lastResult,
+        projectId: project?.id || '',
+        projectTitle: project?.title || '',
+        review: currentReviewState(),
+        feedback: _resultFeedback
+    });
+    updateDraftState(ok === false ? '浏览器存储空间不足，草稿未保存' : (statusText || `已自动保存 ${formatDraftTime(new Date())}`), ok !== false);
+}
+
+function scheduleDraftSave(agent, statusText) {
+    clearTimeout(_draftSaveTimer);
+    updateDraftState('正在保存输入…', false);
+    _draftSaveTimer = setTimeout(() => persistCurrentDraft(agent, statusText), 420);
+}
+
+function clearFieldError(control) {
+    const field = control?.closest?.('.field');
+    if (!field) return;
+    field.classList.remove('has-error');
+    control.removeAttribute('aria-invalid');
+    control.removeAttribute('aria-describedby');
+    const error = field.querySelector('.field-error');
+    if (error) error.textContent = '';
+}
+
+function restoreReviewState(agentId, draft) {
+    const review = Array.isArray(draft?.review) ? draft.review : [];
+    document.querySelectorAll('#ws-review-panel [data-review]').forEach(input => { input.checked = review.includes(input.dataset.review); });
+    _resultFeedback = draft?.feedback || '';
+    document.querySelectorAll('#ws-review-panel [data-feedback]').forEach(button => button.classList.toggle('active', button.dataset.feedback === _resultFeedback));
+    updateReviewCounter(agentId, false);
+}
+
+function restoreAgentDraft(agent, draft) {
+    if (!draft) return;
+    applyInputValues(agent, draft.inputs || {}, true);
+    _lastInputs = draft.inputs || null;
+    _lastResult = draft.result || '';
+    if (_lastResult) {
+        const body = document.getElementById('out-body');
+        body.className = 'ws-out-body md';
+        body.setAttribute('aria-busy', 'false');
+        body.innerHTML = mdToHtml(_lastResult);
+        document.getElementById('out-actions').style.display = 'flex';
+        showResultWorkflow(agent, draft);
+        updateInputSummary(agent, _lastInputs || {});
+    }
+    updateDraftState(`已恢复 ${formatDraftTime(draft.updatedAt)} 的本地草稿`, true);
+    if (window.Analytics) Analytics.track('draft_restored', { feature: 'agents', targetId: agent.id, targetName: agent.name });
+}
+
+function initTeachingProjectForm(agent) {
+    renderActiveProject();
+    const profile = window.TeachingProjects?.getProfile?.() || {};
+    const project = window.TeachingProjects?.getActiveProject?.();
+    applyInputValues(agent, { subject: profile.subject, grade: profile.grade }, true);
+    applyProjectToForm(agent, project, true);
+    if (_workflowCarryInputs) {
+        applyInputValues(agent, _workflowCarryInputs, true);
+        _workflowCarryInputs = null;
+    }
+    const draft = window.TeachingProjects?.getDraft?.(agent.id);
+    if (draft && (!project?.id || !draft.projectId || draft.projectId === project.id)) restoreAgentDraft(agent, draft);
+
+    const form = document.getElementById('agent-form');
+    form?.addEventListener('input', event => {
+        clearFieldError(event.target);
+        scheduleDraftSave(agent);
+    });
+    form?.addEventListener('change', event => {
+        clearFieldError(event.target);
+        scheduleDraftSave(agent);
+    });
+    form?.querySelectorAll('.chip-opt').forEach(button => button.addEventListener('click', () => scheduleDraftSave(agent)));
+}
+
+function clearCurrentDraft(agentId) {
+    const agent = AGENTS.find(item => item.id === agentId);
+    if (!agent || !confirm('清空当前智能体的本地输入和生成草稿？已保存到备课本的内容不受影响。')) return;
+    window.TeachingProjects?.clearDraft?.(agentId);
+    buildForm(agent);
+    updateDraftState('草稿已清空，新的输入会继续自动保存', true);
 }
 
 function setAgentModelLabel(label) {
@@ -963,6 +1372,70 @@ function toggleInputPanel(forceOpen) {
     btn.textContent = collapsed ? '展开' : '收起';
 }
 
+const WORKFLOW_NEXT = {
+    'lesson-design': [['quiz-gen','生成配套练习','ph-exam'],['courseware-outline','生成课件大纲','ph-presentation-chart']],
+    'courseware-outline': [['quiz-gen','设计随堂检测','ph-exam'],['lesson-design','返回教学设计','ph-blueprint']],
+    'quiz-gen': [['lesson-design','完善教学设计','ph-blueprint'],['error-diagnosis','准备错题诊断','ph-chart-line-down']],
+    'homework-grader': [['error-diagnosis','诊断共性错误','ph-chart-line-down'],['parent-comm','准备家校沟通','ph-chats-teardrop']],
+    'error-diagnosis': [['quiz-gen','生成针对性练习','ph-exam'],['teaching-reflection','形成教学反思','ph-notebook']],
+    'class-activity': [['lesson-design','纳入教学设计','ph-blueprint'],['teaching-reflection','预设观察要点','ph-notebook']],
+    'teaching-reflection': [['lesson-design','开始下一轮备课','ph-blueprint'],['quiz-gen','调整检测任务','ph-exam']]
+};
+
+function renderNextActions(agent) {
+    const box = document.getElementById('ws-next');
+    if (!box) return;
+    const next = WORKFLOW_NEXT[agent.id] || [['lesson-design','进入教学设计','ph-blueprint']];
+    box.innerHTML = `<span>继续本次教学任务：</span>${next.map(([id,label,icon]) => `<button type="button" onclick="openWorkflowAgent('${id}')"><i class="ph ${icon}"></i>${label}</button>`).join('')}<a href="workspace.html"><i class="ph ph-notebook"></i>查看备课本</a>`;
+    box.classList.add('active');
+}
+
+function showResultWorkflow(agent, draft) {
+    const review = document.getElementById('ws-review-panel');
+    if (review) { review.hidden = false; review.open = false; }
+    restoreReviewState(agent.id, draft || {});
+    renderNextActions(agent);
+}
+
+function updateReviewCounter(agentId, track = true) {
+    const checked = currentReviewState();
+    const state = document.getElementById('review-state');
+    if (state) state.textContent = checked.length === 4 ? '已完成核验' : `${checked.length} / 4`;
+    const agent = AGENTS.find(item => item.id === agentId);
+    if (agent) scheduleDraftSave(agent, checked.length === 4 ? '教师核验已完成并保存' : undefined);
+    if (checked.length === 4 && track && !_reviewTracked) {
+        _reviewTracked = true;
+        if (window.Analytics) Analytics.track('teacher_reviewed', { feature: 'agents', targetId: agentId, targetName: agent?.name || '' });
+        showToast('教师核验已完成');
+    }
+}
+
+function updateTeacherReview(agentId) {
+    updateReviewCounter(agentId, true);
+}
+
+function setResultFeedback(button, agentId) {
+    _resultFeedback = button.dataset.feedback || '';
+    document.querySelectorAll('#ws-review-panel [data-feedback]').forEach(item => item.classList.toggle('active', item === button));
+    const agent = AGENTS.find(item => item.id === agentId);
+    if (agent) scheduleDraftSave(agent, '结果反馈已保存');
+    if (window.Analytics) Analytics.track('result_feedback', {
+        feature: 'agents', targetId: agentId, targetName: agent?.name || '', meta: { reason: _resultFeedback }
+    });
+}
+
+function openWorkflowAgent(nextId) {
+    const current = window._wsAgent;
+    if (current?.type === 'form') {
+        persistCurrentDraft(current, '当前任务已保存，可继续下一步');
+        _workflowCarryInputs = { ...(_lastInputs || collectInputs(current)) };
+    }
+    if (window.Analytics) Analytics.track('workflow_continue', {
+        feature: 'agents', targetId: nextId, targetName: AGENTS.find(item => item.id === nextId)?.name || '', meta: { from: current?.id || '' }
+    });
+    openAgent(nextId, true);
+}
+
 let _lastResult = '';
 let _lastInputs = null;
 let _formRunSeq = 0;
@@ -973,11 +1446,14 @@ function currentAuthUid() {
 }
 
 function clearAgentWorkState(options = {}) {
+    clearTimeout(_draftSaveTimer);
     _formRunSeq++;
     _chatRunSeq++;
     _lastResult = '';
     _lastInputs = null;
     _editing = false;
+    _resultFeedback = '';
+    _reviewTracked = false;
     _chatHistory = [];
     if (!options.keepAgent) window._wsAgent = null;
 
@@ -986,6 +1462,7 @@ function clearAgentWorkState(options = {}) {
     const body = document.getElementById('out-body');
     if (body) {
         body.className = 'ws-out-body placeholder';
+        body.setAttribute('aria-busy', 'false');
         body.innerHTML = '<div><i class="ph ph-cursor-click"></i><p>填好任务参数后点击「开始生成」<br>文稿会显示在这里</p></div>';
     }
     toggleInputPanel(true);
@@ -1158,7 +1635,48 @@ function showInputValidation(result) {
     _lastResult = '';
     _lastInputs = null;
     body.className = 'ws-out-body md';
+    body.setAttribute('role', 'alert');
+    body.setAttribute('aria-busy', 'false');
+    body.tabIndex = -1;
     body.innerHTML = mdToHtml(`### ${result.title || '参数需要调整'}\n\n${result.message || '当前输入不适合直接生成。'}\n\n${(result.suggestions || []).map(s => `- ${s}`).join('\n')}`);
+    body.focus?.();
+}
+
+function showMissingFields(missing) {
+    const form = document.getElementById('agent-form');
+    let firstControl = null;
+    missing.forEach(field => {
+        const wrapper = form?.querySelector(`[data-field="${field.key}"]`);
+        const control = field.type === 'chips'
+            ? wrapper?.querySelector('.chip-opt')
+            : wrapper?.querySelector(`[name="${field.key}"]`);
+        const error = wrapper?.querySelector('.field-error');
+        wrapper?.classList.add('has-error');
+        if (error) error.textContent = `请填写${field.label}`;
+        if (control) {
+            control.setAttribute('aria-invalid', 'true');
+            control.setAttribute('aria-describedby', `agent-${window._wsAgent?.id}-${field.key}-error`);
+            firstControl ||= control;
+        }
+    });
+    firstControl?.focus();
+}
+
+function generationErrorDetails(error) {
+    const message = String(error?.message || '服务暂时不可用');
+    if (/429|频繁|稍后/.test(message)) return { title: '请求过于频繁', detail: message, action: '稍等片刻后重试' };
+    if (/401|登录|令牌|认证/.test(message)) return { title: '登录状态需要更新', detail: message, action: '重新登录后再试' };
+    if (/Failed to fetch|NetworkError|网络|连接/.test(message)) return { title: '网络连接中断', detail: '输入和已有草稿已保存在这台设备上。恢复网络后可以直接重试。', action: '重新连接后重试' };
+    return { title: '本次生成没有完成', detail: message, action: '保留当前输入并重试' };
+}
+
+function renderGenerationError(error, aid) {
+    const body = document.getElementById('out-body');
+    const info = generationErrorDetails(error);
+    body.className = 'ws-out-body placeholder';
+    body.setAttribute('role', 'alert');
+    body.setAttribute('aria-busy', 'false');
+    body.innerHTML = `<div class="ws-error-state"><i class="ph ph-warning-circle"></i><b>${escapeHtml(info.title)}</b><p>${escapeHtml(info.detail)}</p><button type="button" onclick="runForm('${aid}')"><i class="ph ph-arrow-clockwise"></i> ${escapeHtml(info.action)}</button></div>`;
 }
 
 async function runForm(aid) {
@@ -1168,7 +1686,11 @@ async function runForm(aid) {
     _lastInputs = inputs;
     // 必填校验
     const missing = a.fields.filter(f => f.required && (!inputs[f.key] || (Array.isArray(inputs[f.key]) && !inputs[f.key].length)));
-    if (missing.length) { showToast(`请填写：${missing.map(m => m.label).join('、')}`); return false; }
+    if (missing.length) {
+        showMissingFields(missing);
+        showToast(`请填写：${missing.map(m => m.label).join('、')}`);
+        return false;
+    }
     const validation = validateAgentInputs(a, inputs);
     if (!validation.ok) {
         showInputValidation(validation);
@@ -1182,10 +1704,13 @@ async function runForm(aid) {
     const actions = document.getElementById('out-actions');
     const runSeq = ++_formRunSeq;
     const ownerUid = currentAuthUid();
+    const runStartedAt = performance.now();
     btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 生成中…';
     actions.style.display = 'none';
-    body.className = 'ws-out-body md';
-    body.innerHTML = '';
+    body.className = 'ws-out-body placeholder';
+    body.setAttribute('role', 'status');
+    body.setAttribute('aria-busy', 'true');
+    body.innerHTML = '<div><i class="ph ph-spinner-gap ph-spin"></i><p>正在分析任务参数并形成初稿…<br>可以在完成后继续编辑和核验</p></div>';
     _lastResult = '';
     _editing = false;
     const editBtn = document.getElementById('edit-btn');
@@ -1196,25 +1721,40 @@ async function runForm(aid) {
             agent: a, inputs,
             onToken: (full) => {
                 if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return;
-                _lastResult = full; body.innerHTML = mdToHtml(full) + ' '; body.classList.add('cursor-blink');
+                _lastResult = full;
+                body.className = 'ws-out-body md cursor-blink';
+                body.innerHTML = mdToHtml(full) + ' ';
             }
         });
         if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return false;
         body.classList.remove('cursor-blink');
+        body.setAttribute('aria-busy', 'false');
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
+        showResultWorkflow(a, {});
         toggleInputPanel(false);
-        if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
+        persistCurrentDraft(a, '生成结果已自动保存');
+        if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于常用状态标签）
         if (window.Analytics) Analytics.track('agent_run', {
             feature: 'agents',
             targetId: aid,
             targetName: a ? a.name : '',
-            meta: { agentType: a ? a.type : 'form' }
+            meta: {
+                agentType: a ? a.type : 'form',
+                durationMs: Math.round(performance.now() - runStartedAt),
+                hasProject: !!window.TeachingProjects?.getActiveProject?.()
+            }
         });
     } catch (e) {
         if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return false;
-        body.className = 'ws-out-body placeholder';
-        body.innerHTML = `<div><i class="ph ph-warning"></i><p>生成失败：${e.message}</p></div>`;
+        renderGenerationError(e, aid);
+        persistCurrentDraft(a, '输入已保留，可直接重试');
+        if (window.Analytics) Analytics.track('generation_failed', {
+            feature: 'agents', targetId: aid, targetName: a?.name || '', meta: {
+                reason: generationErrorDetails(e).title,
+                durationMs: Math.round(performance.now() - runStartedAt)
+            }
+        });
     }
     if (runSeq === _formRunSeq && currentAuthUid() === ownerUid) {
         btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-sparkle"></i> 开始生成';
@@ -1285,6 +1825,20 @@ function buildWorkTitle(agent, inputs, content, type = 'draft') {
     return compactWorkTitle(tpl ? tpl[1] : [grade, subject, base || agent?.name], fallback);
 }
 
+function workInputsWithProject(inputs = {}) {
+    const project = window.TeachingProjects?.getActiveProject?.();
+    return {
+        ...inputs,
+        _projectId: project?.id || '',
+        _projectTitle: project?.title || '',
+        _projectSubject: project?.subject || '',
+        _projectGrade: project?.grade || '',
+        _reviewStatus: currentReviewState().length === 4 ? 'reviewed' : 'draft',
+        _reviewChecks: currentReviewState(),
+        _resultFeedback: _resultFeedback || ''
+    };
+}
+
 function confirmWorkbookTitle(suggestedTitle, sourceName) {
     return new Promise(resolve => {
         const modal = document.getElementById('work-title-modal');
@@ -1320,6 +1874,11 @@ function closeWorkTitleModal(save) {
 }
 
 document.addEventListener('keydown', e => {
+    const projectModal = document.getElementById('project-modal');
+    if (projectModal?.classList.contains('active') && e.key === 'Escape') {
+        closeProjectModal();
+        return;
+    }
     const modal = document.getElementById('work-title-modal');
     if (!modal?.classList.contains('active')) return;
     if (e.key === 'Escape') closeWorkTitleModal(false);
@@ -1348,13 +1907,13 @@ async function saveToWorkbook(aid) {
             workType: 'draft',
             title,
             content: _lastResult,
-            inputs: _lastInputs || {}
+            inputs: workInputsWithProject(_lastInputs || {})
         });
         if (window.Analytics) Analytics.track('workbook_save', {
             feature: 'workspace',
             targetId: aid,
             targetName: a ? a.name : '',
-            meta: { source: 'agent_form' }
+            meta: { source: 'agent_form', reviewed: currentReviewState().length === 4 }
         });
         btn.classList.add('copied'); btn.innerHTML = '<i class="ph ph-check"></i> 已保存';
         showToast('已保存到「我的备课本」✓');
@@ -1389,6 +1948,10 @@ function toggleEdit() {
         const ta = document.getElementById('edit-area');
         ta.value = _lastResult;
         ta.style.height = 'auto'; ta.style.height = Math.max(360, ta.scrollHeight + 8) + 'px';
+        ta.addEventListener('input', () => {
+            _lastResult = ta.value;
+            if (window._wsAgent?.type === 'form') scheduleDraftSave(window._wsAgent, '文稿修改已自动保存');
+        });
         ta.focus();
         btn.classList.add('active');
         btn.innerHTML = '<i class="ph ph-check"></i> 完成';
@@ -1398,6 +1961,7 @@ function toggleEdit() {
         _editing = false;
         body.className = 'ws-out-body md';
         body.innerHTML = mdToHtml(_lastResult);
+        if (window._wsAgent?.type === 'form') persistCurrentDraft(window._wsAgent, '文稿修改已保存');
         btn.classList.remove('active');
         btn.innerHTML = '<i class="ph ph-pencil-simple"></i> 编辑';
     }
@@ -1488,7 +2052,7 @@ async function sendChat(aid) {
         });
         if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
         _chatHistory.push({ role: 'assistant', content: assistantText });
-        if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于「热门」印章）
+        if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于常用状态标签）
         if (window.Analytics) Analytics.track('agent_run', {
             feature: 'agents',
             targetId: aid,
@@ -1557,7 +2121,8 @@ async function saveChatToWorkbook(aid) {
             agentType: 'chat',
             workType: 'chat',
             title,
-            content
+            content,
+            inputs: workInputsWithProject({})
         });
         if (window.Analytics) Analytics.track('workbook_save', {
             feature: 'workspace',
@@ -1605,11 +2170,15 @@ function clearChat(aid) {
 async function callAgentAPI({ agent, inputs, history, onToken }) {
     // ① 组装消息
     let messages;
+    const projectContext = window.TeachingProjects?.contextLines?.() || [];
+    const systemContent = projectContext.length
+        ? `${agent.system}\n\n用户当前教学项目背景（仅在与本次任务相关时使用）：\n${projectContext.join('\n')}`
+        : agent.system;
     if (agent.type === 'chat') {
-        messages = [{ role: 'system', content: agent.system },
+        messages = [{ role: 'system', content: systemContent },
                     ...history.map(h => ({ role: h.role, content: h.content }))];
     } else {
-        messages = [{ role: 'system', content: agent.system },
+        messages = [{ role: 'system', content: systemContent },
                     { role: 'user', content: buildUserPrompt(agent, inputs) }];
     }
 
@@ -1675,10 +2244,10 @@ function mdToHtml(md) {
     try { return window.marked ? marked.parse(md, { breaks: true }) : escapeHtml(md).replace(/\n/g, '<br>'); }
     catch { return escapeHtml(md).replace(/\n/g, '<br>'); }
 }
-function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
 /* ---------- 初始化 ---------- */
-// 「热门」印章：先用种子（默认两个），待全站使用频率数据返回后覆盖并重渲染
+// 常用状态：先用种子（默认两个），待全站使用频率数据返回后覆盖并重渲染
 window.TOP_AGENTS = ['lesson-design', 'quiz-gen'];
 renderFilterBar();
 applyFilter();

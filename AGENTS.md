@@ -119,6 +119,19 @@
   - 旧 Netlify 地址仍然有效并随 GitHub 更新，说明 Netlify 后台还绑定同一个 repo/branch；这不是代码里仍有 Netlify Functions 或 `netlify.toml`。当前代码已无 Netlify 部署配置。
   - `js/assistant.js` 增加旧域名专用迁移悬浮通知：仅当 `location.hostname === 'xylaoshi.netlify.app'` 时显示，提示新地址 `https://xylaoshi.pages.dev/`，并提供“前往新地址 / 复制新地址”。Cloudflare 正式站不会显示该通知。通知标题保持中性“本网站已迁移”，不要使用站长姓名或昵称。
   - 退场流程：先把迁移通知发布到旧域名；确认旧域名可见后，在 Netlify 后台关闭自动部署或断开 GitHub 绑定，避免继续同步；需要留提示期就保留最后一次 deploy，准备彻底停用时再 delete site / unpublish site。不要先删除站点，否则访问者看不到迁移通知。
+- **2026-07-12（现代教研工作台视觉重构，本地待上线）**:
+  - 首页从“AI 教研周刊 / 头条 / 要闻 / 朱印”的展示型结构改为任务型工作台，全部首页专属类改用 `.th-*` 命名。结构现为：平台状态条 → 任务主张 + “备一节课”教学循环示例 → 6 个真实任务入口 → 人机协同工作协议与使用前检查 → 动态专业能力索引 → 配套资源。首页不展示虚构 KPI 或模型健康状态。
+  - `css/style.css` 末尾新增“2026-07-12 · 现代教研工作台视觉基础层”：全站基调从米黄稿纸转为冷灰白 `#f3f6f8`、深墨蓝 `#17212b`；结构、数据、链接和流程状态使用教研蓝 `#245b78`，品牌、Logo、主操作与少量关键强调使用克制朱砂 `#b64235`，校验成功使用青绿 `#287a68`。关闭 `body::before` 稿纸纹理，收紧圆角、阴影和悬浮幅度。不要重新加回全站稿纸纹理，也不要把蓝色扩成泛 AI 的蓝紫渐变。
+  - `agents.html` 同步为理性工作台：卡片从 `div onclick` 改成原生 `button`，朱印改为“建议起点 / 常用”状态标签；动态表单补齐 label/id、required，chips 改为可键盘操作的 `button[aria-pressed]`；支持 `agents.html?cat=<key>` 分类深链。分类颜色在 `js/agents-data.js` 收敛为蓝 / 青绿 / 砖红 / 琥珀 / 蓝灰。
+  - `workspace.html` 同步减少纸张色、粗边和柔影，控制条、筛选、成果卡与弹层采用工作台规范。共享导航新增“跳到主要内容”链接，英文副标改为 `Teacher AI Practice Hub`。
+  - 缓存版本：`css/style.css?v=20260712-balanced`；`js/auth.js` / `js/agents-data.js` → `?v=20260712-workbench`（相关 HTML 已同步）。
+- **2026-07-12（教学项目闭环与可用性优化，本地待上线）**:
+  - 新增 `js/teaching-projects.js`：按登录用户在当前设备保存“当前教学项目”、默认教学背景和最多 8 份“项目 × 智能体”草稿。表单输入与生成结果可恢复；单份结果在本地最多保留 8 万字符。该模块不把草稿正文上传到统计接口。
+  - `agents.html` 新增教学项目条与编辑弹层（学科 / 年级 / 教材 / 课题 / 班级人数 / 学情 / 目标），表单自动带入项目背景并把相关背景传给智能体；必填错误改为字段旁文字提示。生成中、失败和重试状态明确区分，网络失败时保留输入。
+  - 生成结果新增四项“教师核验清单”、结构化可用性反馈和后续任务入口；教学设计 → 练习 / 课件、错题诊断 → 针对性练习 / 反思等流程会携带当前参数。保存成果时在 `inputs` 内写入 `_projectId / _projectTitle / _reviewStatus` 等归类元数据，不新增 Firestore collection，也不要求规则迁移。
+  - `workspace.html` 新增教学项目筛选、按项目排序、项目标签和“教师已核验”状态；从已保存成果继续使用智能体时，会把相应项目恢复成当前项目。首页在本机存在项目或未完成草稿时显示“继续项目 / 恢复草稿”。
+  - 统计新增 `project_saved / draft_restored / generation_failed / teacher_reviewed / result_feedback / workflow_continue` 事件，只记录动作、耗时与反馈分类，不记录输入/输出正文。管理员数据看板新增按会话去重的任务漏斗、生成失败、平均耗时、教师核验与成果保存指标。
+  - 窄屏导航在 ≤560px 时隐藏独立“注册”按钮（仍可在登录弹层内切换注册），优先保证登录和菜单入口完整可见。缓存版本：`css/style.css?v=20260712-usability`；`js/teaching-projects.js?v=20260712-project-flow`。
 
 ## Auth Lesson (Important)
 
@@ -180,7 +193,7 @@ match /agent_usage/{agentId} {
 
 | File | Purpose |
 |---|---|
-| `index.html` | Homepage — **「教研周刊」报头带重设计 (2026-06-18)**. All homepage markup/CSS is **self-contained & namespaced**: wrapper `.hp-root` + every class is `hp-*`, and design tokens (`--paper`/`--paper-2`/`--grid`/`--seal`/`--c-*`…) are scoped to `.hp-root`. The CSS lives in an **inline `<style>` block inside `index.html`** — it deliberately does **NOT** touch `css/style.css`, so other pages are unaffected and there are zero class clashes with the global `.hero`/`.kicker`/`.seal`/`.mini`. Structure: **报头带** (`.hp-mast` — ◆ AI 教研周刊 + 期号/日期/19个 + 「教研甄选」solid square seal `.hp-seal-sq`, vermillion carved 楷体) → **hero** (`.hp-hgrid`: left copy + right **「怎么用·30秒出稿」3-step how-to panel** `.hp-howto` — replaced the old 5场景 panel to kill the hero/section category duplication) → **section 01 AI 智能体**: 头条`.hp-lead`(教学设计助手, 样张 manuscript preview + 「精选」seal + 「生成内容包含」chips) + 要闻`.hp-brief`(3 cards, each w/ mini 样张) + 分类目录`.hp-toc`(5 category rows) → **section 02 配套资源** `#hp-supp` (6 numbered `.hp-mcard`). **The showcase is DYNAMIC (2026-06-18, restored)** — an inline `renderHome()` builds 头条/要闻/分类目录 from `window.AGENTS` + `window.AGENT_CATS` (`js/agents-data.js` is loaded again by index.html). `FEATURED = ['lesson-design','quiz-gen','homework-grader','parent-comm']` picks 头条(=[0]) + 要闻(=[1..3]); card meta (name/category/icon/tagline/type) comes from data so renaming/retagging an agent updates the homepage; only the illustrative **样张** snippets live in a small `SAMP` map (by agent id) inside index.html (fallback = `a.desc`), plus an `INCL` chips map for the 头条. 分类目录 is fully data-driven (each cat's agent names + count). **Masthead 期号/date/智能体数 are auto-computed**: issue = weeks since 2026-01-05 +1, date = today, count = `AGENTS.length` (also fills every `.hp-count` span). Each card links to `agents.html#<id>`. 稿纸 grid texture via `.hp-root::before` (faint, masked). **Button text-color note:** `.hp-root a{color:inherit}` outranks `.hp-cta-primary{color}` by specificity, so the primary CTA + `.hp-sec-more` colors are re-asserted as `.hp-root a.hp-cta-primary` / `.hp-root a.hp-sec-more`. Kept intact: `renderNav`/`renderFooter`, `DB.getAnnouncements()`, contact band, subscribe, floating assistant — these sit OUTSIDE `.hp-root` (in `.home-main`) so global styles/tokens apply normally. |
+| `index.html` | Homepage — **现代教研工作台 (2026-07-12)**。首页 CSS 继续内联并全部使用 `.th-*` 命名，避免污染子页；颜色令牌限定在 `.th-root`。结构：平台状态条 → 任务主张 + 右侧“备一节课”五步示例流程 → 6 个任务启动入口 → 人机协同工作协议 / 使用前检查 → 动态专业能力索引 → 6 个配套资源入口。任务卡从 `window.AGENTS` 读取真实说明，能力索引从 `window.AGENT_CATS / AGENTS` 自动生成并链接到 `agents.html?cat=<key>`；智能体总数同样动态。首页不再使用周刊报头、期号、头条、要闻、朱印、稿纸纹理或“30 秒”等未测量宣传语。保留：`renderNav` / `renderFooter`、公告、联系反馈、订阅、悬浮向导与分析埋点。 |
 | `agents.html` | **智能体空间** — agent gallery + workspace. Self-contained single page (card wall ↔ workspace, hash deep-link `#agent-id`). 19 agents in `js/agents-data.js` (5 categories). 首页视图 = **顶部精选 (`FEATURED` 4 个) + 按类分区陈列** (`renderHome`)；选分类或搜索时切单层网格 (`renderFiltered`)。Two workspace types: **form**（「任务参数 + 文稿工作区」；左参数栏 `sticky`/可折叠摘要，右文稿面板内部滚动，含保存到备课本、编辑、复制、重新生成；`.ws-top` 是普通文档流，勿设 sticky/fixed）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing — card wall 是开放橱窗 (not in `PROTECTED_PAGE_NAMES`)。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek + 可选 GLM-5.2，前端显示实际 provider/model）。**保存到备课本 (2026-07-09)**：表单类和聊天类保存前都会弹出标题确认框；表单类用 `buildWorkTitle()` 从输入字段生成具体标题（年级/学科/课题/任务类型），不要再回退成「智能体名称 · 日期」作为默认标题。 |
 | `multimodal.html` | **多模态工作坊** — static case gallery for image/video/audio/avatar/courseware generation workflows. It is an owned site feature placed after 智能体空间 in nav, but does **not** call paid generation APIs. Cases live inline in `CASES`; publish-ready assets live in `多模态素材/`. Video case thumbnails use static poster images; detail modals use `media-player.html` or GIF preview + MP4 link. |
 | `media-player.html` | Minimal same-origin video player used by `multimodal.html`; validates `src`/`poster` params so only `多模态素材/` paths without `..` can load. Keep it static and dependency-free. |
@@ -192,7 +205,7 @@ match /agent_usage/{agentId} {
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
 | `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users. 数据看板从 `/api/analytics` 拉取汇总，新增用户仍用 Firestore `users.joinedAt` 在前端按天聚合。 |
-| `workspace.html` | **「我的备课本」**(added 2026-06-16) — per-user saved agent outputs. Self-gated (shows login prompt if logged out; logged-in desktop entry lives in the username area as a personal workspace link, and mobile drawer has a separate「我的」group). Personal workbench UI (2026-07-09): top metrics, search/filter/sort, card/list view toggle, paper-style cards (no colored side/top bars), view modal + copy / export Word(.doc) / **export PDF** / export Markdown / rename / delete. Reads `works` where `uid == current user`. **Title compatibility (2026-07-09)**：旧内容若标题是「智能体名称 · 日期」这类泛化标题，页面用 `displayWorkTitle()` / `inferredWorkTitle()` 从 `inputs` 或正文首个 Markdown 标题推断具体标题，并纳入搜索和导出文件名；新内容默认由 `agents.html buildWorkTitle()` 保存具体标题。**导出排版 (2026-06-19)**：`docStyles()`/`docHtml()` 一套「教学文稿」样式；Word/PDF/MD 导出使用显示标题作为文件名。 |
+| `workspace.html` | **「我的备课本」**(added 2026-06-16) — per-user saved agent outputs. Self-gated (shows login prompt if logged out; logged-in desktop entry lives in the username area as a personal workspace link, and mobile drawer has a separate「我的」group). Personal workbench UI: top metrics, search/filter/sort, card/list view toggle, paper-style cards, view modal + copy / export Word(.doc) / PDF / Markdown / rename / delete. **2026-07-12** 新增教学项目筛选、项目排序、项目标签与教师核验状态；项目元数据暂存在 work 的 `inputs._project*` 字段中。Reads `works` where `uid == current user`. **Title compatibility (2026-07-09)**：旧内容若标题是「智能体名称 · 日期」这类泛化标题，页面用 `displayWorkTitle()` / `inferredWorkTitle()` 从 `inputs` 或正文首个 Markdown 标题推断具体标题，并纳入搜索和导出文件名；新内容默认由 `agents.html buildWorkTitle()` 保存具体标题。 |
 
 ## Key JS Files
 
@@ -200,6 +213,7 @@ match /agent_usage/{agentId} {
 - `js/firebase-config.js` — initializes Firebase, exposes `auth` and `db`, defines `_currentUser`, `onAuthReady`, dispatches `authChanged` events.
 - `js/auth.js` — `Auth` object (login/register/logout, getIdToken, **`sendPasswordReset`**), `renderNav` / `renderFooter` (every page calls these), `requireLogin`, `showAuthModal`, `showWelcomeOverlay`, **hamburger drawer state** (`openNavDrawer` / `closeNavDrawer`). The auth modal has **three views** toggled by `switchAuthTab('login'|'register'|'forgot')`: login (`#form-li`, with a 「忘记密码？」link), register (`#form-rg`), and **forgot-password (`#form-fp`, added 2026-06-17)**. Forgot flow: `handleForgotPassword()` → `Auth.sendPasswordReset(identifier)` → Firebase `auth.sendPasswordResetEmail`. **Phone-number accounts are rejected client-side** (their `tel_…@xylaoshi.tel` address can't receive mail — they must contact admin). Result shows in `#fp-msg` styled `.form-success` (green) or `.form-error` (red). The Firebase project has **email-enumeration protection ON**, so a reset for an *unregistered* email also returns success (no account leak) — only real accounts actually receive mail. Reset link lands on Firebase's own hosted reset page (no custom page needed).
 - `js/analytics.js` — front-end event tracker for the admin data dashboard. Creates a random local visitor id, waits for `onAuthReady` when available, then POSTs to `/api/analytics`. Keep it non-blocking: all failures are swallowed so analytics never affects learning pages.
+- `js/teaching-projects.js` — local-first teaching context and recovery layer. Stores the active project, default subject/grade profile, and up to 8 project-scoped agent drafts per logged-in user in `localStorage`. It never sends prompt/output text to analytics; saved workbook items receive only project/review metadata inside `inputs`.
 - `js/assistant.js` — floating AI-assistant launcher + the contact-feedback modal that writes to `contact_messages`; also contains the Netlify legacy-domain migration notice gated to `xylaoshi.netlify.app`.
 
 ## Design Language
@@ -210,11 +224,11 @@ match /agent_usage/{agentId} {
 - Mono (digits, timestamps, kicker labels): JetBrains Mono.
 - `--font-display` is aliased to `--font-sans`; hierarchy comes from weight (700–800 for display, 500 for labels) and size, not font family.
 
-**Base color tokens** (defined in `css/style.css :root`):
-- Background: paper cream `--soft #faf7f0`. Surfaces white.
-- Ink: warm dark `--ink #1a1612` (not cold blue).
-- Brand: cinnabar red `--brand #c0392b` — used sparingly as the only accent (italic highlight in hero, section accent stripes, hover/active states).
-- Avoid generic AI-design tropes: no purple-to-pink gradients, no Inter, no neon glow.
+**Base color tokens** (the active values are defined in the final “2026-07-12 · 现代教研工作台视觉基础层” inside `css/style.css`):
+- Background: cool laboratory gray `--soft #f3f6f8`; primary surfaces stay white.
+- Ink: deep blue-black `--ink #17212b`; body text `--text #3d4a57`.
+- Brand: restrained cinnabar `--brand #b64235` for the logo, primary actions and a few decisive accents. Research blue `#245b78` carries structure, links, data and workflow state; validation/success uses teal `#287a68`; warning uses amber `#a76f18`.
+- Avoid generic AI-design tropes: no purple-to-pink gradients, no neon glow, no fake KPI panels, and no decorative “system healthy” indicators that are not backed by a real health check.
 
 **Two card-color families** (introduced 2026-06-02 to give homepage sections distinct identities while staying within the editorial palette):
 
@@ -230,13 +244,13 @@ match /agent_usage/{agentId} {
   - dark plum-rose `#3d242a → #231016`
   - charcoal `#252830 → #14171d`
 
-Both families are enforced at render time, **not** trusted from Firestore. Path renders look the gradient up from a `PATH_PALETTE[slug]` map in `index.html` and `paths.html`; article rendering ignores `coverColor` and hashes `id → COVER_GRADIENTS`. This means legacy Firestore values don't need to be migrated — they're simply overridden.
+Both families are enforced at render time, **not** trusted from Firestore. Path renders look the gradient up from a `PATH_PALETTE[slug]` map in `paths.html`; article rendering ignores `coverColor` and hashes `id → COVER_GRADIENTS`. This means legacy Firestore values don't need to be migrated — they're simply overridden.
 
 **Component conventions**:
-- Radius scale 8 / 12 / 18 / 24 px.
-- Cards: 1px `--line` border, soft hover lift (`translateY(-3px)` + `--shadow-md`).
-- Section headers: top hairline + auto-counter "01 / 02 / 03" italic numeral in brand color (uses CSS counter on `.home-section`).
-- Hero is on `--soft` with a faint dot-grid radial mask; title 800-weight with the `.highlight` span italic + brand color; staggered fade-in animation on `.hero-content > *`. Homepage hero is **two-column** (`.hero-split`, 1.04fr/0.96fr, stacks ≤900px): left = copy + value-label strip (`.hero-values`, icon + 短句, replaced the old number stats), right = a "本周精选" spotlight card (`.hero-card`). Other pages keep the single-column hero/breadcrumb.
+- Radius scale 7 / 9 / 12 / 16 px; reserve larger radii for true overlays or large contained workspaces.
+- Cards: 1px `--line` border, near-flat rest state, and at most `translateY(-1px)` on hover. Scientific rigor comes from alignment, labels, state and hierarchy—not depth effects.
+- Use numbered markers only for real sequences (for example the homepage teaching cycle), never as decorative section counters.
+- Homepage signature element is the **teaching cycle rail**: input validation → draft → supporting exercise → teacher verification → save/reuse. Red-pen or document styling may remain in exported teaching documents, but not as the application shell.
 
 **Welcome overlay + 登录提速 (2026-06-28)**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + name + 3-dot pulse). **不再整页 `location.reload()`**（旧版固定 1.7s 后 reload，慢）：现在等下一次 `authChanged`（Firebase 确认登录态）后，**最少 0.7s、最多 1.4s 兜底**，调 `refreshAuthUI()`（=`renderNav()`+`renderFooter()` 原地重渲染；`renderNav` 现记住 `_navPage`，故无参也能保持高亮）并派发**仅登录/注册时触发**的 `authRefresh` 事件，然后淡出。登录态内容页据此原地刷新：`workspace.html` → `loadWorks()`，`admin.html` → `location.reload()`（后台少见、reload 最稳；`authRefresh` 不在普通加载触发 → 无死循环）。登录感知耗时从 ~4–5s（含 reload 重下 SDK + 再读资料）降到 ~0.7–1.4s。
 

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 教师培训中心</title>
-    <meta name="description" content="面向中小学教师的 AI 智能体平台：备课、上课、批改、家校等场景，AI 起草初稿、教师修改定稿，成果可存进备课本；另配学习路径、提示词、资源导航等。">
+    <meta name="description" content="面向中小学教师的 AI 教学实践平台：从备课、上课、评价到复盘，AI 起草初稿、教师核验定稿，成果可保存、导出和复用。">
     <meta property="og:title" content="AI 教师培训中心">
-    <meta property="og:description" content="给中小学教师的 AI 智能体——备课、上课、批改、家校，AI 起草初稿、教师定稿，成果可存进备课本。">
+    <meta property="og:description" content="从真实教学任务出发，使用专业 AI 智能体完成备课、评价、家校沟通与教学复盘。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://xylaoshi.pages.dev/index.html">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
@@ -16,310 +16,591 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/index.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260709-navpersonal">
+    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
     <style>
-    /* ===== 首页报头带重设计（2026-06-18 · 朱印风 · 全部 hp- 前缀 + 令牌限定 .hp-root，互不污染） ===== */
-    .hp-root{
-      --paper:#faf7f0; --paper-2:#f3ede0; --panel:#ffffff;
-      --ink:#1a1612; --ink-soft:#574a3d; --muted:#8d8071;
-      --brand:#c0392b; --seal:#c8402e;
-      --line:rgba(26,22,18,0.10); --line-soft:rgba(26,22,18,0.06);
-      --grid:rgba(26,22,18,0.026); --grid-strong:rgba(192,57,43,0.055);
-      --font-seal:'STKaiti','Kaiti SC','KaiTi','STSong','Songti SC',serif;
-      --r:16px;
-      --shadow:0 1px 2px rgba(26,22,18,.04);
-      --shadow-lift:0 18px 40px -22px rgba(26,22,18,.45),0 4px 12px -6px rgba(26,22,18,.12);
-      --c-plan:#2d6a4f;--c-plan-s:#e6f0ea;--c-class:#2c5282;--c-class-s:#e7edf6;
-      --c-assess:#c0392b;--c-assess-s:#fbeae6;--c-home:#b07d2a;--c-home-s:#f6eed9;
-      --c-growth:#7a4f86;--c-growth-s:#efe7f2;
-      position:relative; background:var(--paper);
-    }
-    .hp-root *{box-sizing:border-box}
-    .hp-root::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-      background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-      background-size:27px 27px;
-      -webkit-mask-image:radial-gradient(120% 70% at 50% 0%,#000 45%,transparent 100%);
-              mask-image:radial-gradient(120% 70% at 50% 0%,#000 45%,transparent 100%);}
-    .hp-wrap{max-width:1200px;margin:0 auto;padding:0 40px;position:relative;z-index:1}
-    .hp-root a{color:inherit;text-decoration:none}
-    .hp-root a.hp-cta-primary{color:var(--paper)}
-    .hp-root a.hp-sec-more{color:var(--brand)}
+        /* ===== 首页 · 现代教研工作台（2026-07-12） ===== */
+        .th-root {
+            --th-bg: #f3f6f8;
+            --th-panel: #ffffff;
+            --th-panel-muted: #eef3f6;
+            --th-ink: #17212b;
+            --th-text: #3d4a57;
+            --th-muted: #667482;
+            --th-subtle: #687785;
+            --th-line: #d7e0e6;
+            --th-line-strong: #bdcbd4;
+            --th-blue: #245b78;
+            --th-blue-dark: #19465f;
+            --th-blue-soft: #e7f0f5;
+            --th-brand: #b64235;
+            --th-brand-dark: #8f3129;
+            --th-brand-soft: #f7eae8;
+            --th-teal: #287a68;
+            --th-teal-soft: #e5f2ef;
+            --th-amber: #a76f18;
+            --th-amber-soft: #fbf2df;
+            --th-red: #b83a32;
+            color: var(--th-text);
+            background: var(--th-bg);
+        }
+        .th-root * { box-sizing: border-box; }
+        .th-root a { color: inherit; text-decoration: none; }
+        .th-shell { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
+        .th-system-bar {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-height: 42px;
+            border-bottom: 1px solid var(--th-line);
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            letter-spacing: .06em;
+            color: var(--th-muted);
+        }
+        .th-system-bar strong { color: var(--th-ink); font-weight: 600; }
+        .th-system-state { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; }
+        .th-system-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--th-teal);
+            box-shadow: 0 0 0 3px var(--th-teal-soft);
+        }
 
-    /* 印章 */
-    .hp-seal{font-family:var(--font-seal);color:#fff;background:var(--seal);
-      box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5),inset 0 0 0 3px var(--seal);
-      border-radius:5px;letter-spacing:1px;font-weight:700;position:relative}
-    .hp-seal::after{content:"";position:absolute;inset:0;border-radius:5px;
-      background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.18),transparent 60%);mix-blend-mode:screen}
-    .hp-seal-sq{display:grid;grid-template-columns:1fr 1fr;width:62px;height:62px;place-items:center;font-size:20px;line-height:1;transform:rotate(-6deg)}
-    .hp-seal-sm{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;font-size:14px;transform:rotate(-7deg)}
+        .th-hero { padding: 72px 0 60px; border-bottom: 1px solid var(--th-line); }
+        .th-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.06fr) minmax(420px, .94fr);
+            gap: 72px;
+            align-items: center;
+        }
+        .th-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            color: var(--th-blue);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .th-eyebrow::before { content: ""; width: 24px; height: 2px; background: var(--th-blue); }
+        .th-hero h1 {
+            margin: 0;
+            max-width: 11em;
+            color: var(--th-ink);
+            font-size: clamp(42px, 5vw, 64px);
+            font-weight: 760;
+            letter-spacing: -.035em;
+            line-height: 1.08;
+        }
+        .th-hero h1 span { color: var(--th-brand); }
+        .th-hero-copy {
+            max-width: 39em;
+            margin: 24px 0 0;
+            color: var(--th-text);
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        .th-hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+        .th-btn {
+            min-height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 19px;
+            border: 1px solid var(--th-line-strong);
+            border-radius: 9px;
+            background: var(--th-panel);
+            color: var(--th-ink);
+            font-size: 14px;
+            font-weight: 650;
+            transition: border-color .18s, background .18s, color .18s, transform .18s;
+        }
+        .th-btn:hover { border-color: var(--th-blue); color: var(--th-blue); transform: translateY(-1px); }
+        .th-btn.primary { border-color: var(--th-brand); background: var(--th-brand); color: #fff; }
+        .th-btn.primary:hover { border-color: var(--th-brand-dark); background: var(--th-brand-dark); color: #fff; }
+        .th-resume { display: none; grid-template-columns: auto minmax(0,1fr) auto; gap: 11px; align-items: center; margin-top: 17px; padding: 12px 13px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f7fafb; }
+        .th-resume.active { display: grid; }
+        .th-resume-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: var(--th-blue-soft); color: var(--th-blue); font-size: 17px; }
+        .th-resume-copy { min-width: 0; }
+        .th-resume-copy small { display: block; color: var(--th-blue); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .07em; font-weight: 650; }
+        .th-resume-copy b { display: block; margin-top: 3px; color: var(--th-ink); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .th-resume-copy span { display: block; margin-top: 2px; color: var(--th-muted); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .th-resume-link { min-height: 38px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #9dbac9; border-radius: 7px; background: var(--th-panel); color: var(--th-blue); padding: 7px 10px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+        .th-assurance {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 22px;
+            margin: 30px 0 0;
+            padding: 20px 0 0;
+            border-top: 1px solid var(--th-line);
+        }
+        .th-assurance span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--th-muted);
+            font-size: 12.5px;
+        }
+        .th-assurance i { color: var(--th-teal); font-size: 16px; }
 
-    /* 报头带 */
-    .hp-mast{display:flex;align-items:center;gap:18px;padding:13px 24px;margin:0 0 34px;
-      background:var(--paper-2);border-top:1px solid var(--line);border-bottom:2px solid var(--brand)}
-    .hp-mh-mark{color:var(--brand);font-size:10px;margin-right:8px;vertical-align:1px}
-    .hp-mh-name{font-weight:800;font-size:15px;letter-spacing:.01em}
-    .hp-mh-name b{color:var(--brand)}
-    .hp-mh-en{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.18em;margin-left:2px}
-    .hp-mh-meta{margin-left:auto;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em;display:flex;gap:16px;align-items:center}
-    .hp-mh-meta b{color:var(--ink-soft)}
-    .hp-mh-seal{margin-left:18px}
+        .th-cycle {
+            overflow: hidden;
+            border: 1px solid var(--th-line-strong);
+            border-radius: 12px;
+            background: var(--th-panel);
+            box-shadow: 0 12px 30px -28px rgba(23, 33, 43, .55);
+        }
+        .th-cycle-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 20px 22px 18px;
+            border-bottom: 1px solid var(--th-line);
+            background: #f9fbfc;
+        }
+        .th-cycle-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--th-muted);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .th-cycle-head h2 { margin: 0; color: var(--th-ink); font-size: 18px; font-weight: 720; }
+        .th-cycle-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .th-cycle-tags span {
+            padding: 4px 8px;
+            border: 1px solid var(--th-line);
+            border-radius: 6px;
+            color: var(--th-muted);
+            background: var(--th-panel);
+            font-size: 11px;
+        }
+        .th-cycle-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex: none;
+            padding: 5px 8px;
+            border-radius: 6px;
+            background: var(--th-blue-soft);
+            color: var(--th-blue);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .th-cycle-list { padding: 8px 22px; }
+        .th-cycle-step {
+            position: relative;
+            display: grid;
+            grid-template-columns: 34px minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            min-height: 58px;
+            border-bottom: 1px solid var(--th-line);
+        }
+        .th-cycle-step:last-child { border-bottom: 0; }
+        .th-cycle-step::before {
+            content: "";
+            position: absolute;
+            left: 16px;
+            top: 40px;
+            bottom: -18px;
+            width: 1px;
+            background: var(--th-line-strong);
+        }
+        .th-cycle-step:last-child::before { display: none; }
+        .th-step-no {
+            position: relative;
+            z-index: 1;
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--th-line-strong);
+            border-radius: 50%;
+            background: var(--th-panel);
+            color: var(--th-muted);
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+        .th-cycle-step.done .th-step-no { border-color: var(--th-teal); background: var(--th-teal-soft); color: var(--th-teal); }
+        .th-cycle-step.active .th-step-no { border-color: var(--th-blue); background: var(--th-blue); color: #fff; }
+        .th-cycle-step b { display: block; color: var(--th-ink); font-size: 13.5px; font-weight: 680; }
+        .th-cycle-step small { display: block; margin-top: 3px; color: var(--th-muted); font-size: 11.5px; line-height: 1.5; }
+        .th-step-state { color: var(--th-subtle); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .05em; }
+        .th-cycle-step.done .th-step-state { color: var(--th-teal); }
+        .th-cycle-step.active .th-step-state { color: var(--th-blue); font-weight: 600; }
+        .th-cycle-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 15px 22px;
+            border-top: 1px solid var(--th-line);
+            background: var(--th-panel-muted);
+            color: var(--th-muted);
+            font-size: 11.5px;
+        }
+        .th-cycle-foot a { display: inline-flex; align-items: center; gap: 6px; color: var(--th-blue); font-weight: 700; }
 
-    /* hero */
-    .hp-hero{padding:40px 0 56px;position:relative}
-    .hp-hgrid{display:grid;grid-template-columns:1.06fr .94fr;gap:48px;align-items:center}
-    .hp-kicker{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.05em;margin-bottom:22px}
-    .hp-kicker .no{color:var(--brand);font-weight:600}
-    .hp-kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--brand)}
-    .hp-h1{font-size:clamp(44px,5.2vw,72px);font-weight:800;line-height:1.04;letter-spacing:-.02em}
-    .hp-h1 .hp-em{color:var(--brand);font-style:italic;font-weight:800;padding:0 .06em}
-    .hp-dek{font-size:16.5px;color:var(--ink-soft);line-height:1.75;margin:24px 0 8px;max-width:30em}
-    .hp-cta{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
-    .hp-cta-primary{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);font-weight:600;font-size:14.5px;padding:14px 24px;border-radius:11px;border:1px solid var(--ink);transition:.18s}
-    .hp-cta-primary:hover{background:var(--brand);border-color:var(--brand);transform:translateY(-2px)}
-    .hp-cta-ghost{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14.5px;padding:14px 22px;border-radius:11px;border:1px solid var(--line);background:#fff;transition:.18s}
-    .hp-cta-ghost:hover{border-color:var(--ink-soft);transform:translateY(-2px)}
-    .hp-values{display:flex;gap:30px;margin-top:36px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
-    .hp-val{display:flex;gap:11px;align-items:flex-start}
-    .hp-val i{color:var(--brand);font-size:20px;margin-top:2px}
-    .hp-val b{display:block;font-size:14px;font-weight:700}
-    .hp-val span{font-size:12px;color:var(--muted)}
+        .th-section { padding: 68px 0; border-bottom: 1px solid var(--th-line); }
+        .th-section-head {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(240px, 420px);
+            gap: 32px;
+            align-items: end;
+            margin-bottom: 30px;
+        }
+        .th-section-head h2 { margin: 0; color: var(--th-ink); font-size: clamp(27px, 3vw, 36px); font-weight: 740; letter-spacing: -.025em; }
+        .th-section-head p { margin: 0; color: var(--th-muted); font-size: 13.5px; line-height: 1.75; }
+        .th-section-code {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--th-blue);
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
 
-    /* 「怎么用」面板 */
-    .hp-howto{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-lift);overflow:hidden;position:relative}
-    .hp-ht-head{display:flex;align-items:center;gap:8px;padding:20px 24px 18px;border-bottom:1px solid var(--line-soft);font-weight:800;font-size:17px}
-    .hp-ht-head i{color:var(--brand);font-size:20px}
-    .hp-ht-head .hp-kx{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.06em;font-weight:500}
-    .hp-ht-step{display:flex;gap:16px;align-items:flex-start;padding:18px 24px}
-    .hp-ht-step+.hp-ht-step{border-top:1px dashed var(--line-soft)}
-    .hp-ht-no{width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff;font-family:var(--font-mono);font-weight:600;font-size:15px;box-shadow:0 4px 10px -4px rgba(192,57,43,.5)}
-    .hp-ht-step b{display:block;font-size:15px;font-weight:700;margin-bottom:3px}
-    .hp-ht-step span{font-size:12.5px;color:var(--muted);line-height:1.6}
-    .hp-ht-foot{padding:15px 24px;background:var(--paper-2);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.03em;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
-    .hp-ht-foot i{color:var(--brand);font-size:14px}
+        .th-task-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--th-line-strong); border-left: 1px solid var(--th-line-strong); }
+        .th-task {
+            min-height: 196px;
+            display: flex;
+            flex-direction: column;
+            padding: 22px;
+            border-right: 1px solid var(--th-line-strong);
+            border-bottom: 1px solid var(--th-line-strong);
+            background: var(--th-panel);
+            transition: background .18s, box-shadow .18s;
+        }
+        .th-task:hover { background: #f9fbfc; box-shadow: inset 0 -3px 0 var(--task-color, var(--th-blue)); }
+        .th-task-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .th-task-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: var(--task-soft, var(--th-blue-soft));
+            color: var(--task-color, var(--th-blue));
+            font-size: 21px;
+        }
+        .th-task-kind { color: var(--th-subtle); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase; }
+        .th-task h3 { margin: 20px 0 7px; color: var(--th-ink); font-size: 17px; font-weight: 720; }
+        .th-task p { margin: 0; color: var(--th-muted); font-size: 12.5px; line-height: 1.65; }
+        .th-task-output {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: auto;
+            padding-top: 18px;
+            color: var(--th-text);
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .th-task-output i { margin-left: auto; color: var(--th-subtle); font-size: 16px; transition: transform .18s, color .18s; }
+        .th-task:hover .th-task-output i { color: var(--task-color, var(--th-blue)); transform: translateX(3px); }
 
-    /* section 头 */
-    .hp-section{padding:60px 0;position:relative}
-    .hp-sec-head{display:flex;align-items:flex-end;gap:18px;margin-bottom:34px;padding-top:22px;border-top:2px solid var(--ink);flex-wrap:wrap}
-    .hp-sec-counter{font-family:var(--font-mono);font-style:italic;font-size:15px;color:var(--brand);font-weight:600;padding-bottom:6px}
-    .hp-sec-title{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
-    .hp-sec-dek{font-size:14px;color:var(--muted);padding-bottom:5px}
-    .hp-sec-more{margin-left:auto;font-size:13.5px;font-weight:600;color:var(--brand);padding-bottom:5px;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
-    .hp-sec-more:hover{gap:10px}
-    .hp-sub-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:30px 0 16px;display:flex;align-items:center;gap:10px}
-    .hp-sub-label::after{content:"";flex:1;height:1px;background:var(--line)}
+        .th-method-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr); gap: 22px; }
+        .th-method-card { border: 1px solid var(--th-line-strong); border-radius: 10px; background: var(--th-panel); overflow: hidden; }
+        .th-method-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 48px;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--th-line);
+            color: var(--th-ink);
+            background: #f9fbfc;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .th-method-title i { color: var(--th-blue); font-size: 17px; }
+        .th-table-wrap { overflow-x: auto; }
+        .th-method-table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 12.5px; }
+        .th-method-table th,
+        .th-method-table td { padding: 14px 16px; border-bottom: 1px solid var(--th-line); text-align: left; vertical-align: top; line-height: 1.65; }
+        .th-method-table tr:last-child td { border-bottom: 0; }
+        .th-method-table th { color: var(--th-muted); background: var(--th-panel-muted); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .06em; font-weight: 600; }
+        .th-method-table td:first-child { color: var(--th-ink); font-weight: 700; white-space: nowrap; }
+        .th-method-table td:nth-child(2) { color: var(--th-text); }
+        .th-method-table td:nth-child(3) { color: var(--th-muted); }
+        .th-checks { padding: 6px 18px; }
+        .th-check {
+            display: grid;
+            grid-template-columns: 22px minmax(0, 1fr);
+            gap: 10px;
+            align-items: start;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--th-line);
+        }
+        .th-check:last-child { border-bottom: 0; }
+        .th-check i { color: var(--th-teal); font-size: 18px; margin-top: 1px; }
+        .th-check b { display: block; color: var(--th-ink); font-size: 12.5px; font-weight: 700; }
+        .th-check span { display: block; margin-top: 3px; color: var(--th-muted); font-size: 11.5px; line-height: 1.6; }
 
-    /* 头条 */
-    .hp-lead{display:grid;grid-template-columns:1fr 1.15fr;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel);box-shadow:var(--shadow);position:relative}
-    .hp-lead-left{padding:34px 34px 32px;display:flex;flex-direction:column;border-right:1px solid var(--line-soft)}
-    .hp-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:7px;align-self:flex-start}
-    .hp-tag i{font-size:13px}
-    .hp-lead-title{font-size:30px;font-weight:800;letter-spacing:-.01em;margin:16px 0 10px;color:var(--ink)}
-    .hp-lead-dek{font-size:14.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:22px}
-    .hp-incl{margin:2px 0 6px}
-    .hp-incl-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:11px}
-    .hp-incl-chips{display:flex;flex-wrap:wrap;gap:8px}
-    .hp-incl-chips span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line-soft);padding:6px 11px;border-radius:8px}
-    .hp-incl-chips i{color:var(--c-plan);font-size:12px;font-weight:bold}
-    .hp-lead-foot{margin-top:auto;display:flex;align-items:center;gap:14px;padding-top:18px;flex-wrap:wrap}
-    .hp-pill{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);padding:5px 10px;border-radius:7px}
-    .hp-enter{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:14px;color:var(--ink);transition:.15s}
-    .hp-lead:hover .hp-enter{color:var(--brand);gap:11px}
-    .hp-lead-right{padding:30px;background:var(--paper);position:relative}
-    .hp-lead-seal{position:absolute;top:16px;right:18px;z-index:5}
+        .th-index { border: 1px solid var(--th-line-strong); border-radius: 10px; background: var(--th-panel); overflow: hidden; }
+        .th-index-row {
+            display: grid;
+            grid-template-columns: 150px minmax(0, 1fr) 92px;
+            gap: 20px;
+            align-items: center;
+            min-height: 66px;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--th-line);
+            transition: background .18s;
+        }
+        .th-index-row:last-child { border-bottom: 0; }
+        .th-index-row:hover { background: #f9fbfc; }
+        .th-index-name { display: flex; align-items: center; gap: 10px; color: var(--th-ink); font-size: 13.5px; font-weight: 720; }
+        .th-index-mark { width: 5px; height: 26px; border-radius: 2px; background: var(--cat-color, var(--th-blue)); }
+        .th-index-list { color: var(--th-muted); font-size: 12px; line-height: 1.6; }
+        .th-index-count { display: flex; align-items: center; justify-content: flex-end; gap: 9px; color: var(--th-blue); font-family: var(--font-mono); font-size: 10.5px; }
+        .th-index-count b { color: var(--th-ink); font-size: 15px; }
 
-    /* 样张 */
-    .hp-sample{border:1px solid var(--line);border-radius:12px;background:#fffdf8;overflow:hidden;box-shadow:0 6px 18px -12px rgba(26,22,18,.4);position:relative;height:100%}
-    .hp-sample-bar{display:flex;align-items:center;gap:7px;padding:9px 13px;border-bottom:1px solid var(--line-soft);background:var(--paper-2);font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
-    .hp-sample-bar .hp-rd{width:8px;height:8px;border-radius:50%;background:#e3d9c8}
-    .hp-sample-body{padding:16px 18px;font-size:12.5px;line-height:1.95;color:#3a3128;position:relative;
-      background-image:linear-gradient(var(--grid-strong) 1px,transparent 1px),linear-gradient(90deg,var(--grid-strong) 1px,transparent 1px);
-      background-size:24px 24px;background-position:-1px 8px}
-    .hp-sample-body h5{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:5px}
-    .hp-sample-body .hp-hl{color:var(--brand);font-weight:700}
-    .hp-sample-body .hp-mut{color:var(--muted)}
-    .hp-sample-fade{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,#fffdf8)}
+        .th-resource-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        .th-resource {
+            display: grid;
+            grid-template-columns: 38px minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            min-height: 76px;
+            padding: 12px 14px;
+            border: 1px solid var(--th-line);
+            border-radius: 9px;
+            background: var(--th-panel);
+            transition: border-color .18s, background .18s;
+        }
+        .th-resource:hover { border-color: var(--th-line-strong); background: #f9fbfc; }
+        .th-resource-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 8px; background: var(--th-panel-muted); color: var(--th-blue); font-size: 18px; }
+        .th-resource b { display: block; color: var(--th-ink); font-size: 13px; font-weight: 700; }
+        .th-resource span { display: block; margin-top: 3px; color: var(--th-muted); font-size: 11px; }
+        .th-resource > i { color: var(--th-subtle); font-size: 15px; }
+        .th-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
-    /* 要闻 */
-    .hp-brief{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-    .hp-bcard{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:22px;position:relative;display:flex;flex-direction:column;transition:.2s;box-shadow:var(--shadow)}
-    .hp-bcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
-    .hp-bcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
-    .hp-bcard-no{font-family:var(--font-mono);font-size:13px;color:var(--muted);font-weight:600}
-    .hp-icon-chip{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:19px;color:#fff}
-    .hp-bcard-title{font-size:16.5px;font-weight:800;margin-bottom:5px;color:var(--ink)}
-    .hp-bcard-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px}
-    .hp-mini-sample{font-size:11.5px;line-height:1.85;color:#4a4135;background:#fffdf8;border:1px solid var(--line-soft);border-radius:9px;padding:11px 13px;margin-bottom:14px;
-      background-image:linear-gradient(var(--grid) 1px,transparent 1px);background-size:100% 22px;background-position:0 7px}
-    .hp-mini-sample .hp-hl{color:var(--brand);font-weight:700}
-    .hp-mini-sample .hp-ok{color:var(--c-plan);font-weight:700}
-    .hp-bcard-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
-    .hp-bcard-foot .hp-m{font-family:var(--font-mono);color:var(--muted);font-size:11px}
-    .hp-bcard-foot .hp-e{font-weight:700;color:var(--ink);display:inline-flex;gap:6px;align-items:center}
-    .hp-bcard:hover .hp-e{color:var(--brand)}
-
-    /* 分类目录 */
-    .hp-toc{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
-    .hp-toc-row{display:flex;align-items:center;gap:18px;padding:18px 24px;border-bottom:1px solid var(--line-soft);transition:.15s}
-    .hp-toc-row:last-child{border-bottom:none}
-    .hp-toc-row:hover{background:var(--paper-2)}
-    .hp-toc-idx{font-family:var(--font-mono);font-size:12px;color:var(--muted);width:26px}
-    .hp-toc-bar{width:4px;height:30px;border-radius:3px;flex:none}
-    .hp-toc-name{font-weight:800;font-size:16px;width:108px;flex:none;color:var(--ink)}
-    .hp-toc-list{font-size:13px;color:var(--ink-soft);flex:1}
-    .hp-toc-list .hp-sep{color:var(--line);margin:0 7px}
-    .hp-toc-cnt{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:5px}
-    .hp-toc-cnt b{font-size:17px;color:var(--ink)}
-    .hp-toc-go{color:var(--muted);font-size:18px;transition:.15s}
-    .hp-toc-row:hover .hp-toc-go{color:var(--brand);transform:translateX(3px)}
-
-    /* 配套资源 */
-    .hp-supp{background:var(--paper-2)}
-    .hp-supp .hp-sec-head{border-top-color:var(--line)}
-    .hp-mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .hp-mcard{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;transition:.18s;box-shadow:var(--shadow)}
-    .hp-mcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift)}
-    .hp-mcard .hp-mi{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;color:#fff;flex:none}
-    .hp-mcard b{display:block;font-size:14.5px;font-weight:700;color:var(--ink)}
-    .hp-mcard span{font-size:12px;color:var(--muted)}
-    .hp-mcard .hp-ar{margin-left:auto;color:var(--muted);transition:.15s}
-    .hp-mcard:hover .hp-ar{color:var(--brand);transform:translate(2px,-2px)}
-    .hp-mc-no{font-family:var(--font-mono);font-size:12px;color:var(--muted);font-weight:600;flex:none}
-
-    /* 动效 */
-    @keyframes hpRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-    .hp-hgrid>*>*{animation:hpRise .7s cubic-bezier(.2,.7,.3,1) backwards}
-    .hp-kicker{animation-delay:.05s}.hp-h1{animation-delay:.13s}.hp-dek{animation-delay:.22s}
-    .hp-cta{animation-delay:.3s}.hp-values{animation-delay:.38s}
-    .hp-howto{animation:hpRise .8s .26s cubic-bezier(.2,.7,.3,1) backwards}
-    .hp-reveal{opacity:0;transform:translateY(22px)}
-    .hp-reveal.hp-in{opacity:1;transform:none;transition:opacity .7s,transform .7s}
-
-    @media (max-width:900px){
-      .hp-hgrid,.hp-lead,.hp-brief,.hp-mgrid{grid-template-columns:1fr}
-      .hp-lead-left{border-right:none;border-bottom:1px solid var(--line-soft)}
-      .hp-brief{gap:14px}.hp-wrap{padding:0 22px}
-      .hp-toc-list{display:none}
-      .hp-mh-meta{display:none}
-    }
-    @media (prefers-reduced-motion:reduce){.hp-root *{animation:none!important;transition:none!important}.hp-reveal{opacity:1;transform:none}}
+        @media (max-width: 980px) {
+            .th-hero-grid { grid-template-columns: 1fr; gap: 42px; }
+            .th-cycle { max-width: 680px; }
+            .th-task-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .th-method-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 760px) {
+            .th-shell { width: min(100% - 32px, 1240px); }
+            .th-system-bar { gap: 10px; }
+            .th-system-bar > span:nth-child(2) { display: none; }
+            .th-hero { padding: 52px 0 44px; }
+            .th-hero h1 { font-size: clamp(38px, 11vw, 52px); }
+            .th-section { padding: 50px 0; }
+            .th-section-head { grid-template-columns: 1fr; gap: 12px; }
+            .th-task-grid { grid-template-columns: 1fr; }
+            .th-task { min-height: 174px; }
+            .th-index-row { grid-template-columns: 112px minmax(0, 1fr) 70px; gap: 12px; }
+            .th-resource-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 520px) {
+            .th-hero-actions .th-btn { width: 100%; }
+            .th-resume { grid-template-columns: auto minmax(0,1fr); }
+            .th-resume-link { grid-column: 1 / -1; justify-content: center; }
+            .th-cycle-head { display: block; }
+            .th-cycle-status { margin-top: 12px; }
+            .th-cycle-step { grid-template-columns: 34px minmax(0, 1fr); }
+            .th-step-state { display: none; }
+            .th-cycle-foot { align-items: flex-start; flex-direction: column; }
+            .th-index-row { grid-template-columns: 1fr auto; }
+            .th-index-list { grid-column: 1 / -1; grid-row: 2; }
+            .th-resource-grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .th-root *, .th-root *::before, .th-root *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+        }
     </style>
 </head>
 <body>
 <div id="main-nav"></div>
 
-<main>
-<div class="hp-root">
+<main id="main-content">
+    <div class="th-root">
+        <div class="th-shell th-system-bar" aria-label="平台状态">
+            <span><strong>TEACHER AI PRACTICE SYSTEM</strong></span>
+            <span>教学任务 · 人机协同 · 成果沉淀</span>
+            <span class="th-system-state"><span class="th-system-dot" aria-hidden="true"></span>工作台已加载 · <span id="th-system-date"></span></span>
+        </div>
 
-    <!-- Hero（报头带 + 标题 + 「怎么用」面板） -->
-    <section class="hp-hero">
-        <div class="hp-wrap">
-            <div class="hp-mast">
-                <span class="hp-mh-name"><i class="ph-fill ph-diamond hp-mh-mark"></i><b>AI 教研周刊</b></span>
-                <span class="hp-mh-en">TEACHER · AI · GAZETTE</span>
-                <span class="hp-mh-meta" id="hp-mast-meta"></span>
-                <span class="hp-mh-seal"><span class="hp-seal hp-seal-sq"><span>教</span><span>研</span><span>甄</span><span>选</span></span></span>
-            </div>
-            <div class="hp-hgrid">
+        <section class="th-hero">
+            <div class="th-shell th-hero-grid">
                 <div>
-                    <div><div class="hp-kicker"><span class="no">NO. 001 / 2026</span><span class="dot"></span><span>面向中小学教师的 AI 智能体平台</span></div></div>
-                    <div><h1 class="hp-h1">让 <span class="hp-em">AI</span> 真正<br>走进你的课堂</h1></div>
-                    <div><p class="hp-dek"><span class="hp-count">19</span> 个为中小学教学场景打造的 AI 智能体——备课、上课、批改、家校。给出要点，AI 起草初稿、你再润色定稿，成果可存进「我的备课本」。</p></div>
-                    <div><div class="hp-cta">
-                        <a href="agents.html" class="hp-cta-primary"><i class="ph-fill ph-sparkle"></i> 进入智能体空间</a>
-                        <a href="multimodal.html" class="hp-cta-ghost"><i class="ph ph-images-square"></i> 看多模态案例</a>
-                    </div></div>
-                    <div><div class="hp-values">
-                        <div class="hp-val"><i class="ph-fill ph-robot"></i><div><b><span class="hp-count">19</span> 个智能体</b><span>覆盖 5 大教学场景</span></div></div>
-                        <div class="hp-val"><i class="ph-fill ph-pen-nib"></i><div><b>人机协同</b><span>AI 起草，你来定稿</span></div></div>
-                        <div class="hp-val"><i class="ph-fill ph-notebook"></i><div><b>成果可沉淀</b><span>存进我的备课本</span></div></div>
-                    </div></div>
+                    <div class="th-eyebrow">面向中小学教师的 AI 教学实践平台</div>
+                    <h1>从真实任务开始，完成一份<span>可用的教学成果</span></h1>
+                    <p class="th-hero-copy"><span class="th-agent-count">19</span> 个专业智能体覆盖备课、课堂、评价、家校与教师发展。系统负责结构化起草与适配预检，教师负责判断、修改和最终定稿。</p>
+                    <div class="th-hero-actions">
+                        <a class="th-btn primary" href="#task-start"><i class="ph ph-play-circle"></i>选择教学任务</a>
+                        <a class="th-btn" id="th-personal-link" href="workspace.html"><i class="ph ph-notebook"></i>打开我的备课本</a>
+                    </div>
+                    <div class="th-resume" id="th-resume" aria-live="polite">
+                        <span class="th-resume-icon"><i class="ph ph-clock-counter-clockwise"></i></span>
+                        <div class="th-resume-copy"><small>CONTINUE WORK</small><b id="th-resume-title"></b><span id="th-resume-meta"></span></div>
+                        <a class="th-resume-link" id="th-resume-link" href="agents.html"><span>继续</span><i class="ph ph-arrow-right"></i></a>
+                    </div>
+                    <div class="th-assurance" aria-label="工作原则">
+                        <span><i class="ph ph-check-circle"></i>涉及学段的任务先做适配预检</span>
+                        <span><i class="ph ph-pencil-line"></i>生成内容可编辑、可重新生成</span>
+                        <span><i class="ph ph-folder-open"></i>成果可保存、导出与继续修改</span>
+                    </div>
                 </div>
-                <div class="hp-hright">
-                    <div class="hp-howto">
-                        <div class="hp-ht-head"><i class="ph-fill ph-lightning"></i> 怎么用 · 30 秒出初稿<span class="hp-kx">SO EASY</span></div>
-                        <div class="hp-ht-step"><span class="hp-ht-no">1</span><div><b>选一个智能体</b><span>按教学场景挑，如「教学设计助手」「智能出题」</span></div></div>
-                        <div class="hp-ht-step"><span class="hp-ht-no">2</span><div><b>填几个参数</b><span>学科 · 年级 · 课题，可留空让 AI 依课标拟定</span></div></div>
-                        <div class="hp-ht-step"><span class="hp-ht-no">3</span><div><b>AI 起草，你修改定稿</b><span>可编辑、复制、导出 Word，存进备课本随时取用</span></div></div>
-                        <div class="hp-ht-foot"><i class="ph-fill ph-chalkboard-teacher"></i> 5 大场景 · <span class="hp-count">19</span> 个智能体 · 一线教师调校</div>
+
+                <aside class="th-cycle" aria-labelledby="th-cycle-title">
+                    <div class="th-cycle-head">
+                        <div>
+                            <span class="th-cycle-label">示例工作流 · Lesson preparation</span>
+                            <h2 id="th-cycle-title">备一节课</h2>
+                            <div class="th-cycle-tags"><span>六年级</span><span>数学</span><span>《圆的认识》</span></div>
+                        </div>
+                        <span class="th-cycle-status"><i class="ph ph-circle-half"></i>进行中</span>
+                    </div>
+                    <div class="th-cycle-list">
+                        <div class="th-cycle-step done">
+                            <span class="th-step-no"><i class="ph-bold ph-check"></i></span>
+                            <div><b>确认学段与课题</b><small>检查学科、年级与知识内容是否匹配</small></div>
+                            <span class="th-step-state">已完成</span>
+                        </div>
+                        <div class="th-cycle-step active">
+                            <span class="th-step-no">02</span>
+                            <div><b>形成教学设计初稿</b><small>目标、重难点、教学过程与分层作业</small></div>
+                            <span class="th-step-state">当前步骤</span>
+                        </div>
+                        <div class="th-cycle-step">
+                            <span class="th-step-no">03</span>
+                            <div><b>生成配套练习</b><small>围绕目标设计检测题与参考答案</small></div>
+                            <span class="th-step-state">待开始</span>
+                        </div>
+                        <div class="th-cycle-step">
+                            <span class="th-step-no">04</span>
+                            <div><b>教师核验与定稿</b><small>结合教材、学情与课堂条件完成修改</small></div>
+                            <span class="th-step-state">待开始</span>
+                        </div>
+                        <div class="th-cycle-step">
+                            <span class="th-step-no">05</span>
+                            <div><b>保存并投入使用</b><small>进入备课本，按需要导出或继续完善</small></div>
+                            <span class="th-step-state">待开始</span>
+                        </div>
+                    </div>
+                    <div class="th-cycle-foot">
+                        <span>每一步都有明确输入、处理和教师责任</span>
+                        <a href="agents.html#lesson-design">开始教学设计 <i class="ph ph-arrow-right"></i></a>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="th-section" id="task-start">
+            <div class="th-shell">
+                <div class="th-section-head">
+                    <div><span class="th-section-code">Task launcher</span><h2>今天要完成什么？</h2></div>
+                    <p>不用先理解全部智能体。选择当前任务，直接进入相应工作台；系统会保留清晰的输入与输出边界。</p>
+                </div>
+                <div class="th-task-grid" id="th-task-grid"></div>
+            </div>
+        </section>
+
+        <section class="th-section">
+            <div class="th-shell">
+                <div class="th-section-head">
+                    <div><span class="th-section-code">Human–AI protocol</span><h2>AI 起草，教师负责判断</h2></div>
+                    <p>平台不把“生成完成”视为任务完成。每份结果都需要经过输入校验、教师核对和成果沉淀。</p>
+                </div>
+                <div class="th-method-grid">
+                    <div class="th-method-card">
+                        <div class="th-method-title"><i class="ph ph-flow-arrow"></i>标准工作协议</div>
+                        <div class="th-table-wrap">
+                            <table class="th-method-table">
+                                <thead><tr><th>环节</th><th>系统处理</th><th>教师责任</th></tr></thead>
+                                <tbody>
+                                    <tr><td>输入</td><td>收集学科、年级、课题与实际约束</td><td>提供真实学情，避免录入学生敏感信息</td></tr>
+                                    <tr><td>预检</td><td>检查明显的学段、学科与知识内容错配</td><td>确认教材版本和本校教学安排</td></tr>
+                                    <tr><td>起草</td><td>按任务结构生成可编辑的初稿</td><td>核对事实、难度、时间与可操作性</td></tr>
+                                    <tr><td>定稿</td><td>支持编辑、重生成、保存与导出</td><td>结合班级实际完成最终判断</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="th-method-card">
+                        <div class="th-method-title"><i class="ph ph-shield-check"></i>使用前检查</div>
+                        <div class="th-checks">
+                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>目标—活动—评价一致</b><span>教学活动与检测任务应服务于同一组学习目标。</span></div></div>
+                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>适合当前学生</b><span>核对知识基础、班级人数、课时和可用设备。</span></div></div>
+                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>事实和课程依据可核实</b><span>重要知识、数据和政策表述回到教材或权威来源确认。</span></div></div>
+                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>教师完成最终定稿</b><span>AI 输出是可修改初稿，不代替专业判断与教学责任。</span></div></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 01 · AI 智能体 -->
-    <section class="hp-section">
-        <div class="hp-wrap">
-            <div class="hp-sec-head">
-                <span class="hp-sec-counter">01</span><span class="hp-sec-title">AI 智能体</span>
-                <span class="hp-sec-dek">按真实教学场景设计，AI 起草、你来定稿</span>
-                <a href="agents.html" class="hp-sec-more">查看全部 <span class="hp-count">19</span> 个 <i class="ph ph-arrow-right"></i></a>
+        <section class="th-section">
+            <div class="th-shell">
+                <div class="th-section-head">
+                    <div><span class="th-section-code">Capability index</span><h2>专业能力索引</h2></div>
+                    <p>全部智能体按教学环节归类。需要精确查找时，可进入智能体空间使用分类和关键词筛选。</p>
+                </div>
+                <div class="th-index" id="th-capability-index"></div>
             </div>
+        </section>
 
-            <!-- 头条（JS 从 agents-data.js 渲染） -->
-            <div class="hp-sub-label">本期头条 · 最受欢迎</div>
-            <div id="hp-lead-slot"></div>
-
-            <!-- 要闻 -->
-            <div class="hp-sub-label">本期要闻 · 高频常用</div>
-            <div class="hp-brief" id="hp-brief-slot"></div>
-
-            <!-- 分类目录 -->
-            <div class="hp-sub-label">按教学场景浏览 · 本期全目录</div>
-            <div class="hp-toc" id="hp-toc-slot"></div>
-        </div>
-    </section>
-
-    <!-- 02 · 配套资源 -->
-    <section class="hp-section hp-supp" id="hp-supp">
-        <div class="hp-wrap">
-            <div class="hp-sec-head"><span class="hp-sec-counter">02</span><span class="hp-sec-title">配套资源</span><span class="hp-sec-dek">学习与素材入口，按需取用</span></div>
-            <div class="hp-mgrid">
-                <a class="hp-mcard hp-reveal" href="paths.html"><span class="hp-mc-no">01</span><span class="hp-mi" style="background:var(--c-plan)"><i class="ph-fill ph-path"></i></span><div><b>学习路径</b><span>从入门到进阶</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
-                <a class="hp-mcard hp-reveal" href="articles.html"><span class="hp-mc-no">02</span><span class="hp-mi" style="background:var(--c-class)"><i class="ph-fill ph-article"></i></span><div><b>精选文章</b><span>学习指南与经验</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
-                <a class="hp-mcard hp-reveal" href="tools.html"><span class="hp-mc-no">03</span><span class="hp-mi" style="background:var(--c-assess)"><i class="ph-fill ph-compass-tool"></i></span><div><b>AI资源精选</b><span>第三方 AI 产品导航</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
-                <a class="hp-mcard hp-reveal" href="resources.html"><span class="hp-mc-no">04</span><span class="hp-mi" style="background:var(--c-home)"><i class="ph-fill ph-images"></i></span><div><b>课件素材</b><span>图片 / 图标 / 免抠</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
-                <a class="hp-mcard hp-reveal" href="news.html"><span class="hp-mc-no">05</span><span class="hp-mi" style="background:var(--c-growth)"><i class="ph-fill ph-newspaper"></i></span><div><b>AI 资讯</b><span>前沿动态聚合</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
-                <a class="hp-mcard hp-reveal" href="prompts.html"><span class="hp-mc-no">06</span><span class="hp-mi" style="background:var(--ink-soft)"><i class="ph-fill ph-chats-teardrop"></i></span><div><b>提示词库</b><span>官方＋社区共建</span></div><i class="ph ph-arrow-up-right hp-ar"></i></a>
+        <section class="th-section">
+            <div class="th-shell">
+                <div class="th-section-head">
+                    <div><span class="th-section-code">Supporting resources</span><h2>学习与配套资源</h2></div>
+                    <p>工具、素材和资讯保留为支持层，不打断核心教学任务流程。</p>
+                </div>
+                <div class="th-resource-grid">
+                    <a class="th-resource" href="paths.html"><span class="th-resource-icon"><i class="ph ph-path"></i></span><div><b>学习路径</b><span>系统训练路线</span></div><i class="ph ph-arrow-up-right"></i></a>
+                    <a class="th-resource" href="articles.html"><span class="th-resource-icon"><i class="ph ph-article"></i></span><div><b>精选文章</b><span>方法、案例与实践</span></div><i class="ph ph-arrow-up-right"></i></a>
+                    <a class="th-resource" href="tools.html"><span class="th-resource-icon"><i class="ph ph-toolbox"></i></span><div><b>AI资源精选</b><span>第三方产品导航</span></div><i class="ph ph-arrow-up-right"></i></a>
+                    <a class="th-resource" href="resources.html"><span class="th-resource-icon"><i class="ph ph-folder-open"></i></span><div><b>课件素材</b><span>图片、图标与免抠素材</span></div><i class="ph ph-arrow-up-right"></i></a>
+                    <a class="th-resource" href="news.html"><span class="th-resource-icon"><i class="ph ph-newspaper"></i></span><div><b>AI 资讯</b><span>教育 AI 动态</span></div><i class="ph ph-arrow-up-right"></i></a>
+                    <a class="th-resource" href="prompts.html"><span class="th-resource-icon"><i class="ph ph-quotes"></i></span><div><b>提示词库</b><span>可复用提示词</span></div><i class="ph ph-arrow-up-right"></i></a>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
-</div><!-- /.hp-root -->
+    <div class="home-main">
+        <div id="announcements-section"></div>
 
-<!-- 公告 / 联系 / 订阅（沿用全站既有样式，不进 hp-root 作用域） -->
-<div class="home-main">
-
-    <div id="announcements-section"></div>
-
-    <section class="contact-band" aria-labelledby="contact-band-title">
-        <div class="contact-band-icon"><i class="ph-fill ph-envelope-simple"></i></div>
-        <div class="contact-band-copy">
-            <span>Get in touch</span>
-            <h2 id="contact-band-title">看到这里，欢迎写下你想交流的问题</h2>
-            <p>具体需求、使用反馈、学校 AI 应用的困惑都可以——会尽快回信。</p>
-        </div>
-        <button type="button" class="contact-band-button" data-contact-trigger>
-            <i class="ph ph-paper-plane-tilt"></i>
-            写留言
-        </button>
-    </section>
-
-    <section class="subscribe-section">
-        <div style="max-width:560px;margin:0 auto">
-            <i class="ph ph-envelope-simple" style="font-size:40px;opacity:.9;display:block;margin-bottom:16px"></i>
-            <h2>订阅每周 AI 教育精选</h2>
-            <p>每周精选 3-5 个最有价值的 AI 工具与教学案例，直达您的邮箱，不错过重要更新</p>
-            <div class="subscribe-form">
-                <input class="subscribe-input" type="email" id="main-sub-email" placeholder="输入您的邮箱地址">
-                <button class="subscribe-btn" onclick="mainSubscribe()">立即订阅</button>
+        <section class="contact-band" aria-labelledby="contact-band-title">
+            <div class="contact-band-icon"><i class="ph ph-chat-circle-text"></i></div>
+            <div class="contact-band-copy">
+                <span>使用反馈</span>
+                <h2 id="contact-band-title">告诉我们哪一步还不够好用</h2>
+                <p>可提交具体任务、使用问题或学校 AI 应用需求，我们会据此继续改进。</p>
             </div>
-            <p style="font-size:12px;opacity:.5;margin-top:14px;position:relative">每周一期 · 随时可取消</p>
-        </div>
-    </section>
+            <button type="button" class="contact-band-button" data-contact-trigger><i class="ph ph-paper-plane-tilt"></i>提交反馈</button>
+        </section>
 
-</div>
+        <section class="subscribe-section">
+            <div style="max-width:560px;margin:0 auto">
+                <i class="ph ph-envelope-simple" style="font-size:36px;opacity:.85;display:block;margin-bottom:16px"></i>
+                <h2>订阅每周 AI 教育精选</h2>
+                <p>每周整理值得教师关注的工具、方法和教学案例。</p>
+                <div class="subscribe-form">
+                    <label class="th-sr-only" for="main-sub-email">邮箱地址</label>
+                    <input class="subscribe-input" type="email" inputmode="email" autocomplete="email" id="main-sub-email" placeholder="输入邮箱地址">
+                    <button class="subscribe-btn" type="button" onclick="mainSubscribe()">订阅</button>
+                </div>
+                <p style="font-size:12px;opacity:.6;margin-top:14px;position:relative">每周一期 · 随时可取消</p>
+            </div>
+        </section>
+    </div>
 </main>
 
 <div id="main-footer"></div>
@@ -330,142 +611,121 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260709-navpersonal"></script>
+<script src="js/auth.js?v=20260712-workbench"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/assistant.js?v=20260709-migration-title"></script>
-<script src="js/agents-data.js?v=20260619-prompts"></script>
+<script src="js/agents-data.js?v=20260712-workbench"></script>
+<script src="js/teaching-projects.js?v=20260712-project-flow"></script>
 <script>
-// ===== 立即渲染导航/页脚（不等待 auth）=====
 renderNav('index');
 renderFooter();
 
-// ===== 公告（首页唯一需要 Firestore 的部分）=====
-DB.getAnnouncements().then(ann => {
-    if (ann && ann.length) {
-        document.getElementById('announcements-section').innerHTML = `
-            <section>
-                <div class="section-header"><h2>📢 平台公告</h2></div>
-                ${ann.map(a => `<div class="announcement"><strong>${a.title}</strong><p>${a.content}</p><small style="color:var(--muted);font-size:11px">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</small></div>`).join('')}
-            </section>`;
-    }
+function homeEscape(value) {
+    return String(value || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+}
+
+DB.getAnnouncements().then(announcements => {
+    if (!announcements || !announcements.length) return;
+    document.getElementById('announcements-section').innerHTML = `
+        <section>
+            <div class="section-header compact"><h2><i class="ph ph-megaphone" style="color:var(--brand);margin-right:8px"></i>平台公告</h2></div>
+            ${announcements.map(item => `<div class="announcement"><strong>${homeEscape(item.title)}</strong><p>${homeEscape(item.content)}</p><small style="color:var(--muted);font-size:11px">${new Date(item.createdAt).toLocaleDateString('zh-CN')}</small></div>`).join('')}
+        </section>`;
 }).catch(() => {});
 
-// ===== auth 就绪后仅更新导航状态 =====
-onAuthReady((user) => {
+function updateHomeAccountState(user) {
     renderNav('index');
     renderFooter();
-});
+    const link = document.getElementById('th-personal-link');
+    if (!link) return;
+    link.innerHTML = user
+        ? '<i class="ph ph-notebook"></i>继续我的备课'
+        : '<i class="ph ph-notebook"></i>打开我的备课本';
+    renderHomeContinuation();
+}
 
-// ===== 首页橱窗（动态，数据来自 js/agents-data.js；样张为按 id 的示意文案）=====
-(function renderHome() {
-    const CATS = window.AGENT_CATS || [];
-    const CMAP = Object.fromEntries(CATS.map(c => [c.key, c]));
-    const A = window.AGENTS || [];
-    const typeLabel = t => t === 'chat' ? '对话' : '表单';
+onAuthReady(updateHomeAccountState);
 
-    // 期号（每周一期，自 2026-01-05 起算）/ 日期 / 智能体总数——全部自动
-    const issue = Math.floor((Date.now() - Date.UTC(2026, 0, 5)) / (7 * 86400000)) + 1;
-    const d = new Date();
-    const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-    const N = A.length || 19;
-    document.querySelectorAll('.hp-count').forEach(e => e.textContent = N);
-    const meta = document.getElementById('hp-mast-meta');
-    if (meta) meta.innerHTML = `<span>第 <b>${issue}</b> 期</span><span>${date}</span><span>本期收录 <b>${N}</b> 个智能体</span>`;
-
-    if (!A.length) {
-        const slot = document.getElementById('hp-lead-slot');
-        if (slot) slot.innerHTML = '<a class="hp-cta-primary" href="agents.html" style="display:inline-flex">进入智能体空间 <i class="ph ph-arrow-right"></i></a>';
+function renderHomeContinuation() {
+    const box = document.getElementById('th-resume');
+    if (!box || !window.TeachingProjects) return;
+    const project = TeachingProjects.getActiveProject();
+    const draft = TeachingProjects.listDrafts()[0];
+    if (!project && !draft) {
+        box.classList.remove('active');
         return;
     }
+    const agent = (window.AGENTS || []).find(item => item.id === draft?.agentId);
+    const context = project ? [project.grade, project.subject, project.topic].filter(Boolean).join(' · ') : '';
+    document.getElementById('th-resume-title').textContent = project?.title || `${agent?.name || '智能体'}未完成草稿`;
+    document.getElementById('th-resume-meta').textContent = [context, draft ? `${agent?.name || '任务'}草稿已自动保存` : '继续当前教学项目'].filter(Boolean).join(' · ');
+    const link = document.getElementById('th-resume-link');
+    link.href = draft?.agentId ? `agents.html#${encodeURIComponent(draft.agentId)}` : 'agents.html#lesson-design';
+    link.querySelector('span').textContent = draft ? '恢复草稿' : '继续项目';
+    box.classList.add('active');
+}
 
-    // 头条 + 要闻的精选 id（要调整精选，改这里即可；卡片内容自动取自 agents-data.js）
-    const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
-    // 样张（示意文案，按智能体 id）：头条用多行、要闻用短句
-    const SAMP = {
-        'lesson-design': `<h5>《圆的认识》· 六年级上 · 1 课时</h5>
-            <div class="hp-mut">一、教学目标</div>
-            　1. 认识圆心、半径、直径及其<span class="hp-hl">相互关系</span><br>
-            　2. 会用圆规画出指定半径的圆<br>
-            　3. 在操作中体会圆的<span class="hp-hl">对称之美</span><br>
-            <div class="hp-mut">二、教学重难点</div>
-            　重点：圆各部分名称与特征<br>
-            　难点：理解半径与直径的倍数关系<br>
-            <div class="hp-mut">三、教学过程</div>
-            　1. 情境导入：找一找生活中的圆 …`,
-        'quiz-gen': `<span class="hp-hl">【单选】</span>下列各数中是最简分数的是（ ）<br>A. 6/8　B. <span class="hp-hl">3/7</span>　C. 4/10　D. 9/12`,
-        'homework-grader': `<span class="hp-ok">✓ 第 1 题</span> 解题思路正确<br>✗ 第 2 题 约分有误，应为 <span class="hp-hl">3/4</span><br>订正建议：先通分再比较大小`,
-        'parent-comm': `王女士您好！本周明明在课堂<br>发言积极、<span class="hp-hl">进步明显</span>，建议<br>在家多鼓励他坚持每日阅读 …`
-    };
-    const INCL = { 'lesson-design': ['教学目标', '重难点', '教学过程', '板书设计', '分层作业'] };
+renderHomeContinuation();
 
-    // 头条 = FEATURED[0]
-    const la = A.find(a => a.id === FEATURED[0]);
-    if (la) {
-        const c = CMAP[la.cat] || {};
-        const chips = (INCL[la.id] || []).map(x => `<span><i class="ph-bold ph-check"></i> ${x}</span>`).join('');
-        document.getElementById('hp-lead-slot').innerHTML = `
-            <a class="hp-lead hp-reveal" href="agents.html#${la.id}">
-                <div class="hp-lead-left">
-                    <span class="hp-tag" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${la.icon}"></i> ${c.name}</span>
-                    <h3 class="hp-lead-title">${la.name}</h3>
-                    <p class="hp-lead-dek">${la.desc}</p>
-                    ${chips ? `<div class="hp-incl"><span class="hp-incl-label">生成内容包含</span><div class="hp-incl-chips">${chips}</div></div>` : ''}
-                    <div class="hp-lead-foot"><span class="hp-pill">${typeLabel(la.type)} · 约 30 秒出初稿</span><span class="hp-pill">可改可存</span><span class="hp-enter">进入工作台 <i class="ph-bold ph-arrow-right"></i></span></div>
-                </div>
-                <div class="hp-lead-right">
-                    <span class="hp-lead-seal"><span class="hp-seal hp-seal-sm">精选</span></span>
-                    <div class="hp-sample">
-                        <div class="hp-sample-bar"><span class="hp-rd"></span><span>${la.name} · 生成预览</span></div>
-                        <div class="hp-sample-body">${SAMP[la.id] || la.desc}<div class="hp-sample-fade"></div></div>
-                    </div>
-                </div>
-            </a>`;
-    }
+(function renderHomeWorkbench() {
+    const agents = window.AGENTS || [];
+    const categories = window.AGENT_CATS || [];
+    const agentMap = Object.fromEntries(agents.map(agent => [agent.id, agent]));
+    const count = agents.length || 19;
+    document.querySelectorAll('.th-agent-count').forEach(element => { element.textContent = count; });
+    document.getElementById('th-system-date').textContent = new Date().toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
 
-    // 要闻 = FEATURED[1..3]
-    document.getElementById('hp-brief-slot').innerHTML = FEATURED.slice(1, 4).map((id, i) => {
-        const a = A.find(x => x.id === id);
-        if (!a) return '';
-        const c = CMAP[a.cat] || {};
-        return `<a class="hp-bcard hp-reveal" href="agents.html#${a.id}">
-            <div class="hp-bcard-top"><span class="hp-bcard-no">0${i + 2}</span><span class="hp-icon-chip" style="background:${c.color}"><i class="ph-fill ${a.icon}"></i></span></div>
-            <div class="hp-bcard-title">${a.name}</div>
-            <div class="hp-bcard-sub">${c.name} · ${a.tagline || ''}</div>
-            <div class="hp-mini-sample">${SAMP[id] || a.desc}</div>
-            <div class="hp-bcard-foot"><span class="hp-m">${typeLabel(a.type)}</span><span class="hp-e">进入 <i class="ph-bold ph-arrow-right"></i></span></div>
+    const taskConfigs = [
+        { id: 'lesson-design', title: '备一节课', output: '完整教学设计', kind: '备课设计', icon: 'ph-blueprint', color: '#287a68', soft: '#e5f2ef' },
+        { id: 'quiz-gen', title: '设计练习与检测', output: '题目、答案与解析', kind: '作业评价', icon: 'ph-exam', color: '#245b78', soft: '#e7f0f5' },
+        { id: 'homework-grader', title: '批改并诊断作业', output: '批改意见与改进建议', kind: '作业评价', icon: 'ph-check-square-offset', color: '#a24b45', soft: '#f8eceb' },
+        { id: 'parent-comm', title: '准备家校沟通', output: '沟通文本或谈话提纲', kind: '班级家校', icon: 'ph-chats-teardrop', color: '#9a681d', soft: '#faf1df' },
+        { id: 'class-activity', title: '设计课堂活动', output: '可执行的课堂活动方案', kind: '课堂教学', icon: 'ph-users-three', color: '#356b83', soft: '#e8f0f4' },
+        { id: 'teaching-reflection', title: '完成教学复盘', output: '问题分析与改进计划', kind: '教师发展', icon: 'ph-notebook', color: '#5c6e7b', soft: '#edf1f3' }
+    ];
+
+    const taskGrid = document.getElementById('th-task-grid');
+    taskGrid.innerHTML = taskConfigs.map(config => {
+        const agent = agentMap[config.id] || {};
+        const description = agent.desc || '进入相应工作台，按步骤完成任务。';
+        return `<a class="th-task" href="agents.html#${config.id}" style="--task-color:${config.color};--task-soft:${config.soft}">
+            <div class="th-task-top"><span class="th-task-icon"><i class="ph ${config.icon}"></i></span><span class="th-task-kind">${config.kind}</span></div>
+            <h3>${config.title}</h3>
+            <p>${homeEscape(description)}</p>
+            <div class="th-task-output"><span>输出：${config.output}</span><i class="ph ph-arrow-right"></i></div>
         </a>`;
     }).join('');
 
-    // 分类目录（全部分类 + 各自智能体名 + 数量，全自动）
-    const ROMAN = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ'];
-    document.getElementById('hp-toc-slot').innerHTML = CATS.map((c, i) => {
-        const items = A.filter(a => a.cat === c.key);
-        const names = items.map(a => a.name).join('<span class="hp-sep">·</span>');
-        return `<a class="hp-toc-row" href="agents.html"><span class="hp-toc-idx">${ROMAN[i] || (i + 1)}</span><span class="hp-toc-bar" style="background:${c.color}"></span><span class="hp-toc-name">${c.name}</span><span class="hp-toc-list">${names}</span><span class="hp-toc-cnt"><b>${items.length}</b> 个</span><i class="ph ph-arrow-right hp-toc-go"></i></a>`;
+    const capabilityIndex = document.getElementById('th-capability-index');
+    capabilityIndex.innerHTML = categories.map(category => {
+        const list = agents.filter(agent => agent.cat === category.key);
+        return `<a class="th-index-row" href="agents.html?cat=${encodeURIComponent(category.key)}">
+            <span class="th-index-name"><span class="th-index-mark" style="--cat-color:${category.color}"></span>${homeEscape(category.name)}</span>
+            <span class="th-index-list">${list.map(agent => homeEscape(agent.name)).join(' · ')}</span>
+            <span class="th-index-count"><b>${list.length}</b> 项 <i class="ph ph-arrow-right"></i></span>
+        </a>`;
     }).join('');
 })();
 
-// ===== 滚动渐入（在橱窗渲染之后，覆盖动态注入的卡片）=====
-(function () {
-    const els = document.querySelectorAll('.hp-reveal');
-    if (!els.length) return;
-    const io = new IntersectionObserver((entries) => entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('hp-in'); io.unobserve(e.target); }
-    }), { threshold: .12 });
-    els.forEach(el => io.observe(el));
-})();
-
-// ===== 订阅 =====
 async function mainSubscribe() {
     if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后订阅动态')) return;
     const input = document.getElementById('main-sub-email');
     const email = input.value.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('请输入有效邮箱地址'); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('请输入有效邮箱地址');
+        input.focus();
+        return;
+    }
     try {
         const result = await DB.addSubscriber(email);
-        if (result === 'exists') { showToast('该邮箱已订阅，感谢关注！'); }
-        else { input.value = ''; showToast('订阅成功，感谢关注！'); }
-    } catch { showToast('订阅失败，请稍后重试'); }
+        if (result === 'exists') showToast('该邮箱已订阅，感谢关注！');
+        else {
+            input.value = '';
+            showToast('订阅成功，感谢关注！');
+        }
+    } catch {
+        showToast('订阅失败，请稍后重试');
+    }
 }
 </script>
 </body>

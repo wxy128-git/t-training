@@ -7,22 +7,22 @@
     <meta name="description" content="保存、管理你在智能体空间生成的备课内容——查看、复制、导出 Word / Markdown。">
     <meta name="robots" content="noindex">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260709-navpersonal">
+    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
-        .wb-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: end; margin-bottom: 24px; padding: 6px 0 24px; border-bottom: 2px solid var(--ink); }
-        .wb-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); font-weight: 700; margin-bottom: 10px; }
-        .wb-head h1 { font-family: var(--font-display); font-size: clamp(34px, 4vw, 50px); line-height: 1.04; font-weight: 850; color: var(--ink); margin: 0; letter-spacing: -0.03em; }
-        .wb-head h1 em { color: var(--brand); font-style: normal; }
+        .wb-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: end; margin-bottom: 24px; padding: 6px 0 24px; border-bottom: 1px solid var(--line); }
+        .wb-kicker { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); font-weight: 700; margin-bottom: 10px; }
+        .wb-head h1 { font-family: var(--font-display); font-size: clamp(34px, 4vw, 48px); line-height: 1.08; font-weight: 760; color: var(--ink); margin: 0; letter-spacing: -0.03em; }
+        .wb-head h1 em { color: var(--ink); font-style: normal; }
         .wb-head p { font-size: 14.5px; color: var(--text); margin: 12px 0 0; max-width: 43em; line-height: 1.75; }
-        .wb-metrics { display: grid; grid-template-columns: repeat(3, minmax(78px,1fr)); gap: 8px; min-width: 282px; }
-        .wb-metric { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); padding: 10px 12px; box-shadow: 0 10px 24px -22px rgba(26,22,18,.38); }
+        .wb-metrics { display: grid; grid-template-columns: repeat(4, minmax(72px,1fr)); gap: 8px; min-width: 372px; }
+        .wb-metric { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 10px 12px; box-shadow: none; }
         .wb-metric b { display: block; font-family: var(--font-display); font-size: 24px; line-height: 1; color: var(--ink); }
         .wb-metric span { display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted); }
         #wb-count { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
 
-        /* 检索栏：像教师的抽屉标签，不打断卡片阅读 */
-        .wb-controls { display: none; margin: 0 0 24px; padding: 16px; background: rgba(255,255,255,.5); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-xs); }
+        /* 检索栏：明确的工作台控制区 */
+        .wb-controls { display: none; margin: 0 0 24px; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; box-shadow: none; }
         .wb-controls.active { display: block; }
         .wb-search-row { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 12px; align-items: center; }
         .wb-search { position: relative; min-width: 0; }
@@ -30,9 +30,9 @@
         .wb-search input { width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); color: var(--ink); outline: none; padding: 11px 14px 11px 40px; font-size: 14px; transition: border-color .15s, box-shadow .15s, background .15s; }
         .wb-search input:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
         .wb-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-        .wb-filter-pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--soft); color: var(--text-soft); padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+        .wb-filter-pill { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--text-soft); padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
         .wb-filter-pill:hover { color: var(--ink); border-color: var(--subtle); }
-        .wb-filter-pill.active { color: var(--soft); border-color: var(--ink); background: var(--ink); }
+        .wb-filter-pill.active { color: #fff; border-color: var(--brand); background: var(--brand); }
         .wb-select { border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--soft); color: var(--text); padding: 8px 30px 8px 10px; font-size: 12.5px; outline: none; min-height: 36px; }
         .wb-select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); background: var(--paper); }
         .wb-clear { margin-left: auto; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 12.5px; font-family: inherit; padding: 7px 4px; }
@@ -48,6 +48,7 @@
             .wb-statline { white-space: normal; }
             .wb-clear { margin-left: 0; }
         }
+        @media (max-width: 460px) { .wb-metrics { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 
         /* 登录门 */
         #login-gate { display: none; min-height: 46vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: var(--muted); }
@@ -64,13 +65,15 @@
 
         /* 卡片墙 */
         #wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(308px, 1fr)); gap: 16px; }
-        .wb-card { position: relative; display: flex; flex-direction: column; min-height: 252px; background: #fffdf8; border: 1px solid rgba(26,22,18,0.09); border-radius: 14px; padding: 22px;
-            box-shadow: 0 1px 2px rgba(26,22,18,0.05); overflow: hidden; transition: transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s cubic-bezier(.2,.7,.2,1), border-color .32s cubic-bezier(.2,.7,.2,1); }
-        .wb-card:hover { transform: translateY(-3px); border-color: rgba(26,22,18,0.14); box-shadow: 0 2px 4px rgba(26,22,18,0.04), 0 10px 20px -10px rgba(26,22,18,0.10), 0 22px 44px -20px rgba(26,22,18,0.16); }
+        .wb-card { position: relative; display: flex; flex-direction: column; min-height: 252px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 20px;
+            box-shadow: var(--shadow-xs); overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s; }
+        .wb-card:hover { transform: translateY(-1px); border-color: #bdcbd4; box-shadow: 0 10px 24px -22px rgba(23,33,43,.52); }
         .wb-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
         .wb-card-meta { min-width: 0; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); flex-wrap: wrap; }
-        .wb-type { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--soft-2); color: var(--text-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 750; }
+        .wb-type { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 5px; background: var(--soft-2); color: var(--text-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 750; }
         .wb-type.chat { background: var(--brand-soft); color: var(--brand-dark); }
+        .wb-project-tag, .wb-review-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid #c5d7e0; border-radius: 5px; background: #f2f7f9; color: #245b78; font-family: var(--font-sans); font-size: 11px; font-weight: 650; }
+        .wb-review-tag { border-color: #bedbd3; background: #eef8f5; color: #287a68; }
         .wb-card-agent { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .wb-card-date { font-family: var(--font-mono); color: var(--muted); font-size: 11.5px; white-space: nowrap; }
         .wb-card-title { font-size: 16px; font-weight: 850; color: var(--ink); line-height: 1.42; margin: 0 0 9px; cursor: pointer;
@@ -97,10 +100,10 @@
         .wb-filter-empty i { font-size: 44px; display: block; margin-bottom: 12px; color: var(--subtle); }
 
         /* 查看弹层 */
-        .wb-modal { position: fixed; inset: 0; background: rgba(26,22,18,0.45); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
+        .wb-modal { position: fixed; inset: 0; background: rgba(23,33,43,.48); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
         .wb-modal.active { display: flex; }
-        .wb-modal-box { background: #fffdf8; border-radius: var(--r-lg); width: min(820px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow: hidden; }
-        .wb-modal-head { padding: 22px 26px 18px; border-bottom: 2px solid var(--brand); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--paper); }
+        .wb-modal-box { background: var(--paper); border-radius: 12px; width: min(820px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow: hidden; }
+        .wb-modal-head { padding: 22px 26px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--paper); }
         .wb-modal-head h2 { font-family: var(--font-display); font-size: 20px; font-weight: 850; color: var(--ink); margin: 0 0 8px; line-height: 1.35; }
         .wb-modal-head .meta { font-size: 12px; color: var(--muted); font-family: var(--font-mono); display: flex; gap: 7px; flex-wrap: wrap; }
         .wb-modal-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.6); padding: 3px 8px; }
@@ -138,7 +141,7 @@
 
     <div class="wb-head">
         <div>
-            <div class="wb-kicker">PERSONAL WORKBENCH</div>
+            <div class="wb-kicker">Personal workbench · 教学成果管理</div>
             <h1>我的<em>备课本</em></h1>
             <p>把智能体空间生成的教学设计、题目、批改建议和对话记录收进一个地方，随时查看、复制和导出成可继续修改的文稿。</p>
         </div>
@@ -146,6 +149,7 @@
             <div class="wb-metric"><b id="wb-total-metric">0</b><span>全部内容</span></div>
             <div class="wb-metric"><b id="wb-draft-metric">0</b><span>生成文稿</span></div>
             <div class="wb-metric"><b id="wb-chat-metric">0</b><span>对话记录</span></div>
+            <div class="wb-metric"><b id="wb-reviewed-metric">0</b><span>完成核验</span></div>
         </div>
     </div>
 
@@ -162,7 +166,7 @@
             <div class="wb-search-row">
                 <div class="wb-search">
                     <i class="ph ph-magnifying-glass"></i>
-                    <input id="wb-search" type="search" placeholder="搜索标题、智能体或正文内容…" oninput="updateWorkbookState({ q: this.value })">
+                    <input id="wb-search" type="search" aria-label="搜索备课内容" autocomplete="off" placeholder="搜索标题、智能体或正文内容…" oninput="updateWorkbookState({ q: this.value })">
                 </div>
                 <div class="wb-statline" id="wb-statline"></div>
             </div>
@@ -170,10 +174,12 @@
                 <button class="wb-filter-pill active" data-type="all" onclick="setWorkType('all')"><i class="ph ph-stack"></i> 全部</button>
                 <button class="wb-filter-pill" data-type="draft" onclick="setWorkType('draft')"><i class="ph ph-file-text"></i> 生成文稿</button>
                 <button class="wb-filter-pill" data-type="chat" onclick="setWorkType('chat')"><i class="ph ph-chats-circle"></i> 对话记录</button>
+                <select class="wb-select" id="wb-project-filter" onchange="updateWorkbookState({ project: this.value })" aria-label="按教学项目筛选"></select>
                 <select class="wb-select" id="wb-agent-filter" onchange="updateWorkbookState({ agent: this.value })" aria-label="按智能体筛选"></select>
                 <select class="wb-select" id="wb-sort" onchange="updateWorkbookState({ sort: this.value })" aria-label="排序方式">
                     <option value="updated-desc">最近更新</option>
                     <option value="created-desc">最近保存</option>
+                    <option value="project-asc">按教学项目</option>
                     <option value="title-asc">标题 A-Z</option>
                     <option value="agent-asc">智能体名称</option>
                 </select>
@@ -234,13 +240,14 @@
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260709-navpersonal"></script>
+<script src="js/auth.js?v=20260712-workbench"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/teaching-projects.js?v=20260712-project-flow"></script>
 <script>
 let _works = [];
 let _activeWorkId = null;
 let _workbookViewTracked = false;
-let _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc', view: 'cards' };
+let _wbState = { q: '', type: 'all', project: 'all', agent: 'all', sort: 'updated-desc', view: 'cards' };
 let _wbError = '';
 
 function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
@@ -258,6 +265,9 @@ function workType(w) {
 function workTypeLabel(w) { return workType(w) === 'chat' ? '对话记录' : '生成文稿'; }
 function workTypeIcon(w) { return workType(w) === 'chat' ? 'ph-chats-circle' : 'ph-file-text'; }
 function agentKey(w) { return w.agentId || w.agentName || 'unknown'; }
+function workProjectId(w) { return w.inputs?._projectId || 'unassigned'; }
+function workProjectTitle(w) { return w.inputs?._projectTitle || '未归入项目'; }
+function workReviewed(w) { return w.inputs?._reviewStatus === 'reviewed' || (Array.isArray(w.inputs?._reviewChecks) && w.inputs._reviewChecks.length === 4); }
 function titlePart(value, max = 28) {
     const raw = Array.isArray(value) ? value.join('、') : String(value || '');
     return raw.replace(/[#*_>`\[\]（）()《》]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -331,7 +341,7 @@ function setWorkType(type) {
 }
 
 function resetWorkbookFilters() {
-    _wbState = { q: '', type: 'all', agent: 'all', sort: 'updated-desc', view: _wbState.view || 'cards' };
+    _wbState = { q: '', type: 'all', project: 'all', agent: 'all', sort: 'updated-desc', view: _wbState.view || 'cards' };
     renderWorks();
 }
 
@@ -358,6 +368,16 @@ function renderFilterControls() {
         btn.classList.toggle('active', btn.dataset.view === _wbState.view);
     });
 
+    const projectSelect = document.getElementById('wb-project-filter');
+    if (projectSelect) {
+        const projects = [...new Map(_works.map(w => [workProjectId(w), workProjectTitle(w)]))]
+            .sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
+        if (_wbState.project !== 'all' && !projects.some(([key]) => key === _wbState.project)) _wbState.project = 'all';
+        projectSelect.innerHTML = '<option value="all">全部教学项目</option>' + projects
+            .map(([key, name]) => `<option value="${escapeHtml(key)}">${escapeHtml(name)}</option>`).join('');
+        projectSelect.value = _wbState.project;
+    }
+
     const agentSelect = document.getElementById('wb-agent-filter');
     if (!agentSelect) return;
     const agents = [...new Map(_works.map(w => [agentKey(w), w.agentName || '未知智能体']))]
@@ -373,13 +393,15 @@ function filteredWorks() {
     const q = _wbState.q.trim().toLowerCase();
     const list = _works.filter(w => {
         const typeOk = _wbState.type === 'all' || workType(w) === _wbState.type;
+        const projectOk = _wbState.project === 'all' || workProjectId(w) === _wbState.project;
         const agentOk = _wbState.agent === 'all' || agentKey(w) === _wbState.agent;
-        const haystack = `${displayWorkTitle(w)} ${w.title || ''} ${w.agentName || ''} ${w.content || ''}`.toLowerCase();
+        const haystack = `${displayWorkTitle(w)} ${w.title || ''} ${workProjectTitle(w)} ${w.agentName || ''} ${w.content || ''}`.toLowerCase();
         const qOk = !q || haystack.includes(q);
-        return typeOk && agentOk && qOk;
+        return typeOk && projectOk && agentOk && qOk;
     });
     return list.sort((a, b) => {
         if (_wbState.sort === 'created-desc') return timeValue(b.createdAt) - timeValue(a.createdAt);
+        if (_wbState.sort === 'project-asc') return workProjectTitle(a).localeCompare(workProjectTitle(b), 'zh-CN') || timeValue(b.updatedAt || b.createdAt) - timeValue(a.updatedAt || a.createdAt);
         if (_wbState.sort === 'title-asc') return (a.title || '').localeCompare(b.title || '', 'zh-CN');
         if (_wbState.sort === 'agent-asc') return (a.agentName || '').localeCompare(b.agentName || '', 'zh-CN');
         return timeValue(b.updatedAt || b.createdAt) - timeValue(a.updatedAt || a.createdAt);
@@ -397,9 +419,11 @@ function renderWorks() {
     const totalMetric = document.getElementById('wb-total-metric');
     const draftMetric = document.getElementById('wb-draft-metric');
     const chatMetric = document.getElementById('wb-chat-metric');
+    const reviewedMetric = document.getElementById('wb-reviewed-metric');
     if (totalMetric) totalMetric.textContent = _works.length;
     if (draftMetric) draftMetric.textContent = _works.filter(w => workType(w) === 'draft').length;
     if (chatMetric) chatMetric.textContent = _works.filter(w => workType(w) === 'chat').length;
+    if (reviewedMetric) reviewedMetric.textContent = _works.filter(workReviewed).length;
     if (_wbError) {
         if (errorBox) errorBox.style.display = 'block';
         if (errorMsg) errorMsg.textContent = _wbError;
@@ -437,6 +461,8 @@ function renderWorks() {
                 <div class="wb-card-top">
                     <div class="wb-card-meta">
                         <span class="wb-type ${workType(w)}"><i class="ph ${workTypeIcon(w)}"></i>${workTypeLabel(w)}</span>
+                        <span class="wb-project-tag"><i class="ph ph-folder-notch"></i>${escapeHtml(workProjectTitle(w))}</span>
+                        ${workReviewed(w) ? '<span class="wb-review-tag"><i class="ph ph-shield-check"></i>已核验</span>' : ''}
                         <span class="wb-card-agent"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
                     </div>
                     <span class="wb-card-date">${fmtDate(w.updatedAt || w.createdAt)}</span>
@@ -468,18 +494,35 @@ function viewWork(id) {
     document.getElementById('wb-modal-title').textContent = displayWorkTitle(w);
     document.getElementById('wb-modal-meta').innerHTML = `
         <span class="wb-modal-chip"><i class="ph ${workTypeIcon(w)}"></i>${escapeHtml(workTypeLabel(w))}</span>
+        <span class="wb-modal-chip"><i class="ph ph-folder-notch"></i>${escapeHtml(workProjectTitle(w))}</span>
+        ${workReviewed(w) ? '<span class="wb-modal-chip"><i class="ph ph-shield-check"></i>教师已核验</span>' : ''}
         <span class="wb-modal-chip"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
         <span class="wb-modal-chip"><i class="ph ph-calendar-blank"></i>${fmtDate(w.updatedAt || w.createdAt)}</span>`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
     const agentLink = document.getElementById('wb-modal-agent');
     if (agentLink && w.agentId) {
         agentLink.href = `agents.html#${encodeURIComponent(w.agentId)}`;
+        agentLink.onclick = () => resumeWorkContext(w);
         agentLink.style.display = 'inline-flex';
     } else if (agentLink) {
+        agentLink.onclick = null;
         agentLink.style.display = 'none';
     }
     document.getElementById('wb-modal').classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+function resumeWorkContext(w) {
+    const inputs = w?.inputs || {};
+    if (!inputs._projectId && !inputs._projectTitle) return;
+    window.TeachingProjects?.setActiveProject?.({
+        id: inputs._projectId,
+        title: inputs._projectTitle,
+        subject: inputs._projectSubject || inputs.subject || '',
+        grade: inputs._projectGrade || inputs.grade || '',
+        topic: inputs.topic || inputs.point || inputs.concept || inputs.scope || '',
+        goal: inputs.goal || '',
+        classProfile: inputs.note || ''
+    });
 }
 function closeModal() { document.getElementById('wb-modal').classList.remove('active'); document.body.style.overflow = ''; _activeWorkId = null; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
