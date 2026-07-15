@@ -1,0 +1,59 @@
+{
+  "id": "/",
+  "name": "AI 教师培训中心",
+  "short_name": "AI 教研",
+  "description": "面向教师的 AI 教学实践平台：备课、课堂、评价与复盘成果可持续保存和复用。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f3f6f8",
+  "theme_color": "#17212b",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/pwa/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "智能体工作台",
+      "short_name": "智能体",
+      "description": "从教学任务开始生成可编辑成果",
+      "url": "/agents.html?source=pwa-shortcut",
+      "icons": [{ "src": "/assets/pwa/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "我的备课本",
+      "short_name": "备课本",
+      "description": "查看和继续编辑已保存的教学成果",
+      "url": "/workspace.html?source=pwa-shortcut",
+      "icons": [{ "src": "/assets/pwa/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "课堂工具",
+      "short_name": "课堂工具",
+      "description": "打开课堂计时、分组和随机点名工具",
+      "url": "/classroom-tools.html?source=pwa-shortcut",
+      "icons": [{ "src": "/assets/pwa/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

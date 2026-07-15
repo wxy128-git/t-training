@@ -137,6 +137,11 @@
   - 跨智能体使用 `history.pushState` 保留工作步骤，目标工作台显示来源条；浏览器返回、顶部返回按钮和“返回上一成果”都会恢复上一智能体的项目草稿、生成正文与核验状态。普通卡片打开与深链仍使用当前 hash 路由。
   - “教师核验清单”从四个布尔复选框升级为每项“符合 / 需修改”判断，带文字状态、图标、进度条和完成结果，不以颜色作为唯一反馈。旧草稿的 `review: string[]` 会兼容为全部“符合”；新草稿保存 `review: Record<key,'pass'|'revise'>`。
   - 保存成果新增 `_reviewDecisions`，`_reviewStatus` 支持 `draft / reviewed / needs_revision`；`workspace.html` 相应显示“待核验 / 已核验 / 待修改”标签。仍复用 `works.inputs`，不新增 collection，也不要求 Firestore 规则迁移。
+- **2026-07-15（PWA 基础版，本地待上线）**:
+  - 新增根级 `manifest.webmanifest`、`sw.js`、`offline.html`、Cloudflare Pages `_headers`，以及 `assets/pwa/` 的 192 / 512 / maskable / Apple Touch 图标。应用名为「AI 教师培训中心」，短名称「AI 教研」，提供智能体工作台、我的备课本和课堂工具三个系统快捷入口。
+  - 12 个正式用户页面接入 `css/pwa.css?v=20260715-pwa2` 与 `js/pwa.js?v=20260715-pwa2`；桌面导航新增可见的「安装应用」，移动端抽屉与共享页脚提供「安装到设备」，全站 `auth.js` 缓存版本同步为 `?v=20260715-pwa2`。支持 Chrome / Edge 原生安装提示、iOS“添加到主屏幕”和 macOS Safari“添加到程序坞”说明。自动安装提示只在首页等低干扰入口延迟出现，工作台页面不会主动打断编辑。
+  - Service Worker 对导航使用网络优先 + 离线回退，对同源静态资源使用 stale-while-revalidate；页面缓存最多 24 项、静态缓存最多 80 项。`/api/`、授权头、Range 请求、管理页、Functions 路径及音视频全部绕过缓存，不缓存登录凭证、备课本正文或 AI 接口响应。
+  - 更新不自动 `skipWaiting`：检测到新版本时提示教师先保存成果，再由用户点击“立即更新”刷新；`sw.js` 通过 `_headers` 禁止中间缓存。以后修改离线资源或缓存策略时必须同步 bump `sw.js` 的 `VERSION`；修改安装交互时同步 bump 全站 `pwa.css` / `pwa.js` 查询版本。
 
 ## Auth Lesson (Important)
 

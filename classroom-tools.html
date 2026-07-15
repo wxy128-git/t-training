@@ -16,7 +16,15 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/classroom.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/classroom-tools.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
+    <meta name="theme-color" content="#17212b">
+    <meta name="application-name" content="AI 教师培训中心">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .ct-page { max-width: 1240px; margin: 0 auto; padding: 56px 24px 88px; }
         .ct-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -527,7 +535,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/auth.js?v=20260712-workbench"></script>
+<script src="js/auth.js?v=20260715-pwa2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 renderNav('classroom');
@@ -1844,6 +1852,7 @@ function mountRoutine(root) {
     return () => {};
 }
 </script>
+<script src="js/pwa.js?v=20260715-pwa2"></script>
 <script src="js/assistant.js?v=20260709-migration-title"></script>
 </body>
 </html>

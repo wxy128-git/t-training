@@ -16,7 +16,15 @@
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/article.jpg">
     <link rel="canonical" href="https://xylaoshi.pages.dev/article.html">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
+    <meta name="theme-color" content="#17212b">
+    <meta name="application-name" content="AI 教师培训中心">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .article-page-cover {
             width: 100%; height: 260px;
@@ -105,7 +113,7 @@
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
 <script src="js/data.js?v=20260709-proxyworks"></script>
-<script src="js/auth.js?v=20260712-workbench"></script>
+<script src="js/auth.js?v=20260715-pwa2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CAT_CONFIG = {
@@ -206,6 +214,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
+<script src="js/pwa.js?v=20260715-pwa2"></script>
 <script src="js/assistant.js?v=20260709-migration-title"></script>
 </body>
 </html>

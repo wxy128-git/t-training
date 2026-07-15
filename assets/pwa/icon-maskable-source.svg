@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">AI 教师培训中心</title>
+  <desc id="desc">用于系统裁切的全幅深蓝应用图标</desc>
+  <rect width="1024" height="1024" fill="#17212b"/>
+  <g fill="none" stroke="#d7e0e6" stroke-width="2" opacity=".12">
+    <path d="M176 256h672M176 384h672M176 512h672M176 640h672M176 768h672"/>
+    <path d="M256 176v672M384 176v672M512 176v672M640 176v672M768 176v672"/>
+  </g>
+  <rect x="188" y="188" width="648" height="648" rx="154" fill="#245b78"/>
+  <path d="M283 438 512 309l229 129-229 128-229-128Z" fill="#fff"/>
+  <path d="M370 521v116c0 42 64 85 142 85s142-43 142-85V521l-142 80-142-80Z" fill="#e7f0f5"/>
+  <path d="M721 463v151" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="28"/>
+  <circle cx="721" cy="654" r="24" fill="#b64235"/>
+  <path d="m452 646 42 42 91-101" fill="none" stroke="#287a68" stroke-linecap="round" stroke-linejoin="round" stroke-width="27"/>
+</svg>

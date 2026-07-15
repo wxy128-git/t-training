@@ -402,6 +402,8 @@ function renderNav(currentPage) {
     const drawerPrimary = primaryLinks;
     const drawerResources = resourcePages.map(p => navAnchor(p)).join('');
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
+    const pwaInstallButton = `<button type="button" class="nav-pwa-install-button" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i><span>安装应用</span></button>`;
+    const pwaDrawerInstall = `<button type="button" class="nav-link nav-button nav-pwa-install-link" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button>`;
     const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
     const authHtml = user
         ? `<div class="nav-user-area">
@@ -426,6 +428,7 @@ function renderNav(currentPage) {
             </a>
             <nav class="site-nav">${navLinks}${contactLink}${adminLink}</nav>
             <div class="auth-area">
+                ${pwaInstallButton}
                 ${authHtml}
                 <button class="nav-hamburger" aria-label="打开菜单" onclick="openNavDrawer()"><i class="ph ph-list"></i></button>
             </div>
@@ -446,6 +449,7 @@ function renderNav(currentPage) {
             <div class="nav-drawer-kicker">资源</div>
             ${drawerResources}
             <div class="nav-drawer-kicker">其他</div>
+            ${pwaDrawerInstall}
             ${contactLink}
             ${adminLink}
         </div>
@@ -726,6 +730,7 @@ function renderFooter() {
                 <li><a href="news.html">AI 资讯</a></li>
                 <li><a href="paths.html">学习路径</a></li>
                 <li><a href="articles.html">精选文章</a></li>
+                <li><button type="button" class="footer-link-button pwa-footer-install" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button></li>
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
             <div class="footer-col"><h4>关于平台</h4>
