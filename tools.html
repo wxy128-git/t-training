@@ -145,7 +145,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260615-authflash"></script>
-<script src="js/data.js?v=20260709-proxyworks"></script>
+<script src="js/data.js?v=20260716-tools19"></script>
 <script src="js/auth.js?v=20260715-pwa2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
@@ -189,7 +189,8 @@ const TOOL_META = {
     '棒棒糖AI听评课': { cat:'platform', tags:['部分免费','中文'] },
     'Coze':          { cat:'platform', tags:['免费','中文'] },
     'Flowin':        { cat:'platform', tags:['部分免费','中文'] },
-    'WorkBuddy':     { cat:'platform', tags:['部分免费','中文'] }
+    'WorkBuddy':     { cat:'platform', tags:['部分免费','中文'] },
+    'Trae':          { cat:'platform', tags:['免费','中文'] }
 };
 const TAG_CLASS = { '免费':'tt-free', '部分免费':'tt-neutral', '付费':'tt-paid', '中文':'tt-cn', '海外':'tt-os' };
 
@@ -272,7 +273,7 @@ function renderTools() {
         return;
     }
 
-    // 默认「全部」且无搜索 → 按分类分组陈列，缓解一屏 17 张的选择过载
+    // 默认「全部」且无搜索 → 按分类分组陈列，缓解一屏展示全部工具的选择过载
     const visibleCount = _allTools.filter(t => currentTag === 'all' || (t._tags || []).includes(currentTag)).length;
     document.getElementById('count-label').textContent = currentTag === 'all'
         ? `共 ${_allTools.length} 个工具，按教学任务分组`
@@ -305,7 +306,7 @@ function renderTools() {
 renderNav('tools');
 renderFooter();
 
-// 先用本地默认渲染避免白屏；Firestore 数据到了再替换。
+// 先用完整的本地清单避免白屏；同源接口或 Firestore 数据到了再替换。
 _allTools = applyMeta((typeof DEFAULT_TOOLS !== 'undefined') ? JSON.parse(JSON.stringify(DEFAULT_TOOLS)) : []);
 buildFilterBar();
 renderTools();

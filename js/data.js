@@ -13,7 +13,12 @@ const DEFAULT_TOOLS = [
     { id:'t11', name:"Nano Banana", desc:"功能强大的图片生成工具（Gemini）", url:"https://gemini.google.com/app?hl=zh-cn", icon:"ph-image", color:"text-purple-500", bg:"bg-purple-50", category:"creation" },
     { id:'t12', name:"飞影数字人", desc:"专业的数字人视频制作平台", url:"https://hifly.cc/i/GXyeDnoyGPc", icon:"ph-user-focus", color:"text-sky-500", bg:"bg-sky-50", category:"creation" },
     { id:'t13', name:"秘塔搜索", desc:"辅助建立知识库的专题研究工具", url:"https://metaso.cn/", icon:"ph-magnifying-glass", color:"text-teal-500", bg:"bg-teal-50", category:"search" },
-    { id:'t14', name:"Coze", desc:"新一代一站式AI Bot开发平台", url:"https://www.coze.cn/studio?invite_code=260ab871053241e8a2730bb5dff7f662", icon:"ph-robot", color:"text-indigo-500", bg:"bg-indigo-50", category:"dev" }
+    { id:'t14', name:"Coze", desc:"新一代一站式AI Bot开发平台", url:"https://www.coze.cn/studio?invite_code=260ab871053241e8a2730bb5dff7f662", icon:"ph-robot", color:"text-indigo-500", bg:"bg-indigo-50", category:"dev" },
+    { id:'t1778670002319', name:"可灵AI", desc:"创意生成力工具，可以生成超级震撼视频", url:"https://klingai-share.kuaishou.com/h5-app/invitation?code=6BABSH63PWX9", icon:"ph-film-strip", color:"text-teal-500", bg:"bg-teal-50", category:"creation" },
+    { id:'t1780543276948', name:"讯飞智文", desc:"能够根据用户意图，选择视觉方案，并生成精美PPT", url:"https://zhiwen.xfyun.cn/?ch=2GPENWKXJWIU45G1", icon:"ph-presentation", color:"text-purple-500", bg:"bg-purple-50", category:"creation" },
+    { id:'t1780544043788', name:"Flowin", desc:"专门为教师设计的海量学科智能体平台", url:"https://flowin.cn/", icon:"ph-sparkle", color:"text-indigo-500", bg:"bg-indigo-50", category:"creation" },
+    { id:'t1782045373208', name:"WorkBuddy", desc:"全能的AI工作台，全新的办公方式。", url:"https://www.codebuddy.cn/events/invite?inviteCode=w8xmzk7ybahlpr", icon:"ph-folder-open", color:"text-blue-500", bg:"bg-blue-50", category:"dev" },
+    { id:'t1784122849933', name:"Trae", desc:"AI原生工作台，覆盖从专业开发到日常办公的各类场景。", url:"https://www.trae.cn/ide/download", icon:"ph-robot", color:"text-blue-500", bg:"bg-blue-50", category:"dev" }
 ];
 
 const DEFAULT_PROMPTS = [
@@ -477,13 +482,42 @@ async function callWorksAPI(action, payload = {}) {
     return data;
 }
 
+async function callToolsAPI() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    let response;
+    try {
+        response = await fetch('/api/tools', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timer);
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false || !Array.isArray(data.tools)) {
+        const error = new Error(data.msg || `工具清单接口请求失败（${response.status}）`);
+        error.status = response.status;
+        throw error;
+    }
+    return data.tools;
+}
+
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
     async getTools() {
+        const isAdminPage = typeof location !== 'undefined' && /\/admin(?:\.html)?$/.test(location.pathname);
+        if (!isAdminPage) {
+            try {
+                const tools = await callToolsAPI();
+                if (tools.length) return tools;
+            } catch(e) { console.warn('getTools proxy:', e.message); }
+        }
         try {
             const snap = await db.collection('tools').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        } catch(e) { console.warn('getTools:', e.message); }
+        } catch(e) { console.warn('getTools firestore:', e.message); }
         return JSON.parse(JSON.stringify(DEFAULT_TOOLS));
     },
     async setTools(items) {
