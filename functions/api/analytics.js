@@ -28,7 +28,8 @@ const EVENT_ACTIONS = new Set([
     'workbook_open',
     'workbook_save',
     'multimodal_case_open',
-    'multimodal_video_open'
+    'multimodal_video_open',
+    'multimodal_audio_play'
 ]);
 
 const EVENT_FEATURES = new Set([
@@ -514,7 +515,7 @@ function summarizeEvents(events, days) {
             if (sessionKey) funnelSets.saved.add(sessionKey);
         }
 
-        const isMultimodal = e.action === 'multimodal_case_open' || e.action === 'multimodal_video_open' || (e.action === 'page_view' && e.feature === 'multimodal');
+        const isMultimodal = e.action === 'multimodal_case_open' || e.action === 'multimodal_video_open' || e.action === 'multimodal_audio_play' || (e.action === 'page_view' && e.feature === 'multimodal');
         if (isMultimodal) {
             multimodalUses += 1;
             if (d) d.multimodalUses += 1;
