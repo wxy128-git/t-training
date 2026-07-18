@@ -30,20 +30,38 @@ function firebaseErrorMessage(code) {
         INVALID_LOGIN_CREDENTIALS: '账号或密码错误',
         USER_DISABLED: '该账号已被停用'
     };
-    return messages[code] || `Firebase 返回错误：${code || 'UNKNOWN_ERROR'}`;
+    return messages[code] || '认证服务暂时不可用，请稍后重试';
+}
+
+function firebaseErrorStatus(code) {
+    const definitiveCodes = new Set([
+        'EMAIL_EXISTS', 'OPERATION_NOT_ALLOWED', 'TOO_MANY_ATTEMPTS_TRY_LATER',
+        'WEAK_PASSWORD', 'INVALID_EMAIL', 'EMAIL_NOT_FOUND', 'INVALID_PASSWORD',
+        'INVALID_LOGIN_CREDENTIALS', 'USER_DISABLED'
+    ]);
+    return definitiveCodes.has(code) ? 400 : 502;
 }
 
 async function callFirebaseAuth(endpoint, payload) {
-    const response = await fetch(`${FIREBASE_AUTH_BASE}/${endpoint}?key=${FIREBASE_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-    const data = await response.json();
+    let response;
+    let data;
+    try {
+        response = await fetch(`${FIREBASE_AUTH_BASE}/${endpoint}?key=${FIREBASE_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        data = await response.json();
+    } catch {
+        const error = new Error('认证服务暂时不可用，请稍后重试');
+        error.statusCode = 502;
+        throw error;
+    }
     if (!response.ok) {
         const code = data?.error?.message;
         const error = new Error(firebaseErrorMessage(code));
         error.code = code;
+        error.statusCode = firebaseErrorStatus(code);
         throw error;
     }
     return data;
@@ -127,7 +145,8 @@ async function readUserProfile(idToken, uid) {
 }
 
 function userFromAuth(data, profile = {}) {
-    const rawEmail = data.email || profile.email || '';
+    // 身份与管理员权限只能来自 Firebase 返回的认证邮箱，不能信任浏览器提交的 profile。
+    const rawEmail = data.email || '';
     const phoneMatch = rawEmail.match(/^tel_(1[3-9]\d{9})@xylaoshi\.tel$/);
     const phone = phoneMatch ? phoneMatch[1] : (profile.phone || '');
     const email = phoneMatch ? '' : rawEmail;
@@ -137,7 +156,7 @@ function userFromAuth(data, profile = {}) {
         email,
         phone,
         school: profile.school || '',
-        isAdmin: profile.isAdmin === true || rawEmail === ADMIN_EMAIL,
+        isAdmin: rawEmail === ADMIN_EMAIL,
         joinedAt: profile.joinedAt || new Date().toISOString()
     };
 }
@@ -189,7 +208,8 @@ export async function onRequestPost({ request }) {
                     });
                 } catch {}
             }
-            const user = userFromAuth(authData, profile);
+            // signUp 的请求邮箱即新建 Firebase 账号的认证邮箱；显式传入，避免 profile 冒充管理员邮箱。
+            const user = userFromAuth({ ...authData, email }, profile);
             await saveUserProfile(authData.idToken, authData.localId, user);
             return jsonResponse(200, { ok: true, ...authData, user });
         }
@@ -207,6 +227,6 @@ export async function onRequestPost({ request }) {
 
         return jsonResponse(400, { ok: false, msg: '未知认证操作' });
     } catch(error) {
-        return jsonResponse(400, { ok: false, msg: error.message, code: error.code || 'AUTH_PROXY_ERROR' });
+        return jsonResponse(error.statusCode || 502, { ok: false, msg: error.message, code: error.code || 'AUTH_PROXY_ERROR' });
     }
 }

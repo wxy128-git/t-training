@@ -53,29 +53,39 @@ function getStoredProxyAuthSession(options = {}) {
     }
 }
 
-function shouldUseAuthProxyFirst(action = 'login') {
-    // 登录优先走同源 Cloudflare 代理：国内网络不连 VPN 时，Firebase JS SDK 往往要等很久才超时。
-    // 注册仍优先走 Firebase SDK，避免代理注册成功后再本地 createUser 触发 email-already-in-use。
-    return action === 'login';
-}
+const AUTH_PROXY_TIMEOUT_MS = 12000;
 
-function shouldTryFirebaseAfterProxy(error) {
-    return error?.isNetworkError || error?.status === 404 || error?.status >= 500;
+function shouldUseAuthProxyFirst(action = 'login') {
+    // 国内网络下浏览器直连 Firebase Auth 可能长时间无响应；登录和注册都优先走同源代理。
+    // 代理注册成功后会立即 return，后台仅做 Firebase sign-in 同步，绝不再次 createUser。
+    return action === 'login' || action === 'register';
 }
 
 async function callAuthProxy(action, payload) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), AUTH_PROXY_TIMEOUT_MS);
     let response;
+    let data;
     try {
         response = await fetch('/api/auth-proxy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action, ...payload })
+            body: JSON.stringify({ action, ...payload }),
+            signal: controller.signal
         });
+        data = await response.json().catch(() => ({}));
     } catch(error) {
+        if (error?.name === 'AbortError') {
+            const timeoutError = new Error('认证服务连接超时，请稍后重试');
+            timeoutError.isNetworkError = true;
+            timeoutError.isTimeout = true;
+            throw timeoutError;
+        }
         error.isNetworkError = true;
         throw error;
+    } finally {
+        clearTimeout(timeout);
     }
-    const data = await response.json().catch(() => ({}));
     if (!response.ok || data.ok === false) {
         const error = new Error(data.msg || '认证代理请求失败');
         error.code = data.code || 'AUTH_PROXY_ERROR';
@@ -163,10 +173,10 @@ const Auth = {
                 syncFirebaseAuthAfterProxy(authEmail, password, remember);
                 return result;
             } catch(proxyError) {
-                if (!shouldTryFirebaseAfterProxy(proxyError)) {
-                    return { ok: false, msg: `登录失败：${proxyError.message}` };
-                }
-                console.warn('authProxyLogin:', proxyError.message);
+                // 正式站的代理网络异常时不再回落到国内网络可能不可达的 Firebase SDK，
+                // 这样超时后按钮能及时恢复并给出可操作反馈。仅本地静态预览的 404 才走 SDK。
+                if (proxyError?.status !== 404) return { ok: false, msg: `登录失败：${proxyError.message}` };
+                console.warn('authProxyLoginUnavailable:', proxyError.message);
             }
         }
         try {
@@ -208,12 +218,20 @@ const Auth = {
         };
         if (shouldUseAuthProxyFirst('register')) {
             try {
-                return await callAuthProxy('register', { email: authEmail, password, profile: userData });
+                const result = await callAuthProxy('register', { email: authEmail, password, profile: userData });
+                // 代理已经创建账号并写入会话；这里只在后台恢复 Firebase SDK 状态，不会重复注册。
+                syncFirebaseAuthAfterProxy(authEmail, password, true);
+                return result;
             } catch(proxyError) {
-                if (!shouldTryFirebaseAfterProxy(proxyError)) {
-                    return { ok: false, msg: `注册失败：${proxyError.message}` };
+                // 注册不是幂等操作。网络中断、超时或服务端 5xx 时，账号可能已创建但响应丢失，
+                // 不能再用浏览器 SDK 盲目 createUser，否则会造成“已注册”误报和重复提交困惑。
+                if (proxyError?.isNetworkError || proxyError?.status >= 500) {
+                    const prefix = proxyError?.isTimeout ? '注册请求连接超时。' : '注册请求暂未确认。';
+                    return { ok: false, msg: `${prefix}为避免重复创建，请稍候用同一账号尝试登录；若仍无法登录，再重新注册。` };
                 }
-                console.warn('authProxyRegister:', proxyError.message);
+                // 本地静态预览没有 Pages Function 时才安全地退回浏览器 Firebase SDK。
+                if (proxyError?.status !== 404) return { ok: false, msg: `注册失败：${proxyError.message}` };
+                console.warn('authProxyRegisterUnavailable:', proxyError.message);
             }
         }
         try {
@@ -245,11 +263,7 @@ const Auth = {
                 'auth/unauthorized-domain': '当前访问域名未加入 Firebase 授权域名，请在 Firebase Authentication 中添加该域名'
             };
             if (e.code === 'auth/network-request-failed') {
-                try {
-                    return await callAuthProxy('register', { email: authEmail, password, profile: userData });
-                } catch(proxyError) {
-                    return { ok: false, msg: `注册失败：${proxyError.message}` };
-                }
+                return { ok: false, msg: '注册请求未确认。为避免重复创建，请稍候用同一账号尝试登录；若仍无法登录，再重新注册。' };
             }
             return { ok: false, msg: msgs[e.code] || ('注册失败：' + e.message) };
         }
@@ -415,6 +429,10 @@ function renderNav(currentPage) {
            </div>`
         : `<button class="btn-login" onclick="showAuthModal('login')">登录</button>
            <button class="btn-register" onclick="showAuthModal('register')">注册</button>`;
+    const drawerAuth = user ? '' : `
+        <div class="nav-drawer-kicker">账户</div>
+        <button type="button" class="nav-link nav-button" onclick="closeNavDrawer();showAuthModal('login')"><i class="ph ph-sign-in"></i> 登录</button>
+        <button type="button" class="nav-link nav-button" onclick="closeNavDrawer();showAuthModal('register')"><i class="ph ph-user-plus"></i> 注册账号</button>`;
 
     const el = document.getElementById('main-nav');
     if (!el) return;
@@ -443,6 +461,7 @@ function renderNav(currentPage) {
                 </div>
                 <button class="nav-drawer-close" aria-label="关闭菜单" onclick="closeNavDrawer()"><i class="ph ph-x"></i></button>
             </div>
+            ${drawerAuth}
             <div class="nav-drawer-kicker">导航</div>
             ${drawerPrimary}
             ${workbookDrawerLink ? `<div class="nav-drawer-kicker">我的</div>${workbookDrawerLink}` : ''}
@@ -640,11 +659,17 @@ async function handleLogin() {
     err.style.display = 'none';
     btn.disabled = true; btn.textContent = '登录中…';
     const remember = !!document.getElementById('li-remember')?.checked;
-    const result = await Auth.login(identifier, pwd, remember);
-    btn.disabled = false; btn.textContent = '登录';
-    if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
-    showWelcomeOverlay('login', Auth.getCurrentUser()?.name);
-    closeAuthModal();
+    try {
+        const result = await Auth.login(identifier, pwd, remember);
+        if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
+        showWelcomeOverlay('login', Auth.getCurrentUser()?.name);
+        closeAuthModal();
+    } catch(error) {
+        err.textContent = `登录失败：${error?.message || '请稍后重试'}`;
+        err.style.display = '';
+    } finally {
+        btn.disabled = false; btn.textContent = '登录';
+    }
 }
 
 async function handleRegister() {
@@ -656,11 +681,17 @@ async function handleRegister() {
     const btn       = document.getElementById('rg-btn');
     err.style.display = 'none';
     btn.disabled = true; btn.textContent = '注册中…';
-    const result = await Auth.register(name, identifier, school, pwd);
-    btn.disabled = false; btn.textContent = '创建账号';
-    if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
-    showWelcomeOverlay('register', name);
-    closeAuthModal();
+    try {
+        const result = await Auth.register(name, identifier, school, pwd);
+        if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
+        showWelcomeOverlay('register', name);
+        closeAuthModal();
+    } catch(error) {
+        err.textContent = `注册失败：${error?.message || '请稍后重试'}`;
+        err.style.display = '';
+    } finally {
+        btn.disabled = false; btn.textContent = '创建账号';
+    }
 }
 
 async function handleForgotPassword() {

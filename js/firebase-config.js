@@ -89,7 +89,8 @@ auth.onAuthStateChanged(async (fbUser) => {
         try {
             const snap = await db.collection('users').doc(fbUser.uid).get();
             _currentUser = snap.exists
-                ? { ...fallback, ...snap.data(), uid: fbUser.uid, isAdmin: fallback.isAdmin || snap.data().isAdmin === true }
+                // 管理员身份只认 Firebase Auth 的邮箱；users 文档只是个人资料，不能授予权限。
+                ? { ...fallback, ...snap.data(), uid: fbUser.uid, isAdmin: fallback.isAdmin }
                 : fallback;
         } catch {
             _currentUser = fallback;
