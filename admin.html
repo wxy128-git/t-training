@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 · AI 教师培训中心</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <style>
         .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); }
         .admin-sidebar { background: var(--ink); padding: 24px 14px; position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto; }
@@ -93,6 +94,7 @@
 </head>
 <body>
 <div id="main-nav"></div>
+<div id="main-content">
 
 <!-- Login gate -->
 <div id="login-gate" style="min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;background:var(--soft);padding:24px">
@@ -109,7 +111,7 @@
         <div class="form-group"><label class="form-label">密码</label><input type="password" id="gate-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')gateLogin()"></div>
         <div id="gate-err" class="form-error" style="display:none;margin-bottom:12px"></div>
         <button class="btn-primary" id="gate-btn" onclick="gateLogin()">进入管理后台</button>
-        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:18px"><a href="index.html" style="color:var(--brand);font-weight:500">← 返回网站首页</a></p>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:18px"><a href="/" style="color:var(--brand);font-weight:500">← 返回网站首页</a></p>
     </div>
 </div>
 
@@ -133,7 +135,7 @@
             <div class="sidebar-item" onclick="switchPanel('resources-mgr',this)"><i class="ph ph-palette"></i>课件素材</div>
             <div class="sidebar-item" onclick="switchPanel('users',this)"><i class="ph ph-users"></i>用户列表</div>
             <div style="margin-top:20px;padding:8px 12px">
-                <a href="index.html" style="font-size:13px;color:#475569;display:flex;align-items:center;gap:6px"><i class="ph ph-arrow-left"></i>返回网站</a>
+                <a href="/" style="font-size:13px;color:#475569;display:flex;align-items:center;gap:6px"><i class="ph ph-arrow-left"></i>返回网站</a>
             </div>
         </div>
 
@@ -313,6 +315,8 @@
 
         </div>
     </div>
+</div>
+
 </div>
 
 <!-- ===== MODALS ===== -->
@@ -577,9 +581,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];
@@ -930,8 +935,8 @@ async function renderAnnTable() {
         ? '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:32px">暂无公告</td></tr>'
         : _adminAnn.map(a => `
         <tr>
-            <td style="font-weight:600;max-width:150px">${a.title}</td>
-            <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.content}</td>
+            <td style="font-weight:600;max-width:150px">${escapeHTML(a.title)}</td>
+            <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHTML(a.content)}</td>
             <td style="color:#94a3b8;white-space:nowrap">${new Date(a.createdAt).toLocaleDateString('zh-CN')}</td>
             <td>
                 <button class="edit-btn" onclick="editAnn('${a.id}')">编辑</button>
@@ -989,12 +994,12 @@ async function renderCPTable() {
         ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">暂无数据</td></tr>'
         : list.map(p => `
         <tr>
-            <td style="font-weight:600;max-width:120px">${p.label}</td>
-            <td style="color:#64748b">${p.authorName || '—'}</td>
-            <td style="color:#64748b">${p.category}</td>
-            <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${p.text}</td>
-            <td style="color:#F59E0B;text-align:center">♥ ${p.likes || 0}</td>
-            <td>${statusLabel[p.status] || p.status}</td>
+            <td style="font-weight:600;max-width:120px">${escapeHTML(p.label)}</td>
+            <td style="color:#64748b">${escapeHTML(p.authorName) || '—'}</td>
+            <td style="color:#64748b">${escapeHTML(p.category)}</td>
+            <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${escapeHTML(p.text)}</td>
+            <td style="color:#F59E0B;text-align:center">♥ ${Math.max(0, Number(p.likes) || 0)}</td>
+            <td>${statusLabel[p.status] || escapeHTML(p.status)}</td>
             <td style="white-space:nowrap">
                 ${p.status !== 'approved' ? `<button class="approve-btn" onclick="approveCommunityPrompt('${p.id}')">通过</button>` : ''}
                 <button class="reject-btn" onclick="deleteCommunityPrompt('${p.id}')">删除</button>
@@ -1023,7 +1028,7 @@ async function renderSubsTable() {
         ? '<tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:32px">暂无订阅者</td></tr>'
         : _adminSubs.map((s, i) => `
         <tr>
-            <td style="font-weight:500">${s.email}</td>
+            <td style="font-weight:500">${escapeHTML(s.email)}</td>
             <td style="color:#94a3b8;font-size:12px">${new Date(s.subscribedAt).toLocaleDateString('zh-CN')}</td>
             <td><button class="reject-btn" onclick="deleteSub('${s.id}')">删除</button></td>
         </tr>`).join('');
@@ -1096,24 +1101,32 @@ async function deleteMessage(id) {
 // ===== TOOLS =====
 async function renderToolsTable() {
     _adminTools = await DB.getTools();
-    document.getElementById('tools-tbody').innerHTML = _adminTools.map((t, i) => `
+    document.getElementById('tools-tbody').innerHTML = _adminTools.map((t, i) => {
+        const safeToolUrl = SafeRender.safeUrl(t.url);
+        return `
         <tr>
-            <td style="font-weight:600">${t.name}</td>
-            <td><span style="background:#fbe8e4;color:var(--brand);padding:2px 8px;border-radius:999px;font-size:11px">${{teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]||t.category}</span></td>
-            <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</td>
-            <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="${t.url}" target="_blank" style="color:var(--brand);font-size:12px">${t.url}</a></td>
+            <td style="font-weight:600">${escapeHTML(t.name)}</td>
+            <td><span style="background:#fbe8e4;color:var(--brand);padding:2px 8px;border-radius:999px;font-size:11px">${escapeHTML({teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]||t.category)}</span></td>
+            <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHTML(t.desc)}</td>
+            <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safeToolUrl ? `<a href="${escapeHTML(safeToolUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--brand);font-size:12px">${escapeHTML(t.url)}</a>` : '<span style="color:var(--danger);font-size:12px">链接无效</span>'}</td>
             <td>
                 <button class="edit-btn" onclick="editTool(${i})">编辑</button>
                 <button class="reject-btn" onclick="deleteTool(${i})">删除</button>
             </td>
-        </tr>`).join('');
+        </tr>`;
+    }).join('');
 }
 
 // Live preview of the selected Phosphor icon next to the dropdown.
 function updateIconPreview() {
     const sel = document.getElementById('tool-icon');
     const prev = document.getElementById('tool-icon-preview');
-    if (prev) prev.innerHTML = '<i class="ph ' + (sel.value || 'ph-robot') + '"></i>';
+    if (prev) {
+        const icon = document.createElement('i');
+        const iconClass = /^ph-[a-z0-9-]+$/i.test(sel.value || '') ? sel.value : 'ph-robot';
+        icon.className = `ph ${iconClass}`;
+        prev.replaceChildren(icon);
+    }
 }
 // Set the icon dropdown; if an existing tool uses an icon not in the curated
 // list, inject a temporary option so it still displays (no blank select).
@@ -1155,11 +1168,13 @@ async function saveTool() {
     const url = document.getElementById('tool-url').value.trim();
     const desc = document.getElementById('tool-desc').value.trim();
     if (!name || !url || !desc) { showToast('请填写名称、链接和描述'); return; }
+    const safeUrl = SafeRender.safeUrl(url);
+    if (!safeUrl || !/^https?:\/\//i.test(safeUrl)) { showToast('请填写有效的 http:// 或 https:// 链接'); return; }
     const colorVal = document.getElementById('tool-color').value;
     const [color, bg] = colorVal.split(' ');
     const tools = [..._adminTools];
     const idx = document.getElementById('tool-edit-id').value;
-    const item = { name, url, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, id: idx !== '' ? tools[parseInt(idx)].id : ('t' + Date.now()) };
+    const item = { name, url: safeUrl, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, id: idx !== '' ? tools[parseInt(idx)].id : ('t' + Date.now()) };
     if (idx !== '') { tools[parseInt(idx)] = item; } else { tools.push(item); }
     await DB.setTools(tools);
     closeModal('tool-modal');
@@ -1188,9 +1203,9 @@ async function renderPromptsTable() {
     _adminPrompts = await DB.getPrompts();
     document.getElementById('prompts-tbody').innerHTML = _adminPrompts.map((p, i) => `
         <tr>
-            <td style="font-weight:600">${p.label}</td>
-            <td><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:999px;font-size:11px">${p.category}</span></td>
-            <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${p.text}</td>
+            <td style="font-weight:600">${escapeHTML(p.label)}</td>
+            <td><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:999px;font-size:11px">${escapeHTML(p.category)}</span></td>
+            <td style="color:#64748b;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${escapeHTML(p.text)}</td>
             <td>
                 <button class="edit-btn" onclick="editPrompt(${i})">编辑</button>
                 <button class="reject-btn" onclick="deletePrompt(${i})">删除</button>
@@ -1251,10 +1266,10 @@ async function renderPathsTable() {
     _adminPaths = await DB.getPaths();
     document.getElementById('paths-tbody').innerHTML = _adminPaths.map((p, i) => `
         <tr>
-            <td style="font-weight:600">${p.title}</td>
-            <td>${p.level}</td>
-            <td>${p.duration}</td>
-            <td>${p.steps.length} 步</td>
+            <td style="font-weight:600">${escapeHTML(p.title)}</td>
+            <td>${escapeHTML(p.level)}</td>
+            <td>${escapeHTML(p.duration)}</td>
+            <td>${Array.isArray(p.steps) ? p.steps.length : 0} 步</td>
             <td><button class="reject-btn" onclick="deletePath(${i})">删除</button></td>
         </tr>`).join('');
 }
@@ -1282,6 +1297,10 @@ function htmlEscape(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+function inlineString(value) {
+    return htmlEscape(JSON.stringify(String(value ?? '')).replace(/</g, '\\u003c').replace(/>/g, '\\u003e'));
+}
+
 async function renderResourcesList() {
     _adminResources = await DB.getResources();
     const list = document.getElementById('resources-list');
@@ -1296,12 +1315,12 @@ async function renderResourcesList() {
                 <span style="font-size:15px;font-weight:700;color:var(--ink)">${htmlEscape(cat.title)}</span>
                 <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:2px 8px;border-radius:999px">${htmlEscape(cat.id)}</span>
                 <span style="font-size:12px;color:var(--muted);margin-left:auto">${(cat.items || []).length} 条</span>
-                <button onclick="event.stopPropagation();event.preventDefault();openCategoryModal('${htmlEscape(cat.id)}')" class="edit-btn"><i class="ph ph-pencil-simple"></i></button>
-                <button onclick="event.stopPropagation();event.preventDefault();deleteCategory('${htmlEscape(cat.id)}')" class="reject-btn"><i class="ph ph-trash"></i></button>
+                <button onclick="event.stopPropagation();event.preventDefault();openCategoryModal(${inlineString(cat.id)})" class="edit-btn"><i class="ph ph-pencil-simple"></i></button>
+                <button onclick="event.stopPropagation();event.preventDefault();deleteCategory(${inlineString(cat.id)})" class="reject-btn"><i class="ph ph-trash"></i></button>
             </summary>
             <div style="padding:14px 18px">
                 <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
-                    <button onclick="openItemModal('${htmlEscape(cat.id)}', -1)" style="padding:6px 14px;background:transparent;color:var(--brand);border:1px solid var(--brand);border-radius:var(--r-sm);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px"><i class="ph ph-plus"></i>新增资源</button>
+                    <button onclick="openItemModal(${inlineString(cat.id)}, -1)" style="padding:6px 14px;background:transparent;color:var(--brand);border:1px solid var(--brand);border-radius:var(--r-sm);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px"><i class="ph ph-plus"></i>新增资源</button>
                 </div>
                 ${(cat.items || []).length === 0
                     ? '<div style="padding:18px;text-align:center;font-size:13px;color:var(--muted)">分类下还没有资源</div>'
@@ -1311,10 +1330,10 @@ async function renderResourcesList() {
                             <div style="flex:1;min-width:0">
                                 <div style="font-size:13.5px;font-weight:600;color:var(--ink)">${htmlEscape(it.name)}</div>
                                 <div style="font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${htmlEscape(it.desc)}</div>
-                                <a href="${htmlEscape(it.url)}" target="_blank" rel="noopener noreferrer" style="font-size:11.5px;color:var(--muted);font-family:var(--font-mono)" onclick="event.stopPropagation()">${htmlEscape(it.url)}</a>
+                                ${SafeRender.safeUrl(it.url) ? `<a href="${htmlEscape(SafeRender.safeUrl(it.url))}" target="_blank" rel="noopener noreferrer" style="font-size:11.5px;color:var(--muted);font-family:var(--font-mono)" onclick="event.stopPropagation()">${htmlEscape(it.url)}</a>` : '<span style="font-size:11.5px;color:var(--danger)">链接无效</span>'}
                             </div>
-                            <button onclick="openItemModal('${htmlEscape(cat.id)}', ${ii})" class="edit-btn"><i class="ph ph-pencil-simple"></i></button>
-                            <button onclick="deleteResourceItem('${htmlEscape(cat.id)}', ${ii})" class="reject-btn"><i class="ph ph-trash"></i></button>
+                            <button onclick="openItemModal(${inlineString(cat.id)}, ${ii})" class="edit-btn"><i class="ph ph-pencil-simple"></i></button>
+                            <button onclick="deleteResourceItem(${inlineString(cat.id)}, ${ii})" class="reject-btn"><i class="ph ph-trash"></i></button>
                         </div>
                     `).join('')}</div>`}
             </div>
@@ -1433,9 +1452,9 @@ async function renderUsersTable() {
         ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">暂无注册用户</td></tr>'
         : _adminUsers.map((u, i) => `
         <tr>
-            <td style="font-weight:600">${u.name}</td>
-            <td style="color:#64748b">${u.email || (u.phone ? '手机:' + u.phone : '—')}</td>
-            <td style="color:#64748b">${u.school || '—'}</td>
+            <td style="font-weight:600">${escapeHTML(u.name) || '未命名用户'}</td>
+            <td style="color:#64748b">${escapeHTML(u.email || (u.phone ? '手机:' + u.phone : '—'))}</td>
+            <td style="color:#64748b">${escapeHTML(u.school) || '—'}</td>
             <td style="color:#94a3b8;font-size:12px">${new Date(u.joinedAt).toLocaleDateString('zh-CN')}</td>
             <td><button class="reject-btn" onclick="deleteUser(${i})">删除</button></td>
         </tr>`).join('');
@@ -1531,10 +1550,10 @@ async function renderArticlesTable() {
             ? '<span style="background:#eff6ff;color:#3b82f6;padding:2px 6px;border-radius:6px;font-size:11px">外链</span>'
             : '<span style="background:#f0fdf4;color:#16a34a;padding:2px 6px;border-radius:6px;font-size:11px">原创</span>';
         return `<tr>
-            <td style="font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</td>
-            <td style="color:#64748b">${ART_CAT_LABEL[a.category] || a.category}</td>
+            <td style="font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHTML(a.title)}</td>
+            <td style="color:#64748b">${escapeHTML(ART_CAT_LABEL[a.category] || a.category)}</td>
             <td>${typeBadge}</td>
-            <td style="color:#64748b">${a.author || '编辑部'}</td>
+            <td style="color:#64748b">${escapeHTML(a.author) || '编辑部'}</td>
             <td>${statusBadge}</td>
             <td style="color:#94a3b8;font-size:12px;white-space:nowrap">${date}</td>
             <td style="white-space:nowrap">
@@ -1586,7 +1605,8 @@ async function saveArticle() {
     const summary = document.getElementById('art-summary').value.trim();
     const type = document.getElementById('art-type').value;
     if (!title || !summary) { showToast('请填写标题和摘要'); return; }
-    if (type === 'external' && !document.getElementById('art-url').value.trim()) { showToast('请填写外部链接 URL'); return; }
+    const externalUrl = type === 'external' ? SafeRender.safeUrl(document.getElementById('art-url').value.trim()) : '';
+    if (type === 'external' && (!externalUrl || !/^https?:\/\//i.test(externalUrl))) { showToast('请填写有效的 http:// 或 https:// 外部链接'); return; }
     if (type === 'original' && !document.getElementById('art-content').value.trim()) { showToast('请填写文章内容'); return; }
 
     const data = {
@@ -1598,7 +1618,7 @@ async function saveArticle() {
         coverEmoji: document.getElementById('art-emoji').value.trim() || '📝',
         coverColor: document.getElementById('art-color').value,
         status: document.getElementById('art-status').value,
-        externalUrl: type === 'external' ? document.getElementById('art-url').value.trim() : '',
+        externalUrl,
         content: type === 'original' ? document.getElementById('art-content').value.trim() : '',
         publishedAt: new Date().toISOString()
     };
@@ -1668,6 +1688,6 @@ document.addEventListener('authRefresh', async () => {
     }
 });
 </script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

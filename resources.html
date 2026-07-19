@@ -8,13 +8,13 @@
     <meta property="og:title" content="课件素材速查库">
     <meta property="og:description" content="课件、海报、活动方案常用素材入口：图片、PNG、图标、抠图、AIGC 平台。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/resources.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/resources">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/resources.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/resources.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/resources.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/resources">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,13 +23,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
 </head>
 <body>
 <div id="main-nav"></div>
 
-<main class="resource-page">
+<main class="resource-page" id="main-content">
     <section class="resource-hero">
         <div>
             <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500">Resources · 课件素材</div>
@@ -56,9 +56,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 // Start with the in-code defaults so the page paints immediately,
@@ -72,7 +73,7 @@ function renderContent(filterText = '') {
     let hasResults = false;
 
     container.innerHTML = categories.map(category => {
-        const filteredItems = category.items.filter(item =>
+        const filteredItems = (category.items || []).filter(item =>
             item.name.toLowerCase().includes(query) ||
             item.desc.toLowerCase().includes(query) ||
             category.title.toLowerCase().includes(query)
@@ -82,21 +83,23 @@ function renderContent(filterText = '') {
         return `
             <section class="resource-section">
                 <div class="resource-section-title">
-                    <span class="${category.bg} ${category.color}"><i class="ph-fill ${category.icon}"></i></span>
-                    <h2>${category.title}</h2>
+                    <span class="${SafeRender.classNames(category.bg)} ${SafeRender.classNames(category.color)}"><i class="ph-fill ${SafeRender.classNames(category.icon, 'ph-folder')}"></i></span>
+                    <h2>${SafeRender.escape(category.title)}</h2>
                 </div>
                 <div class="resource-grid">
                     ${filteredItems.map(item => {
-                        const domain = new URL(item.url).hostname.replace('www.', '');
+                        const safeItemUrl = SafeRender.safeUrl(item.url);
+                        if (!safeItemUrl) return '';
+                        const domain = new URL(safeItemUrl, location.href).hostname.replace('www.', '');
                         return `
-                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="resource-card">
+                            <a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <div class="resource-card-top">
-                                    <i class="ph-bold ${item.itemIcon}"></i>
-                                    <h3>${item.name}</h3>
+                                    <i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i>
+                                    <h3>${SafeRender.escape(item.name)}</h3>
                                     <span><i class="ph-bold ph-arrow-up-right"></i></span>
                                 </div>
-                                <p>${item.desc}</p>
-                                <div class="resource-domain">${domain}</div>
+                                <p>${SafeRender.escape(item.desc)}</p>
+                                <div class="resource-domain">${SafeRender.escape(domain)}</div>
                             </a>
                         `;
                     }).join('')}
@@ -124,6 +127,6 @@ DB.getResources().then(data => {
 });
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

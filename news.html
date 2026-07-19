@@ -8,13 +8,13 @@
     <meta property="og:title" content="AI 教育资讯日报">
     <meta property="og:description" content="来自顶尖媒体的 AI 与教育动态——机器之心、量子位等双引擎自动抓取。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/news.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/news">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/news.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/news.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/news.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/news">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,14 +23,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
 </head>
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>AI 资讯</span></div>
+<main id="main-content" style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>AI 资讯</span></div>
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px">
         <div>
@@ -61,9 +61,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 renderNav('news');
@@ -109,15 +110,17 @@ function renderItems(items) {
     }
     grid.innerHTML = items.map(item => {
         const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric'}); } catch{return '近期';} })();
-        const domain = (() => { try { return new URL(item.link).hostname.replace('www.',''); } catch{return '';} })();
+        const safeLink = SafeRender.safeUrl(item.link);
+        if (!safeLink) return '';
+        const domain = (() => { try { return new URL(safeLink).hostname.replace('www.',''); } catch{return '';} })();
         const desc = item.description ? item.description.substring(0, 160) : '';
         return `
-        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="card news-card" style="display:block">
+        <a href="${SafeRender.escape(safeLink)}" target="_blank" rel="noopener noreferrer" class="card news-card" style="display:block">
             <div class="news-meta">
-                <span class="news-source">${domain}</span>·<span>${date}</span>
+                <span class="news-source">${SafeRender.escape(domain)}</span>·<span>${SafeRender.escape(date)}</span>
             </div>
-            <h3 class="line-clamp-2">${item.title}</h3>
-            <p class="line-clamp-3" style="margin-top:10px;font-size:13px;color:var(--muted);line-height:1.75">${desc}${desc?'…':''}</p>
+            <h3 class="line-clamp-2">${SafeRender.escape(item.title)}</h3>
+            <p class="line-clamp-3" style="margin-top:10px;font-size:13px;color:var(--muted);line-height:1.75">${SafeRender.escape(desc)}${desc?'…':''}</p>
             <div style="margin-top:14px;display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--brand);font-weight:600;opacity:0" class="read-more">
                 阅读全文 <i class="ph ph-arrow-right"></i>
             </div>
@@ -164,6 +167,6 @@ buildFeedTabs();
 loadNews();
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

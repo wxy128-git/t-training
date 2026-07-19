@@ -7,14 +7,14 @@
     <meta name="description" content="阅读教师 AI 教学领域的精选文章详情。">
     <meta property="og:title" content="文章详情">
     <meta property="og:description" content="阅读教师 AI 教学领域的精选文章详情。">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/article.html">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/article">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/article.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/article.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/article.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/article">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,8 +23,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
+    <script type="application/ld+json" id="article-jsonld">{}</script>
     <style>
         .article-page-cover {
             width: 100%; height: 260px;
@@ -41,11 +42,11 @@
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:840px;margin:0 auto;padding:56px 24px 88px">
+<main id="main-content" style="max-width:840px;margin:0 auto;padding:56px 24px 88px">
     <div class="breadcrumb">
-        <a href="index.html">首页</a>
+        <a href="/">首页</a>
         <i class="ph ph-caret-right"></i>
-        <a href="articles.html">精选文章</a>
+        <a href="/articles">精选文章</a>
         <i class="ph ph-caret-right"></i>
         <span id="bc-title">文章详情</span>
     </div>
@@ -75,7 +76,7 @@
                 </div>
                 <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
                     <span id="read-count" style="font-size:12px;color:var(--subtle);display:flex;align-items:center;gap:4px"></span>
-                    <a href="articles.html" style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;text-decoration:none;border:1px solid var(--line);padding:6px 14px;border-radius:var(--r-sm);transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
+                    <a href="/articles" style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;text-decoration:none;border:1px solid var(--line);padding:6px 14px;border-radius:var(--r-sm);transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
                         <i class="ph ph-arrow-left"></i> 返回列表
                     </a>
                 </div>
@@ -87,7 +88,7 @@
 
         <!-- Footer actions -->
         <div style="margin-top:56px;padding-top:28px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-            <a href="articles.html" style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--brand);font-weight:600;text-decoration:none">
+            <a href="/articles" style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--brand);font-weight:600;text-decoration:none">
                 <i class="ph ph-arrow-left"></i> 返回文章列表
             </a>
             <button onclick="copyPageUrl()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
@@ -100,7 +101,7 @@
     <div id="article-error" style="display:none;text-align:center;padding:80px 20px;color:var(--subtle)">
         <i class="ph ph-file-x" style="font-size:56px;display:block;margin-bottom:16px"></i>
         <p style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ink)">文章不存在或已删除</p>
-        <a href="articles.html" style="font-size:14px;color:var(--brand)">← 返回文章列表</a>
+        <a href="/articles" style="font-size:14px;color:var(--brand)">← 返回文章列表</a>
     </div>
 </main>
 
@@ -111,9 +112,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CAT_CONFIG = {
@@ -139,6 +141,36 @@ function copyPageUrl() {
     navigator.clipboard.writeText(location.href).then(() => showToast('链接已复制'));
 }
 
+function updateArticleMetadata(article) {
+    const title = String(article.title || '精选文章').trim();
+    const summary = String(article.summary || '阅读教师 AI 教学领域的精选文章详情。').replace(/\s+/g, ' ').trim().slice(0, 160);
+    const canonicalUrl = new URL('/article', 'https://xylaoshi.pages.dev');
+    canonicalUrl.searchParams.set('id', articleId);
+    document.title = title + ' · AI 教师培训中心';
+    document.querySelector('meta[name="description"]')?.setAttribute('content', summary);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', summary);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonicalUrl.href);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl.href);
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description: summary,
+        mainEntityOfPage: canonicalUrl.href,
+        inLanguage: 'zh-CN',
+        image: 'https://xylaoshi.pages.dev/assets/og/article.jpg',
+        author: { '@type': 'Person', name: String(article.author || '编辑部') },
+        publisher: { '@type': 'Organization', name: 'AI 教师培训中心', url: 'https://xylaoshi.pages.dev/' }
+    };
+    if (article.publishedAt) {
+        const published = new Date(article.publishedAt);
+        if (!Number.isNaN(published.getTime())) jsonLd.datePublished = published.toISOString();
+    }
+    const jsonLdNode = document.getElementById('article-jsonld');
+    if (jsonLdNode) jsonLdNode.textContent = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+}
+
 // Get article ID from URL
 const urlParams = new URLSearchParams(location.search);
 const articleId = urlParams.get('id');
@@ -162,8 +194,8 @@ async function loadArticle() {
         return;
     }
 
-    // Update page title
-    document.title = article.title + ' · AI 教师培训中心';
+    // Update page title, canonical URL, share metadata and structured data.
+    updateArticleMetadata(article);
     document.getElementById('bc-title').textContent = article.title.length > 20 ? article.title.slice(0, 20) + '…' : article.title;
 
     // Cover
@@ -171,7 +203,7 @@ async function loadArticle() {
     const gradient = COVER_GRADIENTS[Math.abs((articleId || '').charCodeAt(0)) % COVER_GRADIENTS.length];
     const emoji = article.coverEmoji || '📝';
     document.getElementById('article-cover').style.background = gradient;
-    document.getElementById('article-cover').innerHTML = `<span style="position:relative;z-index:1">${emoji}</span>`;
+    document.getElementById('article-cover').innerHTML = `<span style="position:relative;z-index:1">${SafeRender.escape(emoji)}</span>`;
 
     // Category tag
     const cat = CAT_CONFIG[article.category] || CAT_CONFIG.other;
@@ -184,20 +216,25 @@ async function loadArticle() {
     document.getElementById('author-name').textContent = authorName;
     const date = (() => { try { return new Date(article.publishedAt).toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'}); } catch{return '';} })();
     document.getElementById('article-date').textContent = date;
-    if (article.readCount) {
-        document.getElementById('read-count').innerHTML = `<i class="ph ph-eye"></i>${article.readCount} 次阅读`;
+    if (Number(article.readCount) > 0) {
+        document.getElementById('read-count').innerHTML = `<i class="ph ph-eye"></i>${Number(article.readCount).toLocaleString('zh-CN')} 次阅读`;
     }
 
     // Content — render markdown
     if (article.content) {
-        marked.setOptions({ breaks: true, gfm: true });
-        document.getElementById('article-content').innerHTML = marked.parse(article.content);
+        document.getElementById('article-content').innerHTML = SafeRender.markdown(article.content);
     } else if (article.type === 'external' && article.externalUrl) {
+        const safeExternalUrl = SafeRender.safeUrl(article.externalUrl);
+        if (!safeExternalUrl) {
+            document.getElementById('article-content').textContent = '文章外部链接无效，请联系管理员更新。';
+            document.getElementById('article-body').style.display = '';
+            return;
+        }
         document.getElementById('article-content').innerHTML = `
             <div style="text-align:center;padding:40px 20px;background:#f8fafc;border-radius:16px">
                 <i class="ph ph-arrow-up-right" style="font-size:40px;color:#4F46E5;display:block;margin-bottom:12px"></i>
                 <p style="font-size:15px;color:#374151;margin-bottom:20px">此文章来自外部链接，点击下方按钮跳转阅读原文</p>
-                <a href="${article.externalUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;font-size:14px;font-weight:600;border-radius:12px;text-decoration:none">
+                <a href="${SafeRender.escape(safeExternalUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;font-size:14px;font-weight:600;border-radius:12px;text-decoration:none">
                     阅读原文 <i class="ph ph-arrow-up-right"></i>
                 </a>
             </div>`;
@@ -215,6 +252,6 @@ onAuthReady((user) => {
 });
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

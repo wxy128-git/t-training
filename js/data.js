@@ -504,11 +504,39 @@ async function callToolsAPI() {
     return data.tools;
 }
 
+function isAdminRuntimePage() {
+    return typeof location !== 'undefined' && /\/admin(?:\.html)?$/.test(location.pathname);
+}
+
+async function callContentAPI(type, id = '') {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    try {
+        const params = new URLSearchParams({ type });
+        if (id) params.set('id', id);
+        const response = await fetch(`/api/content?${params}`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.ok === false) {
+            const error = new Error(data.msg || `内容接口请求失败（${response.status}）`);
+            error.status = response.status;
+            throw error;
+        }
+        if (id) return data.item || null;
+        if (!Array.isArray(data.items)) throw new Error('内容接口返回格式不正确');
+        return data.items;
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
     async getTools() {
-        const isAdminPage = typeof location !== 'undefined' && /\/admin(?:\.html)?$/.test(location.pathname);
-        if (!isAdminPage) {
+        if (!isAdminRuntimePage()) {
             try {
                 const tools = await callToolsAPI();
                 if (tools.length) return tools;
@@ -529,6 +557,12 @@ const DB = {
     },
 
     async getPrompts() {
+        if (!isAdminRuntimePage()) {
+            try {
+                const items = await callContentAPI('prompts');
+                if (items.length) return items;
+            } catch(e) { console.warn('getPrompts proxy:', e.message); }
+        }
         try {
             const snap = await db.collection('prompts').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -544,6 +578,12 @@ const DB = {
     },
 
     async getPaths() {
+        if (!isAdminRuntimePage()) {
+            try {
+                const items = await callContentAPI('paths');
+                if (items.length) return items;
+            } catch(e) { console.warn('getPaths proxy:', e.message); }
+        }
         try {
             const snap = await db.collection('paths').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -559,6 +599,10 @@ const DB = {
     },
 
     async getAnnouncements() {
+        if (!isAdminRuntimePage()) {
+            try { return await callContentAPI('announcements'); }
+            catch(e) { console.warn('getAnnouncements proxy:', e.message); }
+        }
         try {
             const snap = await db.collection('announcements').orderBy('createdAt', 'desc').get();
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -605,6 +649,15 @@ const DB = {
                 .map(d => ({ id: d.id, ...d.data() }))
                 .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         } catch(e) { console.warn('getCommunityPrompts:', e.message); return []; }
+    },
+    async getMyCommunityPrompts(userId) {
+        if (!userId) return [];
+        try {
+            const snap = await db.collection('community_prompts').where('authorId', '==', userId).get();
+            return snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        } catch(e) { console.warn('getMyCommunityPrompts:', e.message); return []; }
     },
     async submitCommunityPrompt(userId, userName, data) {
         const item = { ...data, authorId: userId, authorName: userName, status: 'pending', likes: 0, likedBy: [], createdAt: new Date().toISOString() };
@@ -663,6 +716,16 @@ const DB = {
 
     /* ===== 精选文章 ===== */
     async getArticles(status = null) {
+        if (!isAdminRuntimePage()) {
+            try {
+                const items = await callContentAPI('articles');
+                const existingIds = new Set(items.map(item => item.id));
+                const fallbackItems = DEFAULT_ARTICLES.filter(item => !existingIds.has(item.id));
+                return [...items, ...fallbackItems]
+                    .filter(item => !status || item.status === status)
+                    .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
+            } catch(e) { console.warn('getArticles proxy:', e.message); }
+        }
         try {
             let q = db.collection('articles');
             if (status) q = q.where('status', '==', status);
@@ -682,6 +745,13 @@ const DB = {
         return list.sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
     },
     async getArticle(id) {
+        if (!isAdminRuntimePage()) {
+            try { return await callContentAPI('articles', id); }
+            catch(e) {
+                if (Number(e?.status) === 404) return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
+                console.warn('getArticle proxy:', e.message);
+            }
+        }
         try {
             const doc = await db.collection('articles').doc(id).get();
             if (!doc.exists) return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
@@ -739,6 +809,12 @@ const DB = {
 
     /* ===== 设计资源 ===== */
     async getResources() {
+        if (!isAdminRuntimePage()) {
+            try {
+                const items = await callContentAPI('resources');
+                if (items.length) return items;
+            } catch(e) { console.warn('getResources proxy:', e.message); }
+        }
         try {
             const snap = await db.collection('resource_categories').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));

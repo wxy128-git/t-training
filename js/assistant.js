@@ -1,10 +1,10 @@
 (() => {
     const FALLBACK_TOOLS = [
-        { name: 'AI好记', desc: '分析优质公开课，智能总结课程精华', url: 'tools.html', category: 'teaching' },
-        { name: '快出题', desc: '智能生成试题，快速组卷', url: 'tools.html', category: 'teaching' },
-        { name: 'Gamma', desc: '一键生成 PPT', url: 'tools.html', category: 'creation' },
-        { name: '飞象老师', desc: '生成教学动画和微课视频', url: 'tools.html', category: 'creation' },
-        { name: '秘塔搜索', desc: '辅助资料检索和知识库建设', url: 'tools.html', category: 'search' }
+        { name: 'AI好记', desc: '分析优质公开课，智能总结课程精华', url: '/tools', category: 'teaching' },
+        { name: '快出题', desc: '智能生成试题，快速组卷', url: '/tools', category: 'teaching' },
+        { name: 'Gamma', desc: '一键生成 PPT', url: '/tools', category: 'creation' },
+        { name: '飞象老师', desc: '生成教学动画和微课视频', url: '/tools', category: 'creation' },
+        { name: '秘塔搜索', desc: '辅助资料检索和知识库建设', url: '/tools', category: 'search' }
     ];
     const QUICK_QUESTIONS = [
         'AI 可以怎样帮我备一节课？',
@@ -21,6 +21,7 @@
     let assistantInput;
     let contactModal;
     let contactForm;
+    let contactReturnFocus;
 
     function getTools() {
         try {
@@ -45,6 +46,16 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    function safeLinkUrl(value) {
+        if (globalThis.SafeRender) return SafeRender.safeUrl(value);
+        try {
+            const url = new URL(String(value || ''), location.href);
+            return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol) ? String(value) : '';
+        } catch {
+            return '';
+        }
     }
 
     function toast(message) {
@@ -329,8 +340,11 @@
     }
 
     function toolLinks(tools) {
-        if (!tools.length) return '<a href="tools.html">查看 AI资源精选</a>';
-        return tools.map(tool => `<a href="${tool.url}" target="_blank" rel="noopener">${escapeHtml(tool.name)}</a>`).join('、');
+        if (!tools.length) return '<a href="/tools">查看 AI资源精选</a>';
+        return tools.map(tool => {
+            const url = safeLinkUrl(tool.url);
+            return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(tool.name)}</a>` : '';
+        }).filter(Boolean).join('、') || '<a href="/tools">查看 AI资源精选</a>';
     }
 
     function promptByLabel(label) {
@@ -349,19 +363,19 @@
             {
                 keys: ['备课', '教案', '导入', '教学设计'],
                 title: '备课可以用“三步走”',
-                body: `<strong>首选：</strong>用「<a href="agents.html#lesson-design">教学设计助手</a>」智能体，填课题与学情直接生成教案。想自己一步步来：<br>1. 先让 AI 梳理知识点、易错点和教学目标。<br>2. 再让 AI 生成 2-3 个课堂导入或活动方案，你挑最贴近学生的一版。<br>3. 最后请 AI 检查教案中的知识准确性和课堂时间分配。<br><br>推荐工具：${toolLinks(findToolsByNames(['AI好记', 'PrompterHub', 'Prompt123']))}`,
+                body: `<strong>首选：</strong>用「<a href="/agents#lesson-design">教学设计助手</a>」智能体，填课题与学情直接生成教案。想自己一步步来：<br>1. 先让 AI 梳理知识点、易错点和教学目标。<br>2. 再让 AI 生成 2-3 个课堂导入或活动方案，你挑最贴近学生的一版。<br>3. 最后请 AI 检查教案中的知识准确性和课堂时间分配。<br><br>推荐工具：${toolLinks(findToolsByNames(['AI好记', 'PrompterHub', 'Prompt123']))}`,
                 prompt: '备课助手'
             },
             {
                 keys: ['出题', '组卷', '试题', '练习', '作业'],
                 title: '出题组卷建议这样做',
-                body: `<strong>首选：</strong>用「<a href="agents.html#quiz-gen">智能出题</a>」智能体一键出题。要点：先明确年级、学科、知识点、题型和难度比例，再让 AI 生成基础题、提高题和拓展题。生成后一定抽查答案和解题过程。<br><br>推荐工具：${toolLinks(findToolsByNames(['快出题', 'Prompt123']))}`,
+                body: `<strong>首选：</strong>用「<a href="/agents#quiz-gen">智能出题</a>」智能体一键出题。要点：先明确年级、学科、知识点、题型和难度比例，再让 AI 生成基础题、提高题和拓展题。生成后一定抽查答案和解题过程。<br><br>推荐工具：${toolLinks(findToolsByNames(['快出题', 'Prompt123']))}`,
                 prompt: '智能出题'
             },
             {
                 keys: ['ppt', '课件', '幻灯片', '展示'],
                 title: '课件制作可以拆成“结构 + 美化 + 素材”',
-                body: `先用 AI 生成课件大纲，再用 Gamma 快速生成 PPT 初稿。重点页建议手动补充真实课堂图片、例题和板书逻辑。需要图片、图标、免抠素材时，可以去 <a href="resources.html">课件素材</a>。<br><br>推荐工具：${toolLinks(findToolsByNames(['Gamma', '即梦AI', 'Nano Banana']))}`
+                body: `先用 AI 生成课件大纲，再用 Gamma 快速生成 PPT 初稿。重点页建议手动补充真实课堂图片、例题和板书逻辑。需要图片、图标、免抠素材时，可以去 <a href="/resources">课件素材</a>。<br><br>推荐工具：${toolLinks(findToolsByNames(['Gamma', '即梦AI', 'Nano Banana']))}`
             },
             {
                 keys: ['动画', '视频', '微课', '数字人'],
@@ -371,7 +385,7 @@
             {
                 keys: ['图片', '绘本', '插图', '海报', '素材'],
                 title: '图像素材建议先确定使用场景',
-                body: `课件配图可以先找真实照片；故事、绘本和活动海报可以用 AI 生成系列图。做公开发布前，注意检查平台版权协议和人物肖像问题。<br><br>推荐入口：<a href="resources.html">课件素材</a>；推荐工具：${toolLinks(findToolsByNames(['anygen', 'Nano Banana']))}`
+                body: `课件配图可以先找真实照片；故事、绘本和活动海报可以用 AI 生成系列图。做公开发布前，注意检查平台版权协议和人物肖像问题。<br><br>推荐入口：<a href="/resources">课件素材</a>；推荐工具：${toolLinks(findToolsByNames(['anygen', 'Nano Banana']))}`
             },
             {
                 keys: ['评语', '评价', '反馈', '学生评价'],
@@ -382,7 +396,7 @@
             {
                 keys: ['家长', '沟通', '通知', '家校'],
                 title: '家校沟通要让 AI 帮你把语气“降温”',
-                body: `<strong>首选：</strong>用「<a href="agents.html#parent-comm">家校沟通助手</a>」智能体起草。把事实、期待家长配合的事项和希望的语气写清楚，让 AI 先出一版合作导向的话术。敏感问题要再人工调整，避免标签化学生。`,
+                body: `<strong>首选：</strong>用「<a href="/agents#parent-comm">家校沟通助手</a>」智能体起草。把事实、期待家长配合的事项和希望的语气写清楚，让 AI 先出一版合作导向的话术。敏感问题要再人工调整，避免标签化学生。`,
                 prompt: '家长沟通'
             },
             {
@@ -393,12 +407,12 @@
             {
                 keys: ['提示词', 'prompt', '怎么问', '提问'],
                 title: '好提示词可以用这个公式',
-                body: `角色 + 任务 + 背景 + 输出格式。<br><br>例如：你是一位有经验的初中语文老师，请为七年级学生设计《春》的课堂导入，要求 5 分钟内完成，包含教师提问和学生可能回应。<br><br>想省事？直接用 <a href="agents.html">智能体空间</a> 里的现成智能体，填参数就出结果。`
+                body: `角色 + 任务 + 背景 + 输出格式。<br><br>例如：你是一位有经验的初中语文老师，请为七年级学生设计《春》的课堂导入，要求 5 分钟内完成，包含教师提问和学生可能回应。<br><br>想省事？直接用 <a href="/agents">智能体空间</a> 里的现成智能体，填参数就出结果。`
             },
             {
                 keys: ['学习路径', '入门', '怎么学', '新手'],
                 title: '新手老师可以从入门路径开始',
-                body: `建议先完成“AI 入门基础”，熟悉提示词和常用工具；再进入“AI 教学应用”，把 AI 放进备课、出题、评价、沟通等真实流程。<br><br><a href="paths.html">查看学习路径</a>`
+                body: `建议先完成“AI 入门基础”，熟悉提示词和常用工具；再进入“AI 教学应用”，把 AI 放进备课、出题、评价、沟通等真实流程。<br><br><a href="/paths">查看学习路径</a>`
             },
             {
                 keys: ['联系', '留言', '反馈', '建议'],
@@ -415,13 +429,17 @@
     function answerQuestion(question) {
         const toolMatches = matchTool(question);
         if (toolMatches.length) {
-            return `<strong>我找到了相关工具：</strong><br>${toolMatches.map(tool => `• <a href="${tool.url}" target="_blank" rel="noopener">${escapeHtml(tool.name)}</a>：${escapeHtml(tool.desc)}`).join('<br>')}<br><br>使用建议：先用一个真实教学任务试跑，再把效果好的提示词保存到你的个人模板里。`;
+            const links = toolMatches.map(tool => {
+                const url = safeLinkUrl(tool.url);
+                return url ? `• <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(tool.name)}</a>：${escapeHtml(tool.desc)}` : '';
+            }).filter(Boolean);
+            if (links.length) return `<strong>我找到了相关工具：</strong><br>${links.join('<br>')}<br><br>使用建议：先用一个真实教学任务试跑，再把效果好的提示词保存到你的个人模板里。`;
         }
 
         const scenario = buildScenarioAnswer(question);
         if (scenario) return scenario;
 
-        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="agents.html">智能体空间</a>、<a href="paths.html">学习路径</a>、<a href="tools.html">AI资源精选</a>。`;
+        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="/agents">智能体空间</a>、<a href="/paths">学习路径</a>、<a href="/tools">AI资源精选</a>。`;
     }
 
     function sendQuestion(question) {
@@ -522,16 +540,16 @@
                     <div class="contact-grid">
                         <div>
                             <label for="contact-name">姓名</label>
-                            <input id="contact-name" name="name" type="text" placeholder="您的姓名">
+                            <input id="contact-name" name="name" type="text" maxlength="80" autocomplete="name" placeholder="您的姓名">
                         </div>
                         <div>
                             <label for="contact-way">联系方式</label>
-                            <input id="contact-way" name="contact" type="text" placeholder="邮箱 / 手机 / 微信">
+                            <input id="contact-way" name="contact" type="text" maxlength="160" autocomplete="email" placeholder="邮箱 / 手机 / 微信">
                         </div>
                     </div>
                     <div style="margin-top:14px">
                         <label for="contact-message">留言内容 *</label>
-                        <textarea id="contact-message" name="message" required placeholder="请写下您想交流的问题、资源建议或培训需求"></textarea>
+                        <textarea id="contact-message" name="message" required maxlength="5000" placeholder="请写下您想交流的问题、资源建议或培训需求"></textarea>
                     </div>
                     <input type="hidden" name="page" value="${escapeHtml(location.href)}">
                     <p class="contact-note">提交后管理员可在后台查看您的留言并尽快回复。</p>
@@ -550,6 +568,10 @@
         contactModal.querySelector('.contact-close').addEventListener('click', closeContactModal);
         contactModal.querySelector('.contact-secondary').addEventListener('click', closeContactModal);
         contactForm.addEventListener('submit', submitContact);
+        contactModal.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeContactModal();
+            else if (typeof trapModalFocus === 'function') trapModalFocus(event, contactModal);
+        });
     }
 
     function prefillContactForm(user) {
@@ -569,16 +591,21 @@
         const user = requireRegisteredUser(() => openContactModal());
         if (!user) return;
         if (!contactModal) buildContactModal();
+        contactReturnFocus = document.activeElement;
         prefillContactForm(user);
         contactModal.classList.add('open');
         contactModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
         setTimeout(() => contactModal.querySelector('#contact-name')?.focus(), 80);
     }
 
     function closeContactModal() {
-        if (!contactModal) return;
+        if (!contactModal || !contactModal.classList.contains('open')) return;
         contactModal.classList.remove('open');
         contactModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (contactReturnFocus && document.contains(contactReturnFocus)) contactReturnFocus.focus();
+        contactReturnFocus = null;
     }
 
     async function submitContact(event) {

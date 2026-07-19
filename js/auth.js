@@ -1,5 +1,11 @@
 /* ===== Auth 操作（Firebase） ===== */
 
+function escapeAuthHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+}
+
 function parseIdentifier(val) {
     const cleaned = String(val || '').replace(/\s/g, '');
     if (/^1[3-9]\d{9}$/.test(cleaned)) {
@@ -92,12 +98,14 @@ async function callAuthProxy(action, payload) {
         error.status = response.status;
         throw error;
     }
-    rememberProxyAuthSession(data);
-    if (data.user?.uid) rememberUserProfile(data.user.uid, data.user);
-    _currentUser = data.user;
-    rememberLastAuthUser(_currentUser);
-    document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
-    return { ok: true, viaProxy: true };
+    if (data.idToken && data.user?.uid) {
+        rememberProxyAuthSession(data);
+        rememberUserProfile(data.user.uid, data.user);
+        _currentUser = data.user;
+        rememberLastAuthUser(_currentUser);
+        document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
+    }
+    return { ok: true, viaProxy: true, msg: data.msg || '' };
 }
 
 async function refreshProxyAuthSession() {
@@ -147,8 +155,15 @@ const Auth = {
             return { ok: false, msg: '请输入有效的邮箱地址' };
         }
         try {
+            const result = await callAuthProxy('reset-password', { email: authEmail });
+            return { ok: true, msg: result.msg || '如果该邮箱已注册，密码重置链接将发送到邮箱，请留意收件箱。' };
+        } catch(proxyError) {
+            // 本地静态预览没有 Pages Function 时才退回浏览器 Firebase SDK。
+            if (proxyError?.status !== 404) return { ok: false, msg: proxyError.message || '发送失败，请稍后重试' };
+        }
+        try {
             await auth.sendPasswordResetEmail(authEmail);
-            return { ok: true, msg: `重置链接已发送至 ${authEmail}，请查收邮箱（如未收到请检查垃圾邮件箱）。` };
+            return { ok: true, msg: '如果该邮箱已注册，密码重置链接将发送到邮箱，请留意收件箱和垃圾邮件箱。' };
         } catch(e) {
             const msgs = {
                 'auth/user-not-found': '该邮箱尚未注册，请确认邮箱或先注册账号',
@@ -373,18 +388,18 @@ let _navPage = '';
 function renderNav(currentPage) {
     if (currentPage === undefined) currentPage = _navPage; else _navPage = currentPage;  // 记住当前页，供登录后原地重渲染
     const primaryPages = [
-        { key:'index',     href:'index.html',    label:'首页' },
-        { key:'agents',    href:'agents.html',   label:'智能体空间' },
-        { key:'multimodal', href:'multimodal.html', label:'多模态工作坊', icon:'ph ph-images-square' },
-        { key:'classroom', href:'classroom-tools.html', label:'课堂工具' }
+        { key:'index',     href:'/',    label:'首页' },
+        { key:'agents',    href:'/agents',   label:'智能体空间' },
+        { key:'multimodal', href:'/multimodal', label:'多模态工作坊', icon:'ph ph-images-square' },
+        { key:'classroom', href:'/classroom-tools', label:'课堂工具' }
     ];
     const resourcePages = [
-        { key:'tools',     href:'tools.html',     label:'AI资源精选', icon:'ph ph-toolbox', desc:'精选工具导航' },
-        { key:'resources', href:'resources.html', label:'课件素材', icon:'ph ph-folder-open', desc:'可下载素材' },
-        { key:'news',      href:'news.html',      label:'AI 资讯', icon:'ph ph-newspaper', desc:'教育 AI 动态' },
-        { key:'paths',     href:'paths.html',     label:'学习路径', icon:'ph ph-path', desc:'系统训练路线' },
-        { key:'articles',  href:'articles.html',  label:'精选文章', icon:'ph ph-article', desc:'方法与案例' },
-        { key:'prompts',   href:'prompts.html',   label:'提示词库', icon:'ph ph-quotes', desc:'可复用提示词' }
+        { key:'tools',     href:'/tools',     label:'AI资源精选', icon:'ph ph-toolbox', desc:'精选工具导航' },
+        { key:'resources', href:'/resources', label:'课件素材', icon:'ph ph-folder-open', desc:'可下载素材' },
+        { key:'news',      href:'/news',      label:'AI 资讯', icon:'ph ph-newspaper', desc:'教育 AI 动态' },
+        { key:'paths',     href:'/paths',     label:'学习路径', icon:'ph ph-path', desc:'系统训练路线' },
+        { key:'articles',  href:'/articles',  label:'精选文章', icon:'ph ph-article', desc:'方法与案例' },
+        { key:'prompts',   href:'/prompts',   label:'提示词库', icon:'ph ph-quotes', desc:'可复用提示词' }
     ];
     const user = _currentUser;
     const navAnchor = (p, extraClass = '') => {
@@ -393,7 +408,7 @@ function renderNav(currentPage) {
         return `<a href="${p.href}" class="nav-link${feature}${extraClass ? ` ${extraClass}` : ''}${p.key === currentPage ? ' active' : ''}">${icon}${p.label}</a>`;
     };
     const primaryLinks = primaryPages.map(p => navAnchor(p)).join('');
-    const workbookPage = { key:'workspace', href:'workspace.html', label:'备课本', icon:'ph ph-notebook' };
+    const workbookPage = { key:'workspace', href:'/workspace', label:'备课本', icon:'ph ph-notebook' };
     const workbookQuickLink = user
         ? `<a href="${workbookPage.href}" class="nav-user-tool${currentPage === 'workspace' ? ' active' : ''}" aria-label="我的备课本" title="我的备课本"><i class="${workbookPage.icon}"></i><span>${workbookPage.label}</span></a>`
         : '';
@@ -418,12 +433,15 @@ function renderNav(currentPage) {
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
     const pwaInstallButton = `<button type="button" class="nav-pwa-install-button" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i><span>安装应用</span></button>`;
     const pwaDrawerInstall = `<button type="button" class="nav-link nav-button nav-pwa-install-link" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button>`;
-    const adminLink = user?.isAdmin ? `<a href="admin.html" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
+    const adminLink = user?.isAdmin ? `<a href="/admin" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
+    const displayName = String(user?.name || user?.email || user?.phone || '教师用户');
+    const safeDisplayName = escapeAuthHtml(displayName);
+    const safeAvatarLetter = escapeAuthHtml(displayName.slice(0, 1).toUpperCase());
     const authHtml = user
         ? `<div class="nav-user-area">
                ${workbookQuickLink}
-               <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
-               <span style="font-size:14px;color:#374151;font-weight:500" class="hm">${user.name}</span>
+               <div class="user-avatar">${safeAvatarLetter}</div>
+               <span style="font-size:14px;color:#374151;font-weight:500" class="hm">${safeDisplayName}</span>
                ${user.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}
                <button class="btn-login" onclick="Auth.logout()">退出</button>
            </div>`
@@ -440,7 +458,7 @@ function renderNav(currentPage) {
     <a class="skip-link" href="#main-content">跳到主要内容</a>
     <header class="site-header">
         <div class="site-header-inner">
-            <a href="index.html" class="site-logo">
+            <a href="/" class="site-logo">
                 <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
                 <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Practice Hub</span></div>
             </a>
@@ -448,12 +466,12 @@ function renderNav(currentPage) {
             <div class="auth-area">
                 ${pwaInstallButton}
                 ${authHtml}
-                <button class="nav-hamburger" aria-label="打开菜单" onclick="openNavDrawer()"><i class="ph ph-list"></i></button>
+                <button class="nav-hamburger" type="button" aria-label="打开菜单" aria-controls="nav-drawer" aria-expanded="false" onclick="openNavDrawer()"><i class="ph ph-list"></i></button>
             </div>
         </div>
     </header>
-    <div class="nav-drawer" id="nav-drawer" onclick="if(event.target===this)closeNavDrawer()">
-        <div class="nav-drawer-panel">
+    <div class="nav-drawer" id="nav-drawer" aria-hidden="true" onclick="if(event.target===this)closeNavDrawer()">
+        <div class="nav-drawer-panel" role="dialog" aria-modal="true" aria-label="网站导航">
             <div class="nav-drawer-head">
                 <div class="nav-drawer-brand">
                     <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:15px"></i></div>
@@ -497,18 +515,49 @@ function toggleResourceMenu(event) {
     event.currentTarget.setAttribute('aria-expanded', String(open));
 }
 
+let _drawerReturnFocus = null;
+let _authReturnFocus = null;
+
+function modalFocusable(container) {
+    return Array.from(container?.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') || [])
+        .filter(element => element.offsetParent !== null && element.getAttribute('aria-hidden') !== 'true');
+}
+
+function trapModalFocus(event, container) {
+    if (event.key !== 'Tab' || !container) return;
+    const focusable = modalFocusable(container);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
 function openNavDrawer() {
     const d = document.getElementById('nav-drawer');
     if (!d) return;
+    _drawerReturnFocus = document.activeElement;
     closeResourceMenu();
     d.classList.add('open');
+    d.setAttribute('aria-hidden', 'false');
+    document.querySelector('.nav-hamburger')?.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
+    setTimeout(() => d.querySelector('.nav-drawer-close')?.focus(), 30);
 }
 function closeNavDrawer() {
     const d = document.getElementById('nav-drawer');
     if (!d) return;
     d.classList.remove('open');
+    d.setAttribute('aria-hidden', 'true');
+    document.querySelector('.nav-hamburger')?.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
+    if (_drawerReturnFocus?.focus) _drawerReturnFocus.focus();
+    _drawerReturnFocus = null;
 }
 // Close drawer when a nav link inside it is clicked
 document.addEventListener('click', (ev) => {
@@ -520,10 +569,21 @@ document.addEventListener('click', (ev) => {
 });
 // ESC closes
 document.addEventListener('keydown', (ev) => {
+    const authModal = document.getElementById('auth-modal');
+    if (authModal?.classList.contains('active')) {
+        if (ev.key === 'Escape') {
+            ev.preventDefault();
+            closeAuthModal();
+            return;
+        }
+        trapModalFocus(ev, authModal.querySelector('.modal-box'));
+        return;
+    }
+    const drawer = document.getElementById('nav-drawer');
+    if (drawer?.classList.contains('open')) trapModalFocus(ev, drawer.querySelector('.nav-drawer-panel'));
     if (ev.key === 'Escape') {
         closeResourceMenu();
-        const d = document.getElementById('nav-drawer');
-        if (d?.classList.contains('open')) closeNavDrawer();
+        if (drawer?.classList.contains('open')) closeNavDrawer();
     }
 });
 
@@ -534,39 +594,41 @@ function showAuthModal(tab) {
         modal = document.createElement('div');
         modal.id = 'auth-modal';
         modal.className = 'modal-overlay';
+        modal.setAttribute('aria-hidden', 'true');
         modal.innerHTML = `
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-tabs">
-                <button class="modal-tab" id="tab-li" onclick="switchAuthTab('login')">登录</button>
-                <button class="modal-tab" id="tab-rg" onclick="switchAuthTab('register')">注册账号</button>
-                <button onclick="closeAuthModal()" style="padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" onclick="event.stopPropagation()">
+            <h2 class="sr-only" id="auth-modal-title">账户登录</h2>
+            <div class="modal-tabs" role="tablist" aria-label="账户操作">
+                <button type="button" class="modal-tab" id="tab-li" role="tab" aria-controls="form-li" onclick="switchAuthTab('login')">登录</button>
+                <button type="button" class="modal-tab" id="tab-rg" role="tab" aria-controls="form-rg" onclick="switchAuthTab('register')">注册账号</button>
+                <button type="button" aria-label="关闭账户弹窗" onclick="closeAuthModal()" style="padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
             </div>
-            <div id="form-li" class="modal-body">
-                <div class="form-group"><label class="form-label">邮箱或手机号</label><input type="text" id="li-email" class="form-input" placeholder="your@email.com 或 13800138000"></div>
-                <div class="form-group"><label class="form-label">密码</label><input type="password" id="li-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+            <div id="form-li" class="modal-body" role="tabpanel" aria-labelledby="tab-li">
+                <div class="form-group"><label class="form-label" for="li-email">邮箱或手机号</label><input type="text" id="li-email" class="form-input" autocomplete="username" maxlength="254" placeholder="your@email.com 或 13800138000"></div>
+                <div class="form-group"><label class="form-label" for="li-pwd">密码</label><input type="password" id="li-pwd" class="form-input" autocomplete="current-password" maxlength="128" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px">
                     <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-soft);cursor:pointer"><input type="checkbox" id="li-remember" style="cursor:pointer">记住我<span style="color:var(--muted);font-size:11px">（公用电脑勿勾）</span></label>
                     <button type="button" onclick="switchAuthTab('forgot')" style="background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer;padding:0;font-family:inherit;white-space:nowrap">忘记密码？</button>
                 </div>
-                <div id="li-err" class="form-error" style="display:none"></div>
+                <div id="li-err" class="form-error" role="alert" aria-live="assertive" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="li-btn" onclick="handleLogin()">登录</button></div>
                 <p class="modal-footer-text">还没有账号？<button onclick="switchAuthTab('register')">立即注册</button></p>
             </div>
-            <div id="form-fp" class="modal-body" style="display:none">
+            <div id="form-fp" class="modal-body" role="tabpanel" aria-labelledby="tab-li" style="display:none">
                 <p style="font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:16px">输入注册时使用的<strong>邮箱</strong>，我们会把密码重置链接发到你的邮箱，按邮件指引设置新密码即可。</p>
-                <div class="form-group"><label class="form-label">注册邮箱</label><input type="email" id="fp-email" class="form-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')handleForgotPassword()"></div>
-                <div id="fp-msg" style="display:none"></div>
+                <div class="form-group"><label class="form-label" for="fp-email">注册邮箱</label><input type="email" id="fp-email" class="form-input" autocomplete="email" maxlength="254" placeholder="your@email.com" onkeydown="if(event.key==='Enter')handleForgotPassword()"></div>
+                <div id="fp-msg" role="status" aria-live="polite" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="fp-btn" onclick="handleForgotPassword()">发送重置邮件</button></div>
                 <p class="modal-footer-text"><button onclick="switchAuthTab('login')">← 返回登录</button></p>
             </div>
-            <div id="form-rg" class="modal-body" style="display:none">
+            <div id="form-rg" class="modal-body" role="tabpanel" aria-labelledby="tab-rg" style="display:none">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                    <div class="form-group"><label class="form-label">姓名 *</label><input type="text" id="rg-name" class="form-input" placeholder="您的姓名"></div>
-                    <div class="form-group"><label class="form-label">学校/单位</label><input type="text" id="rg-school" class="form-input" placeholder="所在单位"></div>
+                    <div class="form-group"><label class="form-label" for="rg-name">姓名 *</label><input type="text" id="rg-name" class="form-input" autocomplete="name" maxlength="80" placeholder="您的姓名"></div>
+                    <div class="form-group"><label class="form-label" for="rg-school">学校/单位</label><input type="text" id="rg-school" class="form-input" autocomplete="organization" maxlength="120" placeholder="所在单位"></div>
                 </div>
-                <div class="form-group"><label class="form-label">邮箱或手机号 *</label><input type="text" id="rg-email" class="form-input" placeholder="your@email.com 或 13800138000"></div>
-                <div class="form-group"><label class="form-label">密码 *</label><input type="password" id="rg-pwd" class="form-input" placeholder="至少 6 位"></div>
-                <div id="rg-err" class="form-error" style="display:none"></div>
+                <div class="form-group"><label class="form-label" for="rg-email">邮箱或手机号 *</label><input type="text" id="rg-email" class="form-input" autocomplete="username" maxlength="254" placeholder="your@email.com 或 13800138000"></div>
+                <div class="form-group"><label class="form-label" for="rg-pwd">密码 *</label><input type="password" id="rg-pwd" class="form-input" autocomplete="new-password" minlength="6" maxlength="128" placeholder="至少 6 位"></div>
+                <div id="rg-err" class="form-error" role="alert" aria-live="assertive" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="rg-btn" onclick="handleRegister()">创建账号</button></div>
                 <p class="modal-footer-text">已有账号？<button onclick="switchAuthTab('login')">立即登录</button></p>
             </div>
@@ -574,12 +636,21 @@ function showAuthModal(tab) {
         modal.addEventListener('click', e => { if (e.target === modal) closeAuthModal(); });
         document.body.appendChild(modal);
     }
+    _authReturnFocus = document.activeElement;
     modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
     switchAuthTab(tab || 'login');
 }
 
 function closeAuthModal() {
-    document.getElementById('auth-modal')?.classList.remove('active');
+    const modal = document.getElementById('auth-modal');
+    if (!modal?.classList.contains('active')) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (_authReturnFocus?.focus) _authReturnFocus.focus();
+    _authReturnFocus = null;
 }
 
 function switchAuthTab(tab) {
@@ -592,6 +663,10 @@ function switchAuthTab(tab) {
     const activeTab = (tab === 'forgot') ? 'login' : tab;
     const li = document.getElementById('tab-li'); if (li) li.className = 'modal-tab' + (activeTab === 'login' ? ' active' : '');
     const rg = document.getElementById('tab-rg'); if (rg) rg.className = 'modal-tab' + (activeTab === 'register' ? ' active' : '');
+    li?.setAttribute('aria-selected', String(activeTab === 'login'));
+    rg?.setAttribute('aria-selected', String(activeTab === 'register'));
+    const title = document.getElementById('auth-modal-title');
+    if (title) title.textContent = tab === 'register' ? '注册账号' : (tab === 'forgot' ? '重置密码' : '账户登录');
     if (tab === 'forgot') {
         // 把登录框里已输入的邮箱带过来，省去重复输入
         const liEmail = document.getElementById('li-email')?.value.trim();
@@ -599,6 +674,8 @@ function switchAuthTab(tab) {
         if (fpEmail && liEmail && !fpEmail.value) fpEmail.value = liEmail;
         const fpMsg = document.getElementById('fp-msg'); if (fpMsg) fpMsg.style.display = 'none';
     }
+    const firstField = document.querySelector(`#${views[tab]} input:not([type="checkbox"]), #${views[tab]} select`);
+    setTimeout(() => firstField?.focus(), 30);
 }
 
 // 登录/注册成功后，原地更新导航/页脚（不整页 reload）
@@ -610,13 +687,15 @@ function refreshAuthUI() {
 function showWelcomeOverlay(kind, name) {
     const greeting = kind === 'register' ? '欢迎加入' : '欢迎回来';
     const subtitle = kind === 'register' ? '账号创建成功，正在为您准备…' : '正在为您加载…';
+    const safeName = escapeAuthHtml(name || '教师用户');
+    const safeAvatarLetter = escapeAuthHtml(String(name || '教师').slice(0, 1).toUpperCase());
     const overlay = document.createElement('div');
     overlay.className = 'welcome-overlay';
     overlay.innerHTML = `
         <div class="welcome-card">
-            <div class="welcome-avatar">${(name || '教师').slice(0, 1).toUpperCase()}</div>
+            <div class="welcome-avatar">${safeAvatarLetter}</div>
             <div class="welcome-greeting">${greeting}</div>
-            <div class="welcome-name">${name || '教师用户'}</div>
+            <div class="welcome-name">${safeName}</div>
             <div class="welcome-subtitle">${subtitle}</div>
             <div class="welcome-spinner" aria-hidden="true"><span></span><span></span><span></span></div>
         </div>`;
@@ -754,13 +833,13 @@ function renderFooter() {
                 <p>为在职教师提供 AI 工具导航、前沿资讯与系统学习路径的综合平台</p>
             </div>
             <div class="footer-col"><h4>功能导航</h4><ul>
-                <li><a href="index.html">首页</a></li>
-                <li><a href="agents.html">智能体空间</a></li>
-                <li><a href="multimodal.html">多模态工作坊</a></li>
-                <li><a href="tools.html">AI资源精选</a></li>
-                <li><a href="news.html">AI 资讯</a></li>
-                <li><a href="paths.html">学习路径</a></li>
-                <li><a href="articles.html">精选文章</a></li>
+                <li><a href="/">首页</a></li>
+                <li><a href="/agents">智能体空间</a></li>
+                <li><a href="/multimodal">多模态工作坊</a></li>
+                <li><a href="/tools">AI资源精选</a></li>
+                <li><a href="/news">AI 资讯</a></li>
+                <li><a href="/paths">学习路径</a></li>
+                <li><a href="/articles">精选文章</a></li>
                 <li><button type="button" class="footer-link-button pwa-footer-install" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button></li>
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>

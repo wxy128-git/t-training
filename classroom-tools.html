@@ -8,13 +8,13 @@
     <meta property="og:title" content="课堂互动小工具集">
     <meta property="og:description" content="教师课堂常用互动小工具：倒计时、随机点名、小组计分板、音量监测、随机分组、座位表、简易白板。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/classroom-tools.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/classroom-tools">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/classroom.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/classroom.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/classroom-tools.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/classroom-tools">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,7 +23,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .ct-page { max-width: 1240px; margin: 0 auto; padding: 56px 24px 88px; }
@@ -452,7 +452,7 @@
 <body>
 <div id="main-nav"></div>
 
-<main class="ct-page">
+<main class="ct-page" id="main-content">
     <!-- Home: tool grid -->
     <div id="ct-home">
         <div class="ct-kicker">Classroom Tools · 课堂工具</div>
@@ -534,8 +534,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 renderNav('classroom');
@@ -1853,6 +1854,6 @@ function mountRoutine(root) {
 }
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

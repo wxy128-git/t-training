@@ -8,13 +8,13 @@
     <meta property="og:title" content="精选文章 · 教师 AI 教学">
     <meta property="og:description" content="AI 学习指南、工具推荐、教学案例与一线教师的实战经验分享。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/articles.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/articles">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/articles.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/articles.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/articles.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/articles">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,14 +23,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
 </head>
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>精选文章</span></div>
+<main id="main-content" style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>精选文章</span></div>
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px">
         <div>
@@ -59,9 +59,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CAT_CONFIG = {
@@ -116,23 +117,24 @@ function renderArticles() {
         const emoji = a.coverEmoji || '📝';
         const date = (() => { try { return new Date(a.publishedAt).toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric'}); } catch{return '';} })();
         const isExternal = a.type === 'external';
-        const href = isExternal ? a.externalUrl : `article.html?id=${a.id}`;
+        const href = isExternal ? SafeRender.safeUrl(a.externalUrl) : `/article?id=${encodeURIComponent(a.id || '')}`;
+        if (!href) return '';
         const target = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
 
         return `
-        <a href="${href}"${target} class="card article-card" style="text-decoration:none;display:flex;flex-direction:column">
+        <a href="${SafeRender.escape(href)}"${target} class="card article-card" style="text-decoration:none;display:flex;flex-direction:column">
             <div class="article-cover" style="background:${gradient}">
-                <span style="font-size:52px;position:relative;z-index:1">${emoji}</span>
+                <span style="font-size:52px;position:relative;z-index:1">${SafeRender.escape(emoji)}</span>
                 ${isExternal ? `<div style="position:absolute;top:10px;right:10px;z-index:1;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);padding:3px 8px;border-radius:8px;font-size:11px;color:white;display:flex;align-items:center;gap:3px"><i class="ph ph-arrow-up-right"></i>外链</div>` : ''}
             </div>
             <div class="article-body">
                 <span class="article-cat-tag" style="background:${cat.bg};color:${cat.color}">${cat.label}</span>
-                <div class="article-title">${a.title}</div>
-                <div class="article-summary">${a.summary}</div>
+                <div class="article-title">${SafeRender.escape(a.title)}</div>
+                <div class="article-summary">${SafeRender.escape(a.summary)}</div>
                 <div class="article-meta">
-                    <span style="display:flex;align-items:center;gap:4px"><i class="ph ph-user"></i>${a.author || '编辑部'}</span>
-                    <span style="display:flex;align-items:center;gap:4px"><i class="ph ph-calendar-blank"></i>${date}</span>
-                    ${a.readCount ? `<span style="display:flex;align-items:center;gap:4px;margin-left:auto"><i class="ph ph-eye"></i>${a.readCount}</span>` : ''}
+                    <span style="display:flex;align-items:center;gap:4px"><i class="ph ph-user"></i>${SafeRender.escape(a.author || '编辑部')}</span>
+                    <span style="display:flex;align-items:center;gap:4px"><i class="ph ph-calendar-blank"></i>${SafeRender.escape(date)}</span>
+                    ${Number(a.readCount) > 0 ? `<span style="display:flex;align-items:center;gap:4px;margin-left:auto"><i class="ph ph-eye"></i>${Number(a.readCount).toLocaleString('zh-CN')}</span>` : ''}
                 </div>
             </div>
         </a>`;
@@ -166,6 +168,6 @@ onAuthReady((user) => {
 });
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

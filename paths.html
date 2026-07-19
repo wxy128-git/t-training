@@ -8,13 +8,13 @@
     <meta property="og:title" content="结构化的 AI 教学学习路径">
     <meta property="og:description" content="面向中小学教师的三条 AI 学习路径：入门基础、教学应用、创作进阶。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/paths.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/paths">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/paths.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/paths.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/paths.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/paths">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,7 +23,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .paths-page-title { font-family: var(--font-display); font-size: clamp(32px,4.6vw,52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
@@ -120,8 +120,8 @@
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1100px;margin:0 auto;padding:56px 24px 88px">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>学习路径</span></div>
+<main id="main-content" style="max-width:1100px;margin:0 auto;padding:56px 24px 88px">
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>学习路径</span></div>
 
     <div style="margin-bottom:40px">
         <div class="paths-page-kicker">Learning Paths · 学习路径</div>
@@ -144,9 +144,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 function pathIcon(path) {
@@ -225,59 +226,60 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     };
     const PATH_FALLBACK = ['linear-gradient(135deg,#2d4a3a 0%,#1a3528 100%)','linear-gradient(135deg,#4a3625 0%,#2c1f15 100%)','linear-gradient(135deg,#7a2e28 0%,#4d1812 100%)'];
     const grad = (p, i) => PATH_PALETTE[p.slug] || PATH_FALLBACK[i % PATH_FALLBACK.length];
+    const slug = (p, i) => /^[a-z0-9_-]{1,64}$/i.test(p.slug || '') ? p.slug : `path-${i + 1}`;
 
     // Nav cards
     document.getElementById('path-nav-cards').innerHTML = paths.map((p, i) => `
-    <a href="#${p.slug}" style="text-decoration:none">
+    <a href="#${slug(p, i)}" style="text-decoration:none">
         <div class="path-nav-card" style="background:${grad(p, i)}">
             <div class="path-nav-number">No. ${String(i+1).padStart(2,'0')}</div>
-            <i class="path-nav-icon ph-bold ${pathIcon(p)}" aria-hidden="true"></i>
-            <div class="path-nav-title">${p.title}</div>
-            <div class="path-nav-duration">${p.duration}</div>
-            <div class="path-nav-level">${p.level}</div>
+            <i class="path-nav-icon ph-bold ${SafeRender.classNames(pathIcon(p), 'ph-path')}" aria-hidden="true"></i>
+            <div class="path-nav-title">${SafeRender.escape(p.title)}</div>
+            <div class="path-nav-duration">${SafeRender.escape(p.duration)}</div>
+            <div class="path-nav-level">${SafeRender.escape(p.level)}</div>
         </div>
     </a>`).join('');
 
     // Detailed sections
     document.getElementById('paths-detail').innerHTML = paths.map((p, i) => `
-    <section id="${p.slug}" style="scroll-margin-top:80px">
+    <section id="${slug(p, i)}" style="scroll-margin-top:80px">
         <div class="path-detail">
             <div class="path-detail-head" style="background:${grad(p, i)}">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px">
                     <div>
                         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-                            <i class="path-detail-icon ph-bold ${pathIcon(p)}" aria-hidden="true"></i>
+                            <i class="path-detail-icon ph-bold ${SafeRender.classNames(pathIcon(p), 'ph-path')}" aria-hidden="true"></i>
                             <div>
                                 <div class="path-chapter-kicker">Chapter ${String(i+1).padStart(2,'0')}</div>
-                                <h2 class="path-detail-title">${p.title}</h2>
-                                <div class="path-detail-sub">${p.subtitle}</div>
+                                <h2 class="path-detail-title">${SafeRender.escape(p.title)}</h2>
+                                <div class="path-detail-sub">${SafeRender.escape(p.subtitle)}</div>
                             </div>
                         </div>
-                        <p class="path-detail-desc">${p.desc}</p>
+                        <p class="path-detail-desc">${SafeRender.escape(p.desc)}</p>
                     </div>
                     <div class="path-detail-pill">
                         <div class="path-detail-pill-label">预计时长</div>
-                        <div class="path-detail-pill-value">${p.duration}</div>
-                        <div class="path-detail-pill-level">${p.level}水平</div>
+                        <div class="path-detail-pill-value">${SafeRender.escape(p.duration)}</div>
+                        <div class="path-detail-pill-level">${SafeRender.escape(p.level)}水平</div>
                     </div>
                 </div>
                 <div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.18)">
                     <div class="path-resources-label">推荐配合使用的工具</div>
-                    <div>${p.resources.map(r => `<span class="resource-chip"><i class="ph ph-arrow-up-right"></i>${r}</span>`).join('')}</div>
+                    <div>${(p.resources || []).map(r => `<span class="resource-chip"><i class="ph ph-arrow-up-right"></i>${SafeRender.escape(r)}</span>`).join('')}</div>
                 </div>
             </div>
             <div class="path-detail-body">
                 <h3 class="path-steps-heading">学习步骤 <span class="path-steps-hint">（点击展开详情）</span></h3>
                 <div>
-                    ${p.steps.map((s, idx) => `
+                    ${(p.steps || []).map((s, idx) => `
                     <div class="step-row" onclick="toggleStep(this)">
                         <div class="step-num">${idx+1}</div>
-                        <i class="ph ${s.icon} step-icon"></i>
-                        <span class="step-name">${s.name}</span>
+                        <i class="ph ${SafeRender.classNames(s.icon, 'ph-check-circle')} step-icon"></i>
+                        <span class="step-name">${SafeRender.escape(s.name)}</span>
                         <i class="ph ph-caret-down step-chevron"></i>
                     </div>
                     <div class="step-detail">
-                        <div class="step-detail-inner">${s.detail}</div>
+                        <div class="step-detail-inner">${SafeRender.sanitizeHtml(s.detail)}</div>
                     </div>`).join('')}
                 </div>
                 <button onclick="startPath(this)" class="path-start-btn" style="background:${grad(p, i)}">
@@ -296,6 +298,6 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
 })();
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

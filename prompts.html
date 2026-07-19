@@ -8,13 +8,13 @@
     <meta property="og:title" content="教学提示词速查模板">
     <meta property="og:description" content="即用提示词模板：备课、出题、评语、家校沟通——一键复制。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/prompts.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/prompts">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/prompts.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/prompts.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/prompts.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/prompts">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,7 +23,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -40,8 +40,8 @@
 <body>
 <div id="main-nav"></div>
 
-<main style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>提示词库</span></div>
+<main id="main-content" style="max-width:1240px;margin:0 auto;padding:56px 24px 88px">
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>提示词库</span></div>
 
     <div style="margin-bottom:36px">
         <div class="page-kicker">Prompts · 教学提示词库</div>
@@ -81,20 +81,20 @@
 </main>
 
 <!-- Community submit modal -->
-<div class="modal-overlay" id="community-modal">
-    <div class="modal-box" style="max-width:580px" onclick="event.stopPropagation()">
+<div class="modal-overlay" id="community-modal" aria-hidden="true">
+    <div class="modal-box" style="max-width:580px" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="community-modal-title">
         <div class="modal-tabs">
-            <span style="font-size:16px;font-weight:700;color:var(--ink);padding:0 4px">投稿社区提示词</span>
-            <button onclick="closeCommunityModal()" style="margin-left:auto;padding:0 16px;color:var(--subtle);background:none;border:none;cursor:pointer;font-size:22px;transition:color 0.15s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--subtle)'">×</button>
+            <h2 id="community-modal-title" style="font-size:16px;font-weight:700;color:var(--ink);padding:0 4px;margin:0">投稿社区提示词</h2>
+            <button type="button" onclick="closeCommunityModal()" aria-label="关闭投稿窗口" style="margin-left:auto;padding:0 16px;color:var(--subtle);background:none;border:none;cursor:pointer;font-size:22px;transition:color 0.15s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--subtle)'">×</button>
         </div>
         <div class="modal-body">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <div class="form-group">
-                    <label class="form-label">提示词名称 *</label>
-                    <input type="text" id="cp-label" class="form-input" placeholder="例：课堂分层提问">
+                    <label class="form-label" for="cp-label">提示词名称 *</label>
+                    <input type="text" id="cp-label" class="form-input" maxlength="80" placeholder="例：课堂分层提问">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">分类</label>
+                    <label class="form-label" for="cp-cat">分类</label>
                     <select id="cp-cat" class="form-input">
                         <option value="teaching">教学设计</option>
                         <option value="advanced">进阶技巧</option>
@@ -104,17 +104,17 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">提示词内容 *</label>
-                <textarea id="cp-text" class="form-input" rows="7" placeholder="在此粘贴您的完整提示词，建议用 [  ] 标注可替换变量…" style="resize:vertical;font-family:monospace;font-size:13px"></textarea>
+                <label class="form-label" for="cp-text">提示词内容 *</label>
+                <textarea id="cp-text" class="form-input" rows="7" maxlength="8000" placeholder="在此粘贴您的完整提示词，建议用 [  ] 标注可替换变量…" style="resize:vertical;font-family:monospace;font-size:13px"></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">使用说明（可选）</label>
-                <input type="text" id="cp-note" class="form-input" placeholder="简单说明适用场景或使用技巧">
+                <label class="form-label" for="cp-note">使用说明（可选）</label>
+                <input type="text" id="cp-note" class="form-input" maxlength="500" placeholder="简单说明适用场景或使用技巧">
             </div>
-            <div id="cp-err" class="form-error" style="display:none"></div>
+            <div id="cp-err" class="form-error" style="display:none" role="alert" aria-live="polite"></div>
             <div style="margin-top:20px;display:flex;gap:8px">
-                <button class="btn-primary" id="cp-submit-btn" onclick="submitCommunityPrompt()" style="flex:1">提交</button>
-                <button onclick="closeCommunityModal()" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
+                <button type="button" class="btn-primary" id="cp-submit-btn" onclick="submitCommunityPrompt()" style="flex:1">提交</button>
+                <button type="button" onclick="closeCommunityModal()" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
             </div>
             <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">提交后由管理员审核，通过后对所有教师可见</p>
         </div>
@@ -127,9 +127,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const cats = [
@@ -141,6 +142,7 @@ const cats = [
 let currentCat = 'all';
 let _currentTab = 'official';
 let _pageUser = null;
+let _communityReturnFocus = null;
 
 document.getElementById('filter-bar').innerHTML = cats.map(c =>
     `<button class="filter-pill${c.key==='all'?' active':''}" onclick="setCat('${c.key}',this)">${c.label}</button>`
@@ -177,20 +179,24 @@ let _allPrompts = [];
 async function renderOfficial() {
     if (!_allPrompts.length) _allPrompts = await DB.getPrompts();
     const filtered = currentCat === 'all' ? _allPrompts : _allPrompts.filter(p => p.category === currentCat);
-    document.getElementById('prompts-grid').innerHTML = filtered.map(p => `
+    const grid = document.getElementById('prompts-grid');
+    grid.innerHTML = filtered.map((p, index) => `
         <div class="card prompt-card">
             <div class="prompt-card-header">
                 <div class="prompt-card-title">
-                    <div class="prompt-icon ${p.bg} ${p.color}"><i class="ph-fill ${p.icon}"></i></div>
+                    <div class="prompt-icon ${SafeRender.classNames(p.bg)} ${SafeRender.classNames(p.color)}"><i class="ph-fill ${SafeRender.classNames(p.icon, 'ph-quotes')}"></i></div>
                     <div>
-                        <div style="font-size:14px;font-weight:700;color:var(--ink)">${p.label}</div>
+                        <div style="font-size:14px;font-weight:700;color:var(--ink)">${SafeRender.escape(p.label)}</div>
                         <div style="font-size:11px;color:var(--muted);margin-top:1px">点击复制后直接粘贴使用</div>
                     </div>
                 </div>
-                <button class="copy-btn" onclick="copyPrompt(this,${JSON.stringify(p.text)})"><i class="ph ph-copy"></i>复制</button>
+                <button class="copy-btn" type="button" data-official-copy="${index}"><i class="ph ph-copy"></i>复制</button>
             </div>
-            <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#374151;line-height:1.8;font-family:monospace;white-space:pre-wrap;word-break:break-all">${p.text}</div>
+            <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#374151;line-height:1.8;font-family:monospace;white-space:pre-wrap;word-break:break-all">${SafeRender.escape(p.text)}</div>
         </div>`).join('');
+    grid.querySelectorAll('[data-official-copy]').forEach(button => {
+        button.addEventListener('click', () => copyPrompt(button, filtered[Number(button.dataset.officialCopy)]?.text || ''));
+    });
 }
 
 let _communityPrompts = [];
@@ -201,7 +207,7 @@ async function renderCommunity() {
 
     // Check if user has pending submissions
     if (_pageUser) {
-        const allUserPrompts = await DB.getCommunityPrompts();
+        const allUserPrompts = await DB.getMyCommunityPrompts(_pageUser.uid);
         const hasPending = allUserPrompts.some(p => p.authorId === _pageUser.uid && p.status === 'pending');
         document.getElementById('community-pending-notice').style.display = hasPending ? '' : 'none';
     }
@@ -215,33 +221,43 @@ async function renderCommunity() {
         return;
     }
     const uid = _pageUser?.uid;
-    grid.innerHTML = _communityPrompts.map(p => {
+    grid.innerHTML = _communityPrompts.map((p, index) => {
         const isLiked = p.likedBy?.includes(uid);
         const date = (() => { try { return new Date(p.createdAt).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch{return '';} })();
+        const categoryLabel = {teaching:'教学设计',advanced:'进阶技巧',communication:'沟通协作',other:'其他'}[p.category] || p.category;
         return `
         <div class="card prompt-card">
             <div class="prompt-card-header">
                 <div class="prompt-card-title">
-                    <div style="width:36px;height:36px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--soft);flex-shrink:0;box-shadow:0 2px 6px rgba(150,43,31,0.22)">${p.authorName?.charAt(0) || '?'}</div>
+                    <div style="width:36px;height:36px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--soft);flex-shrink:0;box-shadow:0 2px 6px rgba(150,43,31,0.22)">${SafeRender.escape(p.authorName?.charAt(0) || '?')}</div>
                     <div>
-                        <div style="font-size:14px;font-weight:700;color:var(--ink)">${p.label}</div>
-                        <div style="font-size:11.5px;color:var(--subtle);margin-top:2px">${p.authorName || '匿名'} · ${date}</div>
+                        <div style="font-size:14px;font-weight:700;color:var(--ink)">${SafeRender.escape(p.label)}</div>
+                        <div style="font-size:11.5px;color:var(--subtle);margin-top:2px">${SafeRender.escape(p.authorName || '匿名')} · ${SafeRender.escape(date)}</div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
-                    <button class="copy-btn" onclick="copyPrompt(this,${JSON.stringify(p.text)})"><i class="ph ph-copy"></i>复制</button>
-                    <button class="like-btn${isLiked ? ' liked' : ''}" onclick="toggleLike(this,'${p.id}')">
-                        <i class="ph${isLiked ? '-fill' : ''} ph-heart"></i> ${p.likes || 0}
+                    <button class="copy-btn" type="button" data-community-copy="${index}"><i class="ph ph-copy"></i>复制</button>
+                    <button class="like-btn${isLiked ? ' liked' : ''}" type="button" data-community-like="${index}">
+                        <i class="ph${isLiked ? '-fill' : ''} ph-heart"></i> ${Math.max(0, Number(p.likes) || 0)}
                     </button>
                 </div>
             </div>
-            ${p.note ? `<div style="margin-bottom:10px;font-size:12.5px;color:var(--muted);font-style:italic"><i class="ph ph-info"></i> ${p.note}</div>` : ''}
-            <div style="background:var(--soft);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:14px 16px;font-size:13px;color:var(--text);line-height:1.85;font-family:var(--font-mono);white-space:pre-wrap;word-break:break-all">${p.text}</div>
+            ${p.note ? `<div style="margin-bottom:10px;font-size:12.5px;color:var(--muted);font-style:italic"><i class="ph ph-info"></i> ${SafeRender.escape(p.note)}</div>` : ''}
+            <div style="background:var(--soft);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:14px 16px;font-size:13px;color:var(--text);line-height:1.85;font-family:var(--font-mono);white-space:pre-wrap;word-break:break-all">${SafeRender.escape(p.text)}</div>
             <div style="margin-top:10px">
-                <span class="badge-community">${{teaching:'教学设计',advanced:'进阶技巧',communication:'沟通协作',other:'其他'}[p.category] || p.category}</span>
+                <span class="badge-community">${SafeRender.escape(categoryLabel)}</span>
             </div>
         </div>`;
     }).join('');
+    grid.querySelectorAll('[data-community-copy]').forEach(button => {
+        button.addEventListener('click', () => copyPrompt(button, _communityPrompts[Number(button.dataset.communityCopy)]?.text || ''));
+    });
+    grid.querySelectorAll('[data-community-like]').forEach(button => {
+        button.addEventListener('click', () => {
+            const prompt = _communityPrompts[Number(button.dataset.communityLike)];
+            if (prompt?.id) toggleLike(button, prompt.id);
+        });
+    });
 }
 
 async function toggleLike(btn, promptId) {
@@ -264,14 +280,25 @@ async function toggleLike(btn, promptId) {
 
 function openCommunityModal() {
     if (!_pageUser) { showAuthModal('register'); return; }
-    document.getElementById('community-modal').classList.add('active');
+    const modal = document.getElementById('community-modal');
+    _communityReturnFocus = document.activeElement;
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => document.getElementById('cp-label').focus());
 }
 
 function closeCommunityModal() {
-    document.getElementById('community-modal').classList.remove('active');
+    const modal = document.getElementById('community-modal');
+    if (!modal.classList.contains('active')) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
     ['cp-label','cp-note'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('cp-text').value = '';
     document.getElementById('cp-err').style.display = 'none';
+    if (_communityReturnFocus && document.contains(_communityReturnFocus)) _communityReturnFocus.focus();
+    _communityReturnFocus = null;
 }
 
 async function submitCommunityPrompt() {
@@ -302,6 +329,12 @@ async function submitCommunityPrompt() {
 document.getElementById('community-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('community-modal')) closeCommunityModal();
 });
+document.addEventListener('keydown', e => {
+    const modal = document.getElementById('community-modal');
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') closeCommunityModal();
+    else trapModalFocus(e, modal);
+});
 
 renderNav('prompts');
 renderFooter();
@@ -317,6 +350,6 @@ onAuthReady((user) => {
 });
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

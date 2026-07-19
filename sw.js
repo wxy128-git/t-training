@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20260715-v2';
+const VERSION = '20260719-v3';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -10,6 +10,7 @@ const CORE_ASSETS = [
     '/css/style.css',
     '/css/pwa.css',
     '/js/pwa.js',
+    '/js/safe-render.js',
     '/js/agents-data.js',
     '/js/teaching-projects.js',
     '/assets/favicon.svg',

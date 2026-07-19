@@ -8,13 +8,13 @@
     <meta property="og:title" content="多模态工作坊 · AI 教师培训中心">
     <meta property="og:description" content="看生成成果，也看怎么生成：图片、视频、音频、数字人等多模态教学案例与提示词复盘。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/multimodal.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/multimodal">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/resources.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/resources.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/multimodal.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/multimodal">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,7 +23,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .mm-wrap { max-width: 1240px; margin: 0 auto; padding: 48px 24px 88px; }
@@ -212,8 +212,8 @@
 <body>
 <div id="main-nav"></div>
 
-<main class="mm-wrap">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>多模态工作坊</span></div>
+<main class="mm-wrap" id="main-content">
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>多模态工作坊</span></div>
 
     <section class="mm-hero">
         <div>
@@ -223,11 +223,11 @@
             <div class="mm-note"><i class="ph ph-info"></i><span>为控制平台成本，本站首版只做案例展示与生成方法复盘，不提供站内图片/视频生成接口。</span></div>
             <div class="mm-actions">
                 <a class="mm-primary" href="#mm-cases"><i class="ph-fill ph-images-square"></i> 查看案例</a>
-                <a class="mm-secondary" href="tools.html"><i class="ph ph-toolbox"></i> 找生成工具</a>
+                <a class="mm-secondary" href="/tools"><i class="ph ph-toolbox"></i> 找生成工具</a>
             </div>
         </div>
         <div class="mm-board" aria-hidden="true">
-            <div class="mm-print one"><div class="cap"><span>IMAGE CASE</span><span>语文 · 意境图</span></div><div class="mm-scene ancient has-image"><img src="多模态素材/古诗意境.png" alt="古诗意境图预览"></div></div>
+            <div class="mm-print one"><div class="cap"><span>IMAGE CASE</span><span>语文 · 意境图</span></div><div class="mm-scene ancient has-image"><img src="多模态素材/poem-landscape-web.jpg" alt="古诗意境图预览" width="1200" height="675" decoding="async" fetchpriority="high"></div></div>
             <div class="mm-print two"><div class="cap"><span>VIDEO STORYBOARD</span><span>科学 · 实验演示</span></div><div class="mm-scene video"><span></span><span></span><span></span></div></div>
             <div class="mm-print three"><div class="cap"><span>PROMPT NOTE</span><span>可复制复盘</span></div><div class="mm-scene prompt">角色：<b>中小学教师</b><br>目标：生成可用于课堂导入的视觉素材<br>约束：真实、清晰、避免版权角色</div></div>
         </div>
@@ -242,14 +242,14 @@
     </section>
 </main>
 
-<div class="mm-modal" id="mm-modal" onclick="if(event.target===this)closeCaseModal()">
-    <div class="mm-modal-box">
+<div class="mm-modal" id="mm-modal" aria-hidden="true" onclick="if(event.target===this)closeCaseModal()">
+    <div class="mm-modal-box" role="dialog" aria-modal="true" aria-labelledby="mm-modal-title">
         <div class="mm-modal-head">
             <div>
                 <h2 id="mm-modal-title"></h2>
                 <div class="meta" id="mm-modal-meta"></div>
             </div>
-            <button onclick="closeCaseModal()" aria-label="关闭">×</button>
+            <button type="button" onclick="closeCaseModal()" aria-label="关闭案例详情">×</button>
         </div>
         <div class="mm-modal-body">
             <div class="mm-detail-visual" id="mm-modal-visual"></div>
@@ -265,8 +265,8 @@
             </div>
         </div>
         <div class="mm-modal-foot">
-            <button class="mm-small-btn" onclick="copyActivePrompt()"><i class="ph ph-copy"></i> 复制提示词</button>
-            <button class="mm-small-btn" onclick="closeCaseModal()"><i class="ph ph-check"></i> 完成</button>
+            <button type="button" class="mm-small-btn" onclick="copyActivePrompt()"><i class="ph ph-copy"></i> 复制提示词</button>
+            <button type="button" class="mm-small-btn" onclick="closeCaseModal()"><i class="ph ph-check"></i> 完成</button>
         </div>
     </div>
 </div>
@@ -277,9 +277,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CASES = [
@@ -288,7 +289,7 @@ const CASES = [
         title: '古诗意境导入图',
         desc: '为古诗课堂生成一张不指向具体版权形象的意境图，适合放在导入页或学习单封面。',
         use: '用于《望庐山瀑布》《山居秋暝》等古诗导入，让学生先观察画面，再回到诗句寻找意象。',
-        image: '多模态素材/古诗意境.png',
+        image: '多模态素材/poem-landscape-web.jpg',
         imageAlt: '古诗意境山水图，远山、瀑布、松树与晨雾构成课堂导入画面',
         preview: 'linear-gradient(135deg,#f2d8a7 0%,#8fb6ad 48%,#2d4a3a 100%)',
         prompt: '请生成一张适合小学高年级语文古诗课堂导入的意境插图：远山、瀑布、晨雾、松树，画面留出上方空白用于标题排版。风格为中国水墨与现代课件插画结合，色彩克制，构图清晰，不出现人物脸部，不包含文字，不模仿任何在世艺术家。',
@@ -300,11 +301,10 @@ const CASES = [
         title: '科学实验三镜头短视频',
         desc: '把“热空气上升”拆成装置、现象、解释 3 个镜头，用热水和纸螺旋做安全演示。',
         use: '用于小学科学“空气受热会上升”的课前预习或课堂导入。学生先观察纸螺旋受暖空气带动旋转，再回到实验现象解释空气运动方向。',
-        image: '多模态素材/science-hot-air-03.png',
+        image: '多模态素材/science-hot-air-poster-web.jpg',
         imageAlt: '热空气上升实验结论帧：烧杯热水上方的纸螺旋、上升气流箭头和空白结论卡',
         video: '多模态素材/science-hot-air-web.mp4',
         videoAlt: '科学实验短视频：热水上方的暖空气上升并带动白色纸螺旋旋转',
-        animation: '多模态素材/science-hot-air-preview.gif',
         preview: 'linear-gradient(135deg,#203848 0%,#5d8790 58%,#d5e6df 100%)',
         prompt: `先用图像模型生成 3 张 16:9 关键帧：同一间小学科学教室、同一张实验桌、同一个透明烧杯、同一个支架和白色纸螺旋。实验用热水，不出现明火；画面不出现任何文字、数字、logo或水印。
 
@@ -381,7 +381,7 @@ const CASES = [
         title: '班会主题海报',
         desc: '先生成不含文字的班会背景图，再由教师在 PPT 或 Canva 中加标题和班级信息。',
         use: '用于“学会合作”主题班会的导入页、电子屏封面或活动通知图。学生先观察画面中的分工、倾听和共同完成项目，再讨论合作的具体行为。',
-        image: '多模态素材/class-meeting-cooperation.png',
+        image: '多模态素材/class-meeting-cooperation-web.jpg',
         imageAlt: '学会合作主题班会海报背景：几名学生围绕项目桌协作，上方留有标题空白',
         imageFit: 'contain',
         preview: 'linear-gradient(135deg,#fbeae6 0%,#c0392b 50%,#7a2c24 100%)',
@@ -429,7 +429,7 @@ const CASES = [
         title: '历史情境观察图',
         desc: '生成可供学生观察细节、提出证据的问题图，而不是把 AI 图当作真实史料。',
         use: '用于初中历史课堂的情境观察：学生从陶器、布匹、农具、谷物、服饰、街道和摊位中提取信息，推测古代市集的交易方式与日常生活。',
-        image: '多模态素材/history-market-observation.png',
+        image: '多模态素材/history-market-observation-web.jpg',
         imageAlt: '古代市集观察图：摊位上的陶器、布匹、谷物、农具、竹篮和行人背影构成历史课堂观察材料',
         imageFit: 'contain',
         preview: 'linear-gradient(135deg,#e4cfa9 0%,#8b6542 55%,#2b241d 100%)',
@@ -455,6 +455,7 @@ const FILTERS = [
 ];
 let currentFilter = 'all';
 let activeCaseId = null;
+let modalReturnFocus = null;
 
 function renderTabs() {
     document.getElementById('mm-tabs').innerHTML = FILTERS.map(f =>
@@ -601,13 +602,13 @@ function visualMarkup(c, mode = 'thumb') {
     if (c.audio) return audioCaseMarkup(c, mode);
     if (c.demo === 'fraction') return fractionDemoMarkup(mode);
     if (mode === 'thumb' && c.video && c.image) {
-        return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}"><span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>`;
+        return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}" width="1200" height="675" loading="lazy" decoding="async"><span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>`;
     }
     if (mode === 'detail' && c.animation && c.video) {
-        return `<a class="mm-video-preview-link" href="${escapeHtml(c.video)}" target="_blank" rel="noopener" onclick="trackVideoOpen('${c.id}')" aria-label="${escapeHtml(c.videoAlt || c.title)}"><img src="${escapeHtml(c.animation)}" alt="${escapeHtml(c.videoAlt || c.title)}"><span><i class="ph-fill ph-play"></i> 打开原视频</span></a>`;
+        return `<a class="mm-video-preview-link" href="${escapeHtml(c.video)}" target="_blank" rel="noopener" onclick="trackVideoOpen('${c.id}')" aria-label="${escapeHtml(c.videoAlt || c.title)}"><img src="${escapeHtml(c.animation)}" alt="${escapeHtml(c.videoAlt || c.title)}" width="1200" height="675" loading="lazy" decoding="async"><span><i class="ph-fill ph-play"></i> 打开原视频</span></a>`;
     }
     if (mode === 'detail' && c.video) {
-        const playerSrc = `media-player.html?src=${encodeURIComponent(c.video)}${c.image ? `&poster=${encodeURIComponent(c.image)}` : ''}`;
+        const playerSrc = `/media-player?src=${encodeURIComponent(c.video)}${c.image ? `&poster=${encodeURIComponent(c.image)}` : ''}`;
         return `<iframe src="${escapeHtml(playerSrc)}" title="${escapeHtml(c.videoAlt || c.title)}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     }
     if (c.video) {
@@ -617,7 +618,7 @@ function visualMarkup(c, mode = 'thumb') {
         const badge = mode === 'thumb' ? '<span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>' : '';
         return `<video ${detailAttrs}playsinline preload="${preload}" src="${escapeHtml(c.video)}"${posterAttr} aria-label="${escapeHtml(c.videoAlt || c.title)}"></video>${badge}`;
     }
-    if (c.image) return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}">`;
+    if (c.image) return `<img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt || c.title)}" width="1200" height="675" loading="lazy" decoding="async">`;
     return '';
 }
 function renderCases() {
@@ -656,6 +657,7 @@ function trackVideoOpen(id) {
 }
 function openCase(id) {
     const c = findCase(id); if (!c) return;
+    modalReturnFocus = document.activeElement;
     activeCaseId = id;
     if (window.Analytics) Analytics.track('multimodal_case_open', {
         feature: 'multimodal',
@@ -679,19 +681,27 @@ function openCase(id) {
     document.getElementById('mm-modal-steps').innerHTML = c.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('');
     document.getElementById('mm-modal-prompt').textContent = c.prompt;
     document.getElementById('mm-modal-note').textContent = c.note;
-    document.getElementById('mm-modal').classList.add('active');
+    const modal = document.getElementById('mm-modal');
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => modal.querySelector('.mm-modal-head button')?.focus());
 }
 function closeCaseModal() {
+    const modal = document.getElementById('mm-modal');
+    if (!modal.classList.contains('active')) return;
     document.getElementById('mm-modal-visual').querySelectorAll('video, audio').forEach(media => {
         media.pause();
         media.currentTime = 0;
     });
     const frame = document.getElementById('mm-modal-visual').querySelector('iframe');
     if (frame) frame.src = 'about:blank';
-    document.getElementById('mm-modal').classList.remove('active');
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     activeCaseId = null;
+    if (modalReturnFocus && document.contains(modalReturnFocus)) modalReturnFocus.focus();
+    modalReturnFocus = null;
 }
 function copyPrompt(id) {
     const c = findCase(id); if (!c) return;
@@ -699,7 +709,12 @@ function copyPrompt(id) {
 }
 function copyActivePrompt() { if (activeCaseId) copyPrompt(activeCaseId); }
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCaseModal(); });
+document.addEventListener('keydown', e => {
+    const modal = document.getElementById('mm-modal');
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') closeCaseModal();
+    else trapModalFocus(e, modal);
+});
 
 renderNav('multimodal');
 renderFooter();
@@ -707,6 +722,6 @@ renderCases();
 onAuthReady(() => { renderNav('multimodal'); renderFooter(); });
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

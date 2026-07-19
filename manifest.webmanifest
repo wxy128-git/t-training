@@ -38,21 +38,21 @@
       "name": "智能体工作台",
       "short_name": "智能体",
       "description": "从教学任务开始生成可编辑成果",
-      "url": "/agents.html?source=pwa-shortcut",
+      "url": "/agents?source=pwa-shortcut",
       "icons": [{ "src": "/assets/pwa/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "我的备课本",
       "short_name": "备课本",
       "description": "查看和继续编辑已保存的教学成果",
-      "url": "/workspace.html?source=pwa-shortcut",
+      "url": "/workspace?source=pwa-shortcut",
       "icons": [{ "src": "/assets/pwa/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "课堂工具",
       "short_name": "课堂工具",
       "description": "打开课堂计时、分组和随机点名工具",
-      "url": "/classroom-tools.html?source=pwa-shortcut",
+      "url": "/classroom-tools?source=pwa-shortcut",
       "icons": [{ "src": "/assets/pwa/icon-192.png", "sizes": "192x192" }]
     }
   ]

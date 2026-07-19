@@ -13,7 +13,7 @@
 ## Architecture
 
 - Plain HTML/CSS/JS, no bundler. Pages render skeletons (or in-code defaults), then JS pulls data from Firestore via the global `DB` object in `js/data.js`.
-- Seven Cloudflare Pages Functions under `functions/api/`:
+- Eight Cloudflare Pages Functions under `functions/api/`:
   - `auth-proxy.js` — server-side Firebase Auth proxy. **Login and registration both use this first** so users in mainland networks can authenticate without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Proxy registration returns immediately after server-side `signUp` and must never be followed by browser-side `createUser`; on an ambiguous timeout/network/5xx response, the UI asks the user to try logging in before retrying, avoiding duplicate-account confusion. The proxy derives admin status only from Firebase's authenticated email, never from a client profile field. Stores an ID token + refresh token in `localStorage` under `window.PROXY_AUTH_SESSION_KEY`; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
   - `rss-proxy.js` — generic CORS-friendly RSS fetcher for the news page; used as one of several loaders.
@@ -21,9 +21,18 @@
   - `analytics.js` — 站内统计接口（2026-07-07）：`POST {action:'track'}` 写入 Firestore `analytics_events`，`POST {action:'summary'}` 仅管理员可读聚合结果。写入/读取都走 Firebase service account，前端不需要也不应开放 `analytics_events` 的匿名写规则。事件只记录访问和功能动作（page_view / agent_run / workbook_* / multimodal_*），不记录智能体输入、生成正文、备课本内容、IP、userAgent 或屏幕指纹信息。
   - `works.js` — 我的备课本代理（2026-07-09）：`POST {action:'list'|'create'|'rename'|'delete', idToken, ...}`，先用 Firebase `accounts:lookup` 校验登录用户，再用 Firebase service account 访问 Firestore `works`，并强制只能读写当前 uid 的内容。前端 `DB.saveWork/getMyWorks/renameWork/deleteWork` 优先走 `/api/works`，失败时才退回浏览器 Firestore SDK；解决不连 VPN 时备课本能进页面但内容加载不出来的问题。
   - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由 Cloudflare 服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序，响应可短时缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
+  - `content.js` — 公开内容同源代理（2026-07-19）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由 Cloudflare 服务端读取公开 Firestore 内容并短时缓存，普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
+
+- **2026-07-19（全站第一轮安全、国内网络与质量改造）**:
+  - 新增 `js/safe-render.js`，所有 Firestore、社区、RSS、用户资料与 Markdown 输出统一经过转义、URL 校验或 HTML 白名单清洗；管理后台、文章、提示词、资源、路径、工具、资讯、智能体和备课本的危险渲染点已收口。
+  - `auth-proxy.js` 新增同源密码重置、服务端资料字段清洗、管理员身份服务端推导和登录/注册/重置/刷新软限流；普通页面的公开内容改走 `/api/content` 同源代理。认证接口不再返回通配 CORS。
+  - 新增根目录 `firestore.rules`、`firebase.json`、`.firebaserc`，规则按管理员、用户本人、公开已发布内容、社区投稿、备课本和统计集合分权。规则不会随 Cloudflare Pages 自动发布，修改后必须单独运行 `npx --yes firebase-tools@latest deploy --only firestore:rules`。
+  - 全站内部链接和 canonical 改为无 `.html` 路由；`main.html` 保留兼容跳转，`/main` 由 `_redirects` 301 到 `/resources`。新增 `robots.txt`、`sitemap.xml`、首页 WebSite 结构化数据和文章动态 Article 元数据。
+  - 多模态工作坊首屏图片换成 1200px Web JPEG，初始图片约从 8 MB 降到 0.7 MB；大 PNG/GIF 源素材继续保留，详情按需加载。
+  - 登录、抽屉、投稿、案例、备课本和联系弹窗补充 dialog 语义、焦点回收、Tab 锁定与 Esc 关闭。新增全局安全响应头、`scripts/serve.mjs`、`scripts/check-site.mjs`、`scripts/test-functions.mjs` 和 GitHub Actions 质量检查。
 
 - **2026-05-30**: Migrated off Netlify after the team credit limit was exceeded; rewrote the three Netlify Functions as Cloudflare Pages Functions (Node `crypto`/`Buffer` swapped for Web Crypto API + `atob`/`TextEncoder`).
 - **2026-05-31**: Removed the legacy `netlify/functions/` directory once CF was stable; configured `FIREBASE_SERVICE_ACCOUNT` on CF so admin user deletion works. Editorial visual redesign + four classroom tools shipped.

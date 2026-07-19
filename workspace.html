@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
@@ -146,8 +146,8 @@
 <body>
 <div id="main-nav"></div>
 
-<main class="wb-wrap">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>我的备课本</span></div>
+<main class="wb-wrap" id="main-content">
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>我的备课本</span></div>
 
     <div class="wb-head">
         <div>
@@ -203,7 +203,7 @@
         <div id="wb-empty">
             <i class="ph ph-folder-open"></i>
             <p style="font-size:16px;font-weight:600;margin-bottom:6px">备课本还是空的</p>
-            <p style="font-size:13px">去 <a href="agents.html">智能体空间</a> 生成内容，点「保存到备课本」就会出现在这里。</p>
+            <p style="font-size:13px">去 <a href="/agents">智能体空间</a> 生成内容，点「保存到备课本」就会出现在这里。</p>
         </div>
         <div class="wb-filter-empty" id="wb-filter-empty">
             <i class="ph ph-funnel-simple"></i>
@@ -221,18 +221,18 @@
 </main>
 
 <!-- 查看弹层 -->
-<div class="wb-modal" id="wb-modal" onclick="if(event.target===this)closeModal()">
-    <div class="wb-modal-box">
+<div class="wb-modal" id="wb-modal" aria-hidden="true" onclick="if(event.target===this)closeModal()">
+    <div class="wb-modal-box" role="dialog" aria-modal="true" aria-labelledby="wb-modal-title">
         <div class="wb-modal-head">
             <div>
                 <h2 id="wb-modal-title"></h2>
                 <div class="meta" id="wb-modal-meta"></div>
             </div>
-            <button class="x" onclick="closeModal()" aria-label="关闭">×</button>
+            <button type="button" class="x" onclick="closeModal()" aria-label="关闭文稿详情">×</button>
         </div>
         <div class="wb-modal-body"><div class="wb-md" id="wb-modal-body"></div></div>
         <div class="wb-modal-foot">
-            <a class="primary" id="wb-modal-agent" href="agents.html" style="display:none"><i class="ph ph-robot"></i> 继续用该智能体</a>
+            <a class="primary" id="wb-modal-agent" href="/agents" style="display:none"><i class="ph ph-robot"></i> 继续用该智能体</a>
             <button onclick="copyActiveWork()"><i class="ph ph-copy"></i> 复制</button>
             <button onclick="exportPdfActive()"><i class="ph ph-file-pdf"></i> PDF</button>
             <button onclick="exportWordActive()"><i class="ph ph-file-doc"></i> Word</button>
@@ -248,21 +248,23 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
 <script>
 let _works = [];
 let _activeWorkId = null;
+let _workModalReturnFocus = null;
 let _workbookViewTracked = false;
 let _wbState = { q: '', type: 'all', project: 'all', agent: 'all', sort: 'updated-desc', view: 'cards' };
 let _wbError = '';
 
 function fmtDate(s) { try { return new Date(s).toLocaleDateString('zh-CN', { year:'numeric', month:'short', day:'numeric' }); } catch { return ''; } }
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
-function mdToHtml(md) { try { return window.marked ? marked.parse(md, { breaks:true, gfm:true }) : escapeHtml(md).replace(/\n/g, '<br>'); } catch { return escapeHtml(md); } }
+function mdToHtml(md) { return window.SafeRender ? SafeRender.markdown(md) : escapeHtml(md).replace(/\n/g, '<br>'); }
 function previewText(md) { const t = String(md || '').replace(/[#*_>`!\[\]()-]/g, '').replace(/\s+/g, ' ').trim(); return t.length > 130 ? t.slice(0, 130) + '…' : t; }
 function findWork(id) { return _works.find(w => w.id === id); }
 function safeName(s) { return (String(s || '备课内容').replace(/[\\/:*?"<>|]/g, '_').trim() || '备课内容').slice(0, 60); }
@@ -510,6 +512,7 @@ function renderWorks() {
 function viewWork(id) {
     const w = findWork(id); if (!w) return;
     _activeWorkId = id;
+    _workModalReturnFocus = document.activeElement;
     if (window.Analytics) Analytics.track('workbook_open', {
         feature: 'workspace',
         targetId: w.agentId || '',
@@ -526,15 +529,18 @@ function viewWork(id) {
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
     const agentLink = document.getElementById('wb-modal-agent');
     if (agentLink && w.agentId) {
-        agentLink.href = `agents.html#${encodeURIComponent(w.agentId)}`;
+        agentLink.href = `/agents#${encodeURIComponent(w.agentId)}`;
         agentLink.onclick = () => resumeWorkContext(w);
         agentLink.style.display = 'inline-flex';
     } else if (agentLink) {
         agentLink.onclick = null;
         agentLink.style.display = 'none';
     }
-    document.getElementById('wb-modal').classList.add('active');
+    const modal = document.getElementById('wb-modal');
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => modal.querySelector('.wb-modal-head button')?.focus());
 }
 function resumeWorkContext(w) {
     const inputs = w?.inputs || {};
@@ -549,8 +555,22 @@ function resumeWorkContext(w) {
         classProfile: inputs.note || ''
     });
 }
-function closeModal() { document.getElementById('wb-modal').classList.remove('active'); document.body.style.overflow = ''; _activeWorkId = null; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+function closeModal() {
+    const modal = document.getElementById('wb-modal');
+    if (!modal.classList.contains('active')) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    _activeWorkId = null;
+    if (_workModalReturnFocus && document.contains(_workModalReturnFocus)) _workModalReturnFocus.focus();
+    _workModalReturnFocus = null;
+}
+document.addEventListener('keydown', e => {
+    const modal = document.getElementById('wb-modal');
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') closeModal();
+    else trapModalFocus(e, modal);
+});
 
 function copyWork(id) { const w = findWork(id); if (!w) return; navigator.clipboard.writeText(w.content || '').then(() => showToast('已复制到剪贴板 ✓')); }
 function exportMd(id) { const w = findWork(id); if (!w) return; downloadBlob(safeName(displayWorkTitle(w)) + '.md', new Blob([w.content || ''], { type: 'text/markdown;charset=utf-8' })); }
@@ -651,6 +671,6 @@ onAuthReady(() => { renderNav('workspace'); renderFooter(); loadWorks(); });  //
 document.addEventListener('authRefresh', () => loadWorks());  // 在本页登录后原地加载内容（不整页刷新）
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

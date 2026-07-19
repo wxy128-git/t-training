@@ -8,13 +8,13 @@
     <meta property="og:title" content="智能体空间 · 教师 AI 工作台">
     <meta property="og:description" content="教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通——为中小学教师设计的一批即用 AI 智能体。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/agents.html">
+    <meta property="og:url" content="https://xylaoshi.pages.dev/agents">
     <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/agents.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/agents.html">
+    <link rel="canonical" href="https://xylaoshi.pages.dev/agents">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -23,7 +23,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260712-usability">
+    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
     <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
     <style>
         /* ===== 智能体空间 · 页面专属样式（现代教研工作台） ===== */
@@ -335,10 +335,11 @@
 </head>
 <body>
 <div id="main-nav"></div>
+<div id="main-content">
 
 <!-- ============ 视图一：智能体库 ============ -->
 <main id="view-home" style="max-width:1240px;margin:0 auto;padding:48px 24px 88px">
-    <div class="breadcrumb"><a href="index.html">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
 
     <div class="agents-head" style="margin-bottom:8px">
         <div class="page-kicker">Agent workspace · 按教学任务选择</div>
@@ -370,7 +371,7 @@
                 <p id="ws-intro"></p>
             </div>
             <div class="ws-status">
-                <a class="ws-mini-btn" href="workspace.html" onclick="return requestWorkbookNavigation(event)"><i class="ph ph-notebook"></i> 备课本</a>
+                <a class="ws-mini-btn" href="/workspace" onclick="return requestWorkbookNavigation(event)"><i class="ph ph-notebook"></i> 备课本</a>
                 <span class="ws-model-badge" id="ws-model-badge"><i class="ph ph-cpu"></i><span>模型服务：<strong id="ws-model-name">智能体路由</strong></span></span>
             </div>
         </div>
@@ -394,6 +395,8 @@
             <span>内容由 <strong id="api-model-name">本站智能体模型服务</strong> 实时生成，仅供参考，请结合教学实际核对后使用。</span>
         </div>
     </div>
+</div>
+
 </div>
 
 <div class="project-modal" id="project-modal" onclick="if(event.target===this)closeProjectModal()">
@@ -466,13 +469,14 @@
 <div id="main-footer"></div>
 
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260716-tools19"></script>
-<script src="js/auth.js?v=20260718-proxyregister"></script>
+<script src="js/data.js?v=20260719-contentproxy"></script>
+<script src="js/auth.js?v=20260719-securityreset"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260712-workbench"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
@@ -1690,7 +1694,7 @@ function openWorkflowAgent(nextId, label, trigger) {
 
 function requestWorkbookNavigation(event, trigger) {
     event?.preventDefault?.();
-    requestWorkflowTransition({ type: 'url', url: 'workspace.html', label: '查看备课本' }, trigger || event?.currentTarget);
+    requestWorkflowTransition({ type: 'url', url: '/workspace', label: '查看备课本' }, trigger || event?.currentTarget);
     return false;
 }
 
@@ -2444,7 +2448,7 @@ async function sendChat(aid) {
         if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
         const last = _chatHistory[_chatHistory.length - 1];
         if (last?.role === 'user' && last.content === text) _chatHistory.pop();
-        target.innerHTML = `<span style="color:var(--brand)">出错了：${e.message}</span>`;
+        target.innerHTML = `<span style="color:var(--brand)">出错了：${escapeHtml(e.message || '服务暂时不可用')}</span>`;
         updateChatActions();
     }
     if (runSeq === _chatRunSeq && currentAuthUid() === ownerUid) {
@@ -2621,8 +2625,9 @@ function buildUserPrompt(agent, inputs) {
 
 /* ---------- 工具函数 ---------- */
 function mdToHtml(md) {
-    try { return window.marked ? marked.parse(md, { breaks: true }) : escapeHtml(md).replace(/\n/g, '<br>'); }
-    catch { return escapeHtml(md).replace(/\n/g, '<br>'); }
+    return window.SafeRender
+        ? SafeRender.markdown(md)
+        : escapeHtml(md).replace(/\n/g, '<br>');
 }
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -2666,6 +2671,6 @@ onAuthReady((user) => {
 });
 </script>
 <script src="js/pwa.js?v=20260715-pwa2"></script>
-<script src="js/assistant.js?v=20260709-migration-title"></script>
+<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

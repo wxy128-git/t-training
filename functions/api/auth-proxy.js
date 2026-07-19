@@ -6,16 +6,58 @@ const FIRESTORE_USER_BASE = `https://firestore.googleapis.com/v1/projects/${FIRE
 const ADMIN_EMAIL = 'admin@xylaoshi.com';
 
 const CORS_HEADERS = {
-    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
+const AUTH_RATE_WINDOW_MS = 10 * 60 * 1000;
+const AUTH_RATE_LIMITS = { login: 15, register: 6, 'reset-password': 4, refresh: 60 };
+const authRateMap = new Map();
+
+function cleanText(value, maxLength) {
+    return String(value ?? '')
+        .normalize('NFKC')
+        .replace(/[\u0000-\u001f\u007f]/g, '')
+        .trim()
+        .slice(0, maxLength);
+}
 
 function jsonResponse(status, body) {
     return new Response(JSON.stringify(body), {
         status,
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+            'X-Content-Type-Options': 'nosniff',
+            ...CORS_HEADERS
+        }
     });
+}
+
+function rateBucket(key, limit) {
+    const now = Date.now();
+    const recent = (authRateMap.get(key) || []).filter(time => now - time < AUTH_RATE_WINDOW_MS);
+    if (recent.length >= limit) {
+        return Math.max(1, Math.ceil((AUTH_RATE_WINDOW_MS - (now - recent[0])) / 1000));
+    }
+    recent.push(now);
+    authRateMap.set(key, recent);
+    if (authRateMap.size > 5000) {
+        for (const [entryKey, times] of authRateMap) {
+            const alive = times.filter(time => now - time < AUTH_RATE_WINDOW_MS);
+            if (alive.length) authRateMap.set(entryKey, alive); else authRateMap.delete(entryKey);
+        }
+    }
+    return 0;
+}
+
+function authRetryAfter(request, action, account = '') {
+    const limit = AUTH_RATE_LIMITS[action];
+    if (!limit) return 0;
+    const ip = cleanText(request.headers.get('CF-Connecting-IP') || 'unknown', 64);
+    const accountKey = cleanText(account, 254).toLowerCase();
+    const retries = [rateBucket(`ip:${action}:${ip}`, limit)];
+    if (accountKey) retries.push(rateBucket(`account:${action}:${accountKey}`, limit));
+    return Math.max(...retries);
 }
 
 function firebaseErrorMessage(code) {
@@ -146,18 +188,18 @@ async function readUserProfile(idToken, uid) {
 
 function userFromAuth(data, profile = {}) {
     // 身份与管理员权限只能来自 Firebase 返回的认证邮箱，不能信任浏览器提交的 profile。
-    const rawEmail = data.email || '';
+    const rawEmail = String(data.email || '').trim().toLowerCase();
     const phoneMatch = rawEmail.match(/^tel_(1[3-9]\d{9})@xylaoshi\.tel$/);
-    const phone = phoneMatch ? phoneMatch[1] : (profile.phone || '');
+    const phone = phoneMatch ? phoneMatch[1] : cleanText(profile.phone, 20);
     const email = phoneMatch ? '' : rawEmail;
     return {
         uid: data.localId,
-        name: profile.name || data.displayName || (phone ? `手机用户${phone.slice(-4)}` : (email.split('@')[0] || '教师用户')),
+        name: cleanText(profile.name || data.displayName || (phone ? `手机用户${phone.slice(-4)}` : (email.split('@')[0] || '教师用户')), 80),
         email,
         phone,
-        school: profile.school || '',
+        school: cleanText(profile.school, 120),
         isAdmin: rawEmail === ADMIN_EMAIL,
-        joinedAt: profile.joinedAt || new Date().toISOString()
+        joinedAt: /^\d{4}-\d{2}-\d{2}T/.test(profile.joinedAt || '') ? profile.joinedAt : new Date().toISOString()
     };
 }
 
@@ -174,6 +216,13 @@ export async function onRequestPost({ request }) {
     }
 
     const { action, email, password, refreshToken } = payload || {};
+    if (!Object.prototype.hasOwnProperty.call(AUTH_RATE_LIMITS, action)) {
+        return jsonResponse(400, { ok: false, msg: '未知认证操作' });
+    }
+    const retryAfter = authRetryAfter(request, action, action === 'refresh' ? '' : email);
+    if (retryAfter) {
+        return jsonResponse(429, { ok: false, msg: `请求过于频繁，请约 ${retryAfter} 秒后再试`, retryAfter });
+    }
     if (action === 'refresh') {
         if (!refreshToken) return jsonResponse(400, { ok: false, msg: '缺少刷新令牌' });
         try {
@@ -187,15 +236,44 @@ export async function onRequestPost({ request }) {
         }
     }
 
-    if (!email || !password || password.length < 6) {
+    if (action === 'reset-password') {
+        const normalizedEmail = cleanText(email, 254).toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            return jsonResponse(400, { ok: false, msg: '请输入有效的邮箱地址' });
+        }
+        try {
+            await callFirebaseAuth('accounts:sendOobCode', {
+                requestType: 'PASSWORD_RESET',
+                email: normalizedEmail
+            });
+        } catch(error) {
+            // 开启邮箱枚举保护后不存在的账号也会返回成功；即便旧配置返回 EMAIL_NOT_FOUND，也保持统一文案。
+            if (error.code !== 'EMAIL_NOT_FOUND') {
+                return jsonResponse(error.statusCode || 502, { ok: false, msg: error.message, code: error.code || 'AUTH_RESET_ERROR' });
+            }
+        }
+        return jsonResponse(200, { ok: true, msg: '如果该邮箱已注册，密码重置链接将发送到邮箱，请留意收件箱和垃圾邮件箱。' });
+    }
+
+    const normalizedEmail = cleanText(email, 254).toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+        || typeof password !== 'string'
+        || password.length < 6
+        || password.length > 256) {
         return jsonResponse(400, { ok: false, msg: '请填写有效账号和至少 6 位密码' });
     }
 
     try {
         if (action === 'register') {
-            const profile = payload.profile || {};
+            const submittedProfile = payload.profile || {};
+            const profile = {
+                name: cleanText(submittedProfile.name, 80),
+                school: cleanText(submittedProfile.school, 120),
+                joinedAt: new Date().toISOString()
+            };
+            if (!profile.name) return jsonResponse(400, { ok: false, msg: '请填写姓名' });
             const authData = await callFirebaseAuth('accounts:signUp', {
-                email,
+                email: normalizedEmail,
                 password,
                 returnSecureToken: true
             });
@@ -209,14 +287,14 @@ export async function onRequestPost({ request }) {
                 } catch {}
             }
             // signUp 的请求邮箱即新建 Firebase 账号的认证邮箱；显式传入，避免 profile 冒充管理员邮箱。
-            const user = userFromAuth({ ...authData, email }, profile);
+            const user = userFromAuth({ ...authData, email: normalizedEmail }, profile);
             await saveUserProfile(authData.idToken, authData.localId, user);
             return jsonResponse(200, { ok: true, ...authData, user });
         }
 
         if (action === 'login') {
             const authData = await callFirebaseAuth('accounts:signInWithPassword', {
-                email,
+                email: normalizedEmail,
                 password,
                 returnSecureToken: true
             });
