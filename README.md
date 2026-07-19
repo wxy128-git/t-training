@@ -17,6 +17,7 @@ node scripts/serve.mjs
 ```bash
 node scripts/check-site.mjs
 node scripts/test-functions.mjs
+node scripts/check-production.mjs
 ```
 
 GitHub Actions 会在推送和 Pull Request 时自动运行结构、安全约束、函数行为与 JavaScript 语法检查。
