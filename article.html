@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <title>文章详情 · AI 教师培训中心</title>
     <meta name="description" content="阅读教师 AI 教学领域的精选文章详情。">
     <meta property="og:title" content="文章详情">
@@ -21,10 +22,10 @@
     <meta name="theme-color" content="#17212b">
     <meta name="application-name" content="AI 教师培训中心">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260801-appshell">
     <script type="application/ld+json" id="article-jsonld">{}</script>
     <style>
         .article-page-cover {
@@ -115,7 +116,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260719-securityreset"></script>
+<script src="js/auth.js?v=20260801-appshell"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CAT_CONFIG = {
@@ -251,7 +252,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20260715-pwa2"></script>
+<script src="js/pwa.js?v=20260801-appshell"></script>
 <script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

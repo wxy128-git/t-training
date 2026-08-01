@@ -246,10 +246,442 @@
     .nav-pwa-install-button span { display: none; }
 }
 
+/* ===== Installed mobile app shell · 2026-08-01 ===== */
+.pwa-app-tabbar,
+.pwa-app-home { display: none; }
+
+@media (max-width: 900px) {
+    html.pwa-app-mode {
+        min-height: 100%;
+        background: #17212b;
+        overscroll-behavior-y: none;
+    }
+
+    html.pwa-app-mode body {
+        min-height: 100dvh;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom));
+        background: #f3f6f8;
+        overscroll-behavior-y: contain;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html.pwa-app-mode :is(a, button, input, select, textarea, [role="button"]) {
+        touch-action: manipulation;
+    }
+
+    html.pwa-app-mode :is(input, select, textarea) { font-size: 16px; }
+    html.pwa-app-mode body > #main-footer,
+    html.pwa-app-mode .site-footer { display: none !important; }
+
+    /* Compact, safe-area-aware app bar. */
+    html.pwa-app-mode .site-header {
+        padding-top: env(safe-area-inset-top);
+        border-bottom: 0;
+        background: rgba(23, 33, 43, .97);
+        box-shadow: 0 1px 0 rgba(255,255,255,.08), 0 8px 24px -20px rgba(0,0,0,.7);
+        backdrop-filter: saturate(120%) blur(18px);
+        -webkit-backdrop-filter: saturate(120%) blur(18px);
+    }
+
+    html.pwa-app-mode .site-header-inner {
+        height: 54px;
+        padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+        gap: 10px;
+    }
+
+    html.pwa-app-mode .site-logo { min-width: 0; gap: 10px; }
+    html.pwa-app-mode .site-logo-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: #b64235;
+        box-shadow: none;
+    }
+    html.pwa-app-mode .site-logo-icon i { font-size: 15px !important; }
+    html.pwa-app-mode .site-logo-text { display: block !important; min-width: 0; }
+    html.pwa-app-mode .site-logo-text strong {
+        overflow: hidden;
+        color: #fff;
+        font-family: var(--font-sans, system-ui, sans-serif);
+        font-size: 15px;
+        font-weight: 760;
+        line-height: 1.2;
+        letter-spacing: -.01em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    html.pwa-app-mode .site-logo-text span,
+    html.pwa-app-mode .site-nav,
+    html.pwa-app-mode .nav-pwa-install-button,
+    html.pwa-app-mode .nav-hamburger,
+    html.pwa-app-mode .nav-user-tool,
+    html.pwa-app-mode .nav-user-area .hm,
+    html.pwa-app-mode .nav-user-area .admin-badge,
+    html.pwa-app-mode .nav-user-area .btn-login,
+    html.pwa-app-mode .auth-area > .btn-register { display: none !important; }
+    html.pwa-app-mode .auth-area { margin-left: auto; gap: 6px; }
+    html.pwa-app-mode .auth-area > .btn-login {
+        min-height: 38px;
+        padding: 0 13px;
+        border-color: rgba(255,255,255,.28);
+        background: rgba(255,255,255,.08);
+        color: #fff;
+    }
+    html.pwa-app-mode .user-avatar {
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(255,255,255,.22);
+        background: #fff;
+        color: #17212b;
+        cursor: pointer;
+    }
+    html.pwa-app-mode .user-avatar:focus-visible {
+        outline: 3px solid rgba(255,255,255,.38);
+        outline-offset: 2px;
+    }
+
+    /* Persistent task tabs. The red center action is the shell's signature. */
+    .pwa-app-tabbar {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 390;
+        min-height: calc(66px + env(safe-area-inset-bottom));
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: start;
+        padding: 5px max(7px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
+        border-top: 1px solid #d4dde3;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 -12px 30px -26px rgba(23,33,43,.7);
+        backdrop-filter: saturate(145%) blur(18px);
+        -webkit-backdrop-filter: saturate(145%) blur(18px);
+    }
+
+    .pwa-app-tab {
+        min-width: 0;
+        min-height: 54px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 2px 3px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #6b7884;
+        font: inherit;
+        font-size: 10.5px;
+        font-weight: 650;
+        line-height: 1.15;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color .15s, background .15s, transform .12s;
+    }
+    .pwa-app-tab-icon {
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+    }
+    .pwa-app-tab svg { width: 21px; height: 21px; }
+    .pwa-app-tab.active { color: #19465f; }
+    .pwa-app-tab.active:not(.pwa-app-tab-primary) .pwa-app-tab-icon { background: #e7f0f5; }
+    .pwa-app-tab:active { transform: scale(.94); }
+    .pwa-app-tab:focus-visible { outline: 3px solid rgba(36,91,120,.28); outline-offset: 0; }
+    .pwa-app-tab-primary { color: #8d3b32; }
+    .pwa-app-tab-primary .pwa-app-tab-icon {
+        width: 38px;
+        height: 38px;
+        margin-top: -11px;
+        border: 4px solid #fff;
+        border-radius: 12px;
+        background: #b64235;
+        color: #fff;
+        box-shadow: 0 5px 14px -8px rgba(143,49,41,.75);
+    }
+    .pwa-app-tab-primary svg { width: 20px; height: 20px; stroke-width: 1.9; }
+    .pwa-app-tab-primary.active .pwa-app-tab-icon { background: #8f3129; }
+
+    /* The website side drawer becomes an app-style bottom sheet. */
+    html.pwa-app-mode .nav-drawer {
+        display: block;
+        background: rgba(10,17,24,.58);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    html.pwa-app-mode .nav-drawer-panel {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-height: calc(88dvh - env(safe-area-inset-top));
+        padding: 12px max(18px, env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+        border-radius: 22px 22px 0 0;
+        background: #f8fafb;
+        box-shadow: 0 -24px 70px -36px rgba(0,0,0,.72);
+        transform: translateY(105%);
+    }
+    html.pwa-app-mode .nav-drawer-panel::before {
+        width: 42px;
+        height: 4px;
+        display: block;
+        flex: 0 0 auto;
+        align-self: center;
+        margin: 0 auto 7px;
+        border-radius: 999px;
+        background: #c4cfd6;
+        content: '';
+    }
+    html.pwa-app-mode .nav-drawer.open .nav-drawer-panel { transform: translateY(0); }
+    html.pwa-app-mode .nav-drawer-head { padding: 4px 2px 12px; margin-bottom: 6px; }
+    html.pwa-app-mode .nav-drawer-brand .site-logo-icon { width: 30px; height: 30px; }
+    html.pwa-app-mode .nav-drawer-close {
+        width: 40px;
+        height: 40px;
+        border: 0;
+        border-radius: 12px;
+        background: #e8eef2;
+    }
+    html.pwa-app-mode .nav-drawer-kicker { margin: 13px 12px 5px; }
+    html.pwa-app-mode .nav-drawer .nav-link {
+        min-height: 46px;
+        margin-bottom: 2px;
+        padding: 11px 12px;
+        border-radius: 12px;
+        font-size: 14.5px;
+    }
+    html.pwa-app-mode .nav-drawer-account {
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr) auto;
+        align-items: center;
+        gap: 11px;
+        margin: 2px 0 5px;
+        padding: 11px 12px;
+        border: 1px solid #d7e0e6;
+        border-radius: 14px;
+        background: #fff;
+    }
+    html.pwa-app-mode .nav-drawer-account .user-avatar { width: 36px; height: 36px; }
+    html.pwa-app-mode .nav-drawer-account-copy { min-width: 0; }
+    html.pwa-app-mode .nav-drawer-account-copy b,
+    html.pwa-app-mode .nav-drawer-account-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    html.pwa-app-mode .nav-drawer-account-copy b { color: #17212b; font-size: 13.5px; }
+    html.pwa-app-mode .nav-drawer-account-copy small { margin-top: 2px; color: #667482; font-size: 11px; }
+    html.pwa-app-mode .nav-drawer-account button {
+        min-height: 38px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 9px;
+        background: #eef3f6;
+        color: #53616e;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* App pages use content density closer to a native workbench. */
+    html.pwa-app-mode body > main,
+    html.pwa-app-mode #view-home,
+    html.pwa-app-mode .wb-wrap,
+    html.pwa-app-mode .ct-page,
+    html.pwa-app-mode .mm-wrap,
+    html.pwa-app-mode .tt-shell,
+    html.pwa-app-mode .resource-page {
+        padding-top: 26px !important;
+        padding-right: max(18px, env(safe-area-inset-right)) !important;
+        padding-bottom: calc(94px + env(safe-area-inset-bottom)) !important;
+        padding-left: max(18px, env(safe-area-inset-left)) !important;
+    }
+    html.pwa-app-mode #view-workspace .ws-wrap { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+    html.pwa-app-mode .breadcrumb { display: none; }
+    html.pwa-app-mode :is(.page-kicker, .wb-kicker, .ct-kicker, .mm-kicker, .tt-kicker, .paths-page-kicker) { display: none; }
+    html.pwa-app-mode :is(.page-title, .wb-head h1, .ct-title, .mm-title, .tt-title, .paths-page-title) {
+        font-size: clamp(28px, 8vw, 34px) !important;
+        line-height: 1.12 !important;
+    }
+    html.pwa-app-mode :is(.filter-bar, .wb-filter-row) {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    html.pwa-app-mode :is(.filter-bar, .wb-filter-row)::-webkit-scrollbar { display: none; }
+    html.pwa-app-mode .filter-pill { flex: 0 0 auto; }
+
+    /* Mobile-native bottom sheets for the most common dialogs. */
+    html.pwa-app-mode :is(.modal-overlay, .contact-modal, .project-modal, .workflow-modal, .work-title-modal, .wb-modal) {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
+    html.pwa-app-mode :is(.modal-box, .contact-box, .project-box, .workflow-box, .work-title-box, .wb-modal-box) {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: calc(91dvh - env(safe-area-inset-top)) !important;
+        padding-bottom: env(safe-area-inset-bottom);
+        border-right: 0 !important;
+        border-bottom: 0 !important;
+        border-left: 0 !important;
+        border-radius: 22px 22px 0 0 !important;
+    }
+    html.pwa-app-mode .assistant-launcher { right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); }
+    html.pwa-app-mode .assistant-panel { bottom: calc(76px + env(safe-area-inset-bottom)); }
+    html.pwa-app-mode .toast { bottom: calc(82px + env(safe-area-inset-bottom)); }
+    html.pwa-app-mode .pwa-card-stack,
+    html.pwa-app-mode .pwa-network-status { bottom: calc(82px + env(safe-area-inset-bottom)); }
+
+    /* Installed launch screen: a task dashboard, not a marketing homepage. */
+    html.pwa-app-home-page.pwa-app-home-ready #main-content > :not(.pwa-app-home) { display: none !important; }
+    html.pwa-app-home-page.pwa-app-home-ready body > main { padding: 0 !important; }
+    .pwa-app-home {
+        width: min(100%, 680px);
+        display: block;
+        margin: 0 auto;
+        padding: 28px max(16px, env(safe-area-inset-right)) calc(98px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+        color: #3d4a57;
+    }
+    .pwa-app-home-heading { padding: 4px 2px 21px; }
+    .pwa-app-today {
+        margin: 0 0 8px;
+        color: #245b78;
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 11.5px;
+        font-weight: 750;
+        letter-spacing: .06em;
+    }
+    .pwa-app-home-heading h1 {
+        margin: 0;
+        color: #17212b;
+        font-size: clamp(28px, 8.4vw, 36px);
+        font-weight: 800;
+        line-height: 1.16;
+        letter-spacing: -.035em;
+    }
+    .pwa-app-home-heading > p:last-child { margin: 10px 0 0; color: #667482; font-size: 14px; line-height: 1.65; }
+    .pwa-app-resume {
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr) auto;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        padding: 14px;
+        border: 1px solid #a9c3d1;
+        border-radius: 15px;
+        background: #e7f0f5;
+        color: #17212b;
+        box-shadow: 0 10px 24px -22px rgba(23,33,43,.55);
+    }
+    .pwa-app-resume[hidden] { display: none; }
+    .pwa-app-resume-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #245b78;
+        color: #fff;
+    }
+    .pwa-app-resume-icon svg { width: 22px; height: 22px; }
+    .pwa-app-resume-copy { min-width: 0; }
+    .pwa-app-resume-copy small,
+    .pwa-app-resume-copy b,
+    .pwa-app-resume-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pwa-app-resume-copy small { color: #245b78; font-size: 10.5px; font-weight: 750; }
+    .pwa-app-resume-copy b { margin-top: 3px; font-size: 14px; }
+    .pwa-app-resume-copy span { margin-top: 3px; color: #53616e; font-size: 11.5px; }
+    .pwa-app-resume-arrow svg { width: 19px; height: 19px; }
+    .pwa-app-section { margin-top: 26px; }
+    .pwa-app-section-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+    .pwa-app-section-head h2 { margin: 0; color: #17212b; font-size: 17px; font-weight: 780; letter-spacing: -.015em; }
+    .pwa-app-section-head a { display: inline-flex; align-items: center; gap: 2px; color: #245b78; font-size: 12px; font-weight: 700; }
+    .pwa-app-section-head a svg { width: 15px; height: 15px; }
+    .pwa-app-task-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .pwa-app-task {
+        min-width: 0;
+        min-height: 142px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        border: 1px solid #d7e0e6;
+        border-radius: 16px;
+        background: #fff;
+        color: #17212b;
+        box-shadow: 0 1px 2px rgba(23,33,43,.04);
+        transition: transform .15s, border-color .15s, background .15s;
+    }
+    .pwa-app-task:active { transform: scale(.975); background: #f8fafb; }
+    .pwa-app-task-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 15px;
+        border-radius: 11px;
+        background: #e7f0f5;
+        color: #245b78;
+    }
+    .pwa-app-task:nth-child(2) .pwa-app-task-icon { background: #e5f2ef; color: #287a68; }
+    .pwa-app-task:nth-child(3) .pwa-app-task-icon { background: #f7eae8; color: #a24b45; }
+    .pwa-app-task:nth-child(4) .pwa-app-task-icon { background: #fbf2df; color: #9a681d; }
+    .pwa-app-task-icon svg { width: 21px; height: 21px; }
+    .pwa-app-task b { font-size: 15px; font-weight: 780; }
+    .pwa-app-task small { margin-top: 5px; color: #667482; font-size: 11.5px; line-height: 1.45; }
+    .pwa-app-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        overflow: hidden;
+        border: 1px solid #d7e0e6;
+        border-radius: 16px;
+        background: #fff;
+    }
+    .pwa-app-quick-grid a {
+        min-width: 0;
+        min-height: 78px;
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr);
+        grid-template-rows: auto auto;
+        column-gap: 9px;
+        align-content: center;
+        padding: 13px;
+        color: #17212b;
+    }
+    .pwa-app-quick-grid a:nth-child(odd) { border-right: 1px solid #e7edf1; }
+    .pwa-app-quick-grid a:nth-child(-n+2) { border-bottom: 1px solid #e7edf1; }
+    .pwa-app-quick-grid a > span { grid-row: 1 / 3; width: 30px; height: 30px; display: grid; place-items: center; color: #245b78; }
+    .pwa-app-quick-grid svg { width: 20px; height: 20px; }
+    .pwa-app-quick-grid b { overflow: hidden; font-size: 12.5px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .pwa-app-quick-grid small { overflow: hidden; margin-top: 2px; color: #667482; font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap; }
+    .pwa-app-principle {
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr);
+        gap: 10px;
+        align-items: start;
+        margin-top: 24px;
+        padding: 13px 14px;
+        border-left: 3px solid #b64235;
+        background: #fff;
+        color: #53616e;
+    }
+    .pwa-app-principle > span { color: #b64235; }
+    .pwa-app-principle svg { width: 20px; height: 20px; }
+    .pwa-app-principle p { margin: 0; }
+    .pwa-app-principle b,
+    .pwa-app-principle small { display: block; }
+    .pwa-app-principle b { color: #17212b; font-size: 12.5px; }
+    .pwa-app-principle small { margin-top: 3px; font-size: 11px; line-height: 1.55; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .pwa-card, .pwa-install-dialog[open] { animation: none; }
+    .pwa-app-tab, .pwa-app-task { transition: none; }
 }
 
 @media (forced-colors: active) {
-    .pwa-card, .pwa-install-dialog, .pwa-network-status { border: 1px solid CanvasText; }
+    .pwa-card, .pwa-install-dialog, .pwa-network-status, .pwa-app-tabbar { border: 1px solid CanvasText; }
 }

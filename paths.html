@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <title>学习路径 · AI 教师培训中心</title>
     <meta name="description" content="面向中小学教师的三条 AI 学习路径：入门基础、教学应用、创作进阶。">
     <meta property="og:title" content="结构化的 AI 教学学习路径">
@@ -21,10 +22,10 @@
     <meta name="theme-color" content="#17212b">
     <meta name="application-name" content="AI 教师培训中心">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260801-appshell">
     <style>
         .paths-page-title { font-family: var(--font-display); font-size: clamp(32px,4.6vw,52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
         .paths-page-sub { font-size: 14.5px; color: var(--muted); margin-top: 12px; line-height: 1.75; max-width: 580px; }
@@ -147,7 +148,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260719-securityreset"></script>
+<script src="js/auth.js?v=20260801-appshell"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 function pathIcon(path) {
@@ -297,7 +298,7 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     }
 })();
 </script>
-<script src="js/pwa.js?v=20260715-pwa2"></script>
+<script src="js/pwa.js?v=20260801-appshell"></script>
 <script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

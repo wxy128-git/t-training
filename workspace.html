@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <title>我的备课本 · AI 教师培训中心</title>
     <meta name="description" content="保存、管理你在智能体空间生成的备课内容——查看、复制、导出 Word / Markdown。">
     <meta name="robots" content="noindex">
@@ -12,10 +13,10 @@
     <meta name="theme-color" content="#17212b">
     <meta name="application-name" content="AI 教师培训中心">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260801-appshell">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
         .wb-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: end; margin-bottom: 24px; padding: 6px 0 24px; border-bottom: 1px solid var(--line); }
@@ -251,7 +252,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260719-securityreset"></script>
+<script src="js/auth.js?v=20260801-appshell"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
 <script>
@@ -670,7 +671,7 @@ loadWorks();                                  // 乐观渲染（用缓存登录�
 onAuthReady(() => { renderNav('workspace'); renderFooter(); loadWorks(); });  // Firebase 就绪后校正
 document.addEventListener('authRefresh', () => loadWorks());  // 在本页登录后原地加载内容（不整页刷新）
 </script>
-<script src="js/pwa.js?v=20260715-pwa2"></script>
+<script src="js/pwa.js?v=20260801-appshell"></script>
 <script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

@@ -447,7 +447,13 @@ function renderNav(currentPage) {
            </div>`
         : `<button class="btn-login" onclick="showAuthModal('login')">登录</button>
            <button class="btn-register" onclick="showAuthModal('register')">注册</button>`;
-    const drawerAuth = user ? '' : `
+    const drawerAuth = user ? `
+        <div class="nav-drawer-kicker">账户</div>
+        <div class="nav-drawer-account">
+            <div class="user-avatar">${safeAvatarLetter}</div>
+            <div class="nav-drawer-account-copy"><b>${safeDisplayName}</b><small>${user.isAdmin ? '管理员账户' : '教师账户'}</small></div>
+            <button type="button" onclick="closeNavDrawer();Auth.logout()">退出</button>
+        </div>` : `
         <div class="nav-drawer-kicker">账户</div>
         <button type="button" class="nav-link nav-button" onclick="closeNavDrawer();showAuthModal('login')"><i class="ph ph-sign-in"></i> 登录</button>
         <button type="button" class="nav-link nav-button" onclick="closeNavDrawer();showAuthModal('register')"><i class="ph ph-user-plus"></i> 注册账号</button>`;
@@ -546,6 +552,7 @@ function openNavDrawer() {
     d.classList.add('open');
     d.setAttribute('aria-hidden', 'false');
     document.querySelector('.nav-hamburger')?.setAttribute('aria-expanded', 'true');
+    document.querySelector('[data-pwa-more]')?.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
     setTimeout(() => d.querySelector('.nav-drawer-close')?.focus(), 30);
 }
@@ -555,6 +562,7 @@ function closeNavDrawer() {
     d.classList.remove('open');
     d.setAttribute('aria-hidden', 'true');
     document.querySelector('.nav-hamburger')?.setAttribute('aria-expanded', 'false');
+    document.querySelector('[data-pwa-more]')?.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
     if (_drawerReturnFocus?.focus) _drawerReturnFocus.focus();
     _drawerReturnFocus = null;

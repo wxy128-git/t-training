@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <title>智能体空间 · AI 教师培训中心</title>
     <meta name="description" content="为中小学教师打造的 AI 智能体工作台：教学设计、微课脚本、智能出题、作业批改、苏格拉底助手、家校沟通等一线场景，AI 起草初稿、教师修改定稿。">
     <meta property="og:title" content="智能体空间 · 教师 AI 工作台">
@@ -21,10 +22,10 @@
     <meta name="theme-color" content="#17212b">
     <meta name="application-name" content="AI 教师培训中心">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260715-pwa2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260801-appshell">
     <style>
         /* ===== 智能体空间 · 页面专属样式（现代教研工作台） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 10.5px; color: var(--brand); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 13px; font-weight: 600; }
@@ -476,7 +477,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260719-securityreset"></script>
+<script src="js/auth.js?v=20260801-appshell"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260712-workbench"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
@@ -2670,7 +2671,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20260715-pwa2"></script>
+<script src="js/pwa.js?v=20260801-appshell"></script>
 <script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

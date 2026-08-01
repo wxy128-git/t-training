@@ -2,8 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <meta name="theme-color" content="#17212b">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/css/pwa.css?v=20260801-appshell">
     <title>当前离线 · AI 教师培训中心</title>
     <style>
         * { box-sizing: border-box; }
@@ -97,5 +101,6 @@
     window.addEventListener('offline', updateState);
     updateState();
 </script>
+<script src="/js/pwa.js?v=20260801-appshell"></script>
 </body>
 </html>
