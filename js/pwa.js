@@ -20,6 +20,14 @@
     let installCardTimer = 0;
     let networkStatusTimer = 0;
     let appShellSyncFrame = 0;
+    let appIconObserver = null;
+
+    const APP_TASKS = [
+        { id: 'lesson-design', icon: 'lesson', title: '备一节课', meta: '教学设计与分层作业' },
+        { id: 'quiz-gen', icon: 'quiz', title: '设计练习', meta: '题目、答案与解析' },
+        { id: 'homework-grader', icon: 'review', title: '批改诊断', meta: '反馈与改进建议' },
+        { id: 'class-activity', icon: 'activity', title: '课堂活动', meta: '可执行的活动方案' }
+    ];
 
     function safeStorage(storage, method, key, value) {
         try {
@@ -67,7 +75,23 @@
         toolbox: '<path d="M3 8h18v11H3zM8 8V5h8v3M3 12h18M10 12v2h4v-2"/>',
         folder: '<path d="M3 6.5h7l2 2h9v11H3z"/>',
         shield: '<path d="M12 3 20 6v5.5c0 4.5-2.7 7.6-8 9.5-5.3-1.9-8-5-8-9.5V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/>',
-        clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>'
+        clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+        back: '<path d="m15 5-7 7 7 7"/><path d="M8 12h11"/>',
+        close: '<path d="m6 6 12 12M18 6 6 18"/>',
+        offline: '<path d="M3 3l18 18M8.5 8.5A6 6 0 0 1 18 12M5 12a9.8 9.8 0 0 1 1.2-2.2M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/>',
+        graduation: '<path d="m3 9 9-5 9 5-9 5z"/><path d="M7 12v4c2.8 2 7.2 2 10 0v-4M21 9v6"/>',
+        news: '<path d="M5 5h14v14H5z"/><path d="M8 9h8M8 12h8M8 15h5"/>',
+        path: '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M7.5 16.5 16.5 7.5M7 7h4v4"/>',
+        article: '<path d="M6 3.5h9l3 3V20H6z"/><path d="M15 3.5V7h3M9 11h6M9 14h6M9 17h4"/>',
+        quote: '<path d="M5 7h6v6H7c0 2-1 3.5-3 4M14 7h6v6h-4c0 2-1 3.5-3 4"/>',
+        download: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
+        signin: '<path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/>',
+        user: '<circle cx="12" cy="8" r="3"/><path d="M5.5 20c.5-4.2 2.6-6 6.5-6s6 1.8 6.5 6"/>',
+        mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
+        pencil: '<path d="m4 20 4.2-1 10.6-10.6-3.2-3.2L5 15.8z"/><path d="m13.8 7 3.2 3.2M4 20h6"/>',
+        copy: '<rect x="8" y="8" width="11" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"/>',
+        refresh: '<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8A7 7 0 0 1 18 6l2 6M17.9 16A7 7 0 0 1 6 18l-2-6"/>',
+        trash: '<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/>'
     };
 
     function appIcon(name) {
@@ -102,8 +126,13 @@
             '/paths': '学习路径',
             '/articles': '精选文章',
             '/article': '文章阅读',
-            '/prompts': '提示词库'
+            '/prompts': '提示词库',
+            '/offline': '离线模式'
         })[path] || 'AI 教研';
+    }
+
+    function isSecondaryAppPage() {
+        return !new Set(['/', '/agents', '/workspace', '/classroom-tools', '/offline']).has(cleanPathname());
     }
 
     function createAppTabBar() {
@@ -114,23 +143,101 @@
         nav.setAttribute('aria-label', '应用主导航');
         nav.innerHTML = `
             <a class="pwa-app-tab" href="/" data-pwa-tab="home"><span class="pwa-app-tab-icon">${appIcon('home')}</span><span>首页</span></a>
-            <a class="pwa-app-tab pwa-app-tab-primary" href="/agents" data-pwa-tab="agents"><span class="pwa-app-tab-icon">${appIcon('sparkle')}</span><span>开始</span></a>
             <a class="pwa-app-tab" href="/workspace" data-pwa-tab="workspace"><span class="pwa-app-tab-icon">${appIcon('book')}</span><span>备课本</span></a>
+            <button class="pwa-app-tab pwa-app-tab-primary" type="button" data-pwa-start data-pwa-tab="agents" aria-haspopup="dialog" aria-controls="pwa-task-dialog" aria-expanded="false"><span class="pwa-app-tab-icon">${appIcon('sparkle')}</span><span>开始</span></button>
             <a class="pwa-app-tab" href="/classroom-tools" data-pwa-tab="classroom"><span class="pwa-app-tab-icon">${appIcon('classroom')}</span><span>课堂</span></a>
             <button class="pwa-app-tab" type="button" data-pwa-more data-pwa-tab="more" aria-controls="nav-drawer" aria-expanded="false"><span class="pwa-app-tab-icon">${appIcon('more')}</span><span>更多</span></button>`;
         document.body.appendChild(nav);
+    }
+
+    function createTaskLauncher() {
+        if (!isStandaloneApp() || document.getElementById('pwa-task-dialog')) return;
+        const dialog = document.createElement('dialog');
+        dialog.id = 'pwa-task-dialog';
+        dialog.className = 'pwa-task-dialog';
+        dialog.setAttribute('aria-labelledby', 'pwa-task-dialog-title');
+        dialog.innerHTML = `
+            <div class="pwa-task-sheet">
+                <div class="pwa-sheet-handle" aria-hidden="true"></div>
+                <div class="pwa-task-sheet-head">
+                    <div><p>新建教学任务</p><h2 id="pwa-task-dialog-title">从哪里开始？</h2></div>
+                    <button type="button" class="pwa-sheet-close" data-pwa-sheet-close aria-label="关闭任务菜单">${appIcon('close')}</button>
+                </div>
+                <a class="pwa-task-resume" data-pwa-task-resume data-pwa-task="resume" href="/agents#lesson-design" hidden>
+                    <span class="pwa-task-resume-icon">${appIcon('clock')}</span>
+                    <span class="pwa-task-resume-copy"><small>继续进行中</small><b></b><span></span></span>
+                    <span class="pwa-task-resume-arrow">${appIcon('arrow')}</span>
+                </a>
+                <div class="pwa-launch-grid">
+                    ${APP_TASKS.map(task => `<a href="/agents#${task.id}" data-pwa-task="${task.id}"><span>${appIcon(task.icon)}</span><b>${task.title}</b><small>${task.meta}</small></a>`).join('')}
+                </div>
+                <a class="pwa-launch-all" href="/agents" data-pwa-task="all-agents"><span>${appIcon('sparkle')}</span><b>浏览全部智能体</b><small>按备课、课堂、评价与教师发展查找</small><i>${appIcon('arrow')}</i></a>
+            </div>`;
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) closeTaskLauncher();
+        });
+        dialog.addEventListener('close', () => {
+            document.documentElement.classList.remove('pwa-sheet-open');
+            document.querySelector('[data-pwa-start]')?.setAttribute('aria-expanded', 'false');
+        });
+        document.body.appendChild(dialog);
+    }
+
+    function closeTaskLauncher() {
+        const dialog = document.getElementById('pwa-task-dialog');
+        if (!dialog) return;
+        if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+        else {
+            dialog.removeAttribute('open');
+            document.documentElement.classList.remove('pwa-sheet-open');
+            document.querySelector('[data-pwa-start]')?.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    function taskResumeState() {
+        let project = null;
+        let draft = null;
+        try {
+            project = window.TeachingProjects?.getActiveProject?.() || null;
+            draft = window.TeachingProjects?.listDrafts?.()?.[0] || null;
+        } catch (_) {}
+        if (!project && !draft) return null;
+        const agent = (window.AGENTS || []).find(item => item.id === draft?.agentId);
+        const context = project ? [project.grade, project.subject, project.topic].filter(Boolean).join(' · ') : '';
+        return {
+            href: draft?.agentId ? `/agents#${encodeURIComponent(draft.agentId)}` : '/agents#lesson-design',
+            title: project?.title || `${agent?.name || '智能体'}未完成草稿`,
+            meta: [context, draft ? '草稿保存在本机' : '继续当前教学项目'].filter(Boolean).join(' · ')
+        };
+    }
+
+    function updateTaskLauncher() {
+        const resume = document.querySelector('[data-pwa-task-resume]');
+        if (!resume) return;
+        const state = taskResumeState();
+        resume.hidden = !state;
+        if (!state) return;
+        resume.href = state.href;
+        resume.querySelector('b').textContent = state.title;
+        resume.querySelector('.pwa-task-resume-copy > span').textContent = state.meta;
+    }
+
+    function openTaskLauncher() {
+        createTaskLauncher();
+        updateTaskLauncher();
+        const dialog = document.getElementById('pwa-task-dialog');
+        if (!dialog) return;
+        document.documentElement.classList.add('pwa-sheet-open');
+        document.querySelector('[data-pwa-start]')?.setAttribute('aria-expanded', 'true');
+        if (typeof dialog.showModal === 'function' && !dialog.open) dialog.showModal();
+        else dialog.setAttribute('open', '');
+        track('pwa_task_launcher_opened');
     }
 
     function createAppHome() {
         if (!isStandaloneApp() || cleanPathname() !== '/' || document.getElementById('pwa-app-home')) return;
         const main = document.getElementById('main-content');
         if (!main) return;
-        const tasks = [
-            { id: 'lesson-design', icon: 'lesson', title: '备一节课', meta: '教学设计与分层作业' },
-            { id: 'quiz-gen', icon: 'quiz', title: '设计练习', meta: '题目、答案与解析' },
-            { id: 'homework-grader', icon: 'review', title: '批改诊断', meta: '反馈与改进建议' },
-            { id: 'class-activity', icon: 'activity', title: '课堂活动', meta: '可执行的活动方案' }
-        ];
         const home = document.createElement('section');
         home.id = 'pwa-app-home';
         home.className = 'pwa-app-home';
@@ -148,7 +255,7 @@
             </a>
             <section class="pwa-app-section" aria-labelledby="pwa-app-task-title">
                 <div class="pwa-app-section-head"><h2 id="pwa-app-task-title">常用任务</h2><a href="/agents">全部智能体 ${appIcon('arrow')}</a></div>
-                <div class="pwa-app-task-grid">${tasks.map(task => `<a class="pwa-app-task" href="/agents#${task.id}"><span class="pwa-app-task-icon">${appIcon(task.icon)}</span><b>${task.title}</b><small>${task.meta}</small></a>`).join('')}</div>
+                <div class="pwa-app-task-grid">${APP_TASKS.map(task => `<a class="pwa-app-task" href="/agents#${task.id}"><span class="pwa-app-task-icon">${appIcon(task.icon)}</span><b>${task.title}</b><small>${task.meta}</small></a>`).join('')}</div>
             </section>
             <section class="pwa-app-section" aria-labelledby="pwa-app-quick-title">
                 <div class="pwa-app-section-head"><h2 id="pwa-app-quick-title">教学工具</h2></div>
@@ -170,24 +277,140 @@
         const now = new Date();
         const today = document.getElementById('pwa-app-today');
         if (today) today.textContent = now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
+        const heading = document.getElementById('pwa-app-home-title');
+        if (heading) {
+            const hour = now.getHours();
+            const greeting = hour < 6 ? '夜深了' : hour < 11 ? '上午好' : hour < 14 ? '中午好' : hour < 19 ? '下午好' : '晚上好';
+            heading.textContent = `${greeting}，先完成哪项教学任务？`;
+        }
         const resume = document.getElementById('pwa-app-resume');
         if (!resume) return;
-        let project = null;
-        let draft = null;
-        try {
-            project = window.TeachingProjects?.getActiveProject?.() || null;
-            draft = window.TeachingProjects?.listDrafts?.()?.[0] || null;
-        } catch (_) {}
-        if (!project && !draft) {
+        const state = taskResumeState();
+        if (!state) {
             resume.hidden = true;
             return;
         }
-        const agent = (window.AGENTS || []).find(item => item.id === draft?.agentId);
-        const context = project ? [project.grade, project.subject, project.topic].filter(Boolean).join(' · ') : '';
-        document.getElementById('pwa-app-resume-title').textContent = project?.title || `${agent?.name || '智能体'}未完成草稿`;
-        document.getElementById('pwa-app-resume-meta').textContent = [context, draft ? '草稿已保存在本机' : '继续当前教学项目'].filter(Boolean).join(' · ');
-        resume.href = draft?.agentId ? `/agents#${encodeURIComponent(draft.agentId)}` : '/agents#lesson-design';
+        document.getElementById('pwa-app-resume-title').textContent = state.title;
+        document.getElementById('pwa-app-resume-meta').textContent = state.meta;
+        resume.href = state.href;
         resume.hidden = false;
+    }
+
+    function syncAppHeader() {
+        const inner = document.querySelector('.site-header .site-header-inner');
+        if (!inner) return;
+        const logo = inner.querySelector('.site-logo');
+        const secondary = isSecondaryAppPage();
+        document.documentElement.classList.toggle('pwa-app-secondary', secondary);
+
+        let back = inner.querySelector('.pwa-app-back');
+        if (secondary && !back) {
+            back = document.createElement('button');
+            back.type = 'button';
+            back.className = 'pwa-app-back';
+            back.setAttribute('aria-label', '返回上一页');
+            back.innerHTML = appIcon('back');
+            inner.insertBefore(back, logo || inner.firstChild);
+        } else if (!secondary && back) {
+            back.remove();
+        }
+
+        let offline = inner.querySelector('.pwa-app-offline-badge');
+        if (!offline) {
+            offline = document.createElement('span');
+            offline.className = 'pwa-app-offline-badge';
+            offline.setAttribute('role', 'status');
+            offline.setAttribute('aria-live', 'polite');
+            offline.innerHTML = `${appIcon('offline')}<span>离线</span>`;
+            inner.querySelector('.auth-area')?.before(offline);
+        }
+        offline.hidden = navigator.onLine;
+
+        const routeIcons = {
+            '/': 'home',
+            '/agents': 'sparkle',
+            '/workspace': 'book',
+            '/multimodal': 'image',
+            '/classroom-tools': 'classroom',
+            '/tools': 'toolbox',
+            '/resources': 'folder',
+            '/news': 'news',
+            '/paths': 'path',
+            '/articles': 'article',
+            '/prompts': 'quote'
+        };
+        document.querySelectorAll('.site-header .site-logo-icon, .nav-drawer-brand .site-logo-icon').forEach((node) => {
+            if (node.dataset.pwaSvg === '1') return;
+            node.innerHTML = appIcon('graduation');
+            node.dataset.pwaSvg = '1';
+        });
+        const drawerClose = document.querySelector('.nav-drawer-close');
+        if (drawerClose && drawerClose.dataset.pwaSvg !== '1') {
+            drawerClose.innerHTML = appIcon('close');
+            drawerClose.dataset.pwaSvg = '1';
+        }
+        document.querySelectorAll('.nav-drawer a.nav-link[href]').forEach((link) => {
+            if (link.dataset.pwaSvg === '1') return;
+            let path = '';
+            try { path = new URL(link.getAttribute('href'), location.origin).pathname.replace(/\/$/, '') || '/'; }
+            catch (_) {}
+            const iconName = routeIcons[path];
+            if (!iconName) return;
+            link.querySelector('i')?.remove();
+            link.insertAdjacentHTML('afterbegin', appIcon(iconName));
+            link.dataset.pwaSvg = '1';
+        });
+        document.querySelectorAll('.nav-drawer button.nav-link').forEach((button) => {
+            if (button.dataset.pwaSvg === '1') return;
+            const label = button.textContent.trim();
+            const iconName = label.includes('安装') ? 'download'
+                : label.includes('注册') ? 'user'
+                : label.includes('登录') ? 'signin'
+                : label.includes('联系') ? 'mail' : '';
+            if (!iconName) return;
+            button.querySelector('i')?.remove();
+            button.insertAdjacentHTML('afterbegin', appIcon(iconName));
+            button.dataset.pwaSvg = '1';
+        });
+    }
+
+    function syncWorkspaceIcons() {
+        if (cleanPathname() !== '/agents') return;
+        const back = document.querySelector('#view-workspace .ws-back');
+        if (back && !back.querySelector('svg')) back.innerHTML = appIcon('back');
+        const agentIcon = document.getElementById('ws-ico');
+        if (agentIcon && !agentIcon.querySelector('svg')) agentIcon.innerHTML = appIcon('sparkle');
+
+        const classIcons = {
+            'ph-arrow-left': 'back',
+            'ph-notebook': 'book',
+            'ph-cpu': 'toolbox',
+            'ph-folder-notch-open': 'folder',
+            'ph-pencil-simple': 'pencil',
+            'ph-bookmark-simple': 'book',
+            'ph-copy': 'copy',
+            'ph-arrows-clockwise': 'refresh',
+            'ph-trash': 'trash'
+        };
+        document.querySelectorAll('#view-workspace i[class*="ph-"]').forEach((icon) => {
+            const iconName = Object.entries(classIcons).find(([className]) => icon.classList.contains(className))?.[1];
+            if (!iconName) return;
+            icon.insertAdjacentHTML('afterend', appIcon(iconName));
+            icon.remove();
+        });
+    }
+
+    function watchWorkspaceIcons() {
+        if (appIconObserver || cleanPathname() !== '/agents') return;
+        const root = document.getElementById('view-workspace');
+        if (!root || !('MutationObserver' in window)) return;
+        appIconObserver = new MutationObserver((mutations) => {
+            const hasNewIcon = mutations.some(mutation => [...mutation.addedNodes].some((node) =>
+                node.nodeType === 1 && (node.matches?.('i[class*="ph-"]') || node.querySelector?.('i[class*="ph-"]'))
+            ));
+            if (hasNewIcon) scheduleAppShellSync();
+        });
+        appIconObserver.observe(root, { childList: true, subtree: true });
     }
 
     function syncAppShell() {
@@ -216,6 +439,8 @@
         }
         const more = document.querySelector('[data-pwa-more]');
         if (more) more.setAttribute('aria-expanded', String(document.getElementById('nav-drawer')?.classList.contains('open') || false));
+        syncAppHeader();
+        syncWorkspaceIcons();
     }
 
     function scheduleAppShellSync() {
@@ -228,7 +453,9 @@
         document.documentElement.classList.add('pwa-app-mode');
         if (cleanPathname() === '/') document.documentElement.classList.add('pwa-app-home-page');
         createAppTabBar();
+        createTaskLauncher();
         createAppHome();
+        watchWorkspaceIcons();
         if (document.getElementById('pwa-app-home')) document.documentElement.classList.add('pwa-app-home-ready');
         syncAppShell();
     }
@@ -441,10 +668,11 @@
     }
 
     function handleNetworkChange() {
+        syncAppHeader();
         if (navigator.onLine) {
             showNetworkStatus('网络已恢复，在线功能可以继续使用。', 'online', false);
         } else {
-            showNetworkStatus('当前离线：可查看已缓存页面，AI 生成与同步暂不可用。', 'offline', true);
+            showNetworkStatus('当前离线：可查看已缓存页面，AI 生成与同步暂不可用。', 'offline', !isStandaloneApp());
         }
     }
 
@@ -522,6 +750,27 @@
             else showNetworkStatus('更多功能暂不可用，请先返回已缓存页面或恢复网络。', 'offline', false);
             scheduleAppShellSync();
         }
+        if (appTab?.matches('[data-pwa-start]')) {
+            event.preventDefault();
+            openTaskLauncher();
+        }
+        const back = eventElement?.closest('.pwa-app-back');
+        if (back) {
+            const sameOriginReferrer = (() => {
+                try { return Boolean(document.referrer) && new URL(document.referrer).origin === location.origin; }
+                catch (_) { return false; }
+            })();
+            if (sameOriginReferrer && history.length > 1) history.back();
+            else location.assign('/');
+        }
+        if (eventElement?.closest('[data-pwa-sheet-close]')) {
+            closeTaskLauncher();
+        }
+        const taskLink = eventElement?.closest('[data-pwa-task]');
+        if (taskLink) {
+            track('pwa_task_started', { meta: { task: taskLink.getAttribute('data-pwa-task') || 'unknown' } });
+            closeTaskLauncher();
+        }
         const avatar = eventElement?.closest('.pwa-app-mode .site-header .user-avatar');
         if (avatar && typeof window.openNavDrawer === 'function') {
             window.openNavDrawer();
@@ -554,8 +803,11 @@
         syncAppShell();
     }, { once: true });
     window.addEventListener('pageshow', updateAppHome);
-    document.addEventListener('authChanged', updateAppHome);
-    document.addEventListener('authRefresh', updateAppHome);
+    window.addEventListener('scroll', () => {
+        document.documentElement.classList.toggle('pwa-app-scrolled', window.scrollY > 6);
+    }, { passive: true });
+    document.addEventListener('authChanged', () => { updateAppHome(); updateTaskLauncher(); });
+    document.addEventListener('authRefresh', () => { updateAppHome(); updateTaskLauncher(); });
 
     setupAppShell();
     syncInstallButtons();

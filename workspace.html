@@ -13,10 +13,11 @@
     <meta name="theme-color" content="#17212b">
     <meta name="application-name" content="AI 教师培训中心">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260801-appshell">
+    <link rel="stylesheet" href="css/pwa.css?v=20260805-appshell2">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
         .wb-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: end; margin-bottom: 24px; padding: 6px 0 24px; border-bottom: 1px solid var(--line); }
@@ -671,7 +672,7 @@ loadWorks();                                  // 乐观渲染（用缓存登录�
 onAuthReady(() => { renderNav('workspace'); renderFooter(); loadWorks(); });  // Firebase 就绪后校正
 document.addEventListener('authRefresh', () => loadWorks());  // 在本页登录后原地加载内容（不整页刷新）
 </script>
-<script src="js/pwa.js?v=20260801-appshell"></script>
+<script src="js/pwa.js?v=20260805-appshell2"></script>
 <script src="js/assistant.js?v=20260719-a11ysecurity"></script>
 </body>
 </html>

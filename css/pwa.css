@@ -248,9 +248,10 @@
 
 /* ===== Installed mobile app shell · 2026-08-01 ===== */
 .pwa-app-tabbar,
-.pwa-app-home { display: none; }
+.pwa-app-home,
+.pwa-task-dialog { display: none; }
 
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
     html.pwa-app-mode {
         min-height: 100%;
         background: #17212b;
@@ -264,6 +265,9 @@
         overscroll-behavior-y: contain;
         -webkit-tap-highlight-color: transparent;
     }
+
+    html.pwa-sheet-open,
+    html.pwa-sheet-open body { overflow: hidden; }
 
     html.pwa-app-mode :is(a, button, input, select, textarea, [role="button"]) {
         touch-action: manipulation;
@@ -281,6 +285,12 @@
         box-shadow: 0 1px 0 rgba(255,255,255,.08), 0 8px 24px -20px rgba(0,0,0,.7);
         backdrop-filter: saturate(120%) blur(18px);
         -webkit-backdrop-filter: saturate(120%) blur(18px);
+        transition: background .18s ease, box-shadow .18s ease;
+    }
+
+    html.pwa-app-mode.pwa-app-scrolled .site-header {
+        background: rgba(23, 33, 43, .985);
+        box-shadow: 0 1px 0 rgba(255,255,255,.09), 0 12px 28px -22px rgba(0,0,0,.9);
     }
 
     html.pwa-app-mode .site-header-inner {
@@ -298,6 +308,7 @@
         box-shadow: none;
     }
     html.pwa-app-mode .site-logo-icon i { font-size: 15px !important; }
+    html.pwa-app-mode .site-logo-icon svg { width: 18px; height: 18px; color: #fff; }
     html.pwa-app-mode .site-logo-text { display: block !important; min-width: 0; }
     html.pwa-app-mode .site-logo-text strong {
         overflow: hidden;
@@ -319,6 +330,43 @@
     html.pwa-app-mode .nav-user-area .admin-badge,
     html.pwa-app-mode .nav-user-area .btn-login,
     html.pwa-app-mode .auth-area > .btn-register { display: none !important; }
+    html.pwa-app-mode.pwa-app-secondary .site-logo { gap: 0; }
+    html.pwa-app-mode.pwa-app-secondary .site-logo-icon { display: none; }
+    html.pwa-app-mode .pwa-app-back {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        margin-left: -8px;
+        padding: 0;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+    }
+    html.pwa-app-mode .pwa-app-back:active { background: rgba(255,255,255,.1); }
+    html.pwa-app-mode .pwa-app-back:focus-visible { outline: 3px solid rgba(255,255,255,.38); outline-offset: -2px; }
+    html.pwa-app-mode .pwa-app-back svg { width: 22px; height: 22px; }
+    html.pwa-app-mode .pwa-app-offline-badge {
+        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: auto;
+        padding: 0 8px;
+        border: 1px solid rgba(255,220,157,.34);
+        border-radius: 999px;
+        background: rgba(167,111,24,.24);
+        color: #ffe0a6;
+        font-size: 10.5px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+    html.pwa-app-mode .pwa-app-offline-badge[hidden] { display: none; }
+    html.pwa-app-mode .pwa-app-offline-badge svg { width: 14px; height: 14px; }
+    html.pwa-app-mode .pwa-app-offline-badge:not([hidden]) + .auth-area { margin-left: 0; }
     html.pwa-app-mode .auth-area { margin-left: auto; gap: 6px; }
     html.pwa-app-mode .auth-area > .btn-login {
         min-height: 38px;
@@ -406,6 +454,163 @@
     .pwa-app-tab-primary svg { width: 20px; height: 20px; stroke-width: 1.9; }
     .pwa-app-tab-primary.active .pwa-app-tab-icon { background: #8f3129; }
 
+    /* The center action opens a task launcher instead of behaving like another page tab. */
+    .pwa-task-dialog[open] {
+        position: fixed;
+        inset: auto 0 0;
+        z-index: 430;
+        width: 100%;
+        max-width: none;
+        max-height: calc(94dvh - env(safe-area-inset-top));
+        display: block;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        color: #3d4a57;
+    }
+    .pwa-task-dialog::backdrop {
+        background: rgba(10,17,24,.62);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    .pwa-task-sheet {
+        width: min(100%, 680px);
+        max-height: calc(94dvh - env(safe-area-inset-top));
+        margin: 0 auto;
+        padding: 10px max(18px, env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+        overflow: auto;
+        overscroll-behavior: contain;
+        border-radius: 24px 24px 0 0;
+        background: #f8fafb;
+        box-shadow: 0 -24px 70px -36px rgba(0,0,0,.78);
+        animation: pwa-sheet-up .22s cubic-bezier(.2,.72,.24,1) both;
+    }
+    .pwa-sheet-handle {
+        width: 42px;
+        height: 4px;
+        margin: 0 auto 12px;
+        border-radius: 999px;
+        background: #c4cfd6;
+    }
+    .pwa-task-sheet-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 2px 17px;
+    }
+    .pwa-task-sheet-head p { margin: 0 0 4px; color: #245b78; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
+    .pwa-task-sheet-head h2 { margin: 0; color: #17212b; font-size: 23px; font-weight: 800; letter-spacing: -.025em; line-height: 1.2; }
+    .pwa-sheet-close {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        margin: -4px -6px 0 0;
+        padding: 0;
+        border: 0;
+        border-radius: 13px;
+        background: #e8eef2;
+        color: #53616e;
+        cursor: pointer;
+    }
+    .pwa-sheet-close:active { background: #dce5ea; color: #17212b; }
+    .pwa-sheet-close:focus-visible { outline: 3px solid rgba(36,91,120,.28); outline-offset: 1px; }
+    .pwa-sheet-close svg { width: 20px; height: 20px; }
+    .pwa-task-resume {
+        min-height: 70px;
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr) auto;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 12px;
+        padding: 11px 12px;
+        border: 1px solid #a9c3d1;
+        border-radius: 15px;
+        background: #e7f0f5;
+        color: #17212b;
+    }
+    .pwa-task-resume[hidden] { display: none; }
+    .pwa-task-resume-icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: #245b78;
+        color: #fff;
+    }
+    .pwa-task-resume-icon svg { width: 21px; height: 21px; }
+    .pwa-task-resume-copy { min-width: 0; }
+    .pwa-task-resume-copy small,
+    .pwa-task-resume-copy b,
+    .pwa-task-resume-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pwa-task-resume-copy small { color: #245b78; font-size: 10px; font-weight: 800; }
+    .pwa-task-resume-copy b { margin-top: 3px; font-size: 13.5px; }
+    .pwa-task-resume-copy span { margin-top: 2px; color: #53616e; font-size: 10.5px; }
+    .pwa-task-resume-arrow svg { width: 18px; height: 18px; }
+    .pwa-launch-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
+    .pwa-launch-grid a {
+        min-width: 0;
+        min-height: 108px;
+        display: grid;
+        grid-template-columns: 36px minmax(0,1fr);
+        grid-template-rows: auto auto;
+        align-content: center;
+        column-gap: 10px;
+        padding: 13px;
+        border: 1px solid #d7e0e6;
+        border-radius: 15px;
+        background: #fff;
+        color: #17212b;
+    }
+    .pwa-launch-grid a > span {
+        grid-row: 1 / 3;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: #e7f0f5;
+        color: #245b78;
+    }
+    .pwa-launch-grid a:nth-child(2) > span { background: #e5f2ef; color: #287a68; }
+    .pwa-launch-grid a:nth-child(3) > span { background: #f7eae8; color: #a24b45; }
+    .pwa-launch-grid a:nth-child(4) > span { background: #fbf2df; color: #9a681d; }
+    .pwa-launch-grid svg { width: 20px; height: 20px; }
+    .pwa-launch-grid b { align-self: end; overflow: hidden; font-size: 13px; font-weight: 780; text-overflow: ellipsis; white-space: nowrap; }
+    .pwa-launch-grid small { align-self: start; overflow: hidden; color: #667482; font-size: 10.5px; line-height: 1.35; }
+    .pwa-launch-all {
+        min-height: 62px;
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr) auto;
+        grid-template-rows: auto auto;
+        align-items: center;
+        column-gap: 10px;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid #d7e0e6;
+        border-radius: 15px;
+        background: #fff;
+        color: #17212b;
+    }
+    .pwa-launch-all > span { grid-row: 1 / 3; width: 36px; height: 36px; display: grid; place-items: center; color: #b64235; }
+    .pwa-launch-all > span svg { width: 21px; height: 21px; }
+    .pwa-launch-all b { align-self: end; font-size: 13px; }
+    .pwa-launch-all small { align-self: start; color: #667482; font-size: 10.5px; }
+    .pwa-launch-all i { grid-column: 3; grid-row: 1 / 3; color: #667482; }
+    .pwa-launch-all i svg { width: 18px; height: 18px; }
+    .pwa-task-sheet a:active { transform: scale(.985); background-color: #f1f5f7; }
+    .pwa-task-sheet a:focus-visible { outline: 3px solid rgba(36,91,120,.28); outline-offset: 1px; }
+
+    @keyframes pwa-sheet-up {
+        from { opacity: .72; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     /* The website side drawer becomes an app-style bottom sheet. */
     html.pwa-app-mode .nav-drawer {
         display: block;
@@ -447,6 +652,7 @@
         border-radius: 12px;
         background: #e8eef2;
     }
+    html.pwa-app-mode .nav-drawer-close svg { width: 20px; height: 20px; }
     html.pwa-app-mode .nav-drawer-kicker { margin: 13px 12px 5px; }
     html.pwa-app-mode .nav-drawer .nav-link {
         min-height: 46px;
@@ -454,6 +660,12 @@
         padding: 11px 12px;
         border-radius: 12px;
         font-size: 14.5px;
+    }
+    html.pwa-app-mode .nav-drawer .nav-link > svg {
+        width: 19px;
+        height: 19px;
+        flex: 0 0 auto;
+        color: currentColor;
     }
     html.pwa-app-mode .nav-drawer-account {
         display: grid;
@@ -498,6 +710,10 @@
         padding-left: max(18px, env(safe-area-inset-left)) !important;
     }
     html.pwa-app-mode #view-workspace .ws-wrap { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+    html.pwa-app-mode #view-workspace .ws-back > svg { width: 20px; height: 20px; }
+    html.pwa-app-mode #view-workspace .ws-ico > svg { width: 27px; height: 27px; }
+    html.pwa-app-mode #view-workspace :is(.ws-mini-btn, .ws-model-badge, .ws-project-action) > svg { width: 16px; height: 16px; flex: 0 0 auto; }
+    html.pwa-app-mode #view-workspace .ws-project-icon > svg { width: 19px; height: 19px; }
     html.pwa-app-mode .breadcrumb { display: none; }
     html.pwa-app-mode :is(.page-kicker, .wb-kicker, .ct-kicker, .mm-kicker, .tt-kicker, .paths-page-kicker) { display: none; }
     html.pwa-app-mode :is(.page-title, .wb-head h1, .ct-title, .mm-title, .tt-title, .paths-page-title) {
@@ -531,6 +747,7 @@
     }
     html.pwa-app-mode .assistant-launcher { right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); }
     html.pwa-app-mode .assistant-panel { bottom: calc(76px + env(safe-area-inset-bottom)); }
+    html.pwa-app-mode .assistant-launcher { display: none !important; }
     html.pwa-app-mode .toast { bottom: calc(82px + env(safe-area-inset-bottom)); }
     html.pwa-app-mode .pwa-card-stack,
     html.pwa-app-mode .pwa-network-status { bottom: calc(82px + env(safe-area-inset-bottom)); }
@@ -680,8 +897,9 @@
 @media (prefers-reduced-motion: reduce) {
     .pwa-card, .pwa-install-dialog[open] { animation: none; }
     .pwa-app-tab, .pwa-app-task { transition: none; }
+    .pwa-task-sheet { animation: none; }
 }
 
 @media (forced-colors: active) {
-    .pwa-card, .pwa-install-dialog, .pwa-network-status, .pwa-app-tabbar { border: 1px solid CanvasText; }
+    .pwa-card, .pwa-install-dialog, .pwa-network-status, .pwa-app-tabbar, .pwa-task-sheet { border: 1px solid CanvasText; }
 }

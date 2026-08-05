@@ -34,10 +34,34 @@ for (const route of routes) {
 
 const home = await request('/');
 if (home) {
+    const body = await home.text();
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    await home.arrayBuffer();
+    assert(body.includes('css/pwa.css?v=20260805-appshell2'), '首页未加载当前 PWA 样式版本');
+    assert(body.includes('js/pwa.js?v=20260805-appshell2'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('<meta name="mobile-web-app-capable" content="yes">'), '首页缺少标准移动 Web App 声明');
+}
+
+const pwaScript = await request('/js/pwa.js?v=20260805-appshell2');
+if (pwaScript) {
+    const body = await pwaScript.text();
+    assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
+    assert(body.includes('pwa-task-dialog') && body.includes('pwa_task_started'), 'PWA 任务启动层或统计事件未上线');
+    assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
+}
+
+const manifest = await request('/manifest.webmanifest');
+if (manifest) {
+    const body = await manifest.json().catch(() => null);
+    assert(manifest.status === 200 && body?.display === 'standalone', 'PWA Manifest 未正确上线');
+    assert(body?.launch_handler?.client_mode?.includes('navigate-existing'), 'PWA Manifest 未配置复用现有应用窗口');
+}
+
+const serviceWorker = await request('/sw.js');
+if (serviceWorker) {
+    const body = await serviceWorker.text();
+    assert(serviceWorker.status === 200 && body.includes('20260805-v5'), '当前 Service Worker 版本未上线');
 }
 
 const safeRender = await request('/js/safe-render.js?v=20260719-security');

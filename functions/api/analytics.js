@@ -27,6 +27,8 @@ const EVENT_ACTIONS = new Set([
     'workbook_view',
     'workbook_open',
     'workbook_save',
+    'pwa_task_launcher_opened',
+    'pwa_task_started',
     'multimodal_case_open',
     'multimodal_video_open',
     'multimodal_audio_play'
