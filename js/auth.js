@@ -394,7 +394,7 @@ function renderNav(currentPage) {
         { key:'classroom', href:'/classroom-tools', label:'课堂工具' }
     ];
     const resourcePages = [
-        { key:'tools',     href:'/tools',     label:'AI资源精选', icon:'ph ph-toolbox', desc:'精选工具导航' },
+        { key:'tools',     href:'/tools',     label:'AI 资源精选', icon:'ph ph-toolbox', desc:'精选工具导航' },
         { key:'resources', href:'/resources', label:'课件素材', icon:'ph ph-folder-open', desc:'可下载素材' },
         { key:'news',      href:'/news',      label:'AI 资讯', icon:'ph ph-newspaper', desc:'教育 AI 动态' },
         { key:'paths',     href:'/paths',     label:'学习路径', icon:'ph ph-path', desc:'系统训练路线' },
@@ -816,10 +816,10 @@ async function footerSubscribe() {
     try {
         const result = await DB.addSubscriber(email);
         if (result === 'exists') {
-            showToast('该邮箱已订阅，感谢关注！');
+            showToast('该邮箱已登记，无需重复提交');
         } else {
             input.value = '';
-            showToast('订阅成功，每周精选将发送至您的邮箱');
+            showToast('登记成功，邮件通知功能上线后会向该邮箱发送更新');
         }
     } catch(e) {
         showToast('订阅失败，请稍后重试');
@@ -844,7 +844,7 @@ function renderFooter() {
                 <li><a href="/">首页</a></li>
                 <li><a href="/agents">智能体空间</a></li>
                 <li><a href="/multimodal">多模态工作坊</a></li>
-                <li><a href="/tools">AI资源精选</a></li>
+                <li><a href="/tools">AI 资源精选</a></li>
                 <li><a href="/news">AI 资讯</a></li>
                 <li><a href="/paths">学习路径</a></li>
                 <li><a href="/articles">精选文章</a></li>
@@ -855,14 +855,15 @@ function renderFooter() {
                 <p style="font-size:13px;color:#64748b;line-height:1.8">面向在职教师的 AI 教学实践平台，支持备课、课堂、评价、家校沟通与教学复盘。</p>
                 <p style="font-size:13px;color:#475569;margin-top:8px">欢迎教师分享 AI 教学案例，共建社区智识库。</p>
             </div>
-            <div class="footer-col"><h4>订阅动态</h4>
-                <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">订阅每周 AI 教育精选，第一时间获取新工具与案例推荐</p>
+            <div class="footer-col"><h4>内容更新登记</h4>
+                <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">留下邮箱，用于后续内容更新通知；目前不承诺固定发送频率</p>
                 <div class="subscribe-form">
-                    <input class="subscribe-input" type="email" id="footer-sub-email" placeholder="输入您的邮箱">
-                    <button class="subscribe-btn" onclick="footerSubscribe()">订阅</button>
+                    <label class="sr-only" for="footer-sub-email">邮箱地址</label>
+                    <input class="subscribe-input" type="email" inputmode="email" autocomplete="email" id="footer-sub-email" placeholder="输入您的邮箱">
+                    <button class="subscribe-btn" type="button" onclick="footerSubscribe()">登记</button>
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">© 2025 AI 教师培训中心 · 保留所有权利</div>
+        <div class="footer-bottom">© ${new Date().getFullYear()} AI 教师培训中心 · 保留所有权利</div>
     </footer>`;
 }

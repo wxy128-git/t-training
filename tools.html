@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
-    <title>AI资源精选 · AI 教师培训中心</title>
+    <title>AI 资源精选 · AI 教师培训中心</title>
     <meta name="description" content="为教师精选好用的第三方 AI 产品，点击直达——备课、出题、课件、图像、数字人全场景覆盖。">
     <meta property="og:title" content="教师专用 AI 资源精选">
     <meta property="og:description" content="为教师精选好用的第三方 AI 产品，点击直达——备课、出题、课件、图像、数字人全场景覆盖。">
@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260805-appshell2">
+    <link rel="stylesheet" href="css/style.css?v=20260806-ux2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260806-ux2">
     <style>
         .tt-shell { max-width: 1280px; margin: 0 auto; padding: 42px 24px 88px; }
         .tt-hero { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,360px); gap: 30px; align-items: end; padding: 8px 0 28px; margin-bottom: 18px; border-bottom: 2px solid var(--ink); }
@@ -52,6 +52,8 @@
         .tt-filter-panel .filter-pill { padding: 7px 12px; font-size: 12.5px; background: var(--paper); }
         .tt-filter-panel .filter-pill.active { background: var(--ink); border-color: var(--ink); color: var(--soft); }
         .tt-count-line { font-size: 12.5px; color: var(--muted); font-family: var(--font-mono); margin: 0 0 18px; }
+        .tt-review-note { display: flex; align-items: flex-start; gap: 9px; margin: -4px 0 28px; padding: 11px 13px; border: 1px solid #d6e0e6; border-radius: 10px; background: #f7fafb; color: var(--text-soft); font-size: 12px; line-height: 1.65; }
+        .tt-review-note i { margin-top: 2px; color: #245b78; font-size: 15px; flex: none; }
         #tools-grid, #tools-grouped .cards-grid { grid-template-columns: repeat(auto-fit, minmax(224px, 268px)); justify-content: start; }
         .tt-section { margin-bottom: 50px; --cat: var(--brand); }
         .tt-section-head { display: grid; grid-template-columns: 38px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 0 0 13px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
@@ -94,7 +96,7 @@
 <div id="main-nav"></div>
 
 <main class="tt-shell" id="main-content">
-    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>AI资源精选</span></div>
+    <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>AI 资源精选</span></div>
 
     <div class="tt-hero">
         <div>
@@ -128,6 +130,7 @@
     </div>
 
     <div class="tt-count-line" id="count-label"></div>
+    <p class="tt-review-note"><i class="ph ph-info" aria-hidden="true"></i><span>信息核对于 2026 年 8 月。价格、地区和账号要求可能调整，请以官网为准；测试第三方工具时，不要上传学生真实姓名、联系方式、成绩明细等敏感信息。</span></p>
 
     <!-- 默认「全部」按分类分组陈列；搜索或选具体分类时切换到下面的单层网格 -->
     <div id="tools-grouped"></div>
@@ -149,7 +152,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260801-appshell"></script>
+<script src="js/auth.js?v=20260806-ux2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 // 按「老师要做什么」重分类（2026-06）
@@ -175,25 +178,25 @@ const TAG_FILTERS = ['免费','部分免费','中文','海外'];
 
 // 工具元数据（按工具名）：cat=新分类 / tags=小标签。标签为先填的默认值，需核对。
 const TOOL_META = {
-    'PrompterHub':   { cat:'plan', tags:['免费','中文'] },
-    'Prompt123':     { cat:'plan', tags:['免费','中文'] },
-    '快出题':         { cat:'plan', tags:['部分免费','中文'] },
-    '秘塔搜索':       { cat:'plan', tags:['免费','中文'] },
-    'AI好记':         { cat:'plan', tags:['部分免费','中文'] },
-    'Gamma':         { cat:'make', tags:['部分免费','海外'] },
-    '讯飞智文':       { cat:'make', tags:['部分免费','中文'] },
-    '飞象老师':       { cat:'make', tags:['部分免费','中文'] },
-    'anygen.io':     { cat:'media', tags:['部分免费','中文'] },
-    'Nano Banana':   { cat:'media', tags:['免费','海外'] },
-    '即梦AI':         { cat:'media', tags:['免费','中文'] },
-    '海绵音乐':       { cat:'media', tags:['部分免费','中文'] },
-    '可灵AI':         { cat:'media', tags:['部分免费','中文'] },
-    '飞影数字人':     { cat:'media', tags:['部分免费','中文'] },
-    '棒棒糖AI听评课': { cat:'platform', tags:['部分免费','中文'] },
-    'Coze':          { cat:'platform', tags:['免费','中文'] },
-    'Flowin':        { cat:'platform', tags:['部分免费','中文'] },
-    'WorkBuddy':     { cat:'platform', tags:['部分免费','中文'] },
-    'Trae':          { cat:'platform', tags:['免费','中文'] }
+    'PrompterHub':   { cat:'plan', tags:['免费','中文'], fit:'整理个人常用提示词，并按教学任务建立可复用模板。' },
+    'Prompt123':     { cat:'plan', tags:['免费','中文'], fit:'需要参考中文提示词写法、快速比较不同表达时使用。' },
+    '快出题':         { cat:'plan', tags:['部分免费','中文'], fit:'已有知识点与难度要求，需要快速形成练习初稿时使用。' },
+    '秘塔搜索':       { cat:'plan', tags:['免费','中文'], fit:'备课前检索公开资料、梳理来源和核心观点时使用。' },
+    'AI好记':         { cat:'plan', tags:['部分免费','中文'], fit:'整理公开课、讲座或长材料的结构与要点时使用。' },
+    'Gamma':         { cat:'make', tags:['部分免费','海外'], fit:'已有教学提纲，需要快速形成演示稿结构与版式时使用。' },
+    '讯飞智文':       { cat:'make', tags:['部分免费','中文'], fit:'需要把中文文档或主题转成可继续编辑的课件时使用。' },
+    '飞象老师':       { cat:'make', tags:['部分免费','中文'], fit:'需要把单一知识点制作成讲解动画或微课片段时使用。' },
+    'anygen.io':     { cat:'media', tags:['部分免费','中文'], fit:'需要围绕教学主题生成多种视觉素材方案时使用。' },
+    'Nano Banana':   { cat:'media', tags:['免费','海外'], fit:'需要修改图片、保持人物或场景一致性时小范围试用。' },
+    '即梦AI':         { cat:'media', tags:['免费','中文'], fit:'需要中文提示词生成课堂配图或短视频素材时使用。' },
+    '海绵音乐':       { cat:'media', tags:['部分免费','中文'], fit:'为校园活动、课件片头或情境任务制作音乐草案时使用。' },
+    '可灵AI':         { cat:'media', tags:['部分免费','中文'], fit:'需要较完整的教学情境视频或图生视频片段时使用。' },
+    '飞影数字人':     { cat:'media', tags:['部分免费','中文'], fit:'需要制作固定口播、课程导语或活动说明视频时使用。' },
+    '棒棒糖AI听评课': { cat:'platform', tags:['部分免费','中文'], fit:'教研活动中整理课堂观察记录与评课线索时使用。' },
+    'Coze':          { cat:'platform', tags:['免费','中文'], fit:'需要搭建学科答疑助手或校内轻量工作流时使用。' },
+    'Flowin':        { cat:'platform', tags:['部分免费','中文'], fit:'需要把多步骤教学准备流程串联为可重复任务时使用。' },
+    'WorkBuddy':     { cat:'platform', tags:['部分免费','中文'], fit:'需要将资料、任务和协作过程放进统一工作台时使用。' },
+    'Trae':          { cat:'platform', tags:['免费','中文'], fit:'教师或信息科技团队开发教学网页与小工具时使用。' }
 };
 const TAG_CLASS = { '免费':'tt-free', '部分免费':'tt-neutral', '付费':'tt-paid', '中文':'tt-cn', '海外':'tt-os' };
 
@@ -331,7 +334,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20260805-appshell2"></script>
-<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
+<script src="js/pwa.js?v=20260806-ux2"></script>
+<script src="js/assistant.js?v=20260806-ux2"></script>
 </body>
 </html>

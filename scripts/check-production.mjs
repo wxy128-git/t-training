@@ -38,12 +38,16 @@ if (home) {
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    assert(body.includes('css/pwa.css?v=20260805-appshell2'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/pwa.js?v=20260805-appshell2'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('css/style.css?v=20260806-ux2'), '首页未加载当前全局样式版本');
+    assert(body.includes('css/pwa.css?v=20260806-ux2'), '首页未加载当前 PWA 样式版本');
+    assert(body.includes('js/auth.js?v=20260806-ux2'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/assistant.js?v=20260806-ux2'), '首页未加载当前网站向导脚本版本');
+    assert(body.includes('js/pwa.js?v=20260806-ux2'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('id="th-mobile-more"') && body.includes('继续了解工作方法与配套资源'), '首页移动端渐进展开入口未上线');
     assert(body.includes('<meta name="mobile-web-app-capable" content="yes">'), '首页缺少标准移动 Web App 声明');
 }
 
-const pwaScript = await request('/js/pwa.js?v=20260805-appshell2');
+const pwaScript = await request('/js/pwa.js?v=20260806-ux2');
 if (pwaScript) {
     const body = await pwaScript.text();
     assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
@@ -61,7 +65,28 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260805-v5'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260806-v6'), '当前 Service Worker 版本未上线');
+    assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
+}
+
+const paths = await request('/paths');
+if (paths) {
+    const body = await paths.text();
+    assert(body.includes('PATH_PROGRESS_PREFIX') && body.includes('id="path-continue"'), '学习路径进度与继续学习入口未上线');
+    assert(body.includes('step-complete-btn') && body.includes('标记为已完成'), '学习步骤完成操作未上线');
+}
+
+const classroom = await request('/classroom-tools');
+if (classroom) {
+    const body = await classroom.text();
+    assert((body.match(/<button type="button" class="ct-tool-card"/g) || []).length === 9, '课堂工具卡片未全部升级为原生按钮');
+    assert(body.includes('ct-tool-open') && body.includes('演示模式会隐藏站点导航与向导'), '课堂演示模式说明或界面避让未上线');
+}
+
+const agents = await request('/agents');
+if (agents) {
+    const body = await agents.text();
+    assert(body.includes("!FEATURED.includes(a.id)"), '精选智能体仍会在分类列表重复展示');
 }
 
 const safeRender = await request('/js/safe-render.js?v=20260719-security');

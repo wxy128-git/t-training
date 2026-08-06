@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260805-appshell2">
+    <link rel="stylesheet" href="css/style.css?v=20260806-ux2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260806-ux2">
     <style>
         .paths-page-title { font-family: var(--font-display); font-size: clamp(32px,4.6vw,52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
         .paths-page-sub { font-size: 14.5px; color: var(--muted); margin-top: 12px; line-height: 1.75; max-width: 580px; }
@@ -34,9 +34,10 @@
 
         .step-detail { max-height: 0; overflow: hidden; transition: max-height 0.32s ease; }
         .step-detail.open { max-height: 1200px; }
-        .step-row { cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line-soft); transition: padding 0.15s; }
+        .step-row { width: 100%; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px 0; border: 0; border-bottom: 1px solid var(--line-soft); background: transparent; color: inherit; font: inherit; text-align: left; transition: padding 0.15s; }
         .step-row:last-child { border-bottom: none; }
         .step-row:hover { padding-left: 4px; }
+        .step-row:focus-visible { outline: 3px solid rgba(36,91,120,.26); outline-offset: 3px; border-radius: 8px; }
         .step-row:hover .step-num { background: var(--brand); color: var(--soft); border-color: var(--brand); }
         .step-row:hover .step-name { color: var(--brand); }
         .step-num { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--soft); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text); flex-shrink: 0; transition: all 0.18s; }
@@ -47,7 +48,15 @@
         .step-row.expanded .step-chevron { transform: rotate(180deg); color: var(--brand); }
         .step-row.expanded .step-num { background: var(--brand); color: var(--soft); border-color: var(--brand); }
         .step-row.expanded .step-name { color: var(--ink); font-weight: 600; }
+        .step-row.completed .step-num { background: #e5f2ef; color: #287a68; border-color: #78ad9f; }
+        .step-row.completed .step-name::after { content: '已完成'; display: inline-flex; margin-left: 8px; padding: 2px 6px; border-radius: 999px; background: #e5f2ef; color: #287a68; font-size: 10px; font-weight: 700; vertical-align: 1px; }
         .step-detail-inner { padding: 14px 16px 18px 70px; font-size: 13.5px; color: var(--text-soft); line-height: 1.85; background: var(--soft); border-radius: 0 0 12px 12px; }
+        .step-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+        .step-complete-btn, .step-practice-link { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 13px; border-radius: 8px; font: inherit; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; }
+        .step-complete-btn { border: 1px solid #8fb9ae; background: #fff; color: #287a68; }
+        .step-complete-btn[aria-pressed="true"] { background: #e5f2ef; }
+        .step-practice-link { border: 1px solid #a9bfcb; background: #fff; color: #245b78; }
+        .step-complete-btn:focus-visible, .step-practice-link:focus-visible { outline: 3px solid rgba(36,91,120,.24); outline-offset: 2px; }
 
         .resource-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; font-size: 12.5px; margin: 3px; color: white; }
 
@@ -75,6 +84,17 @@
         .path-nav-title { font-weight: 700; font-size: 19px; margin-bottom: 6px; letter-spacing: -0.015em; color: white; }
         .path-nav-duration { color: rgba(255,255,255,0.72); font-size: 12.5px; }
         .path-nav-level { margin-top: 14px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.18); padding: 3px 10px; border-radius: 999px; font-size: 11.5px; display: inline-block; color: white; }
+        .path-nav-progress { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; margin-top: 16px; color: rgba(255,255,255,.82); font-size: 10.5px; }
+        .path-progress-track { height: 4px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.22); }
+        .path-progress-fill { width: 0; height: 100%; border-radius: inherit; background: #fff; transition: width .22s ease; }
+
+        .path-continue { display: none; grid-template-columns: 42px minmax(0,1fr) auto; gap: 12px; align-items: center; margin: -10px 0 32px; padding: 13px 15px; border: 1px solid #b9ceda; border-radius: 10px; background: #f7fafb; color: inherit; text-decoration: none; }
+        .path-continue.active { display: grid; }
+        .path-continue-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 9px; background: #e7f0f5; color: #245b78; font-size: 19px; }
+        .path-continue-copy small { display: block; color: #245b78; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; letter-spacing: .08em; }
+        .path-continue-copy b { display: block; margin-top: 4px; color: var(--ink); font-size: 13.5px; }
+        .path-continue-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11.5px; }
+        .path-continue > i { color: #245b78; }
 
         .path-detail { border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--line); }
         .path-detail-head { padding: 36px; color: white; position: relative; overflow: hidden; }
@@ -116,6 +136,9 @@
             .path-nav-card { min-height: auto; }
             .path-detail-head { padding: 28px; }
             .path-detail-body { padding: 24px; }
+            .path-continue { grid-template-columns: 38px minmax(0,1fr); }
+            .path-continue > i { display: none; }
+            .step-detail-inner { padding-left: 16px; }
         }
     </style>
 </head>
@@ -130,6 +153,12 @@
         <h1 class="paths-page-title">结构化<span style="font-style:italic;color:var(--brand)">学习</span>路径</h1>
         <p class="paths-page-sub">三条精心设计的进阶路径，从零基础到 AI 创作高手，点击每一步展开详细指引。</p>
     </div>
+
+    <a class="path-continue" id="path-continue" href="#" aria-label="继续上次学习">
+        <span class="path-continue-icon"><i class="ph ph-play"></i></span>
+        <span class="path-continue-copy"><small>CONTINUE LEARNING</small><b id="path-continue-title"></b><span id="path-continue-meta"></span></span>
+        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+    </a>
 
     <!-- Path comparison -->
     <div class="path-nav-grid" id="path-nav-cards">
@@ -149,7 +178,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260801-appshell"></script>
+<script src="js/auth.js?v=20260806-ux2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 function pathIcon(path) {
@@ -191,20 +220,133 @@ function requirePathLogin(onReady) {
     return false;
 }
 
+const PATH_PROGRESS_PREFIX = 'xylaoshi:path-progress:';
+let loadedPaths = [];
+
+function pathUserStorageKey() {
+    const user = getPathUser();
+    const identity = user && (user.uid || user.email);
+    return identity ? `${PATH_PROGRESS_PREFIX}${encodeURIComponent(identity)}` : '';
+}
+
+function readPathProgress() {
+    const key = pathUserStorageKey();
+    if (!key) return {};
+    try {
+        const value = JSON.parse(localStorage.getItem(key) || '{}');
+        return value && typeof value === 'object' ? value : {};
+    } catch {
+        return {};
+    }
+}
+
+function writePathProgress(progress) {
+    const key = pathUserStorageKey();
+    if (!key) return;
+    try { localStorage.setItem(key, JSON.stringify(progress)); } catch (_) {}
+}
+
+function setPathStepOpen(row, open) {
+    const detail = row?.nextElementSibling;
+    if (!detail) return;
+    detail.classList.toggle('open', open);
+    row.classList.toggle('expanded', open);
+    row.setAttribute('aria-expanded', String(open));
+}
+
+function pathPracticeAction(step) {
+    const name = String(step?.name || '');
+    if (/提示词|提问/.test(name)) return { href:'/prompts', label:'打开提示词库实践' };
+    if (/备课|教案|教学设计/.test(name)) return { href:'/agents#lesson-design', label:'用教学设计助手实践' };
+    if (/课件|演示|视频|图像|音频|创作/.test(name)) return { href:'/multimodal', label:'打开多模态工作坊' };
+    if (/出题|练习|测验/.test(name)) return { href:'/agents#quiz-gen', label:'用练习生成器实践' };
+    if (/批改|评价|反馈/.test(name)) return { href:'/agents#homework-grader', label:'用批改助手实践' };
+    if (/家校|沟通/.test(name)) return { href:'/agents#parent-comm', label:'用家校沟通助手实践' };
+    if (/课堂|活动|分组/.test(name)) return { href:'/classroom-tools', label:'打开课堂工具实践' };
+    if (/智能体|助手|工作流/.test(name)) return { href:'/agents', label:'浏览智能体实践' };
+    return { href:'/articles', label:'阅读配套实践文章' };
+}
+
+function syncPathProgressUI() {
+    if (!loadedPaths.length) return;
+    const progress = readPathProgress();
+    const hasUser = Boolean(pathUserStorageKey());
+    let continueTarget = null;
+
+    loadedPaths.forEach((path, pathIndex) => {
+        const pathSlug = /^[a-z0-9_-]{1,64}$/i.test(path.slug || '') ? path.slug : `path-${pathIndex + 1}`;
+        const completed = new Set(Array.isArray(progress[pathSlug]) ? progress[pathSlug] : []);
+        const total = (path.steps || []).length;
+        const done = [...completed].filter(index => Number.isInteger(index) && index >= 0 && index < total).length;
+        const percentage = total ? Math.round(done / total * 100) : 0;
+
+        document.querySelectorAll(`[data-path-progress="${pathSlug}"]`).forEach(node => {
+            node.querySelector('.path-progress-fill')?.style.setProperty('width', `${percentage}%`);
+            const label = node.querySelector('[data-path-progress-label]');
+            if (label) label.textContent = hasUser ? `${done}/${total} 完成` : '登录后记录';
+        });
+
+        document.querySelectorAll(`.step-row[data-path="${pathSlug}"]`).forEach(row => {
+            const stepIndex = Number(row.dataset.step);
+            const isComplete = completed.has(stepIndex);
+            row.classList.toggle('completed', isComplete);
+            const button = row.nextElementSibling?.querySelector('.step-complete-btn');
+            if (button) {
+                button.setAttribute('aria-pressed', String(isComplete));
+                button.innerHTML = isComplete
+                    ? '<i class="ph ph-check-circle"></i> 已完成，点击撤销'
+                    : '<i class="ph ph-circle"></i> 标记为已完成';
+            }
+        });
+
+        if (!continueTarget && hasUser && done > 0 && done < total) {
+            const nextIndex = (path.steps || []).findIndex((_, index) => !completed.has(index));
+            if (nextIndex >= 0) continueTarget = { path, pathSlug, nextIndex, done, total };
+        }
+    });
+
+    const link = document.getElementById('path-continue');
+    if (!link) return;
+    link.classList.toggle('active', Boolean(continueTarget));
+    if (!continueTarget) return;
+    link.href = `#path-step-${continueTarget.pathSlug}-${continueTarget.nextIndex}`;
+    document.getElementById('path-continue-title').textContent = `继续「${continueTarget.path.title}」`;
+    document.getElementById('path-continue-meta').textContent = `已完成 ${continueTarget.done}/${continueTarget.total} 步 · 下一步：${continueTarget.path.steps[continueTarget.nextIndex].name}`;
+}
+
+function togglePathStepCompletion(button, pathSlug, stepIndex) {
+    if (!requirePathLogin(() => togglePathStepCompletion(button, pathSlug, stepIndex))) return;
+    const progress = readPathProgress();
+    const completed = new Set(Array.isArray(progress[pathSlug]) ? progress[pathSlug] : []);
+    const willComplete = !completed.has(stepIndex);
+    if (willComplete) completed.add(stepIndex);
+    else completed.delete(stepIndex);
+    progress[pathSlug] = [...completed].sort((a, b) => a - b);
+    progress.updatedAt = Date.now();
+    writePathProgress(progress);
+    syncPathProgressUI();
+    if (typeof showToast === 'function') showToast(willComplete ? '已记录学习进度' : '已撤销完成标记');
+
+    if (willComplete) {
+        const next = document.querySelector(`.step-row[data-path="${pathSlug}"][data-step="${stepIndex + 1}"]`);
+        if (next) {
+            next.closest('section').querySelectorAll('.step-row').forEach(row => setPathStepOpen(row, row === next));
+            setTimeout(() => next.scrollIntoView({ behavior:'smooth', block:'center' }), 80);
+        }
+    }
+}
+
 function toggleStep(row) {
     if (!requirePathLogin(() => toggleStep(row))) return;
     const detail = row.nextElementSibling;
     const isOpen = detail.classList.contains('open');
-    row.closest('section').querySelectorAll('.step-detail').forEach(d => d.classList.remove('open'));
-    row.closest('section').querySelectorAll('.step-row').forEach(r => r.classList.remove('expanded'));
-    if (!isOpen) { detail.classList.add('open'); row.classList.add('expanded'); }
+    row.closest('section').querySelectorAll('.step-row').forEach(r => setPathStepOpen(r, !isOpen && r === row));
 }
 
 function startPath(btn) {
     if (!requirePathLogin(() => startPath(btn))) return;
     const section = btn.closest('section');
-    section.querySelectorAll('.step-detail').forEach(d => d.classList.add('open'));
-    section.querySelectorAll('.step-row').forEach(r => r.classList.add('expanded'));
+    section.querySelectorAll('.step-row').forEach(r => setPathStepOpen(r, true));
     btn.innerHTML = '<i class="ph ph-check-circle"></i> 已展开全部步骤，点击各步骤可折叠';
     btn.style.opacity = '0.85';
     btn.onclick = null;
@@ -214,10 +356,11 @@ function startPath(btn) {
 
 renderNav('paths');
 renderFooter();
-onAuthReady((user) => { renderNav('paths'); renderFooter(); });
+onAuthReady((user) => { renderNav('paths'); renderFooter(); syncPathProgressUI(); });
 
 (async () => {
     const paths = await DB.getPaths();
+    loadedPaths = paths;
 
     // Force the editorial palette, ignoring any legacy gradient that
     // may still live in Firestore.
@@ -233,12 +376,16 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     // Nav cards
     document.getElementById('path-nav-cards').innerHTML = paths.map((p, i) => `
     <a href="#${slug(p, i)}" style="text-decoration:none">
-        <div class="path-nav-card" style="background:${grad(p, i)}">
+        <div class="path-nav-card" style="background:${grad(p, i)}" data-path-card="${slug(p, i)}">
             <div class="path-nav-number">No. ${String(i+1).padStart(2,'0')}</div>
             <i class="path-nav-icon ph-bold ${SafeRender.classNames(pathIcon(p), 'ph-path')}" aria-hidden="true"></i>
             <div class="path-nav-title">${SafeRender.escape(p.title)}</div>
             <div class="path-nav-duration">${SafeRender.escape(p.duration)}</div>
             <div class="path-nav-level">${SafeRender.escape(p.level)}</div>
+            <div class="path-nav-progress" data-path-progress="${slug(p, i)}">
+                <span class="path-progress-track"><span class="path-progress-fill"></span></span>
+                <span data-path-progress-label>登录后记录</span>
+            </div>
         </div>
     </a>`).join('');
 
@@ -271,18 +418,27 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
                 </div>
             </div>
             <div class="path-detail-body">
-                <h3 class="path-steps-heading">学习步骤 <span class="path-steps-hint">（点击展开详情）</span></h3>
+                <h3 class="path-steps-heading">学习步骤 <span class="path-steps-hint" data-path-progress="${slug(p, i)}"><span data-path-progress-label>登录后记录</span></span></h3>
                 <div>
-                    ${(p.steps || []).map((s, idx) => `
-                    <div class="step-row" onclick="toggleStep(this)">
-                        <div class="step-num">${idx+1}</div>
-                        <i class="ph ${SafeRender.classNames(s.icon, 'ph-check-circle')} step-icon"></i>
+                    ${(p.steps || []).map((s, idx) => {
+                        const action = pathPracticeAction(s);
+                        return `
+                    <button type="button" id="path-step-${slug(p, i)}-${idx}" class="step-row" data-path="${slug(p, i)}" data-step="${idx}" aria-expanded="false" aria-controls="path-detail-${slug(p, i)}-${idx}" onclick="toggleStep(this)">
+                        <span class="step-num">${idx+1}</span>
+                        <i class="ph ${SafeRender.classNames(s.icon, 'ph-check-circle')} step-icon" aria-hidden="true"></i>
                         <span class="step-name">${SafeRender.escape(s.name)}</span>
-                        <i class="ph ph-caret-down step-chevron"></i>
-                    </div>
-                    <div class="step-detail">
-                        <div class="step-detail-inner">${SafeRender.sanitizeHtml(s.detail)}</div>
-                    </div>`).join('')}
+                        <i class="ph ph-caret-down step-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="step-detail" id="path-detail-${slug(p, i)}-${idx}">
+                        <div class="step-detail-inner">
+                            ${SafeRender.sanitizeHtml(s.detail)}
+                            <div class="step-actions">
+                                <button type="button" class="step-complete-btn" aria-pressed="false" onclick="togglePathStepCompletion(this,'${slug(p, i)}',${idx})"><i class="ph ph-circle"></i> 标记为已完成</button>
+                                <a class="step-practice-link" href="${action.href}">${action.label}<i class="ph ph-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>`;
+                    }).join('')}
                 </div>
                 <button onclick="startPath(this)" class="path-start-btn" style="background:${grad(p, i)}">
                     展开全部步骤，开始学习 →
@@ -290,6 +446,8 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
             </div>
         </div>
     </section>`).join('');
+
+    syncPathProgressUI();
 
     if (location.hash) {
         setTimeout(() => {
@@ -299,7 +457,7 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); });
     }
 })();
 </script>
-<script src="js/pwa.js?v=20260805-appshell2"></script>
-<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
+<script src="js/pwa.js?v=20260806-ux2"></script>
+<script src="js/assistant.js?v=20260806-ux2"></script>
 </body>
 </html>

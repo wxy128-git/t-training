@@ -340,11 +340,11 @@
     }
 
     function toolLinks(tools) {
-        if (!tools.length) return '<a href="/tools">查看 AI资源精选</a>';
+        if (!tools.length) return '<a href="/tools">查看 AI 资源精选</a>';
         return tools.map(tool => {
             const url = safeLinkUrl(tool.url);
             return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(tool.name)}</a>` : '';
-        }).filter(Boolean).join('、') || '<a href="/tools">查看 AI资源精选</a>';
+        }).filter(Boolean).join('、') || '<a href="/tools">查看 AI 资源精选</a>';
     }
 
     function promptByLabel(label) {
@@ -439,7 +439,7 @@
         const scenario = buildScenarioAnswer(question);
         if (scenario) return scenario;
 
-        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="/agents">智能体空间</a>、<a href="/paths">学习路径</a>、<a href="/tools">AI资源精选</a>。`;
+        return `<strong>可以从一个具体教学任务开始。</strong><br>你可以把问题改成：“我要为[年级][学科][主题]完成[备课/出题/课件/评价]，应该怎么用 AI？”<br><br>常用入口：<a href="/agents">智能体空间</a>、<a href="/paths">学习路径</a>、<a href="/tools">AI 资源精选</a>。`;
     }
 
     function sendQuestion(question) {

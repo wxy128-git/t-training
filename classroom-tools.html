@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260805-appshell2">
+    <link rel="stylesheet" href="css/style.css?v=20260806-ux2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260806-ux2">
     <style>
         .ct-page { max-width: 1240px; margin: 0 auto; padding: 56px 24px 88px; }
         .ct-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -42,10 +42,13 @@
             position: relative; overflow: hidden;
             display: flex; flex-direction: column; gap: 8px;
             min-height: 200px;
+            width: 100%; appearance: none; text-align: left;
+            color: inherit; font: inherit;
         }
         .ct-tool-card::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: var(--brand); transition: height 0.22s ease; }
         .ct-tool-card:hover { transform: translateY(-3px); border-color: transparent; box-shadow: var(--shadow-md); }
         .ct-tool-card:hover::after { height: 3px; }
+        .ct-tool-card:focus-visible { outline: 3px solid rgba(36,91,120,.32); outline-offset: 3px; border-color: #245b78; }
         .ct-tool-icon {
             width: 52px; height: 52px; border-radius: var(--r-md);
             display: flex; align-items: center; justify-content: center;
@@ -96,6 +99,9 @@
             transition: border-color 0.15s, color 0.15s;
         }
         .ct-fullscreen-btn:hover { border-color: var(--ink); color: var(--ink); }
+        .ct-stage-note { flex-basis: 100%; margin: -4px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.55; }
+        body.ct-tool-open .assistant-launcher,
+        body.ct-tool-open .assistant-panel { display: none !important; }
 
         /* Generic */
         .ct-btn-primary {
@@ -462,60 +468,60 @@
         <p class="ct-sub">为日常教学准备的几个互动小工具。无需安装、不收集数据，打开即可在课堂大屏上使用。</p>
 
         <div class="ct-grid">
-            <div class="ct-tool-card" data-tool="countdown">
-                <div class="ct-tool-icon tone-1"><i class="ph-fill ph-timer"></i></div>
-                <div class="ct-tool-name">倒计时</div>
-                <div class="ct-tool-desc">课堂限时活动、小测、思考时间。预设 1/3/5/10/15 分钟，或自定义时长。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="picker">
-                <div class="ct-tool-icon tone-2"><i class="ph-fill ph-user-focus"></i></div>
-                <div class="ct-tool-name">随机点名</div>
-                <div class="ct-tool-desc">输入花名册一次,公平随机抽取学生。支持"抽过不再抽",避免重复打扰。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="score">
-                <div class="ct-tool-icon tone-3"><i class="ph-fill ph-trophy"></i></div>
-                <div class="ct-tool-name">小组计分板</div>
-                <div class="ct-tool-desc">课堂积分管理：给各小组实时加减分，大号显示、领先组自动标 👑，分数自动保存。配合点名、分组、音效用。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="balls">
-                <div class="ct-tool-icon tone-4"><i class="ph-fill ph-waveform"></i></div>
-                <div class="ct-tool-name">音量监测</div>
-                <div class="ct-tool-desc">用麦克风监测课堂音量——越吵小球弹得越高，用来提醒学生保持安静。可切换小球、表情、数字、气泡四种主题。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="groups">
-                <div class="ct-tool-icon" style="background:#e7ede8;color:#2d6a4f"><i class="ph-fill ph-users-three"></i></div>
-                <div class="ct-tool-name">随机分组</div>
-                <div class="ct-tool-desc">输入花名册和组数，自动公平打散为若干小组。可指定每组人数或组总数。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="seating">
-                <div class="ct-tool-icon" style="background:#fbf2dd;color:#b08642"><i class="ph-fill ph-grid-four"></i></div>
-                <div class="ct-tool-name">座位表</div>
-                <div class="ct-tool-desc">按指定行列生成座位表，自动安排花名册并可一键洗牌、点击两个座位互换。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="whiteboard">
-                <div class="ct-tool-icon" style="background:#e6eef7;color:#2c5282"><i class="ph-fill ph-pen-nib"></i></div>
-                <div class="ct-tool-name">简易白板</div>
-                <div class="ct-tool-desc">投影时随手批注、画重点。多色画笔、橡皮、清空、撤销、保存为图片。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="rubric">
-                <div class="ct-tool-icon" style="background:#e7ede8;color:#2d6a4f"><i class="ph-fill ph-list-checks"></i></div>
-                <div class="ct-tool-name">评价量规</div>
-                <div class="ct-tool-desc">把"评价维度 × 等级"做成清晰量规挂大屏，学习目标全程可见。内置作文/口语/小组合作模板，可编辑、可打印。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
-            <div class="ct-tool-card" data-tool="routine">
-                <div class="ct-tool-icon" style="background:#efe7f2;color:#7a4f86"><i class="ph-fill ph-tree-structure"></i></div>
-                <div class="ct-tool-name">课堂活动模板</div>
-                <div class="ct-tool-desc">内置 KWL、3-2-1 反思、思考·配对·分享等思维结构，当堂在大屏上填写、引导深度学习，可打印。</div>
-                <div class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></div>
-            </div>
+            <button type="button" class="ct-tool-card" data-tool="countdown" aria-label="打开倒计时工具">
+                <span class="ct-tool-icon tone-1"><i class="ph-fill ph-timer"></i></span>
+                <span class="ct-tool-name">倒计时</span>
+                <span class="ct-tool-desc">课堂限时活动、小测、思考时间。预设 1/3/5/10/15 分钟，或自定义时长。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="picker" aria-label="打开随机点名工具">
+                <span class="ct-tool-icon tone-2"><i class="ph-fill ph-user-focus"></i></span>
+                <span class="ct-tool-name">随机点名</span>
+                <span class="ct-tool-desc">输入花名册一次,公平随机抽取学生。支持"抽过不再抽",避免重复打扰。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="score" aria-label="打开小组计分板工具">
+                <span class="ct-tool-icon tone-3"><i class="ph-fill ph-trophy"></i></span>
+                <span class="ct-tool-name">小组计分板</span>
+                <span class="ct-tool-desc">课堂积分管理：给各小组实时加减分，大号显示、领先组自动突出，分数保存在本机。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="balls" aria-label="打开音量监测工具">
+                <span class="ct-tool-icon tone-4"><i class="ph-fill ph-waveform"></i></span>
+                <span class="ct-tool-name">音量监测</span>
+                <span class="ct-tool-desc">用麦克风监测课堂音量——越吵小球弹得越高，用来提醒学生保持安静。可切换小球、表情、数字、气泡四种主题。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="groups" aria-label="打开随机分组工具">
+                <span class="ct-tool-icon" style="background:#e7ede8;color:#2d6a4f"><i class="ph-fill ph-users-three"></i></span>
+                <span class="ct-tool-name">随机分组</span>
+                <span class="ct-tool-desc">输入花名册和组数，自动公平打散为若干小组。可指定每组人数或组总数。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="seating" aria-label="打开座位表工具">
+                <span class="ct-tool-icon" style="background:#fbf2dd;color:#b08642"><i class="ph-fill ph-grid-four"></i></span>
+                <span class="ct-tool-name">座位表</span>
+                <span class="ct-tool-desc">按指定行列生成座位表，自动安排花名册并可一键洗牌、点击两个座位互换。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="whiteboard" aria-label="打开简易白板工具">
+                <span class="ct-tool-icon" style="background:#e6eef7;color:#2c5282"><i class="ph-fill ph-pen-nib"></i></span>
+                <span class="ct-tool-name">简易白板</span>
+                <span class="ct-tool-desc">投影时随手批注、画重点。多色画笔、橡皮、清空、撤销、保存为图片。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="rubric" aria-label="打开评价量规工具">
+                <span class="ct-tool-icon" style="background:#e7ede8;color:#2d6a4f"><i class="ph-fill ph-list-checks"></i></span>
+                <span class="ct-tool-name">评价量规</span>
+                <span class="ct-tool-desc">把"评价维度 × 等级"做成清晰量规挂大屏，学习目标全程可见。内置作文/口语/小组合作模板，可编辑、可打印。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
+            <button type="button" class="ct-tool-card" data-tool="routine" aria-label="打开课堂活动模板工具">
+                <span class="ct-tool-icon" style="background:#efe7f2;color:#7a4f86"><i class="ph-fill ph-tree-structure"></i></span>
+                <span class="ct-tool-name">课堂活动模板</span>
+                <span class="ct-tool-desc">内置 KWL、3-2-1 反思、思考·配对·分享等思维结构，当堂在大屏上填写、引导深度学习，可打印。</span>
+                <span class="ct-tool-hint">点击开始 <i class="ph ph-arrow-right"></i></span>
+            </button>
         </div>
     </div>
 
@@ -524,7 +530,8 @@
         <div class="ct-stage-bar">
             <button class="ct-back-btn" onclick="ctBack()"><i class="ph ph-arrow-left"></i> 返回工具列表</button>
             <div class="ct-stage-title" id="ct-stage-title"></div>
-            <button class="ct-fullscreen-btn" onclick="ctToggleFullscreen()" id="ct-fs-btn"><i class="ph ph-arrows-out"></i> 全屏</button>
+            <button class="ct-fullscreen-btn" onclick="ctToggleFullscreen()" id="ct-fs-btn" aria-pressed="false" aria-describedby="ct-stage-note"><i class="ph ph-arrows-out"></i> 演示模式</button>
+            <p class="ct-stage-note" id="ct-stage-note">演示模式会隐藏站点导航与向导；声音由设备音量控制，再次点击即可退出。</p>
         </div>
         <div id="ct-stage-content"></div>
     </div>
@@ -538,7 +545,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/auth.js?v=20260801-appshell"></script>
+<script src="js/auth.js?v=20260806-ux2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 renderNav('classroom');
@@ -547,6 +554,7 @@ onAuthReady(() => { renderNav('classroom'); renderFooter(); });
 
 let _activeTool = null;
 let _toolCleanup = null;
+let _lastToolTrigger = null;
 
 const TOOLS = {
     countdown:  { title: '倒计时',     mount: mountCountdown },
@@ -569,6 +577,7 @@ function openTool(key) {
     if (!tool) return;
     if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
     _activeTool = key;
+    _lastToolTrigger = document.querySelector(`.ct-tool-card[data-tool="${key}"]`) || _lastToolTrigger;
     const home = document.getElementById('ct-home');
     const stage = document.getElementById('ct-stage');
     const title = document.getElementById('ct-stage-title');
@@ -576,6 +585,7 @@ function openTool(key) {
 
     // animate home out, then mount the tool and fade stage in
     home.classList.add('leaving');
+    document.body.classList.add('ct-tool-open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     setTimeout(() => {
@@ -589,6 +599,7 @@ function openTool(key) {
         _toolCleanup = tool.mount(container) || null;
         requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('entering')));
         location.hash = '#' + key;
+        document.querySelector('.ct-back-btn')?.focus({ preventScroll: true });
     }, 240);
 }
 
@@ -599,6 +610,7 @@ function ctBack() {
     setTimeout(() => {
         if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
         _activeTool = null;
+        document.body.classList.remove('ct-tool-open');
         stage.classList.remove('active');
         stage.classList.remove('entering');
         home.style.display = '';
@@ -606,6 +618,9 @@ function ctBack() {
         requestAnimationFrame(() => requestAnimationFrame(() => home.classList.remove('leaving')));
         if (document.body.classList.contains('ct-fullscreen')) ctToggleFullscreen();
         history.replaceState(null, '', location.pathname);
+        const focusTarget = _lastToolTrigger;
+        _lastToolTrigger = null;
+        requestAnimationFrame(() => focusTarget?.focus({ preventScroll: true }));
     }, 220);
 }
 
@@ -613,7 +628,8 @@ function ctToggleFullscreen() {
     document.body.classList.toggle('ct-fullscreen');
     const btn = document.getElementById('ct-fs-btn');
     const on = document.body.classList.contains('ct-fullscreen');
-    btn.innerHTML = on ? '<i class="ph ph-arrows-in"></i> 退出全屏' : '<i class="ph ph-arrows-out"></i> 全屏';
+    btn.setAttribute('aria-pressed', String(on));
+    btn.innerHTML = on ? '<i class="ph ph-arrows-in"></i> 退出演示' : '<i class="ph ph-arrows-out"></i> 演示模式';
 }
 
 window.addEventListener('load', () => {
@@ -872,7 +888,7 @@ function mountScore(root) {
                 <button class="ct-btn-secondary" id="sc-reset">分数清零</button>
             </div>
             <div class="ct-score-grid" id="sc-grid"></div>
-            <p class="ct-seating-hint">点组名可改名 · 加减分自动保存 · 领先组标 👑</p>
+            <p class="ct-seating-hint">点组名可改名 · 加减分自动保存 · 领先组自动突出</p>
         </div>`;
 
     const grid = root.querySelector('#sc-grid');
@@ -887,7 +903,7 @@ function mountScore(root) {
         grid.innerHTML = groups.map((g, i) => {
             const lead = g.score > 0 && g.score === max ? ' leading' : '';
             return `<div class="ct-score-card${lead}">
-                <div class="ct-score-crown">👑</div>
+                <div class="ct-score-crown" aria-hidden="true"><i class="ph-fill ph-crown"></i></div>
                 <input class="ct-score-name" data-i="${i}" value="${esc(g.name)}" maxlength="10">
                 <div class="ct-score-val">${g.score}</div>
                 <div class="ct-score-btns">
@@ -1855,7 +1871,7 @@ function mountRoutine(root) {
     return () => {};
 }
 </script>
-<script src="js/pwa.js?v=20260805-appshell2"></script>
-<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
+<script src="js/pwa.js?v=20260806-ux2"></script>
+<script src="js/assistant.js?v=20260806-ux2"></script>
 </body>
 </html>

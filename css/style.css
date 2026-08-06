@@ -1231,7 +1231,7 @@ tr:hover td { background: var(--soft); }
     overflow: hidden;
 }
 .subscribe-section::before {
-    content: '订阅每周精选';
+    content: '内容更新登记';
     position: absolute;
     top: 28px; right: 36px;
     font-family: var(--font-display);
@@ -1810,7 +1810,8 @@ tr:hover td { background: var(--soft); }
 .contact-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .contact-note { margin: 14px 0 0; color: var(--subtle); font-size: 12.5px; line-height: 1.6; }
 @media(max-width:640px){
-    .assistant-launcher { right: 14px; bottom: 14px; padding: 9px 14px; font-size: 12.5px; }
+    .assistant-launcher { right: 14px; bottom: 14px; width: 44px; height: 44px; justify-content: center; padding: 0; border-radius: 50%; }
+    .assistant-launcher > span { display: none; }
     .assistant-panel { inset: auto 10px 10px 10px; top: 78px; width: auto; }
     .contact-grid { grid-template-columns: 1fr; }
     .contact-actions { flex-direction: column-reverse; }
@@ -1925,8 +1926,9 @@ tr:hover td { background: var(--soft); }
 .nav-drawer .nav-link:hover { background: var(--soft); color: var(--ink); }
 .nav-drawer .nav-link.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
 /* 抽屉里的「智能体空间」：轻量品牌色，不用桌面那种实心全宽红块 */
-.nav-drawer .nav-link.nav-feature { background: var(--brand-soft); color: var(--brand); font-weight: 600; box-shadow: none; animation: none; }
-.nav-drawer .nav-link.nav-feature:hover { background: var(--brand-soft); color: var(--brand-dark); }
+.nav-drawer .nav-link.nav-feature { background: transparent; color: var(--text); font-weight: 600; box-shadow: none; animation: none; }
+.nav-drawer .nav-link.nav-feature:hover,
+.nav-drawer .nav-link.nav-feature.active { background: var(--brand-soft); color: var(--brand-dark); }
 .nav-drawer .nav-link.admin-link { color: var(--brand); }
 .nav-drawer-kicker {
     font-family: var(--font-mono);
@@ -2393,8 +2395,9 @@ textarea:focus-visible,
 
 .nav-drawer { background: rgba(23,33,43,.48); }
 .nav-drawer-panel { box-shadow: -18px 0 46px -30px rgba(23,33,43,.7); }
-.nav-drawer .nav-link.nav-feature { background: var(--brand-soft); color: var(--brand); }
-.nav-drawer .nav-link.nav-feature:hover { background: #dce9f0; color: var(--brand-dark); }
+.nav-drawer .nav-link.nav-feature { background: transparent; color: var(--text); }
+.nav-drawer .nav-link.nav-feature:hover,
+.nav-drawer .nav-link.nav-feature.active { background: var(--brand-soft); color: var(--brand-dark); }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

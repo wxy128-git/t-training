@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260719-a11y">
-    <link rel="stylesheet" href="css/pwa.css?v=20260805-appshell2">
+    <link rel="stylesheet" href="css/style.css?v=20260806-ux2">
+    <link rel="stylesheet" href="css/pwa.css?v=20260806-ux2">
     <style>
         /* ===== 智能体空间 · 页面专属样式（现代教研工作台） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 10.5px; color: var(--brand); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 13px; font-weight: 600; }
@@ -478,7 +478,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260718-adminemail"></script>
 <script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260801-appshell"></script>
+<script src="js/auth.js?v=20260806-ux2"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260712-workbench"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
@@ -927,7 +927,9 @@ function renderHome() {
         </div>`;
     }
     CATS.forEach(c => {
-        const list = AGENTS.filter(a => a.cat === c.key);
+        // “推荐起点”已经承担第一次选择，分类区只展示其余能力，避免同一张卡
+        // 在同一页面连续出现两次。搜索和分类筛选仍会返回完整清单。
+        const list = AGENTS.filter(a => a.cat === c.key && !FEATURED.includes(a.id));
         if (!list.length) return;
         html += `<div class="agent-section">
             <div class="agent-section-head">
@@ -2672,7 +2674,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20260805-appshell2"></script>
-<script src="js/assistant.js?v=20260719-a11ysecurity"></script>
+<script src="js/pwa.js?v=20260806-ux2"></script>
+<script src="js/assistant.js?v=20260806-ux2"></script>
 </body>
 </html>

@@ -35,9 +35,9 @@ for (const file of publicPages) {
 for (const file of appPages) {
     const html = text(file);
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
-    if (!/css\/style\.css\?v=20260719-a11y/.test(html)) fail(file, '样式缓存版本未统一');
-    if (!/js\/auth\.js\?v=20260801-appshell/.test(html)) fail(file, '认证脚本缓存版本未统一');
-    if (!/js\/assistant\.js\?v=20260719-a11ysecurity/.test(html)) fail(file, '网站向导缓存版本未统一');
+    if (!/css\/style\.css\?v=20260806-ux2/.test(html)) fail(file, '样式缓存版本未统一');
+    if (!/js\/auth\.js\?v=20260806-ux2/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/assistant\.js\?v=20260806-ux2/.test(html)) fail(file, '网站向导缓存版本未统一');
 }
 
 for (const file of pwaPages) {
@@ -45,8 +45,8 @@ for (const file of pwaPages) {
     if (!/viewport-fit=cover/.test(html)) fail(file, 'PWA 页面 viewport 未适配设备安全区');
     if (!/display-mode:\s*standalone/.test(html)) fail(file, '缺少安装态首帧识别');
     if (!/<meta\s+name="mobile-web-app-capable"\s+content="yes">/i.test(html)) fail(file, '缺少标准移动 Web App 声明');
-    if (!/css\/pwa\.css\?v=20260805-appshell2/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
-    if (!/js\/pwa\.js\?v=20260805-appshell2/.test(html)) fail(file, 'PWA 脚本缓存版本未统一');
+    if (!/css\/pwa\.css\?v=20260806-ux2/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
+    if (!/js\/pwa\.js\?v=20260806-ux2/.test(html)) fail(file, 'PWA 脚本缓存版本未统一');
 }
 
 const pwaSource = text('js/pwa.js');
@@ -54,12 +54,21 @@ if (!/pwa-app-tabbar/.test(pwaSource) || !/pwa-app-home/.test(pwaSource) || !/pw
 if (!/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(pwaSource)) fail('js/pwa.js', 'App 底部主导航顺序不正确');
 const pwaCss = text('css/pwa.css');
 if (!/safe-area-inset-bottom/.test(pwaCss) || !/nav-drawer-panel/.test(pwaCss) || !/pwa-task-sheet/.test(pwaCss)) fail('css/pwa.css', '安装态安全区或底部菜单样式缺失');
+const classroomHtml = text('classroom-tools.html');
+const classroomButtons = [...classroomHtml.matchAll(/<button\b[^>]*class="ct-tool-card"[^>]*data-tool=/g)];
+if (classroomButtons.length !== 9 || /<div\b[^>]*class="ct-tool-card"/.test(classroomHtml)) fail('classroom-tools.html', '课堂工具卡必须是 9 个原生按钮');
+if (!/ct-tool-open[\s\S]+assistant-launcher/.test(classroomHtml)) fail('classroom-tools.html', '课堂工具工作区未隐藏网站向导');
+const homeHtml = text('index.html');
+if (!/th-mobile-more/.test(homeHtml) || !/th-mobile-secondary/.test(homeHtml)) fail('index.html', '移动首页未接入任务优先折叠结构');
+const pathsHtml = text('paths.html');
+if (!/PATH_PROGRESS_PREFIX/.test(pathsHtml) || !/step-complete-btn/.test(pathsHtml) || !/path-continue/.test(pathsHtml)) fail('paths.html', '学习路径续学或完成进度功能不完整');
 const offlineHtml = text('offline.html');
-if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20260805-appshell2/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
+if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20260806-ux2/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260805-v5/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
+if (!/20260806-v6/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
+if (!/['"]\/agents['"][\s\S]+['"]\/classroom-tools['"]/.test(text('sw.js'))) fail('sw.js', '智能体目录或课堂工具未加入核心离线页面');
 
 for (const file of readdirSync(root).filter(name => name.endsWith('.html'))) {
     const html = text(file);

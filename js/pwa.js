@@ -474,7 +474,11 @@
 
     function removeCard(id) {
         const card = document.getElementById(id);
-        if (card) card.remove();
+        if (!card) return;
+        const parent = card.parentElement;
+        card.remove();
+        if (id === 'pwa-install-card') document.documentElement.classList.remove('pwa-install-visible');
+        if (parent?.classList.contains('pwa-inline-install-host') && !parent.children.length) parent.remove();
     }
 
     function syncInstallButtons() {
@@ -526,6 +530,7 @@
         const card = document.createElement('section');
         card.id = 'pwa-install-card';
         card.className = 'pwa-card';
+        document.documentElement.classList.add('pwa-install-visible');
         card.setAttribute('aria-label', '安装应用');
         card.innerHTML = `
             <img class="pwa-card-icon" src="/assets/pwa/icon-192.png" alt="">
@@ -538,7 +543,17 @@
                 </div>
             </div>
             <button type="button" class="pwa-close" data-pwa-dismiss-install aria-label="关闭安装提示">×</button>`;
-        getCardStack().appendChild(card);
+        const taskSection = document.getElementById('task-start');
+        const useInlineMobileCard = cleanPathname() === '/' && window.matchMedia('(max-width: 600px)').matches && taskSection;
+        if (useInlineMobileCard) {
+            const host = document.createElement('div');
+            host.className = 'th-shell pwa-inline-install-host';
+            card.classList.add('pwa-card-inline');
+            host.appendChild(card);
+            taskSection.before(host);
+        } else {
+            getCardStack().appendChild(card);
+        }
     }
 
     function installHelpContent() {

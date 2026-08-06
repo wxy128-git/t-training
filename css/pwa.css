@@ -231,6 +231,8 @@
 @media (max-width: 600px) {
     .pwa-card-stack { left: 16px; right: 16px; bottom: 82px; width: auto; }
     .pwa-card { padding: 14px 48px 14px 14px; }
+    .pwa-inline-install-host { margin-top: 18px !important; }
+    .pwa-card.pwa-card-inline { width: 100%; max-width: none; margin: 0; box-shadow: none; animation: pwa-card-in .22s ease both; }
     .pwa-card-icon { width: 40px; height: 40px; }
     .pwa-network-status { bottom: 82px; width: calc(100vw - 32px); text-align: center; }
     .pwa-dialog-body { padding: 24px 20px 20px; }
@@ -250,6 +252,8 @@
 .pwa-app-tabbar,
 .pwa-app-home,
 .pwa-task-dialog { display: none; }
+
+html.pwa-install-visible .assistant-launcher { display: none !important; }
 
 @media (max-width: 1080px) {
     html.pwa-app-mode {
