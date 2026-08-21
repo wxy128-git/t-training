@@ -648,7 +648,7 @@ async function switchPanel(name, el) {
 // ===== INIT =====
 async function initAdmin() {
     const [tools, prompts, users, ann, cps, subs, articles, msgs] = await Promise.all([
-        DB.getTools(), DB.getPrompts(), DB.getUsers(), DB.getAnnouncements(),
+        DB.getTools(), DB.getPrompts(), getAdminUsers(), DB.getAnnouncements(),
         DB.getCommunityPrompts(), DB.getSubscribers(), DB.getArticles(),
         DB.getMessages()
     ]);
@@ -1448,7 +1448,14 @@ async function resetResources() {
 
 // ===== USERS =====
 async function renderUsersTable() {
-    _adminUsers = await DB.getUsers();
+    try {
+        _adminUsers = await getAdminUsers();
+    } catch(error) {
+        console.error('renderUsersTable:', error);
+        document.getElementById('user-count').textContent = '加载失败';
+        document.getElementById('users-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;color:#b42318;padding:32px">${escapeHTML(error.message || '用户列表加载失败，请稍后重试')}</td></tr>`;
+        return;
+    }
     document.getElementById('user-count').textContent = `共 ${_adminUsers.length} 位注册用户`;
     document.getElementById('users-tbody').innerHTML = _adminUsers.length === 0
         ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">暂无注册用户</td></tr>'
@@ -1462,19 +1469,24 @@ async function renderUsersTable() {
         </tr>`).join('');
 }
 
-async function callDeleteUserFunction(payload) {
+async function getAdminUsers() {
+    const data = await callAdminUsersFunction({ action: 'listUsers' });
+    return Array.isArray(data.users) ? data.users : [];
+}
+
+async function callAdminUsersFunction(payload) {
     const adminIdToken = await Auth.getIdToken();
     const response = await fetch('/api/admin-users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'deleteUser', adminIdToken, ...payload })
+        body: JSON.stringify({ adminIdToken, ...payload })
     });
     const data = await response.json().catch(() => ({}));
     if (response.status === 404) {
-        throw new Error('当前预览未启用 Functions，请在已部署站点或本地 Pages 调试环境中执行完整删除');
+        throw new Error('当前预览未启用用户管理接口，请在已部署站点操作');
     }
     if (!response.ok || data.ok === false) {
-        throw new Error(data.msg || '用户删除失败');
+        throw new Error(data.msg || '用户管理操作失败');
     }
     return data;
 }
@@ -1485,7 +1497,7 @@ async function deleteUser(i) {
     const account = u.email || (u.phone ? `手机号 ${u.phone}` : u.uid);
     if (!confirm(`确定彻底删除 ${account}？\n\n此操作会同时删除 Firebase Authentication 账号和用户资料，删除后可用同一邮箱/手机号重新注册。`)) return;
     try {
-        await callDeleteUserFunction({ uid: u.uid });
+        await callAdminUsersFunction({ action: 'deleteUser', uid: u.uid });
         await renderUsersTable();
         showToast('用户已彻底删除');
     } catch(error) {
@@ -1506,7 +1518,7 @@ async function deleteUserByIdentifier() {
     btn.disabled = true;
     btn.textContent = '清理中...';
     try {
-        await callDeleteUserFunction({ identifier });
+        await callAdminUsersFunction({ action: 'deleteUser', identifier });
         input.value = '';
         await renderUsersTable();
         showToast('认证账号已清理，可重新注册');

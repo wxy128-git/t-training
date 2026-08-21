@@ -83,6 +83,29 @@ try {
     const optionsResponse = await authProxy.onRequestOptions();
     assert(optionsResponse.headers.get('Access-Control-Allow-Origin') !== '*', '认证接口仍允许通配 CORS');
 
+    const adminUsers = await importSource('functions/api/admin-users.js');
+    const decodedUser = adminUsers.decodeUserDocument({
+        name: 'projects/demo/databases/(default)/documents/users/user-1',
+        fields: {
+            name: { stringValue: '测试教师' },
+            email: { stringValue: 'teacher@example.com' },
+            isAdmin: { booleanValue: false },
+            joinedAt: { timestampValue: '2026-08-21T00:00:00Z' }
+        }
+    });
+    assert(decodedUser.uid === 'user-1' && decodedUser.name === '测试教师' && decodedUser.joinedAt.startsWith('2026-08-21'), '管理员用户列表未正确解码 Firestore 文档');
+
+    globalThis.fetch = async () => new Response('{}', { status: 500 });
+    const unauthenticatedList = await adminUsers.onRequestPost({
+        request: new Request('https://site.test/api/admin-users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'listUsers' })
+        }),
+        env: {}
+    });
+    assert(unauthenticatedList.status === 401, '用户列表接口未拒绝未登录请求');
+
     console.log(`函数回归通过：${passed} 项断言。`);
 } finally {
     globalThis.fetch = originalFetch;

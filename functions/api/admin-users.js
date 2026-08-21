@@ -127,7 +127,7 @@ async function getGoogleAccessToken(env) {
 
     const serviceAccount = readServiceAccount(env);
     if (!serviceAccount?.client_email || !serviceAccount?.private_key) {
-        const error = new Error('服务器缺少 Firebase 管理凭据，暂时不能删除 Authentication 账号');
+        const error = new Error('服务器缺少 Firebase 管理凭据，暂时不能执行用户管理操作');
         error.statusCode = 501;
         throw error;
     }
@@ -245,6 +245,58 @@ async function deleteFirestoreUser(accessToken, uid) {
     throw new Error(data?.error?.message || '用户资料删除失败');
 }
 
+function decodeFirestoreValue(value = {}) {
+    if ('stringValue' in value) return value.stringValue;
+    if ('timestampValue' in value) return value.timestampValue;
+    if ('booleanValue' in value) return value.booleanValue;
+    if ('integerValue' in value) return Number(value.integerValue);
+    if ('doubleValue' in value) return Number(value.doubleValue);
+    if ('nullValue' in value) return null;
+    return '';
+}
+
+export function decodeUserDocument(document = {}) {
+    const fields = document.fields || {};
+    const rawId = String(document.name || '').split('/').pop() || '';
+    let uid = rawId;
+    try { uid = decodeURIComponent(rawId); } catch {}
+    return {
+        uid,
+        name: String(decodeFirestoreValue(fields.name) || ''),
+        email: String(decodeFirestoreValue(fields.email) || ''),
+        phone: String(decodeFirestoreValue(fields.phone) || ''),
+        school: String(decodeFirestoreValue(fields.school) || ''),
+        isAdmin: decodeFirestoreValue(fields.isAdmin) === true,
+        joinedAt: String(decodeFirestoreValue(fields.joinedAt) || '')
+    };
+}
+
+async function listFirestoreUsers(accessToken) {
+    const users = [];
+    let pageToken = '';
+    const seenTokens = new Set();
+    for (let page = 0; page < 20; page += 1) {
+        const url = new URL(FIRESTORE_USER_BASE);
+        url.searchParams.set('pageSize', '300');
+        if (pageToken) url.searchParams.set('pageToken', pageToken);
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const error = new Error(data?.error?.message || '用户列表读取失败');
+            error.statusCode = response.status;
+            throw error;
+        }
+        users.push(...(data.documents || []).map(decodeUserDocument));
+        pageToken = String(data.nextPageToken || '');
+        if (!pageToken) break;
+        if (seenTokens.has(pageToken)) throw new Error('用户列表分页状态异常');
+        seenTokens.add(pageToken);
+    }
+    return users.sort((a, b) => String(b.joinedAt).localeCompare(String(a.joinedAt)));
+}
+
 export async function onRequestOptions() {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
@@ -258,11 +310,18 @@ export async function onRequestPost({ request, env }) {
     }
 
     const { action, adminIdToken } = payload || {};
-    if (action !== 'deleteUser') return jsonResponse(400, { ok: false, msg: '未知管理操作' });
+    if (!['listUsers', 'deleteUser'].includes(action)) {
+        return jsonResponse(400, { ok: false, msg: '未知管理操作' });
+    }
 
     try {
         const admin = await verifyAdmin(adminIdToken);
         const accessToken = await getGoogleAccessToken(env);
+        if (action === 'listUsers') {
+            const users = await listFirestoreUsers(accessToken);
+            return jsonResponse(200, { ok: true, users });
+        }
+
         const email = payload.identifier ? authEmailFromIdentifier(payload.identifier) : '';
         if (!payload.uid && !email) return jsonResponse(400, { ok: false, msg: '请提供要删除的用户 UID、邮箱或手机号' });
 
