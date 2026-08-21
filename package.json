@@ -1,0 +1,10 @@
+{
+  "name": "t-training",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-site.mjs && node scripts/test-functions.mjs && node scripts/test-tencent-server.mjs",
+    "start:tencent": "node server/tencent-api.mjs"
+  }
+}

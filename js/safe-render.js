@@ -41,7 +41,7 @@
         }
 
         try {
-            const parsed = new URL(raw, global.location?.href || 'https://xylaoshi.pages.dev/');
+            const parsed = new URL(raw, global.location?.href || 'https://ai.teachailab.com/');
             if (!['http:', 'https:', 'mailto:', 'tel:'].includes(parsed.protocol)) return '';
             return raw;
         } catch {

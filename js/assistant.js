@@ -12,9 +12,9 @@
         '怎样用 AI 做课件和课堂素材？',
         '如何写一个好用的教学提示词？'
     ];
-    const PRIMARY_SITE_ORIGIN = 'https://xylaoshi.pages.dev';
-    const LEGACY_NETLIFY_HOSTS = new Set(['xylaoshi.netlify.app']);
-    const MIGRATION_NOTICE_KEY = 'xylaoshi-netlify-migration-dismissed';
+    const PRIMARY_SITE_ORIGIN = 'https://ai.teachailab.com';
+    const MIGRATION_SOURCE_HOSTS = new Set(['xylaoshi.pages.dev', 'xylaoshi.netlify.app']);
+    const MIGRATION_NOTICE_KEY = 'xylaoshi-tencent-migration-dismissed-v1';
 
     let assistantPanel;
     let assistantMessages;
@@ -81,7 +81,7 @@
     }
 
     function buildMigrationNotice() {
-        if (!LEGACY_NETLIFY_HOSTS.has(location.hostname)) return;
+        if (!MIGRATION_SOURCE_HOSTS.has(location.hostname)) return;
         try {
             if (sessionStorage.getItem(MIGRATION_NOTICE_KEY) === '1') return;
         } catch {
@@ -211,6 +211,7 @@
         }
 
         const targetUrl = primarySiteUrl();
+        const sourceLabel = location.hostname === 'xylaoshi.pages.dev' ? 'Cloudflare 旧地址' : 'Netlify 旧地址';
         const notice = document.createElement('aside');
         notice.className = 'migration-notice';
         notice.setAttribute('role', 'dialog');
@@ -220,7 +221,7 @@
             <div class="migration-notice-head">
                 <div>
                     <p class="migration-notice-title" id="migration-notice-title">本网站已迁移</p>
-                    <p class="migration-notice-text">当前 Netlify 旧地址将停止维护，请改用 Cloudflare 新地址访问。</p>
+                    <p class="migration-notice-text">当前${sourceLabel}会继续保留一段时间，请逐步改用腾讯云新地址访问。</p>
                     <span class="migration-notice-url">${PRIMARY_SITE_ORIGIN}/</span>
                 </div>
                 <button type="button" class="migration-notice-close" aria-label="关闭迁移通知">×</button>

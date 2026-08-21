@@ -28,7 +28,7 @@ for (const file of publicPages) {
     if (!/id="main-content"/i.test(html)) fail(file, '跳到主要内容的锚点缺失');
     const canonical = html.match(/<link\s+rel="canonical"\s+href="([^"]+)"/i)?.[1];
     if (!canonical) fail(file, '缺少 canonical');
-    else if (!canonical.startsWith('https://xylaoshi.pages.dev/')) fail(file, `canonical 域名不正确：${canonical}`);
+    else if (!canonical.startsWith('https://ai.teachailab.com/')) fail(file, `canonical 域名不正确：${canonical}`);
     else if (/\.html(?:[?#]|$)/i.test(canonical)) fail(file, `canonical 仍含 .html：${canonical}`);
 }
 
@@ -37,7 +37,7 @@ for (const file of appPages) {
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
     if (!/css\/style\.css\?v=20260806-ux2/.test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/auth\.js\?v=20260806-ux2/.test(html)) fail(file, '认证脚本缓存版本未统一');
-    if (!/js\/assistant\.js\?v=20260806-ux2/.test(html)) fail(file, '网站向导缓存版本未统一');
+    if (!/js\/assistant\.js\?v=20260821-tencent/.test(html)) fail(file, '网站向导缓存版本未统一');
 }
 
 for (const file of pwaPages) {
@@ -67,7 +67,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260806-v6/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
+if (!/20260821-v7/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
 if (!/['"]\/agents['"][\s\S]+['"]\/classroom-tools['"]/.test(text('sw.js'))) fail('sw.js', '智能体目录或课堂工具未加入核心离线页面');
 
 for (const file of readdirSync(root).filter(name => name.endsWith('.html'))) {
@@ -134,7 +134,7 @@ for (const asset of [
 const sitemap = text('sitemap.xml');
 for (const file of publicPages.filter(name => name !== 'article.html')) {
     const route = file === 'index.html' ? '/' : `/${file.replace(/\.html$/, '')}`;
-    if (!sitemap.includes(`<loc>https://xylaoshi.pages.dev${route}</loc>`)) fail('sitemap.xml', `缺少 ${route}`);
+    if (!sitemap.includes(`<loc>https://ai.teachailab.com${route}</loc>`)) fail('sitemap.xml', `缺少 ${route}`);
 }
 
 notices.push(`检查 ${publicPages.length} 个公开页面、${appPages.length} 个应用页面`);

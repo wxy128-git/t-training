@@ -20,6 +20,8 @@ jobs:
         run: node scripts/check-site.mjs
       - name: Test rendering and Pages Function behavior
         run: node scripts/test-functions.mjs
+      - name: Test Tencent Cloud Node adapter
+        run: node scripts/test-tencent-server.mjs
       - name: Check browser JavaScript syntax
         shell: bash
         run: |
@@ -32,3 +34,4 @@ jobs:
             cp "$file" /tmp/pages-function-check.mjs
             node --check /tmp/pages-function-check.mjs
           done
+          node --check server/tencent-api.mjs

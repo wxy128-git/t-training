@@ -9,13 +9,13 @@
     <meta property="og:title" content="文章详情">
     <meta property="og:description" content="阅读教师 AI 教学领域的精选文章详情。">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://xylaoshi.pages.dev/article">
-    <meta property="og:image" content="https://xylaoshi.pages.dev/assets/og/article.jpg">
+    <meta property="og:url" content="https://ai.teachailab.com/article">
+    <meta property="og:image" content="https://ai.teachailab.com/assets/og/article.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://xylaoshi.pages.dev/assets/og/article.jpg">
-    <link rel="canonical" href="https://xylaoshi.pages.dev/article">
+    <meta name="twitter:image" content="https://ai.teachailab.com/assets/og/article.jpg">
+    <link rel="canonical" href="https://ai.teachailab.com/article">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
@@ -146,7 +146,7 @@ function copyPageUrl() {
 function updateArticleMetadata(article) {
     const title = String(article.title || '精选文章').trim();
     const summary = String(article.summary || '阅读教师 AI 教学领域的精选文章详情。').replace(/\s+/g, ' ').trim().slice(0, 160);
-    const canonicalUrl = new URL('/article', 'https://xylaoshi.pages.dev');
+    const canonicalUrl = new URL('/article', 'https://ai.teachailab.com');
     canonicalUrl.searchParams.set('id', articleId);
     document.title = title + ' · AI 教师培训中心';
     document.querySelector('meta[name="description"]')?.setAttribute('content', summary);
@@ -161,9 +161,9 @@ function updateArticleMetadata(article) {
         description: summary,
         mainEntityOfPage: canonicalUrl.href,
         inLanguage: 'zh-CN',
-        image: 'https://xylaoshi.pages.dev/assets/og/article.jpg',
+        image: 'https://ai.teachailab.com/assets/og/article.jpg',
         author: { '@type': 'Person', name: String(article.author || '编辑部') },
-        publisher: { '@type': 'Organization', name: 'AI 教师培训中心', url: 'https://xylaoshi.pages.dev/' }
+        publisher: { '@type': 'Organization', name: 'AI 教师培训中心', url: 'https://ai.teachailab.com/' }
     };
     if (article.publishedAt) {
         const published = new Date(article.publishedAt);
@@ -254,6 +254,6 @@ onAuthReady((user) => {
 });
 </script>
 <script src="js/pwa.js?v=20260806-ux2"></script>
-<script src="js/assistant.js?v=20260806-ux2"></script>
+<script src="js/assistant.js?v=20260821-tencent"></script>
 </body>
 </html>

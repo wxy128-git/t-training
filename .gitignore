@@ -2,6 +2,10 @@
 .netlify/
 .wrangler/
 node_modules/
+.env
+.env.*
+!.env.example
+*.deploy-package/
 
 # Local source media for the multimodal workshop; publish optimized web assets only.
 多模态素材/1.png
