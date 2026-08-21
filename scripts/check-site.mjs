@@ -115,6 +115,14 @@ for (const file of ['firestore.rules', 'firebase.json', '_headers', '_redirects'
     if (!existsSync(join(root, file))) fail(file, '必需文件不存在');
 }
 
+const redirects = text('_redirects');
+if (!/^\/main\s+https:\/\/ai\.teachailab\.com\/resources\s+302\s*$/m.test(redirects)) {
+    fail('_redirects', '旧站 /main 未使用 302 跳转到新站资源页');
+}
+if (!/^\/\*\s+https:\/\/ai\.teachailab\.com\/:splat\s+302\s*$/m.test(redirects)) {
+    fail('_redirects', 'Cloudflare 旧站未使用保留路径的 302 全站跳转');
+}
+
 const safeRender = text('js/safe-render.js');
 if (!/createElement\(['"]template['"]\)/.test(safeRender) || !/safeUrl/.test(safeRender)) fail('js/safe-render.js', 'HTML 清洗或 URL 校验器缺失');
 if (!/reset-password/.test(text('functions/api/auth-proxy.js'))) fail('functions/api/auth-proxy.js', '密码重置代理缺失');
