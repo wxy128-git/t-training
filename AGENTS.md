@@ -4,10 +4,12 @@
 
 - Project: `t-training`, a teacher-facing AI training site (AI agents, AI tools, prompts, learning paths, articles, design resources, classroom tools, contact feedback).
 - Local path: `/Users/wangxingyu/C-C/t-training`
-- Production: `https://xylaoshi.pages.dev/`
+- Production: `https://ai.teachailab.com/`（腾讯云轻量应用服务器，Nginx + PM2/Node）
+- Transitional Cloudflare URL: `https://xylaoshi.pages.dev/` remains online during the migration notice / rollback window.
 - Legacy Netlify URL: `https://xylaoshi.netlify.app/` is no longer production. If it still updates, Netlify is still connected to the GitHub repo and auto-deploying `main`.
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
-- Deployment: push to `main` → Cloudflare Pages auto-builds and ships static files + `functions/`.
+- Primary deployment: follow `deploy/tencent/README.md`; Nginx serves static files and `t-training-api` adapts the eight `functions/api/` modules to Node on `127.0.0.1:3001`.
+- Transitional deployment: push to `main` still updates Cloudflare Pages so the old URL can show the migration notice and remain a rollback path.
 - Backend services: Firebase Auth (email/password) and Cloud Firestore.
 
 ## Deployment Documentation Rule
@@ -31,6 +33,13 @@
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
+
+- **2026-08-21（迁移腾讯云主站，已上线）**:
+  - 新主站 `https://ai.teachailab.com/` 部署到与教育媒体课程站共用的腾讯云轻量应用服务器；静态发布目录 `/var/www/t-training`，API 目录 `/home/ubuntu/t-training/app`，PM2 进程 `t-training-api` 仅监听 `127.0.0.1:3001`。现有 `edu-media` 进程和课程站 Nginx server block 未改动。
+  - 新增 `server/tencent-api.mjs`，把 8 个 Cloudflare Pages Function 的 Web Request/Response 适配到 Node 22；新增白名单部署包脚本、PM2/Nginx/环境变量模板、适配层回归测试和 CI 检查。Firebase service account 已以权限 `600` 的服务器环境变量配置并通过 OAuth + Firestore 只读验证；DeepSeek 密钥从同服务器现有安全配置复用。腾讯云当前未配置不可回读的 Cloudflare `ZHIPU_API_KEY`，相关智能体按既有代码自动回退 DeepSeek。
+  - DNS `ai.teachailab.com A 43.129.232.226` 已生效；Let's Encrypt ECDSA 证书已签发并启用 HTTP→HTTPS，证书到期日 `2026-11-19`，`certbot.timer` enabled/active 自动续期。PM2 dump 包含 `edu-media,t-training-api`，`pm2-ubuntu.service` enabled 供开机恢复。
+  - 主域名 canonical / OG / sitemap / robots 已切到腾讯云；Cloudflare 与 Netlify 旧地址显示迁移提示但不强制跳转。缓存版本：`js/assistant.js?v=20260821-tencent`，`sw.js VERSION=20260821-v7`。
+  - 发布提交：`e9b9942`（`迁移教师培训网站至腾讯云`）。本地站点、函数与腾讯云适配回归全部通过；服务器发布清单核对 65 个静态文件、10 个 API 文件且 SHA-256 零差异；公网 `scripts/check-production.mjs` 67 项断言通过；并发 40、400 请求测试全部成功；腾讯云新站、Cloudflare 旧站和教育媒体课程站均返回 200。
 
 - **2026-07-19（全站第一轮安全、国内网络与质量改造）**:
   - 新增 `js/safe-render.js`，所有 Firestore、社区、RSS、用户资料与 Markdown 输出统一经过转义、URL 校验或 HTML 白名单清洗；管理后台、文章、提示词、资源、路径、工具、资讯、智能体和备课本的危险渲染点已收口。
