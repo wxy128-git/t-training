@@ -8,6 +8,7 @@
 - Transitional Cloudflare URL: `https://xylaoshi.pages.dev/` remains online during the migration notice / rollback window.
 - Legacy Netlify URL: `https://xylaoshi.netlify.app/` is no longer production. If it still updates, Netlify is still connected to the GitHub repo and auto-deploying `main`.
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
+- Local SSH: `ssh tencent-teachailab` or `ssh 43.129.232.226`; `/Users/wangxingyu/.ssh/config` binds this host to `en0`, so SSH remains direct while ClashX Pro enhanced/TUN mode stays enabled.
 - Primary deployment: follow `deploy/tencent/README.md`; Nginx serves static files and `t-training-api` adapts the eight `functions/api/` modules to Node on `127.0.0.1:3001`.
 - Transitional deployment: push to `main` still updates Cloudflare Pages so the old URL can show the migration notice and remain a rollback path.
 - Backend services: Firebase Auth (email/password) and Cloud Firestore.
@@ -33,6 +34,11 @@
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
+
+- **2026-08-21（腾讯云上线后修复管理员用户列表）**:
+  - 根因：管理员登录已走 `/api/auth-proxy`，但后台首页统计和“用户列表”仍通过浏览器 Firebase SDK 直连 Firestore；国内网络失败时 `DB.getUsers()` 静默返回空数组，误显示“暂无注册用户”。数据没有丢失。
+  - `functions/api/admin-users.js` 新增管理员专用 `listUsers` 动作：先用 Firebase idToken 校验 `admin@xylaoshi.com`，再以 service account 分页读取 Firestore `users`，只返回用户资料白名单字段；单页 300、最多 20 页，并防重复分页令牌。`admin.html` 的首页统计和列表统一改走该同源接口，失败时显示真实错误，不再伪装成零用户。
+  - 发布提交：`aaef06b`（`修复管理员用户列表加载`）。函数回归增至 12 项，腾讯云适配 7 项，公网生产检查 67 项全部通过；服务器发布清单 SHA-256 零差异，只读实测 Firestore `users` 共 231 条，未输出任何用户资料。
 
 - **2026-08-21（迁移腾讯云主站，已上线）**:
   - 新主站 `https://ai.teachailab.com/` 部署到与教育媒体课程站共用的腾讯云轻量应用服务器；静态发布目录 `/var/www/t-training`，API 目录 `/home/ubuntu/t-training/app`，PM2 进程 `t-training-api` 仅监听 `127.0.0.1:3001`。现有 `edu-media` 进程和课程站 Nginx server block 未改动。
