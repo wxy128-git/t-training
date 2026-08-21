@@ -3,7 +3,8 @@
 面向中小学教师的 AI 教学实践网站。主生产环境为
 [ai.teachailab.com](https://ai.teachailab.com/)，部署在腾讯云轻量应用服务器，
 使用 Nginx + PM2/Node + Firebase Auth / Firestore。原
-[Cloudflare Pages 站点](https://xylaoshi.pages.dev/) 在迁移提示期继续可用。
+[Cloudflare Pages 地址](https://xylaoshi.pages.dev/) 现以 302 临时跳转到腾讯云主站，
+用于兼容用户保存的旧链接；跳转会保留路径与查询参数。
 
 ## 本地预览
 
@@ -30,7 +31,8 @@ GitHub Actions 会在推送和 Pull Request 时自动运行结构、安全约束
 
 - 腾讯云主站：按 [`deploy/tencent/README.md`](deploy/tencent/README.md) 生成白名单发布包，
   静态文件由 Nginx 服务，8 个 API 函数经 Node 适配层和 PM2 运行。
-- Cloudflare 旧站：推送 `main` 后仍自动部署，用于迁移提示和短期回退。
+- Cloudflare 旧地址：推送 `main` 后仍自动部署，当前通过 `_redirects` 以 302
+  跳转到腾讯云主站；需要回退时可撤销这两条临时跳转规则。
 - Firestore Rules：规则保存在 `firestore.rules`，需在已登录 Firebase CLI 的环境单独执行：
 
 ```bash

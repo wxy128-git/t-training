@@ -5,12 +5,12 @@
 - Project: `t-training`, a teacher-facing AI training site (AI agents, AI tools, prompts, learning paths, articles, design resources, classroom tools, contact feedback).
 - Local path: `/Users/wangxingyu/C-C/t-training`
 - Production: `https://ai.teachailab.com/`（腾讯云轻量应用服务器，Nginx + PM2/Node）
-- Transitional Cloudflare URL: `https://xylaoshi.pages.dev/` remains online during the migration notice / rollback window.
+- Transitional Cloudflare URL: `https://xylaoshi.pages.dev/` returns a path-preserving temporary 302 redirect to the Tencent production origin; the Pages deployment remains available as a rollback source after reverting `_redirects`.
 - Legacy Netlify URL: `https://xylaoshi.netlify.app/` is no longer production. If it still updates, Netlify is still connected to the GitHub repo and auto-deploying `main`.
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
 - Local SSH: `ssh tencent-teachailab` or `ssh 43.129.232.226`; `/Users/wangxingyu/.ssh/config` binds this host to `en0`, so SSH remains direct while ClashX Pro enhanced/TUN mode stays enabled.
 - Primary deployment: follow `deploy/tencent/README.md`; Nginx serves static files and `t-training-api` adapts the eight `functions/api/` modules to Node on `127.0.0.1:3001`.
-- Transitional deployment: push to `main` still updates Cloudflare Pages so the old URL can show the migration notice and remain a rollback path.
+- Transitional deployment: push to `main` still updates Cloudflare Pages. The old URL currently redirects to Tencent via `_redirects`; reverting those rules restores the Pages site for rollback.
 - Backend services: Firebase Auth (email/password) and Cloud Firestore.
 
 ## Deployment Documentation Rule
@@ -34,6 +34,11 @@
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
+
+- **2026-08-21（Cloudflare 旧地址启用 302 临时跳转）**:
+  - `https://xylaoshi.pages.dev/` 已通过 Pages `_redirects` 临时跳转到 `https://ai.teachailab.com/`；`/*` 使用 `:splat` 保留原路径，查询参数由 Cloudflare 原样传递，旧 `/main` 直接跳到新站 `/resources`，避免多一次跳转。
+  - 当前使用 302 而非 301，便于观察期内快速回退；撤销 `_redirects` 两条规则并重新部署即可恢复 Cloudflare 站点。已有旧站登录态与新域名不共享，用户首次到达新域名时可能需要重新登录一次。
+  - 发布提交：`5561d11`（`将Cloudflare旧站临时跳转到腾讯云`）。本地站点、12 项函数回归和 7 项腾讯云适配测试通过；线上实测旧站首页、`/agents?from=old` 与 `/main` 最终分别到达新站对应地址且返回 200，新站首页保持 200。
 
 - **2026-08-21（腾讯云上线后修复管理员用户列表）**:
   - 根因：管理员登录已走 `/api/auth-proxy`，但后台首页统计和“用户列表”仍通过浏览器 Firebase SDK 直连 Firestore；国内网络失败时 `DB.getUsers()` 静默返回空数组，误显示“暂无注册用户”。数据没有丢失。
