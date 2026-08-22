@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <title>AI 资讯 · AI 教师培训中心</title>
-    <meta name="description" content="来自顶尖媒体的 AI 与教育动态——机器之心、量子位等双引擎自动抓取。">
+    <meta name="description" content="来自量子位、EdSurge、MIT 科技评论等媒体的 AI 与教育动态，由腾讯云同源服务聚合。">
     <meta property="og:title" content="AI 教育资讯日报">
-    <meta property="og:description" content="来自顶尖媒体的 AI 与教育动态——机器之心、量子位等双引擎自动抓取。">
+    <meta property="og:description" content="来自量子位、EdSurge、MIT 科技评论等媒体的 AI 与教育动态，由腾讯云同源服务聚合。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ai.teachailab.com/news">
     <meta property="og:image" content="https://ai.teachailab.com/assets/og/news.jpg">
@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260806-ux2">
-    <link rel="stylesheet" href="css/pwa.css?v=20260806-ux2">
+    <link rel="stylesheet" href="css/style.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -38,7 +38,7 @@
         <div>
             <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500">News · AI 教育资讯</div>
             <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.1;margin:0">顶尖媒体的<span style="font-style:italic;color:var(--brand)">每日精选</span></h1>
-            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7">双引擎自动抓取 · 30 分钟本地缓存。点击标题跳转原文阅读。</p>
+            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7">腾讯云同源聚合 · 30 分钟缓存。点击标题跳转原文阅读。</p>
         </div>
         <button id="refresh-btn" onclick="refresh()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;font-size:13.5px;color:var(--text);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);cursor:pointer;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
             <i class="ph ph-arrows-clockwise" id="refresh-icon"></i> 刷新
@@ -59,21 +59,20 @@
 
 <div id="main-footer"></div>
 
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="/vendor/firebase/10.12.0/firebase-app-compat.js"></script>
+<script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
+<script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260718-adminemail"></script>
-<script src="js/data.js?v=20260719-contentproxy"></script>
-<script src="js/auth.js?v=20260806-ux2"></script>
+<script src="js/firebase-config.js?v=20260822-phase1"></script>
+<script src="js/data.js?v=20260822-phase1"></script>
+<script src="js/auth.js?v=20260822-phase1"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 renderNav('news');
 renderFooter();
 onAuthReady(user => { renderNav('news'); renderFooter(); });
 
-let currentFeedKey = 'jiqizhixin';
+let currentFeedKey = 'qbitai';
 
 function buildFeedTabs() {
     document.getElementById('feed-tabs').innerHTML = Object.entries(RSS_FEEDS).map(([key, f]) =>
@@ -149,11 +148,11 @@ async function loadNews(force = false) {
     }
 
     if (force) {
-        const cacheKey = 'rss_' + btoa(encodeURIComponent(RSS_FEEDS[currentFeedKey].url)).slice(0, 24);
+        const cacheKey = 'rss_' + currentFeedKey;
         localStorage.removeItem(cacheKey);
     }
 
-    const items = await fetchRSSFeed(RSS_FEEDS[currentFeedKey].url, 12);
+    const items = await fetchRSSFeed(currentFeedKey, 12);
     icon.style.cssText = '';
     if (items) {
         status.textContent = `已加载 ${items.length} 条资讯 · 来源：${RSS_FEEDS[currentFeedKey].label}`;
@@ -168,7 +167,7 @@ function refresh() { loadNews(true); }
 buildFeedTabs();
 loadNews();
 </script>
-<script src="js/pwa.js?v=20260806-ux2"></script>
+<script src="js/pwa.js?v=20260822-phase1"></script>
 <script src="js/assistant.js?v=20260821-tencent"></script>
 </body>
 </html>

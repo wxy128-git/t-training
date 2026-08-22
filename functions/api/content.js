@@ -7,6 +7,9 @@ const CONTENT_TYPES = {
     prompts: 'prompts',
     resources: 'resource_categories'
 };
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_STALE_MS = 60 * 60 * 1000;
+const contentCache = new Map();
 
 const RESPONSE_HEADERS = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -18,6 +21,16 @@ function jsonResponse(status, body, headers = {}) {
     return new Response(JSON.stringify(body), {
         status,
         headers: { ...RESPONSE_HEADERS, ...headers }
+    });
+}
+
+function cachedJson(cached, state = 'HIT') {
+    return jsonResponse(200, cached.body, {
+        'X-Cache': state,
+        ...(state === 'STALE' ? {
+            'Cache-Control': 'public, max-age=60',
+            'Warning': '110 - "Response is stale"'
+        } : {})
     });
 }
 
@@ -70,6 +83,11 @@ export async function onRequestGet({ request }) {
         return jsonResponse(400, { ok: false, msg: '内容编号无效' }, { 'Cache-Control': 'no-store' });
     }
 
+    const cacheKey = `${type}:${id || 'list'}`;
+    const now = Date.now();
+    const cached = contentCache.get(cacheKey);
+    if (cached && now - cached.savedAt < CACHE_TTL_MS) return cachedJson(cached);
+
     const upstreamUrl = id
         ? `${FIRESTORE_BASE}/${collection}/${encodeURIComponent(id)}`
         : `${FIRESTORE_BASE}/${collection}?pageSize=100`;
@@ -98,18 +116,26 @@ export async function onRequestGet({ request }) {
         const data = await upstream.json().catch(() => ({}));
         if (upstream.status === 404) return jsonResponse(404, { ok: false, msg: '内容不存在' });
         if (id && upstream.status === 403) return jsonResponse(404, { ok: false, msg: '内容不存在' });
-        if (!upstream.ok) return jsonResponse(502, { ok: false, msg: '暂时无法同步内容' });
+        if (!upstream.ok) {
+            if (cached && now - cached.savedAt < CACHE_STALE_MS) return cachedJson(cached, 'STALE');
+            return jsonResponse(502, { ok: false, msg: '暂时无法同步内容' });
+        }
 
         if (id) {
             const item = decodeDocument(data);
             if (!item || item.status !== 'published') return jsonResponse(404, { ok: false, msg: '内容不存在' });
-            return jsonResponse(200, { ok: true, type, item });
+            const body = { ok: true, type, item };
+            contentCache.set(cacheKey, { body, savedAt: now });
+            return jsonResponse(200, body, { 'X-Cache': 'MISS' });
         }
 
         const documents = publishedArticleQuery ? data.map(row => row.document).filter(Boolean) : (data.documents || []);
         const items = sortItems(type, documents.map(decodeDocument).filter(Boolean));
-        return jsonResponse(200, { ok: true, type, count: items.length, items });
+        const body = { ok: true, type, count: items.length, items };
+        contentCache.set(cacheKey, { body, savedAt: now });
+        return jsonResponse(200, body, { 'X-Cache': 'MISS' });
     } catch(error) {
+        if (cached && now - cached.savedAt < CACHE_STALE_MS) return cachedJson(cached, 'STALE');
         return jsonResponse(error?.name === 'AbortError' ? 504 : 502, {
             ok: false,
             msg: error?.name === 'AbortError' ? '同步内容超时' : '暂时无法同步内容'

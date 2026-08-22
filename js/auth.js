@@ -22,44 +22,55 @@ function rememberUserProfile(uid, data) {
     }
 }
 
-function rememberProxyAuthSession(authData) {
+function rememberProxyAuthSession(authData, persistent = true) {
+    const expiresIn = Number(authData.expiresIn || 3600);
+    const session = JSON.stringify({
+        idToken: authData.idToken || '',
+        refreshToken: authData.refreshToken || '',
+        expiresAt: Date.now() + Math.max(300, expiresIn - 60) * 1000,
+        user: authData.user,
+        persistent
+    });
     try {
-        const expiresIn = Number(authData.expiresIn || 3600);
-        localStorage.setItem(window.PROXY_AUTH_SESSION_KEY, JSON.stringify({
-            idToken: authData.idToken || '',
-            refreshToken: authData.refreshToken || '',
-            expiresAt: Date.now() + Math.max(300, expiresIn - 60) * 1000,
-            user: authData.user
-        }));
+        const target = persistent ? localStorage : sessionStorage;
+        const other = persistent ? sessionStorage : localStorage;
+        target.setItem(window.PROXY_AUTH_SESSION_KEY, session);
+        other.removeItem(window.PROXY_AUTH_SESSION_KEY);
     } catch {
         // Login still counts for the current page even if storage is unavailable.
     }
 }
 
 function forgetProxyAuthSession() {
-    try {
-        localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
-    } catch {}
+    try { localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY); } catch {}
+    try { sessionStorage.removeItem(window.PROXY_AUTH_SESSION_KEY); } catch {}
 }
 
 function getStoredProxyAuthSession(options = {}) {
-    try {
-        const raw = localStorage.getItem(window.PROXY_AUTH_SESSION_KEY);
-        if (!raw) return null;
-        const session = JSON.parse(raw);
-        const expired = session.expiresAt && Date.now() > session.expiresAt;
-        if (!session?.idToken || (expired && !options.allowExpired && !session.refreshToken)) {
-            localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
-            return null;
+    const stores = [
+        { storage: globalThis.sessionStorage, persistent: false },
+        { storage: globalThis.localStorage, persistent: true }
+    ];
+    for (const { storage, persistent } of stores) {
+        try {
+            const raw = storage.getItem(window.PROXY_AUTH_SESSION_KEY);
+            if (!raw) continue;
+            const session = JSON.parse(raw);
+            const expired = session.expiresAt && Date.now() > session.expiresAt;
+            if (!session?.idToken || (expired && !session.refreshToken)) {
+                storage.removeItem(window.PROXY_AUTH_SESSION_KEY);
+                continue;
+            }
+            if (expired && !options.allowExpired) return null;
+            return { ...session, persistent: session.persistent ?? persistent };
+        } catch {
+            // Try the other storage area.
         }
-        if (expired && !options.allowExpired) return null;
-        return session;
-    } catch {
-        return null;
     }
+    return null;
 }
 
-const AUTH_PROXY_TIMEOUT_MS = 12000;
+const AUTH_PROXY_TIMEOUT_MS = 8000;
 
 function shouldUseAuthProxyFirst(action = 'login') {
     // 国内网络下浏览器直连 Firebase Auth 可能长时间无响应；登录和注册都优先走同源代理。
@@ -67,7 +78,7 @@ function shouldUseAuthProxyFirst(action = 'login') {
     return action === 'login' || action === 'register';
 }
 
-async function callAuthProxy(action, payload) {
+async function callAuthProxy(action, payload, options = {}) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), AUTH_PROXY_TIMEOUT_MS);
     let response;
@@ -99,7 +110,7 @@ async function callAuthProxy(action, payload) {
         throw error;
     }
     if (data.idToken && data.user?.uid) {
-        rememberProxyAuthSession(data);
+        rememberProxyAuthSession(data, options.persistent !== false);
         rememberUserProfile(data.user.uid, data.user);
         _currentUser = data.user;
         rememberLastAuthUser(_currentUser);
@@ -112,7 +123,7 @@ async function refreshProxyAuthSession() {
     const session = getStoredProxyAuthSession({ allowExpired: true });
     if (!session?.refreshToken) return null;
     try {
-        await callAuthProxy('refresh', { refreshToken: session.refreshToken });
+        await callAuthProxy('refresh', { refreshToken: session.refreshToken }, { persistent: session.persistent });
         return getStoredProxyAuthSession();
     } catch(e) {
         forgetProxyAuthSession();
@@ -184,7 +195,7 @@ const Auth = {
         } catch {}
         if (shouldUseAuthProxyFirst('login')) {
             try {
-                const result = await callAuthProxy('login', { email: authEmail, password });
+                const result = await callAuthProxy('login', { email: authEmail, password }, { persistent: remember });
                 syncFirebaseAuthAfterProxy(authEmail, password, remember);
                 return result;
             } catch(proxyError) {
@@ -208,7 +219,7 @@ const Auth = {
             };
             if (e.code === 'auth/network-request-failed') {
                 try {
-                    return await callAuthProxy('login', { email: authEmail, password });
+                    return await callAuthProxy('login', { email: authEmail, password }, { persistent: remember });
                 } catch(proxyError) {
                     return { ok: false, msg: `登录失败：${proxyError.message}` };
                 }
@@ -233,7 +244,7 @@ const Auth = {
         };
         if (shouldUseAuthProxyFirst('register')) {
             try {
-                const result = await callAuthProxy('register', { email: authEmail, password, profile: userData });
+                const result = await callAuthProxy('register', { email: authEmail, password, profile: userData }, { persistent: true });
                 // 代理已经创建账号并写入会话；这里只在后台恢复 Firebase SDK 状态，不会重复注册。
                 syncFirebaseAuthAfterProxy(authEmail, password, true);
                 return result;
@@ -296,13 +307,7 @@ const Auth = {
 
 /* ===== 登录门禁 ===== */
 const PROTECTED_PAGE_NAMES = new Set([
-    'tools.html',
-    'news.html',
-    'paths.html',
-    'prompts.html',
-    'articles.html',
-    'article.html',
-    'resources.html',
+    'workspace.html',
     'admin.html'
 ]);
 
@@ -350,7 +355,7 @@ function isProtectedHref(href) {
         return false;
     }
     if (['mailto:', 'tel:'].includes(url.protocol)) return false;
-    if (url.origin !== location.origin) return true;
+    if (url.origin !== location.origin) return false;
     return PROTECTED_PAGE_NAMES.has(pageNameFromUrl(url));
 }
 
@@ -612,8 +617,8 @@ function showAuthModal(tab) {
                 <button type="button" aria-label="关闭账户弹窗" onclick="closeAuthModal()" style="padding:0 16px;color:#94a3b8;background:none;border:none;cursor:pointer;font-size:20px">×</button>
             </div>
             <div id="form-li" class="modal-body" role="tabpanel" aria-labelledby="tab-li">
-                <div class="form-group"><label class="form-label" for="li-email">邮箱或手机号</label><input type="text" id="li-email" class="form-input" autocomplete="username" maxlength="254" placeholder="your@email.com 或 13800138000"></div>
-                <div class="form-group"><label class="form-label" for="li-pwd">密码</label><input type="password" id="li-pwd" class="form-input" autocomplete="current-password" maxlength="128" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+                <div class="form-group"><label class="form-label" for="li-email">邮箱或手机号</label><input type="text" id="li-email" class="form-input" autocomplete="username" maxlength="254" required aria-required="true" placeholder="your@email.com 或 13800138000"></div>
+                <div class="form-group"><label class="form-label" for="li-pwd">密码</label><input type="password" id="li-pwd" class="form-input" autocomplete="current-password" maxlength="128" required aria-required="true" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px">
                     <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-soft);cursor:pointer"><input type="checkbox" id="li-remember" style="cursor:pointer">记住我<span style="color:var(--muted);font-size:11px">（公用电脑勿勾）</span></label>
                     <button type="button" onclick="switchAuthTab('forgot')" style="background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer;padding:0;font-family:inherit;white-space:nowrap">忘记密码？</button>
@@ -631,11 +636,11 @@ function showAuthModal(tab) {
             </div>
             <div id="form-rg" class="modal-body" role="tabpanel" aria-labelledby="tab-rg" style="display:none">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                    <div class="form-group"><label class="form-label" for="rg-name">姓名 *</label><input type="text" id="rg-name" class="form-input" autocomplete="name" maxlength="80" placeholder="您的姓名"></div>
+                    <div class="form-group"><label class="form-label" for="rg-name">姓名 *</label><input type="text" id="rg-name" class="form-input" autocomplete="name" maxlength="80" required aria-required="true" placeholder="您的姓名"></div>
                     <div class="form-group"><label class="form-label" for="rg-school">学校/单位</label><input type="text" id="rg-school" class="form-input" autocomplete="organization" maxlength="120" placeholder="所在单位"></div>
                 </div>
-                <div class="form-group"><label class="form-label" for="rg-email">邮箱或手机号 *</label><input type="text" id="rg-email" class="form-input" autocomplete="username" maxlength="254" placeholder="your@email.com 或 13800138000"></div>
-                <div class="form-group"><label class="form-label" for="rg-pwd">密码 *</label><input type="password" id="rg-pwd" class="form-input" autocomplete="new-password" minlength="6" maxlength="128" placeholder="至少 6 位"></div>
+                <div class="form-group"><label class="form-label" for="rg-email">邮箱或手机号 *</label><input type="text" id="rg-email" class="form-input" autocomplete="username" maxlength="254" required aria-required="true" placeholder="your@email.com 或 13800138000"></div>
+                <div class="form-group"><label class="form-label" for="rg-pwd">密码 *</label><input type="password" id="rg-pwd" class="form-input" autocomplete="new-password" minlength="6" maxlength="128" required aria-required="true" placeholder="至少 6 位"></div>
                 <div id="rg-err" class="form-error" role="alert" aria-live="assertive" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="rg-btn" onclick="handleRegister()">创建账号</button></div>
                 <p class="modal-footer-text">已有账号？<button onclick="switchAuthTab('login')">立即登录</button></p>
@@ -710,12 +715,14 @@ function showWelcomeOverlay(kind, name) {
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('show'));
 
-    // 不再整页 reload：等 Firebase 确认登录态（最少 0.7s、最多 1.4s 兜底），再原地更新导航/页脚，
-    // 并派发「仅登录/注册时触发」的 authRefresh（普通加载不会触发 → 不会死循环），让备课本/后台据此刷新内容。
+    // 同源代理成功时 _currentUser 已就绪，无需再等待后台 Firebase SDK 重复确认。
+    // 保留一个很短的成功反馈动画，再原地刷新登录态内容。
     let done = false;
     const start = Date.now();
+    let fallbackTimer;
     const finish = () => {
         if (done) return; done = true;
+        clearTimeout(fallbackTimer);
         document.removeEventListener('authChanged', onChange);
         overlay.classList.add('settling');
         refreshAuthUI();
@@ -732,10 +739,14 @@ function showWelcomeOverlay(kind, name) {
     };
     const onChange = () => {
         document.removeEventListener('authChanged', onChange);
-        setTimeout(finish, Math.max(0, 700 - (Date.now() - start)));
+        setTimeout(finish, Math.max(0, 420 - (Date.now() - start)));
     };
-    document.addEventListener('authChanged', onChange);
-    setTimeout(finish, 1400);
+    if (_currentUser) {
+        fallbackTimer = setTimeout(finish, 420);
+    } else {
+        document.addEventListener('authChanged', onChange);
+        fallbackTimer = setTimeout(finish, 900);
+    }
 }
 
 async function handleLogin() {
@@ -744,7 +755,7 @@ async function handleLogin() {
     const err = document.getElementById('li-err');
     const btn = document.getElementById('li-btn');
     err.style.display = 'none';
-    btn.disabled = true; btn.textContent = '登录中…';
+    btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = '登录中…';
     const remember = !!document.getElementById('li-remember')?.checked;
     try {
         const result = await Auth.login(identifier, pwd, remember);
@@ -755,7 +766,7 @@ async function handleLogin() {
         err.textContent = `登录失败：${error?.message || '请稍后重试'}`;
         err.style.display = '';
     } finally {
-        btn.disabled = false; btn.textContent = '登录';
+        btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = '登录';
     }
 }
 
@@ -767,7 +778,7 @@ async function handleRegister() {
     const err       = document.getElementById('rg-err');
     const btn       = document.getElementById('rg-btn');
     err.style.display = 'none';
-    btn.disabled = true; btn.textContent = '注册中…';
+    btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = '注册中…';
     try {
         const result = await Auth.register(name, identifier, school, pwd);
         if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
@@ -777,7 +788,7 @@ async function handleRegister() {
         err.textContent = `注册失败：${error?.message || '请稍后重试'}`;
         err.style.display = '';
     } finally {
-        btn.disabled = false; btn.textContent = '创建账号';
+        btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = '创建账号';
     }
 }
 

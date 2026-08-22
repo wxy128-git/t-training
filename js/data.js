@@ -907,9 +907,11 @@ const DB = {
     }
 };
 
-/* ===== RSS 抓取（三重代理策略） ===== */
-async function fetchRSSFeed(rssUrl, count = 6) {
-    const cacheKey = 'rss_' + btoa(encodeURIComponent(rssUrl)).slice(0, 24);
+/* ===== RSS 抓取（腾讯云同源代理 + 浏览器本地缓存） ===== */
+async function fetchRSSFeed(feedKey, count = 6) {
+    const feed = RSS_FEEDS[feedKey];
+    if (!feed) return null;
+    const cacheKey = `rss_${feedKey}`;
     const cached = localStorage.getItem(cacheKey);
     let staleItems = null;
     if (cached) {
@@ -923,12 +925,25 @@ async function fetchRSSFeed(rssUrl, count = 6) {
     const parseXML = (xmlStr) => {
         try {
             const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
-            return Array.from(xml.querySelectorAll('item')).slice(0, count).map(item => ({
+            const rssItems = Array.from(xml.querySelectorAll('item')).map(item => ({
                 title: item.querySelector('title')?.textContent?.trim() || '',
                 link: (() => { const l = item.querySelector('link'); return l ? (l.textContent || l.nextSibling?.textContent || '').trim() : ''; })(),
                 description: (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g, '').trim(),
                 pubDate: item.querySelector('pubDate')?.textContent?.trim() || ''
-            })).filter(i => i.title && i.link);
+            }));
+            const atomItems = Array.from(xml.querySelectorAll('entry')).map(entry => ({
+                title: entry.querySelector('title')?.textContent?.trim() || '',
+                link: entry.querySelector('link[rel="alternate"]')?.getAttribute('href')
+                    || entry.querySelector('link')?.getAttribute('href')
+                    || '',
+                description: (entry.querySelector('summary')?.textContent || entry.querySelector('content')?.textContent || '')
+                    .replace(/<[^>]*>/g, '')
+                    .trim(),
+                pubDate: entry.querySelector('published')?.textContent?.trim()
+                    || entry.querySelector('updated')?.textContent?.trim()
+                    || ''
+            }));
+            return [...rssItems, ...atomItems].filter(i => i.title && i.link).slice(0, count);
         } catch { return []; }
     };
 
@@ -945,51 +960,11 @@ async function fetchRSSFeed(rssUrl, count = 6) {
     };
 
     const save = (items) => { localStorage.setItem(cacheKey, JSON.stringify({ items, ts: Date.now() })); return items; };
-    const requireItems = async (loader) => {
-        const items = await loader();
-        if (items?.length) return items;
-        throw new Error('empty feed');
-    };
-
-    const selfProxyLoader = async () => {
-        const r = await get(`/api/rss-proxy?url=${encodeURIComponent(rssUrl)}`);
-        const d = await r.json();
-        return d.contents ? parseXML(d.contents) : [];
-    };
-    const allOriginsLoader = async () => {
-        const r = await get(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
-        const d = await r.json();
-        return d.contents ? parseXML(d.contents) : [];
-    };
-    const corsProxyLoader = async () => {
-        const r = await get(`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`);
-        const text = await r.text();
-        return text ? parseXML(text) : [];
-    };
-    const rss2jsonLoader = async () => {
-        const r = await get(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=${count}`);
-        const d = await r.json();
-        if (d.status !== 'ok' || !d.items?.length) return [];
-        return d.items.map(i => ({
-            title: i.title,
-            link: i.link,
-            description: (i.description || '').replace(/<[^>]*>/g, '').trim(),
-            pubDate: i.pubDate
-        })).filter(i => i.title && i.link);
-    };
-
     try {
-        const primaryLoaders = [allOriginsLoader];
-        const host = location.hostname;
-        const hasOwnProxy = host !== 'localhost' && host !== '127.0.0.1' && host !== '';
-        if (hasOwnProxy) primaryLoaders.unshift(selfProxyLoader);
-        const items = await Promise.any(primaryLoaders.map(loader => requireItems(loader)));
-        return save(items);
-    } catch {}
-
-    try {
-        const items = await Promise.any([corsProxyLoader, rss2jsonLoader].map(loader => requireItems(loader)));
-        return save(items);
+        const r = await get(`/api/rss-proxy?feed=${encodeURIComponent(feedKey)}`, 9000);
+        const d = await r.json();
+        const items = d.contents ? parseXML(d.contents) : [];
+        if (items.length) return save(items);
     } catch {
         if (staleItems) return staleItems;
     }
@@ -998,11 +973,10 @@ async function fetchRSSFeed(rssUrl, count = 6) {
 }
 
 const RSS_FEEDS = {
-    jiqizhixin: { url: 'https://www.jiqizhixin.com/rss',                                  label: '机器之心 · 国内AI' },
-    qbitai:     { url: 'https://www.qbitai.com/rss',                                      label: '量子位 · 前沿速递' },
-    verge:      { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/rss.xml', label: 'The Verge · AI动态' },
+    qbitai:     { url: 'https://www.qbitai.com/feed',                                     label: '量子位 · 前沿速递' },
+    verge:      { url: 'https://www.theverge.com/rss/index.xml',                          label: 'The Verge · AI动态' },
     techcrunch: { url: 'https://techcrunch.com/category/artificial-intelligence/feed/',   label: 'TechCrunch · 科技前沿' },
-    edsurge:    { url: 'https://edsurge.com/news.rss',                                    label: 'EdSurge · 教育科技' },
+    edsurge:    { url: 'https://www.edsurge.com/articles_rss',                            label: 'EdSurge · 教育科技' },
     mit:        { url: 'https://www.technologyreview.com/feed/',                          label: 'MIT科技评论' },
     wired:      { url: 'https://www.wired.com/feed/tag/ai/latest/rss',                   label: 'Wired · 科技趋势' }
 };

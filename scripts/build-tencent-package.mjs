@@ -25,7 +25,7 @@ const rootStaticFiles = new Set([
 const isStatic = file => (
     (dirname(file) === '.' && extname(file) === '.html')
     || rootStaticFiles.has(file)
-    || /^(?:assets|css|js|多模态素材)\//.test(file)
+    || /^(?:assets|css|js|vendor|多模态素材)\//.test(file)
 );
 const isApi = file => (
     /^functions\/api\/[^/]+\.js$/.test(file)

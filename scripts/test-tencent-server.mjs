@@ -44,6 +44,9 @@ try {
     const invalidContent = await fetch(`${base}/api/content?type=unknown`);
     assert(invalidContent.status === 400, '内容类型校验没有经 Node 适配层生效');
 
+    const blockedRss = await fetch(`${base}/api/rss-proxy?url=http://127.0.0.1:3001/healthz`);
+    assert(blockedRss.status === 400, 'RSS 白名单没有经 Node 适配层生效');
+
     const invalidAgent = await fetch(`${base}/api/agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

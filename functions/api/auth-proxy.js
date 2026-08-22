@@ -11,6 +11,7 @@ const CORS_HEADERS = {
 };
 const AUTH_RATE_WINDOW_MS = 10 * 60 * 1000;
 const AUTH_RATE_LIMITS = { login: 15, register: 6, 'reset-password': 4, refresh: 60 };
+const FIREBASE_TIMEOUT_MS = 6000;
 const authRateMap = new Map();
 
 function cleanText(value, maxLength) {
@@ -84,19 +85,31 @@ function firebaseErrorStatus(code) {
     return definitiveCodes.has(code) ? 400 : 502;
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = FIREBASE_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 async function callFirebaseAuth(endpoint, payload) {
     let response;
     let data;
     try {
-        response = await fetch(`${FIREBASE_AUTH_BASE}/${endpoint}?key=${FIREBASE_API_KEY}`, {
+        response = await fetchWithTimeout(`${FIREBASE_AUTH_BASE}/${endpoint}?key=${FIREBASE_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
         data = await response.json();
-    } catch {
-        const error = new Error('认证服务暂时不可用，请稍后重试');
-        error.statusCode = 502;
+    } catch(cause) {
+        const timedOut = cause?.name === 'AbortError';
+        const error = new Error(timedOut ? '认证服务连接超时，请稍后重试' : '认证服务暂时不可用，请稍后重试');
+        error.statusCode = timedOut ? 504 : 502;
+        error.code = timedOut ? 'AUTH_UPSTREAM_TIMEOUT' : 'AUTH_UPSTREAM_UNAVAILABLE';
         throw error;
     }
     if (!response.ok) {
@@ -110,14 +123,21 @@ async function callFirebaseAuth(endpoint, payload) {
 }
 
 async function refreshFirebaseToken(refreshToken) {
-    const response = await fetch(`${FIREBASE_TOKEN_BASE}/token?key=${FIREBASE_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken
-        })
-    });
+    let response;
+    try {
+        response = await fetchWithTimeout(`${FIREBASE_TOKEN_BASE}/token?key=${FIREBASE_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken
+            })
+        });
+    } catch(cause) {
+        const error = new Error(cause?.name === 'AbortError' ? '登录状态刷新超时，请重新登录' : '登录状态暂时无法刷新，请重新登录');
+        error.code = cause?.name === 'AbortError' ? 'AUTH_UPSTREAM_TIMEOUT' : 'AUTH_UPSTREAM_UNAVAILABLE';
+        throw error;
+    }
     const data = await response.json();
     if (!response.ok) {
         const code = data?.error?.message;
@@ -152,7 +172,7 @@ function firestoreFields(profile) {
 async function saveUserProfile(idToken, uid, profile) {
     if (!idToken || !uid || !profile) return;
     try {
-        await fetch(`${FIRESTORE_USER_BASE}/${uid}`, {
+        await fetchWithTimeout(`${FIRESTORE_USER_BASE}/${uid}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -167,7 +187,7 @@ async function saveUserProfile(idToken, uid, profile) {
 
 async function readUserProfile(idToken, uid) {
     try {
-        const response = await fetch(`${FIRESTORE_USER_BASE}/${uid}`, {
+        const response = await fetchWithTimeout(`${FIRESTORE_USER_BASE}/${uid}`, {
             headers: { 'Authorization': `Bearer ${idToken}` }
         });
         if (!response.ok) return null;
@@ -277,18 +297,19 @@ export async function onRequestPost({ request }) {
                 password,
                 returnSecureToken: true
             });
-            if (profile.name) {
-                try {
-                    await callFirebaseAuth('accounts:update', {
+            // signUp 的请求邮箱即新建 Firebase 账号的认证邮箱；显式传入，避免 profile 冒充管理员邮箱。
+            const user = userFromAuth({ ...authData, email: normalizedEmail }, profile);
+            // 显示名更新和 Firestore 资料保存互不依赖，并行执行可少等一次海外往返。
+            await Promise.all([
+                profile.name
+                    ? callFirebaseAuth('accounts:update', {
                         idToken: authData.idToken,
                         displayName: profile.name,
                         returnSecureToken: false
-                    });
-                } catch {}
-            }
-            // signUp 的请求邮箱即新建 Firebase 账号的认证邮箱；显式传入，避免 profile 冒充管理员邮箱。
-            const user = userFromAuth({ ...authData, email: normalizedEmail }, profile);
-            await saveUserProfile(authData.idToken, authData.localId, user);
+                    }).catch(() => null)
+                    : Promise.resolve(),
+                saveUserProfile(authData.idToken, authData.localId, user)
+            ]);
             return jsonResponse(200, { ok: true, ...authData, user });
         }
 

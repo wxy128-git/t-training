@@ -38,16 +38,18 @@ if (home) {
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    assert(body.includes('css/style.css?v=20260806-ux2'), '首页未加载当前全局样式版本');
-    assert(body.includes('css/pwa.css?v=20260806-ux2'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20260806-ux2'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('css/style.css?v=20260822-phase1'), '首页未加载当前全局样式版本');
+    assert(body.includes('css/pwa.css?v=20260822-phase1'), '首页未加载当前 PWA 样式版本');
+    assert(body.includes('js/auth.js?v=20260822-phase1'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/assistant.js?v=20260821-tencent'), '首页未加载当前网站向导脚本版本');
-    assert(body.includes('js/pwa.js?v=20260806-ux2'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('js/pwa.js?v=20260822-phase1'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
+    assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
     assert(body.includes('id="th-mobile-more"') && body.includes('继续了解工作方法与配套资源'), '首页移动端渐进展开入口未上线');
     assert(body.includes('<meta name="mobile-web-app-capable" content="yes">'), '首页缺少标准移动 Web App 声明');
 }
 
-const pwaScript = await request('/js/pwa.js?v=20260806-ux2');
+const pwaScript = await request('/js/pwa.js?v=20260822-phase1');
 if (pwaScript) {
     const body = await pwaScript.text();
     assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
@@ -65,7 +67,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260821-v7'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260822-v8'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -108,6 +110,23 @@ if (content) {
     assert(content.status === 200 && content.headers.get('content-type')?.includes('application/json'), '公开内容代理未返回 JSON');
     assert(body?.ok === true && Array.isArray(body.items) && body.items.every(item => item.status === 'published'), '文章代理包含异常或未发布内容');
     assert(content.headers.get('cache-control')?.includes('s-maxage=600'), '公开内容代理缓存策略异常');
+}
+
+for (const file of [
+    '/vendor/firebase/10.12.0/firebase-auth-compat.js',
+    '/vendor/marked/9.1.6/marked.min.js',
+    '/vendor/phosphor/2.1.2/regular/Phosphor.woff2'
+]) {
+    const response = await request(file);
+    if (!response) continue;
+    assert(response.status === 200, `${file} 未正确上线`);
+    assert(response.headers.get('cache-control')?.includes('max-age=31536000'), `${file} 未启用长期缓存`);
+}
+
+const blockedRss = await request('/api/rss-proxy?url=http://127.0.0.1:3001/healthz');
+if (blockedRss) {
+    const body = await blockedRss.json().catch(() => null);
+    assert(blockedRss.status === 400 && body?.error === 'unsupported feed', 'RSS 代理仍可能访问任意地址');
 }
 
 const auth = await request('/api/auth-proxy', {

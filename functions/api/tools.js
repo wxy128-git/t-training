@@ -1,5 +1,8 @@
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
 const FIRESTORE_TOOLS_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/tools?pageSize=100`;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_STALE_MS = 60 * 60 * 1000;
+let toolsCache = null;
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -57,6 +60,13 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestGet() {
+    const now = Date.now();
+    if (toolsCache && now - toolsCache.savedAt < CACHE_TTL_MS) {
+        return jsonResponse(200, toolsCache.body, {
+            'Cache-Control': 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600',
+            'X-Cache': 'HIT'
+        });
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
     try {
@@ -66,6 +76,13 @@ export async function onRequestGet() {
         });
         const data = await upstream.json().catch(() => ({}));
         if (!upstream.ok) {
+            if (toolsCache && now - toolsCache.savedAt < CACHE_STALE_MS) {
+                return jsonResponse(200, toolsCache.body, {
+                    'Cache-Control': 'public, max-age=60',
+                    'Warning': '110 - "Response is stale"',
+                    'X-Cache': 'STALE'
+                });
+            }
             return jsonResponse(502, { ok: false, msg: '暂时无法同步工具清单' });
         }
 
@@ -74,13 +91,30 @@ export async function onRequestGet() {
             .filter(Boolean)
             .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, 'zh-CN'));
         if (!tools.length) {
+            if (toolsCache && now - toolsCache.savedAt < CACHE_STALE_MS) {
+                return jsonResponse(200, toolsCache.body, {
+                    'Cache-Control': 'public, max-age=60',
+                    'Warning': '110 - "Response is stale"',
+                    'X-Cache': 'STALE'
+                });
+            }
             return jsonResponse(502, { ok: false, msg: '工具清单暂时为空' });
         }
 
-        return jsonResponse(200, { ok: true, count: tools.length, tools }, {
-            'Cache-Control': 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600'
+        const body = { ok: true, count: tools.length, tools };
+        toolsCache = { body, savedAt: now };
+        return jsonResponse(200, body, {
+            'Cache-Control': 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600',
+            'X-Cache': 'MISS'
         });
     } catch(error) {
+        if (toolsCache && now - toolsCache.savedAt < CACHE_STALE_MS) {
+            return jsonResponse(200, toolsCache.body, {
+                'Cache-Control': 'public, max-age=60',
+                'Warning': '110 - "Response is stale"',
+                'X-Cache': 'STALE'
+            });
+        }
         const timedOut = error?.name === 'AbortError';
         return jsonResponse(timedOut ? 504 : 502, {
             ok: false,

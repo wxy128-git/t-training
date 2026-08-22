@@ -19,19 +19,29 @@ window.LAST_AUTH_USER_KEY = window.LAST_AUTH_USER_KEY || 'xylaoshiLastAuthUser';
 // 把用户快照存进 localStorage，下次加载时同步读出来做乐观渲染，Firebase 就绪后再校正。
 function rememberLastAuthUser(user) {
     try {
-        if (user) localStorage.setItem(window.LAST_AUTH_USER_KEY, JSON.stringify(user));
-        else localStorage.removeItem(window.LAST_AUTH_USER_KEY);
+        if (!user) {
+            localStorage.removeItem(window.LAST_AUTH_USER_KEY);
+            sessionStorage.removeItem(window.LAST_AUTH_USER_KEY);
+            return;
+        }
+        const sessionLogin = !!sessionStorage.getItem(window.PROXY_AUTH_SESSION_KEY)
+            && !localStorage.getItem(window.PROXY_AUTH_SESSION_KEY);
+        const target = sessionLogin ? sessionStorage : localStorage;
+        const other = sessionLogin ? localStorage : sessionStorage;
+        target.setItem(window.LAST_AUTH_USER_KEY, JSON.stringify(user));
+        other.removeItem(window.LAST_AUTH_USER_KEY);
     } catch {
-        // localStorage 不可用（隐私模式）时忽略，页面仍可正常工作
+        // 存储不可用（隐私模式）时忽略，页面仍可正常工作
     }
 }
 function getLastAuthUser() {
-    try {
-        const raw = localStorage.getItem(window.LAST_AUTH_USER_KEY);
-        return raw ? JSON.parse(raw) : null;
-    } catch {
-        return null;
+    for (const storage of [globalThis.sessionStorage, globalThis.localStorage]) {
+        try {
+            const raw = storage.getItem(window.LAST_AUTH_USER_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch {}
     }
+    return null;
 }
 
 // ===== 全局 Auth 状态 =====
@@ -50,19 +60,22 @@ function getStoredUserProfile(uid) {
 }
 
 function getProxyAuthUser() {
-    try {
-        const raw = localStorage.getItem(window.PROXY_AUTH_SESSION_KEY);
-        if (!raw) return null;
-        const session = JSON.parse(raw);
-        if (!session?.user) return null;
-        if (session.expiresAt && Date.now() > session.expiresAt) {
-            localStorage.removeItem(window.PROXY_AUTH_SESSION_KEY);
-            return null;
+    for (const storage of [globalThis.sessionStorage, globalThis.localStorage]) {
+        try {
+            const raw = storage.getItem(window.PROXY_AUTH_SESSION_KEY);
+            if (!raw) continue;
+            const session = JSON.parse(raw);
+            if (!session?.user) continue;
+            if (session.expiresAt && Date.now() > session.expiresAt) {
+                storage.removeItem(window.PROXY_AUTH_SESSION_KEY);
+                continue;
+            }
+            return { ...session.user, isProxyAuth: true };
+        } catch {
+            // Try the other storage area.
         }
-        return { ...session.user, isProxyAuth: true };
-    } catch {
-        return null;
     }
+    return null;
 }
 
 function authUserFallbackProfile(fbUser) {

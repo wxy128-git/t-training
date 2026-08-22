@@ -46,6 +46,8 @@ try {
     assert(articleListResponse.status === 200 && articleList.items?.[0]?.title === '测试文章', '文章代理未正确解码响应');
     assert(contentRequest.options.method === 'POST' && contentRequest.url.endsWith('/documents:runQuery'), '文章列表未使用受规则约束的查询');
     assert(JSON.parse(contentRequest.options.body).structuredQuery.where.fieldFilter.value.stringValue === 'published', '文章查询未限定 published');
+    const cachedArticleListResponse = await content.onRequestGet({ request: new Request('https://site.test/api/content?type=articles') });
+    assert(cachedArticleListResponse.headers.get('X-Cache') === 'HIT', '公开内容没有命中进程内缓存');
 
     globalThis.fetch = async () => new Response(JSON.stringify({ error: { message: 'PERMISSION_DENIED' } }), {
         status: 403,
@@ -82,6 +84,21 @@ try {
 
     const optionsResponse = await authProxy.onRequestOptions();
     assert(optionsResponse.headers.get('Access-Control-Allow-Origin') !== '*', '认证接口仍允许通配 CORS');
+
+    const rssProxy = await importSource('functions/api/rss-proxy.js');
+    fetchCount = 0;
+    globalThis.fetch = async () => { fetchCount += 1; return new Response('<rss><channel><item><title>测试</title><link>https://example.com</link></item></channel></rss>', {
+        status: 200,
+        headers: { 'Content-Type': 'application/rss+xml' }
+    }); };
+    const blockedRssResponse = await rssProxy.onRequestGet({ request: new Request('https://site.test/api/rss-proxy?url=http://127.0.0.1:3001/healthz') });
+    assert(blockedRssResponse.status === 400 && fetchCount === 0, 'RSS 代理仍可请求任意地址');
+    const allowedRssResponse = await rssProxy.onRequestGet({ request: new Request('https://site.test/api/rss-proxy?feed=qbitai') });
+    assert(allowedRssResponse.status === 200 && allowedRssResponse.headers.get('X-Cache') === 'MISS' && fetchCount === 1, 'RSS 白名单源未正确抓取');
+    const legacyRssResponse = await rssProxy.onRequestGet({ request: new Request('https://site.test/api/rss-proxy?url=https%3A%2F%2Fwww.jiqizhixin.com%2Frss') });
+    assert(legacyRssResponse.status === 200, '旧版资讯页面没有安全兼容到新白名单源');
+    const cachedRssResponse = await rssProxy.onRequestGet({ request: new Request('https://site.test/api/rss-proxy?feed=qbitai') });
+    assert(cachedRssResponse.headers.get('X-Cache') === 'HIT' && fetchCount === 1, 'RSS 源没有命中进程内缓存');
 
     const adminUsers = await importSource('functions/api/admin-users.js');
     const decodedUser = adminUsers.decodeUserDocument({

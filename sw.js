@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20260821-v7';
+const VERSION = '20260822-v8';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -15,8 +15,23 @@ const CORE_ASSETS = [
     '/js/pwa.js',
     '/manifest.webmanifest',
     '/js/safe-render.js',
+    '/js/firebase-config.js',
+    '/js/data.js',
+    '/js/auth.js',
     '/js/agents-data.js',
     '/js/teaching-projects.js',
+    '/vendor/firebase/10.12.0/firebase-app-compat.js',
+    '/vendor/firebase/10.12.0/firebase-auth-compat.js',
+    '/vendor/firebase/10.12.0/firebase-firestore-compat.js',
+    '/vendor/marked/9.1.6/marked.min.js',
+    '/vendor/phosphor/2.1.2/regular/style.css',
+    '/vendor/phosphor/2.1.2/regular/Phosphor.woff2',
+    '/vendor/phosphor/2.1.2/fill/style.css',
+    '/vendor/phosphor/2.1.2/fill/Phosphor-Fill.woff2',
+    '/vendor/phosphor/2.1.2/bold/style.css',
+    '/vendor/phosphor/2.1.2/bold/Phosphor-Bold.woff2',
+    '/vendor/phosphor/2.1.2/light/style.css',
+    '/vendor/phosphor/2.1.2/light/Phosphor-Light.woff2',
     '/assets/favicon.svg',
     '/assets/pwa/icon-192.png',
     '/assets/pwa/icon-512.png'
@@ -65,7 +80,7 @@ async function putInCache(cacheName, request, response) {
     if (!isCacheableResponse(response)) return;
     const cache = await caches.open(cacheName);
     await cache.put(request, response.clone());
-    const maxEntries = cacheName === PAGE_CACHE ? 24 : 80;
+    const maxEntries = cacheName === PAGE_CACHE ? 24 : 120;
     const keys = await cache.keys();
     if (keys.length > maxEntries) {
         await Promise.all(keys.slice(0, keys.length - maxEntries).map((key) => cache.delete(key)));
