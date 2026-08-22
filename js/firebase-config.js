@@ -16,7 +16,7 @@ window.LAST_AUTH_USER_KEY = window.LAST_AUTH_USER_KEY || 'xylaoshiLastAuthUser';
 
 // 同步缓存「上次已确认的登录用户」：Firebase 登录态是异步从 IndexedDB 恢复的，
 // 页面首帧拿不到，会先按未登录渲染导致「闪一下登录又变回用户名」。这里在登录确认后
-// 把用户快照存进 localStorage，下次加载时同步读出来做乐观渲染，Firebase 就绪后再校正。
+// 把用户快照存进与「记住我」一致的 storage，下次加载时同步读出来做乐观渲染，Firebase 就绪后再校正。
 function rememberLastAuthUser(user) {
     try {
         if (!user) {

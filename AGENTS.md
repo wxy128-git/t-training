@@ -23,17 +23,24 @@
 
 - Plain HTML/CSS/JS, no bundler. Pages render skeletons (or in-code defaults), then JS pulls data from Firestore via the global `DB` object in `js/data.js`.
 - Eight Cloudflare Pages Functions under `functions/api/`:
-  - `auth-proxy.js` — server-side Firebase Auth proxy. **Login and registration both use this first** so users in mainland networks can authenticate without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Proxy registration returns immediately after server-side `signUp` and must never be followed by browser-side `createUser`; on an ambiguous timeout/network/5xx response, the UI asks the user to try logging in before retrying, avoiding duplicate-account confusion. The proxy derives admin status only from Firebase's authenticated email, never from a client profile field. Stores an ID token + refresh token in `localStorage` under `window.PROXY_AUTH_SESSION_KEY`; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
+  - `auth-proxy.js` — server-side Firebase Auth proxy. **Login and registration both use this first** so users in mainland networks can authenticate without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Proxy registration returns immediately after server-side `signUp` and must never be followed by browser-side `createUser`; on an ambiguous timeout/network/5xx response, the UI asks the user to try logging in before retrying, avoiding duplicate-account confusion. The proxy derives admin status only from Firebase's authenticated email, never from a client profile field. Firebase Auth / Firestore upstream requests have a 6-second timeout; registration performs the display-name update and Firestore profile write in parallel. The proxy ID token + refresh token use `sessionStorage` when「记住我」is unchecked and `localStorage` only when it is checked; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
-  - `rss-proxy.js` — generic CORS-friendly RSS fetcher for the news page; used as one of several loaders.
+  - `rss-proxy.js` — news-page RSS fetcher with a fixed server-side source allowlist. The browser sends a source key, not an arbitrary URL; redirects are rejected, responses are capped at 1 MiB and validated as RSS / Atom. It keeps a 30-minute in-memory cache plus a 24-hour stale fallback. Do not restore browser fallbacks to public CORS / RSS conversion services or accept arbitrary upstream URLs, otherwise SSRF and domestic-network reliability regress.
   - `agent.js` — 智能体后端代理（2026-06-09；2026-07-09 加多模型路由）：持 `DEEPSEEK_API_KEY` 转发到 DeepSeek（model `deepseek-v4-flash` + `thinking:{type:'disabled'}` 非思考模式；旧名 `deepseek-chat` 于 2026/07/24 停用，已于 2026-06-29 迁移），也可持 `ZHIPU_API_KEY` 转发到智谱 GLM-5.2（model `glm-5.2`）。用 `accounts:lookup` 校验 Firebase idToken 防盗刷，把上游 SSE 解析成纯文本增量流式回传。前端 `agents.html` 的 `callAgentAPI()` POST `{ messages, idToken, agentId }` 调用它。默认 DeepSeek；`DEFAULT_ZHIPU_AGENT_IDS` 内的高推理/结构化智能体在配置 `ZHIPU_API_KEY` 后优先走 GLM-5.2，GLM 失败且 DeepSeek 可用时自动回退。响应头 `X-Agent-Provider / X-Agent-Model / X-Agent-Fallback-From` 供前端显示实际模型，header 值必须保持 ASCII key。**限流 (2026-06-29)**：`checkRate(uid)` 软限流——同一登录用户 60 秒内最多 `RATE_MAX=12` 次，超出返回 429 `{ok:false,msg:"提问太频繁啦，请约 N 秒后再试～"}`（前端 `callAgentAPI` 的 `!res.ok` 分支已会显示该 msg，无需改前端）。实现是**单实例内存** `Map`（uid→时间戳数组，>5000 条时清理过期），零配置、不占额度，挡"手滑狂点/刷接口"；Cloudflare 多实例跨服务器非 100% 精确，要"每人每天硬封顶"再升级 KV/Durable Objects。调阈值改 `RATE_WINDOW_MS`/`RATE_MAX` 两常量即可。
   - `analytics.js` — 站内统计接口（2026-07-07）：`POST {action:'track'}` 写入 Firestore `analytics_events`，`POST {action:'summary'}` 仅管理员可读聚合结果。写入/读取都走 Firebase service account，前端不需要也不应开放 `analytics_events` 的匿名写规则。事件只记录访问和功能动作（page_view / agent_run / workbook_* / multimodal_*），不记录智能体输入、生成正文、备课本内容、IP、userAgent 或屏幕指纹信息。
   - `works.js` — 我的备课本代理（2026-07-09）：`POST {action:'list'|'create'|'rename'|'delete', idToken, ...}`，先用 Firebase `accounts:lookup` 校验登录用户，再用 Firebase service account 访问 Firestore `works`，并强制只能读写当前 uid 的内容。前端 `DB.saveWork/getMyWorks/renameWork/deleteWork` 优先走 `/api/works`，失败时才退回浏览器 Firestore SDK；解决不连 VPN 时备课本能进页面但内容加载不出来的问题。
-  - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由 Cloudflare 服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序，响应可短时缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
-  - `content.js` — 公开内容同源代理（2026-07-19）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由 Cloudflare 服务端读取公开 Firestore 内容并短时缓存，普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
+  - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
+  - `content.js` — 公开内容同源代理（2026-07-19）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
+
+- **2026-08-22（腾讯云第一阶段性能、安全与登录优化，已上线）**:
+  - 新闻 RSS 改为六个固定源的服务端白名单，并加入重定向拒绝、响应体上限、RSS / Atom 校验、30 分钟缓存和 24 小时旧缓存；任意 URL 与内网地址现在返回 400，浏览器不再依赖第三方 CORS / RSS 转换服务。`/api/content` 和 `/api/tools` 增加 5 分钟进程内缓存及 1 小时失败回退。
+  - 登录与注册仍优先走同源代理，但服务端上游请求最长 6 秒、注册资料并行保存；前端 8 秒超时后会恢复按钮并给出明确提示。登录成功欢迎层在代理确认后约 420ms 收起，最慢 900ms 兜底。「记住我」现覆盖代理令牌、Firebase persistence 和乐观用户快照：不勾只保留当前标签会话，勾选才跨浏览器会话保存。公开内容页不再误弹登录框，备课本和后台继续强制登录。
+  - Firebase compat、Marked 和 Phosphor 图标字体全部固定版本并改为站内 `/vendor/` 资源；移除运行期 Google Fonts，改用系统 UI / 等宽字体栈。Nginx 已开启 HTTP/2、gzip、静态资源 30 天缓存和带版本 vendor 1 年缓存；HTML 与 Service Worker 保持不缓存。缓存版本：共享 CSS / JS 查询参数 `20260822-phase1`，Service Worker `VERSION=20260822-v8`。
+  - 通过候选 API 端口和 Nginx 热切换完成无中断发布；PM2 的 systemd 进程树已修复为 `active (running)`，同机 `edu-media` 与 `t-training-api` 均在线。发布目录 `/home/ubuntu/t-training/releases/20260822-phase1-34c206a`，回滚备份 `/home/ubuntu/t-training/backups/20260822-pre-phase1`。
+  - 实现提交：`34c206a`（`实施腾讯云第一阶段性能与登录优化`）。本地站点、函数和腾讯云适配测试分别通过 11/13、17、8 项断言；公网检查 76 项通过。干净 Chrome 实测首页冷加载约 1.51 秒（优化前审计约 3.04 秒），工具、资讯、备课本和后台无脚本错误或横向溢出；CSS 经 HTTP/2 + gzip 返回，vendor 长缓存命中，六个 RSS 源均可用，SSRF 测试返回 400；教育媒体课程站保持 200。
 
 - **2026-08-21（Cloudflare 旧地址启用 302 临时跳转）**:
   - `https://xylaoshi.pages.dev/` 已通过 Pages `_redirects` 临时跳转到 `https://ai.teachailab.com/`；`/*` 使用 `:splat` 保留原路径，查询参数由 Cloudflare 原样传递，旧 `/main` 直接跳到新站 `/resources`，避免多一次跳转。
@@ -209,7 +216,7 @@
 
 ## Auth Lesson (Important)
 
-**Old lesson from migration**: proxy-only login stashes an ID token in `localStorage` but does not immediately populate `firebase.auth().currentUser`; direct Firestore SDK calls then look unauthenticated.
+**Old lesson from migration**: proxy-only login stashes an ID token in browser storage but does not immediately populate `firebase.auth().currentUser`; direct Firestore SDK calls then look unauthenticated. The storage is now `sessionStorage` unless the user explicitly checks「记住我」.
 
 **Current fix (2026-07-09)**: login intentionally uses `/api/auth-proxy` first for speed in no-VPN mainland networks, then starts a background Firebase SDK sign-in. Features that must work without VPN should not depend only on browser Firestore SDK. The main example is「我的备课本」: `js/data.js` work methods now call `/api/works` first, and `/api/works` enforces ownership server-side with the user idToken + service account. `Auth.getIdToken()` also prefers a valid proxy token before asking Firebase SDK, and uses `/api/auth-proxy` action `refresh` to refresh an expired proxy token before falling back to Firebase SDK.
 
@@ -292,10 +299,9 @@ match /agent_usage/{agentId} {
 
 ## Design Language
 
-**Typography** — one sans family across the whole site:
-- Latin: Plus Jakarta Sans (variable, weights 400–800, italic).
-- Chinese: Noto Sans SC + system fallbacks (PingFang SC, Hiragino Sans GB).
-- Mono (digits, timestamps, kicker labels): JetBrains Mono.
+**Typography** — one sans family across the whole site, with no runtime web-font dependency:
+- Sans: the operating-system UI stack (`-apple-system` / BlinkMacSystemFont / Segoe UI / PingFang SC / Microsoft YaHei / Noto Sans CJK fallbacks).
+- Mono (digits, timestamps, kicker labels): `ui-monospace` / SFMono-Regular / Menlo / Consolas fallbacks.
 - `--font-display` is aliased to `--font-sans`; hierarchy comes from weight (700–800 for display, 500 for labels) and size, not font family.
 
 **Base color tokens** (the active values are defined in the final “2026-07-12 · 现代教研工作台视觉基础层” inside `css/style.css`):
@@ -326,9 +332,9 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 - Use numbered markers only for real sequences (for example the homepage teaching cycle), never as decorative section counters.
 - Homepage signature element is the **teaching cycle rail**: input validation → draft → supporting exercise → teacher verification → save/reuse. Red-pen or document styling may remain in exported teaching documents, but not as the application shell.
 
-**Welcome overlay + 登录提速 (2026-06-28)**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + name + 3-dot pulse). **不再整页 `location.reload()`**（旧版固定 1.7s 后 reload，慢）：现在等下一次 `authChanged`（Firebase 确认登录态）后，**最少 0.7s、最多 1.4s 兜底**，调 `refreshAuthUI()`（=`renderNav()`+`renderFooter()` 原地重渲染；`renderNav` 现记住 `_navPage`，故无参也能保持高亮）并派发**仅登录/注册时触发**的 `authRefresh` 事件，然后淡出。登录态内容页据此原地刷新：`workspace.html` → `loadWorks()`，`admin.html` → `location.reload()`（后台少见、reload 最稳；`authRefresh` 不在普通加载触发 → 无死循环）。登录感知耗时从 ~4–5s（含 reload 重下 SDK + 再读资料）降到 ~0.7–1.4s。
+**Welcome overlay + 登录提速 (2026-08-22)**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + name + 3-dot pulse). Proxy success has already established the usable session, so it no longer waits indefinitely for a browser Firebase event: proxy-confirmed login keeps the acknowledgement visible for about 420ms; the non-proxy path has a 900ms fallback. It then calls `refreshAuthUI()`（=`renderNav()`+`renderFooter()` 原地重渲染）and dispatches the login/register-only `authRefresh` event. `workspace.html` reloads works in place; `admin.html` still reloads after a rare fresh admin login.
 
-**退出提速 + 记住我 / 登录持久化 (2026-06-28)**：①`Auth.logout()` 改**原地更新、去掉整页 reload**（旧版 `location.reload` 重下 SDK，慢；这才是慢的真因）。顺序用**标准的「先登出、后刷界面」**：`await auth.signOut()`（Firebase signOut 是本地操作、清本机令牌、几毫秒，不需联网）→ `forgetProxyAuthSession()`+`rememberLastAuthUser(null)`+清 `_currentUser` → `refreshAuthUI()` 切未登录 → 派发 `authRefresh`（备课本→回登录门 / 后台→reload）。（注：曾短暂用过"乐观更新"即先刷界面后台再登出，但 signOut 本就极快、该顺序无收益且会吞错误，已回退到 await-first 规范写法。）②登录加「记住我」勾选（`#li-remember`，**默认不勾**，旁注"公用电脑勿勾"）：`Auth.login(identifier, pwd, remember)` 在 signIn **之前** `await auth.setPersistence(remember ? LOCAL : SESSION)`——**勾=LOCAL**（关浏览器仍登录），**不勾=SESSION**（关浏览器即退出，公用机更安全）；常量是 `firebase.auth.Auth.Persistence.LOCAL/.SESSION`。注册固定 `LOCAL`（自家账号长期保持）。⚠️ 安全说明：localStorage 只存「资料快照」做乐观渲染、非令牌，篡改它只能伪造本机 UI，数据由 Firestore 安全规则在服务端兜底，不会泄露。`js/auth.js?v=20260628-logout`（全站同步）。
+**退出提速 + 记住我 / 登录持久化 (2026-08-22)**：①`Auth.logout()` 原地更新，不整页 reload。顺序保持 `await auth.signOut()` → 同时清除 local / session 两套代理会话和用户快照 → `refreshAuthUI()` → 派发 `authRefresh`。②「记住我」默认不勾：勾选时代理令牌、Firebase persistence 和乐观用户快照都使用 `LOCAL` / `localStorage`；不勾时三者都使用 `SESSION` / `sessionStorage`，关闭标签页后退出，更适合公用电脑。注册仍固定长期保持。浏览器存储里的快照只用于首帧 UI，服务端权限始终由 Firebase idToken 和安全规则判断。
 
 ## Navigation & Mobile
 
