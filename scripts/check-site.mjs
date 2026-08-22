@@ -35,9 +35,9 @@ for (const file of publicPages) {
 for (const file of appPages) {
     const html = text(file);
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
-    if (!/css\/style\.css\?v=20260822-phase1/.test(html)) fail(file, '样式缓存版本未统一');
+    if (!/css\/style\.css\?v=20260822-auth-transition/.test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260822-phase1/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20260822-phase1/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/auth\.js\?v=20260822-auth-transition/.test(html)) fail(file, '认证脚本缓存版本未统一');
     if (!/js\/assistant\.js\?v=20260821-tencent/.test(html)) fail(file, '网站向导缓存版本未统一');
 }
 
@@ -85,7 +85,13 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260822-v8/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
+if (!/20260822-v9/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
+
+const loginTransitionSource = text('js/auth.js');
+if (/showWelcomeOverlay\('login'/.test(loginTransitionSource)) fail('js/auth.js', '登录成功仍使用短暂全屏欢迎层');
+if (!/showToast\(userName \? `登录成功/.test(loginTransitionSource)) fail('js/auth.js', '登录成功缺少非阻塞反馈');
+const welcomeStyleSource = text('css/style.css');
+if (/welcome-overlay\.settling/.test(welcomeStyleSource)) fail('css/style.css', '欢迎层仍包含瞬时整屏变色状态');
 if (!/['"]\/agents['"][\s\S]+['"]\/classroom-tools['"]/.test(text('sw.js'))) fail('sw.js', '智能体目录或课堂工具未加入核心离线页面');
 
 for (const file of readdirSync(root).filter(name => name.endsWith('.html'))) {

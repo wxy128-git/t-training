@@ -715,8 +715,8 @@ function showWelcomeOverlay(kind, name) {
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('show'));
 
-    // 同源代理成功时 _currentUser 已就绪，无需再等待后台 Firebase SDK 重复确认。
-    // 保留一个很短的成功反馈动画，再原地刷新登录态内容。
+    // 注册是低频动作，保留一个稳定可读的欢迎反馈；登录成功改用下方的非阻塞 toast，
+    // 避免短暂全屏层被用户感知成页面闪烁。
     let done = false;
     const start = Date.now();
     let fallbackTimer;
@@ -724,28 +724,23 @@ function showWelcomeOverlay(kind, name) {
         if (done) return; done = true;
         clearTimeout(fallbackTimer);
         document.removeEventListener('authChanged', onChange);
-        overlay.classList.add('settling');
         refreshAuthUI();
         document.dispatchEvent(new CustomEvent('authRefresh', { detail: _currentUser }));
         requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    overlay.classList.remove('settling');
-                    overlay.classList.remove('show');
-                    setTimeout(() => overlay.remove(), 340);
-                }, 120);
-            });
+            overlay.classList.add('leaving');
+            overlay.classList.remove('show');
+            setTimeout(() => overlay.remove(), 280);
         });
     };
     const onChange = () => {
         document.removeEventListener('authChanged', onChange);
-        setTimeout(finish, Math.max(0, 420 - (Date.now() - start)));
+        setTimeout(finish, Math.max(0, 900 - (Date.now() - start)));
     };
     if (_currentUser) {
-        fallbackTimer = setTimeout(finish, 420);
+        fallbackTimer = setTimeout(finish, 900);
     } else {
         document.addEventListener('authChanged', onChange);
-        fallbackTimer = setTimeout(finish, 900);
+        fallbackTimer = setTimeout(finish, 1200);
     }
 }
 
@@ -760,8 +755,11 @@ async function handleLogin() {
     try {
         const result = await Auth.login(identifier, pwd, remember);
         if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
-        showWelcomeOverlay('login', Auth.getCurrentUser()?.name);
+        const userName = Auth.getCurrentUser()?.name;
         closeAuthModal();
+        refreshAuthUI();
+        document.dispatchEvent(new CustomEvent('authRefresh', { detail: _currentUser }));
+        showToast(userName ? `登录成功，欢迎回来，${userName}` : '登录成功，欢迎回来');
     } catch(error) {
         err.textContent = `登录失败：${error?.message || '请稍后重试'}`;
         err.style.display = '';

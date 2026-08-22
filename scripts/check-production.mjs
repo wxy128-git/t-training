@@ -38,9 +38,9 @@ if (home) {
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    assert(body.includes('css/style.css?v=20260822-phase1'), '首页未加载当前全局样式版本');
+    assert(body.includes('css/style.css?v=20260822-auth-transition'), '首页未加载当前全局样式版本');
     assert(body.includes('css/pwa.css?v=20260822-phase1'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20260822-phase1'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/auth.js?v=20260822-auth-transition'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/assistant.js?v=20260821-tencent'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20260822-phase1'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
@@ -67,7 +67,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260822-v8'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260822-v9'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
