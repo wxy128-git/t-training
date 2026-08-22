@@ -35,6 +35,12 @@
 
 ## Deployment History
 
+- **2026-08-22（修复普通用户登录成功后的整屏闪烁，已上线）**:
+  - 根因：第一阶段把登录成功全屏欢迎层缩短到约 420ms，但该层自身仍有 0.32s 入场动画，刚出现就退出；退出前的 `settling` 状态还会把背景从深色瞬间切成接近不透明的浅色。两者叠加后，用户感知为点击登录后“整页闪一下”，并非页面重新加载或登录失败。
+  - 高频登录不再使用全屏欢迎层：认证成功后立即原地刷新账户界面并派发 `authRefresh`，以持续约 2.2 秒的底部非阻塞提示显示“登录成功，欢迎回来”，备课本继续原地加载。低频注册仍保留欢迎层，但改为立即提供稳定遮罩、约 900ms 可读停留后淡出，删除整屏浅色切换；全局 reduced-motion 规则继续生效。
+  - 实现提交：`33f7313`（`修复登录成功后的页面闪烁`）。静态发布目录 `/home/ubuntu/t-training/releases/20260822-login-transition-33f7313`，回滚备份 `/home/ubuntu/t-training/backups/20260822-pre-login-transition/www`。缓存版本：`css/style.css` / `js/auth.js` → `20260822-auth-transition`，Service Worker → `VERSION=20260822-v9`。
+  - 本地 390×844 隔离 Chrome 逐帧检查确认：登录弹层关闭后不存在全屏欢迎层，成功提示保持可见、无横向溢出；注册层全程保持同一深色遮罩并平滑淡出。站点、函数、腾讯云适配测试继续通过；公网检查 79 项通过，旧 Cloudflare URL 保留路径 302 正常，`pm2-ubuntu` active，`edu-media` / `t-training-api` 均 online，教育媒体课程站返回 200。
+
 - **2026-08-22（腾讯云第一阶段性能、安全与登录优化，已上线）**:
   - 新闻 RSS 改为六个固定源的服务端白名单，并加入重定向拒绝、响应体上限、RSS / Atom 校验、30 分钟缓存和 24 小时旧缓存；任意 URL 与内网地址现在返回 400，浏览器不再依赖第三方 CORS / RSS 转换服务。`/api/content` 和 `/api/tools` 增加 5 分钟进程内缓存及 1 小时失败回退。
   - 登录与注册仍优先走同源代理，但服务端上游请求最长 6 秒、注册资料并行保存；前端 8 秒超时后会恢复按钮并给出明确提示。登录成功欢迎层在代理确认后约 420ms 收起，最慢 900ms 兜底。「记住我」现覆盖代理令牌、Firebase persistence 和乐观用户快照：不勾只保留当前标签会话，勾选才跨浏览器会话保存。公开内容页不再误弹登录框，备课本和后台继续强制登录。
@@ -332,7 +338,7 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 - Use numbered markers only for real sequences (for example the homepage teaching cycle), never as decorative section counters.
 - Homepage signature element is the **teaching cycle rail**: input validation → draft → supporting exercise → teacher verification → save/reuse. Red-pen or document styling may remain in exported teaching documents, but not as the application shell.
 
-**Welcome overlay + 登录提速 (2026-08-22)**: registration and login both call `showWelcomeOverlay(kind, name)` from `js/auth.js`. It renders a centered card ("欢迎回来 / 欢迎加入" + name + 3-dot pulse). Proxy success has already established the usable session, so it no longer waits indefinitely for a browser Firebase event: proxy-confirmed login keeps the acknowledgement visible for about 420ms; the non-proxy path has a 900ms fallback. It then calls `refreshAuthUI()`（=`renderNav()`+`renderFooter()` 原地重渲染）and dispatches the login/register-only `authRefresh` event. `workspace.html` reloads works in place; `admin.html` still reloads after a rare fresh admin login.
+**登录 / 注册成功反馈 (2026-08-22)**: 高频登录成功后不使用全屏过渡；`handleLogin()` 关闭弹层后立即调用 `refreshAuthUI()`（=`renderNav()`+`renderFooter()`）、派发 `authRefresh`，并用底部 toast 显示“登录成功，欢迎回来”。这避免短暂全屏层造成闪烁，`workspace.html` 仍会原地加载内容，管理员首次登录仍按页面监听器 reload。低频注册调用 `showWelcomeOverlay('register', name)`：遮罩从首帧保持稳定，卡片约 900ms 后淡出，不再使用会瞬时改变整屏颜色的 `settling` 状态。不要把登录重新接回短时全屏欢迎层。
 
 **退出提速 + 记住我 / 登录持久化 (2026-08-22)**：①`Auth.logout()` 原地更新，不整页 reload。顺序保持 `await auth.signOut()` → 同时清除 local / session 两套代理会话和用户快照 → `refreshAuthUI()` → 派发 `authRefresh`。②「记住我」默认不勾：勾选时代理令牌、Firebase persistence 和乐观用户快照都使用 `LOCAL` / `localStorage`；不勾时三者都使用 `SESSION` / `sessionStorage`，关闭标签页后退出，更适合公用电脑。注册仍固定长期保持。浏览器存储里的快照只用于首帧 UI，服务端权限始终由 Firebase idToken 和安全规则判断。
 

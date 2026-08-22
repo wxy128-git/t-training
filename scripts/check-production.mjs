@@ -57,6 +57,14 @@ if (pwaScript) {
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
 }
 
+const authScript = await request('/js/auth.js?v=20260822-auth-transition');
+if (authScript) {
+    const body = await authScript.text();
+    assert(authScript.status === 200 && authScript.headers.get('content-type')?.includes('javascript'), '当前认证脚本未上线');
+    assert(!/showWelcomeOverlay\('login'/.test(body), '登录成功仍使用短暂全屏欢迎层');
+    assert(/showToast\(userName \? `登录成功/.test(body), '登录成功缺少非阻塞反馈');
+}
+
 const manifest = await request('/manifest.webmanifest');
 if (manifest) {
     const body = await manifest.json().catch(() => null);
