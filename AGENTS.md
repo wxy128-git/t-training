@@ -30,10 +30,18 @@
   - `analytics.js` — 站内统计接口（2026-07-07）：`POST {action:'track'}` 写入 Firestore `analytics_events`，`POST {action:'summary'}` 仅管理员可读聚合结果。写入/读取都走 Firebase service account，前端不需要也不应开放 `analytics_events` 的匿名写规则。事件只记录访问和功能动作（page_view / agent_run / workbook_* / multimodal_*），不记录智能体输入、生成正文、备课本内容、IP、userAgent 或屏幕指纹信息。
   - `works.js` — 我的备课本代理（2026-07-09）：`POST {action:'list'|'create'|'rename'|'delete', idToken, ...}`，先用 Firebase `accounts:lookup` 校验登录用户，再用 Firebase service account 访问 Firestore `works`，并强制只能读写当前 uid 的内容。前端 `DB.saveWork/getMyWorks/renameWork/deleteWork` 优先走 `/api/works`，失败时才退回浏览器 Firestore SDK；解决不连 VPN 时备课本能进页面但内容加载不出来的问题。
   - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
-  - `content.js` — 公开内容同源代理（2026-07-19）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
+  - `content.js` — 公开内容同源代理（2026-07-19；2026-08-23 加页面文案）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；`type=pageCopy&id=<pageId>` 只允许 12 个固定页面 id，并以 `no-store` 返回对应 `page_copy` 文档，不进入旧缓存。腾讯云单进程内对原有公开列表使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
 - Frontend always calls these via `/api/...` paths.
 
 ## Deployment History
+
+- **2026-08-23（全站文案后台化、数字教研团队与真实活页备课本，已上线）**:
+  - 第一阶段页面精简覆盖首页、多模态工作坊、智能体空间、课堂工具、AI 资源精选、课件素材、AI 资讯、学习路径、文章列表与详情、提示词库和备课本。新增 `js/site-copy.js`，以固定字段定义、长度限制和本地默认值管理 12 个页面的关键文案；普通页面经 `/api/content?type=pageCopy&id=...` 读取，管理员在后台「页面文案」面板编辑。`page_copy` Firestore 规则已单独编译并发布；本地预览使用浏览器隔离存储，不会误写线上 Firestore。
+  - 智能体空间把 19 个功能卡重构为具有真实人物肖像、身份、分工和开场表达的「数字教研团队」，保留搜索、分类、推荐、深链、工作台和全部模型调用逻辑。19 张发布 JPG 共约 2.4 MB，单张均低于 240 KB。
+  - `workspace.html` 从圆角卡片工作台升级为现代 A4 活页备课夹：藏蓝布纹书脊、金属环、打孔纸、页边与章节签形成真实装订关系；默认目录视图支持全部 / 文稿 / 对话 / 核验，原卡片视图保留为横线散页，复制、PDF、Word、Markdown、重命名和删除收进页侧菜单，查看成果时以抽出完整活页的方式打开。桌面 1440px 与手机 390×844 均无横向溢出。
+  - 本地预览服务器新增认证与公开内容代理，解决本地登录时「认证代理请求失败」；后台页面预览、文案本地保存与全站默认回退已验证。缓存版本：`css/style.css` / `js/auth.js` → `20260823-content-team-workbook`；`js/data.js` / `js/site-copy.js` → `20260823-page-copy`；Service Worker → `VERSION=20260823-v14`。
+  - 实现提交：`a5eb5c5`（`上线全站文案管理与数字教研工作台`）；生产验收脚本提交：`aa8d25b`（`更新本轮生产验收断言`）。腾讯云发布目录 `/home/ubuntu/t-training/releases/20260823-content-team-a5eb5c5`，回滚备份 `/home/ubuntu/t-training/backups/20260823-pre-content-team-a5eb5c5`。
+  - 发布采用 3002 候选 API + Nginx 热切换，候选通过健康、工具、认证守卫和备课本守卫检查后，正式 API 回到 3001；服务器 101 个静态文件、10 个 API 文件与发布清单 SHA-256 零差异。公网生产检查 86 项通过，GitHub `Site quality` 为 passing，Cloudflare 旧地址继续保留路径与查询参数 302，`pm2-ubuntu` enabled/active，`edu-media` / `t-training-api` 均 online 且零重启，两个站点均返回 200。
 
 - **2026-08-22（修复普通用户登录成功后的整屏闪烁，已上线）**:
   - 根因：第一阶段把登录成功全屏欢迎层缩短到约 420ms，但该层自身仍有 0.32s 入场动画，刚出现就退出；退出前的 `settling` 状态还会把背景从深色瞬间切成接近不透明的浅色。两者叠加后，用户感知为点击登录后“整页闪一下”，并非页面重新加载或登录失败。
@@ -181,7 +189,7 @@
   - `workspace.html` 新增教学项目筛选、按项目排序、项目标签和“教师已核验”状态；从已保存成果继续使用智能体时，会把相应项目恢复成当前项目。首页在本机存在项目或未完成草稿时显示“继续项目 / 恢复草稿”。
   - 统计新增 `project_saved / draft_restored / generation_failed / teacher_reviewed / result_feedback / workflow_continue` 事件，只记录动作、耗时与反馈分类，不记录输入/输出正文。管理员数据看板新增按会话去重的任务漏斗、生成失败、平均耗时、教师核验与成果保存指标。
   - 窄屏导航在 ≤560px 时隐藏独立“注册”按钮（仍可在登录弹层内切换注册），优先保证登录和菜单入口完整可见。缓存版本：`css/style.css?v=20260712-usability`；`js/teaching-projects.js?v=20260712-project-flow`。
-- **2026-07-13（跨智能体返回与教师核验语义，本地待上线）**:
+- **2026-07-13（跨智能体返回与教师核验语义，已上线；2026-08-23 全量发布再次确认）**:
   - `agents.html` 的后续任务入口不再直接切换智能体：当前版本尚未存入备课本时，先提供“保存并继续 / 暂不保存，继续 / 取消”。本机自动草稿与云端备课本状态明确区分；保存成功后用轻量指纹记录当前版本，输入、正文、核验或反馈发生变化后会重新视为未保存版本。
   - 跨智能体使用 `history.pushState` 保留工作步骤，目标工作台显示来源条；浏览器返回、顶部返回按钮和“返回上一成果”都会恢复上一智能体的项目草稿、生成正文与核验状态。普通卡片打开与深链仍使用当前 hash 路由。
   - “教师核验清单”从四个布尔复选框升级为每项“符合 / 需修改”判断，带文字状态、图标、进度条和完成结果，不以颜色作为唯一反馈。旧草稿的 `review: string[]` 会兼容为全部“符合”；新草稿保存 `review: Record<key,'pass'|'revise'>`。
@@ -215,7 +223,7 @@
   - 根因：线上 Firestore 已有 19 项，但 `js/data.js` 的 `DEFAULT_TOOLS` 仍只有 14 项；部分用户直连 Firestore 失败或超时时会无提示落到旧兜底，因此固定只看到 14 项。
   - 本地兜底补齐可灵AI、讯飞智文、Flowin、WorkBuddy、Trae，和线上顺序一致；`tools.html` 为 Trae 补充平台分类及免费/中文标签。
   - 新增 `/api/tools` 同源代理，普通用户优先经 Cloudflare 读取公开清单，失败才尝试浏览器 Firestore，最后回到完整的本地 19 项。`data.js` 缓存版本全站同步为 `?v=20260716-tools19`。
-- **2026-07-17（多模态音频案例补全，本地待上线）**:
+- **2026-07-17（多模态音频案例补全，已上线；2026-08-23 全量发布再次确认）**:
   - 「校园活动开场音乐」收窄为具体的「校园科技节开场音乐」，新增发布素材 `多模态素材/校园科创序曲.mp3`。成品为 20.04 秒、MP3、256 kbps、44.1 kHz、双声道；教师已完成无人声、结尾自然和整体听感核验。
   - `multimodal.html` 新增音频案例渲染分支：卡片和详情弹层展示浏览器从真实 MP3 解码得到的振幅波形，详情使用原生音频控件且不自动播放；关闭弹层会暂停并归零。界面只展示实际核实的参数，不把提示词里的 BPM 当成测量值。
   - 新增 `multimodal_audio_play` 统计事件，单次页面会话内同一案例只记首次播放；后端允许并聚合该事件，后台明细显示为「播放多模态音频」。事件不记录音频内容或用户输入。
@@ -248,17 +256,18 @@ To verify full SDK auth is healthy when network allows: in DevTools console, `fi
 | `announcements` | site announcements | admin only |
 | `articles` | featured articles | admin only |
 | `resource_categories` | design resource categories with embedded items array (added 2026-06-01) | admin only |
+| `page_copy` | 12 个固定页面的关键文案；字段、默认值与长度限制由 `js/site-copy.js` 定义 | public read；admin only create/update/delete |
 | `community_prompts` | user-submitted prompts | logged-in users (create), author or admin (update) |
 | `showcases` | **(retired 2026-06-15)** teacher case studies — all frontend/admin UI removed; collection + existing docs kept, no longer read or written | — |
 | `tool_ratings` | per-tool 5-star ratings (not currently shown in UI) | logged-in users |
 | `subscribers` | newsletter sign-ups | anyone (create), admin (read/delete) |
-| `agent_usage` | 智能体使用计数（doc/agentId，`count`），驱动首页/智能体空间「热门」印章（added 2026-06-17） | read public；write 任意登录用户（`FieldValue.increment`）— **需在 Console 加规则，见下** |
-| `works` | **「我的备课本」** saved agent outputs (added 2026-06-16; expanded 2026-06-30) — `{uid, agentId, agentName, agentType, workType, title, content, inputs?, createdAt, updatedAt}` | owner only (uid == request.auth.uid) — **rule must be added in Firebase Console, see below** |
+| `agent_usage` | 智能体使用计数（doc/agentId，`count`），驱动首页/智能体空间「热门」印章（added 2026-06-17） | read public；write 任意登录用户（`FieldValue.increment`） |
+| `works` | **「我的备课本」** saved agent outputs (added 2026-06-16; expanded 2026-06-30) — `{uid, agentId, agentName, agentType, workType, title, content, inputs?, createdAt, updatedAt}` | owner only (uid == request.auth.uid) |
 | `contact_messages` | contact-form submissions | logged-in users (create), admin (read/update/delete) |
 
-Rules live in Firebase Console → Firestore → Rules. They are the source of truth — keep them in mind whenever a write fails.
+Rules live in root `firestore.rules` and are deployed separately with `npx --yes firebase-tools@latest deploy --only firestore:rules`; the checked-in file is the maintenance source of truth. Rule changes do not ride along with a static or Tencent release.
 
-**Firestore Rule for `works`** (must be added inside `match /databases/{database}/documents { … }`; without it the「我的备课本」save/read is denied):
+**Firestore Rule for `works`**（已纳入并发布；下方仅作权限语义速查，精确约束以根目录规则文件为准）：
 
 ```
 match /works/{workId} {
@@ -267,7 +276,7 @@ match /works/{workId} {
 }
 ```
 
-**Firestore Rule for `agent_usage`** (智能体使用计数，驱动「热门」印章；缺了不会报错，但用量不会累计、印章固定在种子两个)：
+**Firestore Rule for `agent_usage`**（已纳入并发布；智能体使用计数驱动「热门」印章）：
 
 ```
 match /agent_usage/{agentId} {
@@ -280,8 +289,8 @@ match /agent_usage/{agentId} {
 
 | File | Purpose |
 |---|---|
-| `index.html` | Homepage — **现代教研工作台 (2026-07-12)**。首页 CSS 继续内联并全部使用 `.th-*` 命名，避免污染子页；颜色令牌限定在 `.th-root`。结构：平台状态条 → 任务主张 + 右侧“备一节课”五步示例流程 → 6 个任务启动入口 → 人机协同工作协议 / 使用前检查 → 动态专业能力索引 → 6 个配套资源入口。任务卡从 `window.AGENTS` 读取真实说明，能力索引从 `window.AGENT_CATS / AGENTS` 自动生成并链接到 `agents.html?cat=<key>`；智能体总数同样动态。首页不再使用周刊报头、期号、头条、要闻、朱印、稿纸纹理或“30 秒”等未测量宣传语。保留：`renderNav` / `renderFooter`、公告、联系反馈、订阅、悬浮向导与分析埋点。 |
-| `agents.html` | **智能体空间** — agent gallery + workspace. Self-contained single page (card wall ↔ workspace, hash deep-link `#agent-id`). 19 agents in `js/agents-data.js` (5 categories). 首页视图 = **顶部精选 (`FEATURED` 4 个) + 按类分区陈列** (`renderHome`)；选分类或搜索时切单层网格 (`renderFiltered`)。Two workspace types: **form**（「任务参数 + 文稿工作区」；左参数栏 `sticky`/可折叠摘要，右文稿面板内部滚动，含保存到备课本、编辑、复制、重新生成；`.ws-top` 是普通文档流，勿设 sticky/fixed）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing — card wall 是开放橱窗 (not in `PROTECTED_PAGE_NAMES`)。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek + 可选 GLM-5.2，前端显示实际 provider/model）。**保存到备课本 (2026-07-09)**：表单类和聊天类保存前都会弹出标题确认框；表单类用 `buildWorkTitle()` 从输入字段生成具体标题（年级/学科/课题/任务类型），不要再回退成「智能体名称 · 日期」作为默认标题。 |
+| `index.html` | Homepage — **现代教研工作台**。首页 CSS 继续内联并全部使用 `.th-*` 命名，避免污染子页；颜色令牌限定在 `.th-root`。2026-08-23 为减轻首屏重心移除右侧四步 / 五步流程与装饰性阶段编号，当前结构为单列任务主张 → 6 个真实任务入口 → 可折叠的 4 项使用前核验 → 6 个学习与配套资源入口；登录用户可在首屏恢复教学项目或草稿。任务卡从 `window.AGENTS` 读取真实说明并链接到对应智能体。保留：`renderNav` / `renderFooter`、公告、联系反馈、订阅、悬浮向导与分析埋点。 |
+| `agents.html` | **智能体空间** — 19 人数字教研团队 + agent workspace。首页用 `assets/agent-portraits/` 的真实人物肖像、成员姓名、身份、分工和开场表达建立“团队成员”感；人物入口保持原生 `<button>` 语义，不伪装成链接。顶部精选 (`FEATURED` 4 个) + 按类分区陈列，选分类或搜索时切单层网格；hash 深链 `#agent-id`、全部筛选与工作逻辑保持兼容。Two workspace types: **form**（「任务参数 + 文稿工作区」；左参数栏 `sticky`/可折叠摘要，右文稿面板内部滚动，含保存到备课本、编辑、复制、重新生成；`.ws-top` 是普通文档流，勿设 sticky/fixed）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek + 可选 GLM-5.2，前端显示实际 provider/model）。保存表单类和聊天类成果前均确认标题；表单类用 `buildWorkTitle()` 从输入字段生成具体标题。 |
 | `multimodal.html` | **多模态工作坊** — static case gallery for image/video/audio/avatar/courseware generation workflows. It is an owned site feature placed after 智能体空间 in nav, but does **not** call paid generation APIs. Cases live inline in `CASES`; publish-ready assets live in `多模态素材/`. Video case thumbnails use static poster images; detail modals use `media-player.html` or GIF preview + MP4 link. |
 | `media-player.html` | Minimal same-origin video player used by `multimodal.html`; validates `src`/`poster` params so only `多模态素材/` paths without `..` can load. Keep it static and dependency-free. |
 | `tools.html` | Curated directory of **external** third-party AI products (cards link out). User-facing name **「AI资源精选」** (renamed 2026-06-16; nav key stays `tools`). Renders the complete 19-item `DEFAULT_TOOLS` synchronously first; `DB.getTools()` then uses `/api/tools` → browser Firestore → local defaults, so Firebase-unreachable users no longer drop to 14 items. Default "全部" = **grouped by category** (`#tools-grouped`); search/specific category → flat `#tools-grid`; task pills + tag pills from `buildFilterBar()`. **「教师 AI 工具选型台」改版 (2026-07-09)** — all CSS in an **inline `<style>` in tools.html** (not style.css): ① editorial chooser header (`.tt-hero`) + search card. ② Task-oriented categories: `plan` 备课·出题·检索 / `make` 课件·演示·动画 / `media` 图像·音视频·数字人 / `platform` 教研·AI 平台 (+ `more` 更多工具 fallback), each with `CAT_DESCS`/`CAT_ICONS`/`CAT_FITS`. ③ **Category + per-tool tags come from LOCAL `TOOL_META` keyed by tool NAME (NOT Firestore)**; admin 新增工具若未登记进 `TOOL_META` 会落进「更多工具」且无标签。④ Card tags: 免费 / 部分免费 / 付费 / 中文 / 海外 (`.tt-tag` variants; values are estimates and need manual audit). ⑤ Grid override: `#tools-grid, #tools-grouped .cards-grid` use `repeat(auto-fit, minmax(224px,268px))`. Design rule: do not add colored top/side bars to cards; keep category color on section icons / small tags only. |
@@ -291,12 +300,13 @@ match /agent_usage/{agentId} {
 | `news.html` | RSS-aggregated industry news. Nav display name **「AI 资讯」** (renamed 2026-06-16 from "全球资讯"; key stays `news`) |
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
-| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users. 数据看板从 `/api/analytics` 拉取汇总，新增用户仍用 Firestore `users.joinedAt` 在前端按天聚合。 |
-| `workspace.html` | **「我的备课本」**(added 2026-06-16) — per-user saved agent outputs. Self-gated (shows login prompt if logged out; logged-in desktop entry lives in the username area as a personal workspace link, and mobile drawer has a separate「我的」group). Personal workbench UI: top metrics, search/filter/sort, card/list view toggle, paper-style cards, view modal + copy / export Word(.doc) / PDF / Markdown / rename / delete. **2026-07-12** 新增教学项目筛选、项目排序、项目标签与教师核验状态；项目元数据暂存在 work 的 `inputs._project*` 字段中。Reads `works` where `uid == current user`. **Title compatibility (2026-07-09)**：旧内容若标题是「智能体名称 · 日期」这类泛化标题，页面用 `displayWorkTitle()` / `inferredWorkTitle()` 从 `inputs` 或正文首个 Markdown 标题推断具体标题，并纳入搜索和导出文件名；新内容默认由 `agents.html buildWorkTitle()` 保存具体标题。 |
+| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, **页面文案**, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users。「页面文案」以 `js/site-copy.js` 的固定字段呈现 12 个页面，支持预览、保存和恢复本地默认值；生产写入 `page_copy`，本地预览写入隔离的浏览器存储。数据看板从 `/api/analytics` 拉取汇总，新增用户仍用 Firestore `users.joinedAt` 在前端按天聚合。 |
+| `workspace.html` | **「我的备课本」** — per-user saved agent outputs。Self-gated；logged-in desktop entry lives in the username area，mobile drawer has a separate「我的」group。2026-08-23 使用现代 A4 活页备课夹作为页面结构：藏蓝布纹书脊、金属环、打孔纸、页边和章节签形成真实装订关系；默认成果目录视图支持全部 / 文稿 / 对话 / 核验，原卡片视图保留为横线散页。搜索、教学项目 / 智能体筛选、排序和顶部统计保留；查看、复制、PDF、Word、Markdown、重命名、删除收在页侧菜单，查看成果以“抽出完整活页”的 modal 打开。项目标签与教师核验状态保存在 work 的 `inputs._project*`；reads `works` where `uid == current user`。旧泛化标题继续由 `displayWorkTitle()` / `inferredWorkTitle()` 从 `inputs` 或正文首个 Markdown 标题推断，并用于搜索与导出文件名。 |
 
 ## Key JS Files
 
 - `js/data.js` — `DEFAULT_TOOLS / DEFAULT_PROMPTS / DEFAULT_PATHS / DEFAULT_ARTICLES / DEFAULT_RESOURCES` are used as fallbacks/seeds; `DB` object wraps Firestore reads/writes. `getTools` prefers `/api/tools` on user pages, then browser Firestore, then the complete 19-item static list; admin stays on direct Firestore. Work-book methods (`saveWork/getMyWorks/renameWork/deleteWork`) prefer `/api/works` and fall back to direct Firestore only for local/dev or temporary API failure.
+- `js/site-copy.js` — 12 个页面的可编辑关键文案注册表。每个页面只接受显式字段，包含中文后台标签、长度上限和代码默认值；`load()` 生产优先读取 `/api/content?type=pageCopy&id=...`，本地预览读取隔离存储，失败时静默回退默认值。普通页面用 `applyToDocument()` 更新带 `data-site-copy*` 标记的文本；新增或改字段时必须同步这里、页面标记、后台表单和 `firestore.rules`。
 - `js/firebase-config.js` — initializes Firebase, exposes `auth` and `db`, defines `_currentUser`, `onAuthReady`, dispatches `authChanged` events.
 - `js/auth.js` — `Auth` object (login/register/logout, getIdToken, **`sendPasswordReset`**), `renderNav` / `renderFooter` (every page calls these), `requireLogin`, `showAuthModal`, `showWelcomeOverlay`, **hamburger drawer state** (`openNavDrawer` / `closeNavDrawer`). The auth modal has **three views** toggled by `switchAuthTab('login'|'register'|'forgot')`: login (`#form-li`, with a 「忘记密码？」link), register (`#form-rg`), and **forgot-password (`#form-fp`, added 2026-06-17)**. Forgot flow: `handleForgotPassword()` → `Auth.sendPasswordReset(identifier)` → Firebase `auth.sendPasswordResetEmail`. **Phone-number accounts are rejected client-side** (their `tel_…@xylaoshi.tel` address can't receive mail — they must contact admin). Result shows in `#fp-msg` styled `.form-success` (green) or `.form-error` (red). The Firebase project has **email-enumeration protection ON**, so a reset for an *unregistered* email also returns success (no account leak) — only real accounts actually receive mail. Reset link lands on Firebase's own hosted reset page (no custom page needed).
 - `js/analytics.js` — front-end event tracker for the admin data dashboard. Creates a random local visitor id, waits for `onAuthReady` when available, then POSTs to `/api/analytics`. Keep it non-blocking: all failures are swallowed so analytics never affects learning pages.
@@ -335,8 +345,8 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 **Component conventions**:
 - Radius scale 7 / 9 / 12 / 16 px; reserve larger radii for true overlays or large contained workspaces.
 - Cards: 1px `--line` border, near-flat rest state, and at most `translateY(-1px)` on hover. Scientific rigor comes from alignment, labels, state and hierarchy—not depth effects.
-- Use numbered markers only for real sequences (for example the homepage teaching cycle), never as decorative section counters.
-- Homepage signature element is the **teaching cycle rail**: input validation → draft → supporting exercise → teacher verification → save/reuse. Red-pen or document styling may remain in exported teaching documents, but not as the application shell.
+- Use numbered markers only for real sequences (for example a learning path), never as decorative section counters.
+- Homepage signature is now the restrained single-column task launcher; the former teaching-cycle rail was deliberately removed on 2026-08-23 to restore visual balance. Red-pen or document styling may remain in exported teaching documents, but not as the global application shell. The personal `workspace.html` is the deliberate exception: its selected A4 ring-binder metaphor may use paper, punched holes, rings and one signature “pull sheet” transition because the subject itself is a 备课本；do not spread that skeuomorphic treatment to unrelated pages.
 
 **登录 / 注册成功反馈 (2026-08-22)**: 高频登录成功后不使用全屏过渡；`handleLogin()` 关闭弹层后立即调用 `refreshAuthUI()`（=`renderNav()`+`renderFooter()`）、派发 `authRefresh`，并用底部 toast 显示“登录成功，欢迎回来”。这避免短暂全屏层造成闪烁，`workspace.html` 仍会原地加载内容，管理员首次登录仍按页面监听器 reload。低频注册调用 `showWelcomeOverlay('register', name)`：遮罩从首帧保持稳定，卡片约 900ms 后淡出，不再使用会瞬时改变整屏颜色的 `settling` 状态。不要把登录重新接回短时全屏欢迎层。
 
