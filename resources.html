@@ -25,8 +25,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <style>.resource-hero h1 .site-copy-accent{font-style:italic;color:var(--brand)}</style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -34,13 +35,13 @@
 <main class="resource-page" id="main-content">
     <section class="resource-hero">
         <div>
-            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500">Resources · 课件素材</div>
-            <h1>课件素材<span style="font-style:italic;color:var(--brand)">速查库</span></h1>
-            <p>为课件、海报、活动方案和 AI 创作整理的常用素材入口——图片、PNG、图标、抠图、AIGC 平台一网打尽。</p>
+            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500" data-site-copy="heroKicker">素材入口</div>
+            <h1 data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">课件<span style="font-style:italic;color:var(--brand)">素材</span></h1>
+            <p data-site-copy="heroIntro">搜索图片、图标、免抠素材与生成平台。</p>
         </div>
         <div class="resource-search">
             <i class="ph ph-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="搜索资源名称或描述...">
+            <input type="text" id="searchInput" placeholder="搜索资源名称或描述…" data-site-copy-placeholder="searchPlaceholder">
         </div>
     </section>
 
@@ -48,7 +49,7 @@
 
     <div id="no-results" class="resource-empty" hidden>
         <i class="ph ph-magnifying-glass"></i>
-        <p>没有找到相关资源，换个关键词试试</p>
+        <p data-site-copy="emptyMessage">没有找到相关资源，换个关键词试试</p>
     </div>
 </main>
 
@@ -59,10 +60,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
+SiteCopy.load('resources').then(copy => SiteCopy.applyToDocument('resources', copy));
+
 // Start with the in-code defaults so the page paints immediately,
 // then swap in whatever Firestore returns.
 let categories = JSON.parse(JSON.stringify(DEFAULT_RESOURCES));

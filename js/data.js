@@ -508,6 +508,26 @@ function isAdminRuntimePage() {
     return typeof location !== 'undefined' && /\/admin(?:\.html)?$/.test(location.pathname);
 }
 
+const PAGE_COPY_IDS = new Set([
+    'home', 'multimodal', 'agents', 'classroom', 'tools', 'resources',
+    'news', 'paths', 'articles', 'article', 'prompts', 'workspace'
+]);
+const PAGE_COPY_PREVIEW_PREFIX = 'xy_page_copy_preview_';
+
+function isLocalPreviewRuntime() {
+    return typeof location !== 'undefined' && ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
+}
+
+function getLocalPageCopy(pageId) {
+    if (!isLocalPreviewRuntime()) return null;
+    try {
+        const stored = JSON.parse(localStorage.getItem(`${PAGE_COPY_PREVIEW_PREFIX}${pageId}`) || 'null');
+        return stored?.fields ? { ...stored, id: pageId, localPreview: true } : null;
+    } catch {
+        return null;
+    }
+}
+
 async function callContentAPI(type, id = '') {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
@@ -535,6 +555,42 @@ async function callContentAPI(type, id = '') {
 
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
+    async getPageCopy(pageId) {
+        if (!PAGE_COPY_IDS.has(pageId)) return null;
+        if (isLocalPreviewRuntime()) return getLocalPageCopy(pageId);
+        if (!isAdminRuntimePage()) {
+            try { return await callContentAPI('pageCopy', pageId); }
+            catch(e) {
+                if (Number(e?.status) !== 404) console.warn('getPageCopy proxy:', e.message);
+            }
+        }
+        try {
+            const doc = await db.collection('page_copy').doc(pageId).get();
+            return doc.exists ? { id: doc.id, ...doc.data() } : null;
+        } catch(e) {
+            if (isAdminRuntimePage()) {
+                console.warn('getPageCopy firestore:', e.message);
+                throw e;
+            }
+            return null;
+        }
+    },
+    async savePageCopy(pageId, fields) {
+        if (!PAGE_COPY_IDS.has(pageId)) throw new Error('不支持的页面');
+        if (!fields || typeof fields !== 'object' || Array.isArray(fields)) throw new Error('页面文案格式不正确');
+        if (isLocalPreviewRuntime()) {
+            const preview = { fields, updatedAt: new Date().toISOString(), localPreview: true };
+            localStorage.setItem(`${PAGE_COPY_PREVIEW_PREFIX}${pageId}`, JSON.stringify(preview));
+            return preview;
+        }
+        await db.collection('page_copy').doc(pageId).set({
+            fields,
+            updatedAt: new Date().toISOString()
+        });
+        return { fields, localPreview: false };
+    },
+    isLocalPreview() { return isLocalPreviewRuntime(); },
+
     async getTools() {
         if (!isAdminRuntimePage()) {
             try {

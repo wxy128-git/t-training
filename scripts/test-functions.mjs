@@ -19,12 +19,28 @@ async function importSource(file) {
 }
 
 const originalFetch = globalThis.fetch;
+const originalWindow = globalThis.window;
 
 try {
     await importSource('js/safe-render.js');
     assert(globalThis.SafeRender.escape('<img onerror=1>') === '&lt;img onerror=1&gt;', 'SafeRender.escape 未转义标签');
     assert(globalThis.SafeRender.safeUrl('javascript:alert(1)') === '', 'SafeRender.safeUrl 未拒绝 javascript URL');
     assert(globalThis.SafeRender.safeUrl('https://example.com/path') === 'https://example.com/path', 'SafeRender.safeUrl 误拒绝 HTTPS');
+
+    globalThis.window = globalThis;
+    await importSource('js/site-copy.js');
+    const homeDefaults = globalThis.SiteCopy.defaults('home');
+    assert(homeDefaults.heroAccent === 'AI' && homeDefaults.taskHeading === '今天要完成什么？', '首页默认文案不完整');
+    assert(Object.keys(globalThis.SiteCopy.definitions).length === 12 && globalThis.SiteCopy.defaults('classroom').routineName === '课堂活动模板', '全站页面文案定义不完整');
+    const pageFiles = { home:'index.html', classroom:'classroom-tools.html' };
+    for (const [pageId, definition] of Object.entries(globalThis.SiteCopy.definitions)) {
+        assert(globalThis.SiteCopy.validate(pageId, globalThis.SiteCopy.defaults(pageId)).ok, `${pageId} 默认文案未通过校验`);
+        const pageSource = readFileSync(join(root, pageFiles[pageId] || `${pageId}.html`), 'utf8');
+        const missingKeys = definition.fields.map(field => field.key).filter(key => !pageSource.includes(key));
+        assert(missingKeys.length === 0, `${pageId} 页面未使用文案字段：${missingKeys.join(', ')}`);
+    }
+    assert(globalThis.SiteCopy.normalize('home', { fields: { heroTitle: '' } }).heroTitle === homeDefaults.heroTitle, '无效后台文案未回退到本地默认值');
+    assert(globalThis.SiteCopy.validate('home', { ...homeDefaults, heroAccent: '课堂外' }).ok === false, '标题强调词校验未生效');
 
     const content = await importSource('functions/api/content.js');
     let contentRequest = null;
@@ -48,6 +64,30 @@ try {
     assert(JSON.parse(contentRequest.options.body).structuredQuery.where.fieldFilter.value.stringValue === 'published', '文章查询未限定 published');
     const cachedArticleListResponse = await content.onRequestGet({ request: new Request('https://site.test/api/content?type=articles') });
     assert(cachedArticleListResponse.headers.get('X-Cache') === 'HIT', '公开内容没有命中进程内缓存');
+
+    globalThis.fetch = async () => new Response(JSON.stringify({
+        name: 'projects/demo/databases/(default)/documents/page_copy/home',
+        fields: {
+            fields: {
+                mapValue: {
+                    fields: {
+                        heroTitle: { stringValue: '让 AI 真正走进你的课堂' },
+                        heroAccent: { stringValue: 'AI' }
+                    }
+                }
+            },
+            updatedAt: { stringValue: '2026-08-23T00:00:00.000Z' }
+        }
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const pageCopyResponse = await content.onRequestGet({ request: new Request('https://site.test/api/content?type=pageCopy&id=home') });
+    const pageCopy = await pageCopyResponse.json();
+    assert(pageCopyResponse.status === 200 && pageCopy.item?.fields?.heroTitle === '让 AI 真正走进你的课堂', '页面文案代理未正确解码响应');
+    assert(pageCopyResponse.headers.get('Cache-Control') === 'no-store' && pageCopyResponse.headers.get('X-Cache') === 'BYPASS', '页面文案代理不应返回旧缓存');
+
+    let pageCopyFetchCount = 0;
+    globalThis.fetch = async () => { pageCopyFetchCount += 1; return new Response('{}', { status: 500 }); };
+    const invalidPageCopyResponse = await content.onRequestGet({ request: new Request('https://site.test/api/content?type=pageCopy&id=unknown') });
+    assert(invalidPageCopyResponse.status === 400 && pageCopyFetchCount === 0, '无效页面文案编号不应请求 Firestore');
 
     globalThis.fetch = async () => new Response(JSON.stringify({ error: { message: 'PERMISSION_DENIED' } }), {
         status: 403,
@@ -126,4 +166,7 @@ try {
     console.log(`函数回归通过：${passed} 项断言。`);
 } finally {
     globalThis.fetch = originalFetch;
+    delete globalThis.SiteCopy;
+    if (typeof originalWindow === 'undefined') delete globalThis.window;
+    else globalThis.window = originalWindow;
 }

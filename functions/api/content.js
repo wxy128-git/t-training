@@ -5,8 +5,13 @@ const CONTENT_TYPES = {
     articles: 'articles',
     paths: 'paths',
     prompts: 'prompts',
-    resources: 'resource_categories'
+    resources: 'resource_categories',
+    pageCopy: 'page_copy'
 };
+const PAGE_COPY_IDS = new Set([
+    'home', 'multimodal', 'agents', 'classroom', 'tools', 'resources',
+    'news', 'paths', 'articles', 'article', 'prompts', 'workspace'
+]);
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CACHE_STALE_MS = 60 * 60 * 1000;
 const contentCache = new Map();
@@ -79,13 +84,17 @@ export async function onRequestGet({ request }) {
     if (!collection) return jsonResponse(400, { ok: false, msg: '不支持的内容类型' }, { 'Cache-Control': 'no-store' });
 
     const id = requestUrl.searchParams.get('id') || '';
-    if (id && (type !== 'articles' || !/^[^/]{1,180}$/.test(id))) {
+    if (type === 'pageCopy' && !PAGE_COPY_IDS.has(id)) {
+        return jsonResponse(400, { ok: false, msg: '页面编号无效' }, { 'Cache-Control': 'no-store' });
+    }
+    if (id && type !== 'pageCopy' && (type !== 'articles' || !/^[^/]{1,180}$/.test(id))) {
         return jsonResponse(400, { ok: false, msg: '内容编号无效' }, { 'Cache-Control': 'no-store' });
     }
 
     const cacheKey = `${type}:${id || 'list'}`;
     const now = Date.now();
-    const cached = contentCache.get(cacheKey);
+    const volatileHeaders = type === 'pageCopy' ? { 'Cache-Control': 'no-store' } : {};
+    const cached = type === 'pageCopy' ? null : contentCache.get(cacheKey);
     if (cached && now - cached.savedAt < CACHE_TTL_MS) return cachedJson(cached);
 
     const upstreamUrl = id
@@ -114,19 +123,21 @@ export async function onRequestGet({ request }) {
             }) : undefined
         });
         const data = await upstream.json().catch(() => ({}));
-        if (upstream.status === 404) return jsonResponse(404, { ok: false, msg: '内容不存在' });
-        if (id && upstream.status === 403) return jsonResponse(404, { ok: false, msg: '内容不存在' });
+        if (upstream.status === 404) return jsonResponse(404, { ok: false, msg: '内容不存在' }, volatileHeaders);
+        if (id && upstream.status === 403) return jsonResponse(404, { ok: false, msg: '内容不存在' }, volatileHeaders);
         if (!upstream.ok) {
             if (cached && now - cached.savedAt < CACHE_STALE_MS) return cachedJson(cached, 'STALE');
-            return jsonResponse(502, { ok: false, msg: '暂时无法同步内容' });
+            return jsonResponse(502, { ok: false, msg: '暂时无法同步内容' }, volatileHeaders);
         }
 
         if (id) {
             const item = decodeDocument(data);
-            if (!item || item.status !== 'published') return jsonResponse(404, { ok: false, msg: '内容不存在' });
+            if (!item || (type === 'articles' && item.status !== 'published')) return jsonResponse(404, { ok: false, msg: '内容不存在' }, volatileHeaders);
             const body = { ok: true, type, item };
-            contentCache.set(cacheKey, { body, savedAt: now });
-            return jsonResponse(200, body, { 'X-Cache': 'MISS' });
+            if (type !== 'pageCopy') contentCache.set(cacheKey, { body, savedAt: now });
+            return jsonResponse(200, body, type === 'pageCopy'
+                ? { 'Cache-Control': 'no-store', 'X-Cache': 'BYPASS' }
+                : { 'X-Cache': 'MISS' });
         }
 
         const documents = publishedArticleQuery ? data.map(row => row.document).filter(Boolean) : (data.documents || []);
@@ -139,7 +150,7 @@ export async function onRequestGet({ request }) {
         return jsonResponse(error?.name === 'AbortError' ? 504 : 502, {
             ok: false,
             msg: error?.name === 'AbortError' ? '同步内容超时' : '暂时无法同步内容'
-        });
+        }, volatileHeaders);
     } finally {
         clearTimeout(timer);
     }

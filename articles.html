@@ -25,8 +25,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <style>h1 .site-copy-accent{font-style:italic;color:var(--brand)}</style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -36,20 +37,20 @@
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px">
         <div>
-            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500">Articles · 精选文章</div>
-            <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.1;margin:0">精选<span style="font-style:italic;color:var(--brand)">文章</span></h1>
-            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7">AI 学习指南、工具推荐与一线教师的实战经验分享。</p>
+            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500" data-site-copy="heroKicker">教学实践阅读</div>
+            <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.1;margin:0" data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">精选<span style="font-style:italic;color:var(--brand)">文章</span></h1>
+            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7" data-site-copy="heroIntro">学习方法、工具与教学实践。</p>
         </div>
         <div style="font-size:13px;color:var(--muted);font-weight:500" id="article-count"></div>
     </div>
 
     <div class="filter-bar" id="filter-bar">
-        <button class="filter-pill active" onclick="setFilter('all',this)">全部</button>
-        <button class="filter-pill" onclick="setFilter('learning',this)">学习指南</button>
-        <button class="filter-pill" onclick="setFilter('tools',this)">工具推荐</button>
-        <button class="filter-pill" onclick="setFilter('case',this)">教学案例</button>
-        <button class="filter-pill" onclick="setFilter('tips',this)">实战技巧</button>
-        <button class="filter-pill" onclick="setFilter('news',this)">行业动态</button>
+        <button class="filter-pill active" onclick="setFilter('all',this)" data-site-copy="filterAll">全部</button>
+        <button class="filter-pill" onclick="setFilter('learning',this)" data-site-copy="filterLearning">学习指南</button>
+        <button class="filter-pill" onclick="setFilter('tools',this)" data-site-copy="filterTools">工具推荐</button>
+        <button class="filter-pill" onclick="setFilter('case',this)" data-site-copy="filterCase">教学案例</button>
+        <button class="filter-pill" onclick="setFilter('tips',this)" data-site-copy="filterTips">实战技巧</button>
+        <button class="filter-pill" onclick="setFilter('news',this)" data-site-copy="filterNews">行业动态</button>
     </div>
 
     <div class="cards-grid cards-grid-3" id="articles-grid" style="margin-top:20px"></div>
@@ -62,8 +63,9 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
 const CAT_CONFIG = {
@@ -74,6 +76,17 @@ const CAT_CONFIG = {
     news:     { label:'行业动态', color:'#2c2f3a', bg:'#e4e5ea' },
     other:    { label:'其他',     color:'#252830', bg:'#e0e1e5' }
 };
+
+let articlesPageCopy = SiteCopy.defaults('articles');
+SiteCopy.load('articles').then(copy => {
+    articlesPageCopy = SiteCopy.applyToDocument('articles', copy);
+    CAT_CONFIG.learning.label = articlesPageCopy.filterLearning;
+    CAT_CONFIG.tools.label = articlesPageCopy.filterTools;
+    CAT_CONFIG.case.label = articlesPageCopy.filterCase;
+    CAT_CONFIG.tips.label = articlesPageCopy.filterTips;
+    CAT_CONFIG.news.label = articlesPageCopy.filterNews;
+    renderArticles();
+});
 
 const COVER_GRADIENTS = [
     'linear-gradient(135deg,#1f2f4a 0%,#101a2e 100%)',
@@ -105,8 +118,8 @@ function renderArticles() {
     if (!list.length) {
         grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--muted)">
             <i class="ph ph-article" style="font-size:56px;display:block;margin-bottom:16px"></i>
-            <p style="font-size:16px;font-weight:600;margin-bottom:6px">暂无文章</p>
-            <p style="font-size:13px">敬请期待更多内容</p>
+            <p style="font-size:16px;font-weight:600;margin-bottom:6px">${SafeRender.escape(articlesPageCopy.emptyTitle)}</p>
+            <p style="font-size:13px">${SafeRender.escape(articlesPageCopy.emptyHint)}</p>
         </div>`;
         return;
     }

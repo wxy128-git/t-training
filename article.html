@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
     <script type="application/ld+json" id="article-jsonld">{}</script>
     <style>
@@ -50,7 +50,7 @@
         <i class="ph ph-caret-right"></i>
         <a href="/articles">精选文章</a>
         <i class="ph ph-caret-right"></i>
-        <span id="bc-title">文章详情</span>
+        <span id="bc-title" data-site-copy="breadcrumbLabel">文章详情</span>
     </div>
 
     <!-- Loading state -->
@@ -79,7 +79,7 @@
                 <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
                     <span id="read-count" style="font-size:12px;color:var(--subtle);display:flex;align-items:center;gap:4px"></span>
                     <a href="/articles" style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;text-decoration:none;border:1px solid var(--line);padding:6px 14px;border-radius:var(--r-sm);transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
-                        <i class="ph ph-arrow-left"></i> 返回列表
+                        <i class="ph ph-arrow-left"></i><span data-site-copy="backShortAction">返回列表</span>
                     </a>
                 </div>
             </div>
@@ -91,10 +91,10 @@
         <!-- Footer actions -->
         <div style="margin-top:56px;padding-top:28px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
             <a href="/articles" style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--brand);font-weight:600;text-decoration:none">
-                <i class="ph ph-arrow-left"></i> 返回文章列表
+                <i class="ph ph-arrow-left"></i><span data-site-copy="backAction">返回文章列表</span>
             </a>
             <button onclick="copyPageUrl()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
-                <i class="ph ph-link"></i> 复制链接
+                <i class="ph ph-link"></i><span data-site-copy="copyAction">复制链接</span>
             </button>
         </div>
     </article>
@@ -115,10 +115,21 @@
 <script src="/vendor/marked/9.1.6/marked.min.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
+let articlePageCopy = SiteCopy.defaults('article');
+const articleCopyPromise = Promise.all([SiteCopy.load('article'), SiteCopy.load('articles')]).then(([copy, articleListCopy]) => {
+    articlePageCopy = SiteCopy.applyToDocument('article', copy);
+    CAT_CONFIG.learning.label = articleListCopy.filterLearning;
+    CAT_CONFIG.tools.label = articleListCopy.filterTools;
+    CAT_CONFIG.case.label = articleListCopy.filterCase;
+    CAT_CONFIG.tips.label = articleListCopy.filterTips;
+    CAT_CONFIG.news.label = articleListCopy.filterNews;
+});
+
 const CAT_CONFIG = {
     learning: { label:'学习指南', color:'#1f2f4a', bg:'#e3e7ee' },
     tools:    { label:'工具推荐', color:'#1f3a3e', bg:'#dde6e8' },
@@ -186,6 +197,7 @@ async function loadArticle() {
         return;
     }
 
+    await articleCopyPromise;
     const article = await DB.getArticle(articleId);
 
     document.getElementById('article-loading').style.display = 'none';
@@ -236,7 +248,7 @@ async function loadArticle() {
                 <i class="ph ph-arrow-up-right" style="font-size:40px;color:#4F46E5;display:block;margin-bottom:12px"></i>
                 <p style="font-size:15px;color:#374151;margin-bottom:20px">此文章来自外部链接，点击下方按钮跳转阅读原文</p>
                 <a href="${SafeRender.escape(safeExternalUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;font-size:14px;font-weight:600;border-radius:12px;text-decoration:none">
-                    阅读原文 <i class="ph ph-arrow-up-right"></i>
+                    ${SafeRender.escape(articlePageCopy.externalAction)} <i class="ph ph-arrow-up-right"></i>
                 </a>
             </div>`;
     }

@@ -399,12 +399,12 @@ function renderNav(currentPage) {
         { key:'classroom', href:'/classroom-tools', label:'课堂工具' }
     ];
     const resourcePages = [
-        { key:'tools',     href:'/tools',     label:'AI 资源精选', icon:'ph ph-toolbox', desc:'精选工具导航' },
-        { key:'resources', href:'/resources', label:'课件素材', icon:'ph ph-folder-open', desc:'可下载素材' },
-        { key:'news',      href:'/news',      label:'AI 资讯', icon:'ph ph-newspaper', desc:'教育 AI 动态' },
-        { key:'paths',     href:'/paths',     label:'学习路径', icon:'ph ph-path', desc:'系统训练路线' },
-        { key:'articles',  href:'/articles',  label:'精选文章', icon:'ph ph-article', desc:'方法与案例' },
-        { key:'prompts',   href:'/prompts',   label:'提示词库', icon:'ph ph-quotes', desc:'可复用提示词' }
+        { key:'tools',     href:'/tools',     label:'AI 资源精选', icon:'ph ph-toolbox' },
+        { key:'resources', href:'/resources', label:'课件素材', icon:'ph ph-folder-open' },
+        { key:'news',      href:'/news',      label:'AI 资讯', icon:'ph ph-newspaper' },
+        { key:'paths',     href:'/paths',     label:'学习路径', icon:'ph ph-path' },
+        { key:'articles',  href:'/articles',  label:'精选文章', icon:'ph ph-article' },
+        { key:'prompts',   href:'/prompts',   label:'提示词库', icon:'ph ph-quotes' }
     ];
     const user = _currentUser;
     const navAnchor = (p, extraClass = '') => {
@@ -423,7 +423,6 @@ function renderNav(currentPage) {
         <a href="${p.href}" class="nav-dropdown-item${p.key === currentPage ? ' active' : ''}">
             <i class="${p.icon}"></i>
             <span>${p.label}</span>
-            <small>${p.desc}</small>
         </a>`).join('');
     const resourceMenu = `
         <div class="nav-group" id="resource-nav-group">
@@ -471,7 +470,7 @@ function renderNav(currentPage) {
         <div class="site-header-inner">
             <a href="/" class="site-logo">
                 <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
-                <div class="site-logo-text hm"><strong>AI 教师培训中心</strong><span>Teacher AI Practice Hub</span></div>
+                <div class="site-logo-text hm"><strong>AI 教师培训中心</strong></div>
             </a>
             <nav class="site-nav">${navLinks}${contactLink}${adminLink}</nav>
             <div class="auth-area">
@@ -847,25 +846,19 @@ function renderFooter() {
                     <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:16px"></i></div>
                     <strong style="color:#f1f5f9;font-size:15px">AI 教师培训中心</strong>
                 </div>
-                <p>为在职教师提供 AI 工具导航、前沿资讯与系统学习路径的综合平台</p>
+                <p>面向中小学教师的 AI 教学实践平台。</p>
             </div>
-            <div class="footer-col"><h4>功能导航</h4><ul>
-                <li><a href="/">首页</a></li>
+            <div class="footer-col"><h4>常用入口</h4><ul>
                 <li><a href="/agents">智能体空间</a></li>
                 <li><a href="/multimodal">多模态工作坊</a></li>
-                <li><a href="/tools">AI 资源精选</a></li>
-                <li><a href="/news">AI 资讯</a></li>
-                <li><a href="/paths">学习路径</a></li>
-                <li><a href="/articles">精选文章</a></li>
+                <li><a href="/classroom-tools">课堂工具</a></li>
+                <li><a href="/workspace">我的备课本</a></li>
+                <li><a href="/tools">学习与资源</a></li>
                 <li><button type="button" class="footer-link-button pwa-footer-install" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button></li>
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
-            <div class="footer-col"><h4>关于平台</h4>
-                <p style="font-size:13px;color:#64748b;line-height:1.8">面向在职教师的 AI 教学实践平台，支持备课、课堂、评价、家校沟通与教学复盘。</p>
-                <p style="font-size:13px;color:#475569;margin-top:8px">欢迎教师分享 AI 教学案例，共建社区智识库。</p>
-            </div>
-            <div class="footer-col"><h4>内容更新登记</h4>
-                <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:14px">留下邮箱，用于后续内容更新通知；目前不承诺固定发送频率</p>
+            <div class="footer-col"><h4>内容更新</h4>
+                <p style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:14px">登记邮箱，接收后续内容更新。</p>
                 <div class="subscribe-form">
                     <label class="sr-only" for="footer-sub-email">邮箱地址</label>
                     <input class="subscribe-input" type="email" inputmode="email" autocomplete="email" id="footer-sub-email" placeholder="输入您的邮箱">
@@ -873,6 +866,6 @@ function renderFooter() {
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">© ${new Date().getFullYear()} AI 教师培训中心 · 保留所有权利</div>
+        <div class="footer-bottom">© ${new Date().getFullYear()} AI 教师培训中心</div>
     </footer>`;
 }

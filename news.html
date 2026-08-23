@@ -25,8 +25,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <style>h1 .site-copy-accent{font-style:italic;color:var(--brand)}</style>
 </head>
 <body>
 <div id="main-nav"></div>
@@ -36,12 +37,12 @@
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px">
         <div>
-            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500">News · AI 教育资讯</div>
-            <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.1;margin:0">顶尖媒体的<span style="font-style:italic;color:var(--brand)">每日精选</span></h1>
-            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7">腾讯云同源聚合 · 30 分钟缓存。点击标题跳转原文阅读。</p>
+            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500" data-site-copy="heroKicker">教育与 AI 动态</div>
+            <h1 style="font-family:var(--font-display);font-size:clamp(32px,4.6vw,52px);font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.1;margin:0" data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">AI <span style="font-style:italic;color:var(--brand)">资讯</span></h1>
+            <p style="font-size:14.5px;color:var(--muted);margin-top:14px;line-height:1.7" data-site-copy="heroIntro">点击标题阅读媒体原文。</p>
         </div>
         <button id="refresh-btn" onclick="refresh()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;font-size:13.5px;color:var(--text);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);cursor:pointer;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--text)'">
-            <i class="ph ph-arrows-clockwise" id="refresh-icon"></i> 刷新
+            <i class="ph ph-arrows-clockwise" id="refresh-icon"></i><span data-site-copy="refreshAction">刷新</span>
         </button>
     </div>
 
@@ -54,7 +55,7 @@
     <!-- Grid -->
     <div class="cards-grid cards-grid-3" id="news-grid"></div>
 
-    <p style="font-size:11.5px;color:var(--subtle);text-align:center;margin-top:36px">内容来自第三方媒体，以原文语言呈现；点击标题跳转原文阅读</p>
+    <p style="font-size:11.5px;color:var(--subtle);text-align:center;margin-top:36px" data-site-copy="sourceNote">内容来自第三方媒体，以原文语言呈现</p>
 </main>
 
 <div id="main-footer"></div>
@@ -64,10 +65,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
+SiteCopy.load('news').then(copy => SiteCopy.applyToDocument('news', copy));
+
 renderNav('news');
 renderFooter();
 onAuthReady(user => { renderNav('news'); renderFooter(); });
@@ -114,24 +118,17 @@ function renderItems(items) {
         const safeLink = SafeRender.safeUrl(item.link);
         if (!safeLink) return '';
         const domain = (() => { try { return new URL(safeLink).hostname.replace('www.',''); } catch{return '';} })();
-        const desc = item.description ? item.description.substring(0, 160) : '';
+        const desc = item.description ? item.description.substring(0, 96) : '';
         return `
         <a href="${SafeRender.escape(safeLink)}" target="_blank" rel="noopener noreferrer" class="card news-card" style="display:block">
             <div class="news-meta">
                 <span class="news-source">${SafeRender.escape(domain)}</span>·<span>${SafeRender.escape(date)}</span>
             </div>
             <h3 class="line-clamp-2">${SafeRender.escape(item.title)}</h3>
-            <p class="line-clamp-3" style="margin-top:10px;font-size:13px;color:var(--muted);line-height:1.75">${SafeRender.escape(desc)}${desc?'…':''}</p>
-            <div style="margin-top:14px;display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--brand);font-weight:600;opacity:0" class="read-more">
-                阅读全文 <i class="ph ph-arrow-right"></i>
-            </div>
+            <p class="line-clamp-2" style="margin-top:10px;font-size:13px;color:var(--muted);line-height:1.7">${SafeRender.escape(desc)}${desc?'…':''}</p>
         </a>`;
     }).join('');
 
-    // Show read-more on hover via CSS
-    const style = document.createElement('style');
-    style.textContent = '.news-card:hover .read-more{opacity:1!important}';
-    if (!document.getElementById('news-hover-style')) { style.id='news-hover-style'; document.head.appendChild(style); }
 }
 
 async function loadNews(force = false) {

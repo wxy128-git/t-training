@@ -25,18 +25,25 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
     <style>
         .page-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
         .page-title { font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
-        .page-title em { font-style: italic; color: var(--brand); }
+        .page-title em, .page-title .site-copy-accent { font-style: italic; color: var(--brand); }
         .page-sub { font-size: 14.5px; color: var(--muted); margin-top: 14px; line-height: 1.75; max-width: 600px; }
+        .prompt-content { margin-top: 2px; border: 1px solid var(--line-soft); border-radius: var(--r-sm); background: var(--soft); overflow: hidden; }
+        .prompt-content summary { display: flex; align-items: center; gap: 6px; padding: 11px 14px; color: var(--text); font-size: 12.5px; font-weight: 650; cursor: pointer; list-style: none; }
+        .prompt-content summary::-webkit-details-marker { display: none; }
+        .prompt-content summary::after { content: "+"; margin-left: auto; color: var(--muted); font-family: var(--font-mono); font-size: 15px; }
+        .prompt-content[open] summary { border-bottom: 1px solid var(--line-soft); }
+        .prompt-content[open] summary::after { content: "−"; }
+        .prompt-text { padding: 14px 16px; color: var(--text); font-family: var(--font-mono); font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; background: var(--paper); }
         .tab-switcher { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--paper); width: fit-content; margin-bottom: 32px; padding: 4px; }
         .tab-switch-btn { padding: 9px 22px; font-size: 13.5px; font-weight: 500; border: none; background: transparent; cursor: pointer; color: var(--muted); transition: background 0.15s, color 0.15s; font-family: inherit; border-radius: 999px; }
         .tab-switch-btn:hover { color: var(--ink); }
         .tab-switch-btn.active { background: var(--ink); color: var(--soft); font-weight: 600; }
-        .community-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+        .community-header { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
     </style>
 </head>
 <body>
@@ -46,18 +53,18 @@
     <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>提示词库</span></div>
 
     <div style="margin-bottom:36px">
-        <div class="page-kicker">Prompts · 教学提示词库</div>
-        <h1 class="page-title">即用<em>提示词</em>模板</h1>
-        <p class="page-sub">把 <code style="background:var(--soft-2);padding:2px 8px;border-radius:6px;font-family:var(--font-mono);font-size:13px">[ ]</code> 里的内容替换成你的实际信息，复制即用。</p>
+        <div class="page-kicker" data-site-copy="heroKicker">教学提示词</div>
+        <h1 class="page-title" data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">即用<em>提示词</em></h1>
+        <p class="page-sub"><span data-site-copy="heroIntroPrefix">替换</span> <code style="background:var(--soft-2);padding:2px 8px;border-radius:6px;font-family:var(--font-mono);font-size:13px">[ ]</code> <span data-site-copy="heroIntroSuffix">中的内容后复制使用。</span></p>
     </div>
 
     <!-- Tab switcher -->
     <div class="tab-switcher">
         <button class="tab-switch-btn active" id="tab-official" onclick="switchTab('official')">
-            <i class="ph ph-shield-check" style="margin-right:4px"></i>官方模板
+            <i class="ph ph-shield-check" style="margin-right:4px"></i><span data-site-copy="officialTab">官方模板</span>
         </button>
         <button class="tab-switch-btn" id="tab-community" onclick="switchTab('community')">
-            <i class="ph ph-users" style="margin-right:4px"></i>社区分享
+            <i class="ph ph-users" style="margin-right:4px"></i><span data-site-copy="communityTab">社区分享</span>
         </button>
     </div>
 
@@ -70,13 +77,12 @@
     <!-- Community tab -->
     <div id="section-community" style="display:none">
         <div class="community-header">
-            <p style="font-size:14px;color:var(--muted);margin:0">来自教师同行的实战提示词，点赞支持优质内容</p>
             <button id="community-submit-btn" style="display:none;align-items:center;gap:6px;padding:10px 20px;background:var(--ink);color:var(--soft);border:1px solid var(--ink);border-radius:var(--r-sm);font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s" onclick="openCommunityModal()" onmouseover="this.style.background='var(--brand)';this.style.borderColor='var(--brand)'" onmouseout="this.style.background='var(--ink)';this.style.borderColor='var(--ink)'">
-                <i class="ph ph-plus"></i> 投稿提示词
+                <i class="ph ph-plus"></i><span data-site-copy="submitAction">投稿提示词</span>
             </button>
         </div>
         <div id="community-pending-notice" style="display:none;padding:14px 18px;background:#fbf2dd;border:1px solid #ecd9a3;border-radius:var(--r-md);font-size:13px;color:#7a5a1c;margin-bottom:20px">
-            <i class="ph ph-clock"></i> 您有待审核的提示词，管理员审核通过后将公开展示。
+            <i class="ph ph-clock"></i><span data-site-copy="pendingNotice">您有待审核的提示词，管理员审核通过后将公开展示。</span>
         </div>
         <div class="cards-grid cards-grid-2" id="community-grid"></div>
     </div>
@@ -130,10 +136,18 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
+let promptsPageCopy = SiteCopy.defaults('prompts');
+SiteCopy.load('prompts').then(copy => {
+    promptsPageCopy = SiteCopy.applyToDocument('prompts', copy);
+    renderOfficial();
+    if (_currentTab === 'community') renderCommunity();
+});
+
 const cats = [
     { key:'all', label:'全部' },
     { key:'teaching', label:'教学设计' },
@@ -172,7 +186,7 @@ function copyPrompt(btn, text) {
         btn.className = 'copy-btn copied';
         btn.innerHTML = '<i class="ph ph-check"></i>已复制';
         showToast('提示词已复制到剪贴板 ✓');
-        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = '<i class="ph ph-copy"></i>复制'; }, 2000);
+        setTimeout(() => { btn.className = 'copy-btn'; btn.innerHTML = `<i class="ph ph-copy"></i>${SafeRender.escape(promptsPageCopy.copyAction)}`; }, 2000);
     });
 }
 
@@ -188,12 +202,14 @@ async function renderOfficial() {
                     <div class="prompt-icon ${SafeRender.classNames(p.bg)} ${SafeRender.classNames(p.color)}"><i class="ph-fill ${SafeRender.classNames(p.icon, 'ph-quotes')}"></i></div>
                     <div>
                         <div style="font-size:14px;font-weight:700;color:var(--ink)">${SafeRender.escape(p.label)}</div>
-                        <div style="font-size:11px;color:var(--muted);margin-top:1px">点击复制后直接粘贴使用</div>
                     </div>
                 </div>
-                <button class="copy-btn" type="button" data-official-copy="${index}"><i class="ph ph-copy"></i>复制</button>
+                <button class="copy-btn" type="button" data-official-copy="${index}"><i class="ph ph-copy"></i>${SafeRender.escape(promptsPageCopy.copyAction)}</button>
             </div>
-            <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;color:#374151;line-height:1.8;font-family:monospace;white-space:pre-wrap;word-break:break-all">${SafeRender.escape(p.text)}</div>
+            <details class="prompt-content">
+                <summary><i class="ph ph-text-align-left"></i>查看提示词</summary>
+                <div class="prompt-text">${SafeRender.escape(p.text)}</div>
+            </details>
         </div>`).join('');
     grid.querySelectorAll('[data-official-copy]').forEach(button => {
         button.addEventListener('click', () => copyPrompt(button, filtered[Number(button.dataset.officialCopy)]?.text || ''));
@@ -216,8 +232,8 @@ async function renderCommunity() {
     if (!_communityPrompts.length) {
         grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)">
             <i class="ph ph-chat-dots" style="font-size:48px;display:block;margin-bottom:12px"></i>
-            <p style="font-size:15px;font-weight:600;margin-bottom:6px">社区提示词库还是空的</p>
-            <p style="font-size:13px">成为第一个投稿的教师吧！</p>
+            <p style="font-size:15px;font-weight:600;margin-bottom:6px">${SafeRender.escape(promptsPageCopy.emptyTitle)}</p>
+            <p style="font-size:13px">${SafeRender.escape(promptsPageCopy.emptyHint)}</p>
         </div>`;
         return;
     }
@@ -237,14 +253,17 @@ async function renderCommunity() {
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
-                    <button class="copy-btn" type="button" data-community-copy="${index}"><i class="ph ph-copy"></i>复制</button>
+                    <button class="copy-btn" type="button" data-community-copy="${index}"><i class="ph ph-copy"></i>${SafeRender.escape(promptsPageCopy.copyAction)}</button>
                     <button class="like-btn${isLiked ? ' liked' : ''}" type="button" data-community-like="${index}">
                         <i class="ph${isLiked ? '-fill' : ''} ph-heart"></i> ${Math.max(0, Number(p.likes) || 0)}
                     </button>
                 </div>
             </div>
             ${p.note ? `<div style="margin-bottom:10px;font-size:12.5px;color:var(--muted);font-style:italic"><i class="ph ph-info"></i> ${SafeRender.escape(p.note)}</div>` : ''}
-            <div style="background:var(--soft);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:14px 16px;font-size:13px;color:var(--text);line-height:1.85;font-family:var(--font-mono);white-space:pre-wrap;word-break:break-all">${SafeRender.escape(p.text)}</div>
+            <details class="prompt-content">
+                <summary><i class="ph ph-text-align-left"></i>查看提示词</summary>
+                <div class="prompt-text">${SafeRender.escape(p.text)}</div>
+            </details>
             <div style="margin-top:10px">
                 <span class="badge-community">${SafeRender.escape(categoryLabel)}</span>
             </div>

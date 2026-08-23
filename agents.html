@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
     <style>
         /* ===== 智能体空间 · 页面专属样式（现代教研工作台） ===== */
@@ -47,12 +47,59 @@
         .filter-pill.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
         .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
 
-        /* 卡片墙 */
-        .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-        @media (max-width: 920px) { .agent-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .agent-grid { grid-template-columns: 1fr; } }
+        /* 数字成员墙：肖像、专业姿态与协作语言替代通用圆角卡片 */
+        .agents-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 390px); align-items: end; gap: 56px; }
+        .agents-head-copy { min-width: 0; }
+        .agent-roster { padding: 16px 0 4px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+        .agent-roster-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; }
+        .agent-roster-head b { color: var(--ink); font-size: 13px; }
+        .agent-roster-head span { color: #287a68; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; letter-spacing: .03em; }
+        .agent-roster-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; }
+        .agent-roster-avatar { position: relative; min-width: 0; aspect-ratio: 1; overflow: hidden; border-left: 1px solid var(--line); background: #eef3f5; }
+        .agent-roster-avatar:first-child { border-left: 0; }
+        .agent-roster-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 13%; filter: saturate(.84) contrast(.98); }
+        .agent-roster-avatar::after { content: ''; position: absolute; inset: auto 0 0; height: 28%; background: linear-gradient(transparent, rgba(23,33,43,.12)); }
 
-        /* .agent-card 及其子部件样式已移至 css/style.css（与首页橱窗共享），此处不再重复 */
+        .agent-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 20px; }
+        .agent-member {
+            --member-color: #245b78;
+            position: relative; min-width: 0; padding: 0 0 17px;
+            color: inherit; text-align: left; background: transparent; border: 0;
+            border-bottom: 3px solid transparent; cursor: pointer;
+            transition: border-color .2s ease, transform .2s ease;
+        }
+        .agent-member:hover, .agent-member:focus-visible { border-bottom-color: var(--member-color); transform: translateY(-3px); }
+        .agent-member:focus-visible { outline: 3px solid color-mix(in srgb, var(--member-color) 22%, transparent); outline-offset: 4px; }
+        .agent-member-portrait { position: relative; display: block; aspect-ratio: 1 / 1.05; overflow: hidden; background: #eef3f5; }
+        .agent-member-portrait::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(to bottom, transparent 72%, var(--soft) 100%); }
+        .agent-member-portrait img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 12%; filter: saturate(.88) contrast(.98); transition: filter .22s ease, transform .24s ease; }
+        .agent-member:hover img, .agent-member:focus-visible img { filter: saturate(1) contrast(1); transform: scale(1.025); }
+        .agent-member-badge, .agent-member-state {
+            position: absolute; top: 10px; z-index: 3; display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 7px; font-family: var(--font-mono); font-size: 8.5px; font-weight: 780; letter-spacing: .05em;
+            backdrop-filter: blur(6px);
+        }
+        .agent-member-badge { left: 10px; color: var(--member-color); background: rgba(248,250,249,.9); border: 1px solid color-mix(in srgb, var(--member-color) 28%, transparent); }
+        .agent-member-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .agent-member-state { right: 10px; color: var(--ink); background: rgba(248,250,249,.9); border: 1px solid rgba(23,33,43,.16); }
+        .agent-member-state.recommended { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 28%, transparent); }
+        .agent-member-speech {
+            position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 4; display: block;
+            padding: 11px 12px; color: var(--ink); background: rgba(248,250,249,.95);
+            border-left: 3px solid var(--member-color); box-shadow: 0 12px 24px -20px rgba(23,33,43,.55);
+            font-size: 11px; line-height: 1.65; opacity: 0; transform: translateY(8px);
+            transition: opacity .18s ease, transform .18s ease;
+        }
+        .agent-member-speech::before { content: '“'; color: var(--member-color); font-family: Georgia, serif; font-size: 19px; line-height: 0; vertical-align: -4px; margin-right: 2px; }
+        .agent-member-speech::after { content: '”'; color: var(--member-color); font-family: Georgia, serif; }
+        .agent-member:hover .agent-member-speech, .agent-member:focus-visible .agent-member-speech { opacity: 1; transform: translateY(0); }
+        .agent-member-meta { display: block; min-height: 112px; padding: 3px 4px 0; }
+        .agent-member-department { color: var(--member-color); font-family: var(--font-mono); font-size: 9.5px; font-weight: 760; }
+        .agent-member-name { display: block; margin-top: 7px; color: var(--ink); font-size: 16px; font-weight: 820; line-height: 1.3; }
+        .agent-member-specialty { display: block; margin-top: 6px; color: var(--text); font-size: 12px; line-height: 1.55; }
+        .agent-member-action { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--ink); font-size: 11.5px; font-weight: 750; }
+        .agent-member-action i { color: var(--member-color); transition: transform .16s ease; }
+        .agent-member:hover .agent-member-action i, .agent-member:focus-visible .agent-member-action i { transform: translateX(3px); }
 
         .empty-hint { grid-column: 1/-1; text-align: center; padding: 70px 20px; color: var(--subtle); }
         .empty-hint i { font-size: 46px; display: block; margin-bottom: 12px; }
@@ -65,14 +112,29 @@
         .agent-section-head .sec-title { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
         .agent-section-head .sec-count { font-family: var(--font-mono); font-size: 11px; color: var(--subtle); background: var(--soft-2); padding: 1px 8px; border-radius: 999px; }
         .agent-section-head .sec-sub { font-size: 12.5px; color: var(--muted); }
-        .featured-grid { grid-template-columns: repeat(4, 1fr); }
-        @media (max-width: 980px) { .featured-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .featured-grid { grid-template-columns: 1fr; } }
-        /* 精选卡片：细品牌色顶饰，强化「起点」感 */
-        .featured-grid .agent-card { border-color: #b9ceda; }
-        .featured-grid .agent-card::before { opacity: .7; background: var(--brand); }
+        .featured-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
-        .agents-head { position: relative; }
+        @media (max-width: 1040px) {
+            .agents-head { grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; }
+            .agent-grid, .featured-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 760px) {
+            .agents-head { grid-template-columns: 1fr; }
+            .agent-roster { display: none; }
+            .agent-grid, .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
+            .agent-member-speech { display: none; }
+            .agent-member-meta { min-height: 122px; }
+            .agent-section-head .sec-sub { display: none; }
+        }
+        @media (max-width: 460px) {
+            .agent-grid, .featured-grid { gap: 20px 10px; }
+            .agent-member-badge, .agent-member-state { top: 7px; padding: 3px 5px; font-size: 7.5px; }
+            .agent-member-badge { left: 7px; }
+            .agent-member-state { right: 7px; }
+            .agent-member-meta { min-height: 124px; padding-inline: 1px; }
+            .agent-member-name { font-size: 14.5px; }
+            .agent-member-specialty { font-size: 11px; }
+        }
 
         /* ===== 工作台 ===== */
         .ws-wrap { max-width: 1320px; margin: 0 auto; padding: 24px 24px 76px; }
@@ -344,15 +406,24 @@
     <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>智能体空间</span></div>
 
     <div class="agents-head" style="margin-bottom:8px">
-        <div class="page-kicker">Agent workspace · 按教学任务选择</div>
-        <h1 class="page-title">智能体工作台</h1>
-        <p class="page-sub">按备课、课堂、评价、家校与教师发展查找专业智能体。填写真实任务参数，获得可编辑初稿，并在核对后保存到备课本。</p>
+        <div class="agents-head-copy">
+            <div class="page-kicker" data-site-copy="heroKicker">你的数字教研团队</div>
+            <h1 class="page-title" data-site-copy="heroTitle">和一位懂教学的数字成员一起工作</h1>
+            <p class="page-sub" data-site-copy="heroIntro">他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。</p>
+        </div>
+        <aside class="agent-roster" aria-label="数字教研团队在席成员">
+            <div class="agent-roster-head">
+                <b data-site-copy="rosterHeading">今日在席</b>
+                <span data-site-copy="rosterStatus">19 / 19 可协作</span>
+            </div>
+            <div class="agent-roster-list" id="agent-roster-list" aria-hidden="true"></div>
+        </aside>
     </div>
 
     <div class="agents-toolbar">
         <div class="agent-search">
             <i class="ph ph-magnifying-glass"></i>
-            <input type="search" id="agent-search" aria-label="搜索智能体" autocomplete="off" placeholder="搜索任务，如「出题」「评语」「微课」…" oninput="applyFilter()">
+            <input type="search" id="agent-search" aria-label="搜索智能体" autocomplete="off" placeholder="描述任务，如「设计一场小组活动」" data-site-copy-placeholder="searchPlaceholder" oninput="applyFilter()">
         </div>
         <span class="agent-count" id="agent-count"></span>
     </div>
@@ -407,7 +478,7 @@
             <i class="ph ph-folder-notch-open"></i>
             <div>
                 <h2 id="project-modal-title">教学项目</h2>
-                <p>教学背景只需填写一次。当前版本保存在这台设备上，保存成果时会一并写入项目名称。</p>
+                <p>教学背景保存在本机，并随成果记录项目名称。</p>
             </div>
         </div>
         <form id="project-form" onsubmit="saveProjectFromModal(); return false;">
@@ -476,8 +547,9 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260712-workbench"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
@@ -486,6 +558,14 @@
    智能体空间 · 页面逻辑
    智能体清单数据在 js/agents-data.js（window.AGENTS / window.AGENT_CATS）
    =================================================================== */
+let agentsPageCopy = SiteCopy.defaults('agents');
+SiteCopy.load('agents').then(copy => {
+    agentsPageCopy = SiteCopy.applyToDocument('agents', copy);
+    renderHeroRoster();
+    renderFilterBar();
+    applyFilter();
+});
+
 const CATS = window.AGENT_CATS;
 const AGENTS = window.AGENTS;
 const CAT_MAP = Object.fromEntries(CATS.map(c => [c.key, c]));
@@ -495,7 +575,7 @@ let currentCat = CATS.some(category => category.key === requestedCat) ? requeste
 
 /* ---------- 卡片墙 ---------- */
 function renderFilterBar() {
-    const all = `<button class="filter-pill${currentCat === 'all' ? ' active' : ''}" data-cat="all" onclick="setCat('all')">全部</button>`;
+    const all = `<button class="filter-pill${currentCat === 'all' ? ' active' : ''}" data-cat="all" onclick="setCat('all')">${escapeHtml(agentsPageCopy.allFilter)}</button>`;
     const rest = CATS.map(c =>
         `<button class="filter-pill${currentCat === c.key ? ' active' : ''}" data-cat="${c.key}" onclick="setCat('${c.key}')"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`
     ).join('');
@@ -510,7 +590,20 @@ function setCat(key) {
 }
 
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
+const HERO_ROSTER = ['lesson-design', 'class-activity', 'homework-grader', 'parent-comm', 'teaching-reflection'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
+
+function portraitSrc(agent) {
+    return `/assets/agent-portraits/${encodeURIComponent(agent.id)}.jpg`;
+}
+
+function renderHeroRoster() {
+    const roster = document.getElementById('agent-roster-list');
+    if (!roster) return;
+    roster.innerHTML = HERO_ROSTER.map(id => AGENTS.find(agent => agent.id === id)).filter(Boolean).map(agent =>
+        `<span class="agent-roster-avatar"><img src="${portraitSrc(agent)}" alt="" width="900" height="900" decoding="async"></span>`
+    ).join('');
+}
 const QUIZ_POINT_PLACEHOLDERS = {
     '语文': '如：拼音复习 / 识字写字 / 句子排序',
     '数学': '如：20以内加减法 / 小数乘法 / 一元一次方程',
@@ -882,25 +975,24 @@ const HANDWRITING_ASSIST = {
 
 function cardHtml(a, allowSeal, featured) {
     const c = CAT_MAP[a.cat];
-    // 状态标签只表达真实的导航作用或使用频次，不再使用装饰性印章。
     const state = featured
-        ? '<span class="agent-state recommended">建议起点</span>'
+        ? `<span class="agent-member-state recommended">${escapeHtml(agentsPageCopy.recommendedBadge || '建议起点')}</span>`
         : ((allowSeal !== false && (window.TOP_AGENTS || []).includes(a.id))
-            ? '<span class="agent-state">常用</span>' : '');
-    return `<button type="button" class="agent-card" style="--cat-color:${c.color}" onclick="openAgent('${a.id}')" aria-label="打开${escapeHtml(a.name)}">
-        ${state}
-        <div class="agent-card-top">
-            <div class="agent-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${a.icon}"></i></div>
-            <div>
-                <div class="agent-card-name">${a.name}</div>
-                <div class="agent-card-tag"><i class="ph ph-circle-fill" style="font-size:6px"></i>${c.name}</div>
-            </div>
-        </div>
-        <div class="agent-card-desc">${a.desc}</div>
-        <div class="agent-card-foot">
-            <span class="agent-chip ${a.type === 'chat' ? 'chat' : ''}">${a.type === 'chat' ? '对话式' : 'AI 起草'}</span>
-            <span class="agent-go">进入 <i class="ph ph-arrow-right"></i></span>
-        </div>
+            ? `<span class="agent-member-state">${escapeHtml(agentsPageCopy.popularBadge || '常用')}</span>` : '');
+    const greeting = `${agentsPageCopy.memberGreetingPrefix || '我可以和你一起完成'}：${a.tagline}。`;
+    return `<button type="button" class="agent-member" style="--member-color:${c.color}" data-agent-id="${a.id}" onclick="openAgent('${a.id}')" aria-label="与${escapeHtml(a.name)}开始协作">
+        <span class="agent-member-portrait">
+            <img src="${portraitSrc(a)}" alt="" width="900" height="900" loading="${featured ? 'eager' : 'lazy'}" decoding="async">
+            <span class="agent-member-badge">${escapeHtml(agentsPageCopy.memberBadge || 'AI 智能体')}</span>
+            ${state}
+            <span class="agent-member-speech">${escapeHtml(greeting)}</span>
+        </span>
+        <span class="agent-member-meta">
+            <span class="agent-member-department">${escapeHtml(c.name)}</span>
+            <span class="agent-member-name">${escapeHtml(a.name)}</span>
+            <span class="agent-member-specialty">${escapeHtml(a.tagline)}</span>
+            <span class="agent-member-action">${escapeHtml(agentsPageCopy.memberAction || '开始协作')} <i class="ph ph-arrow-right"></i></span>
+        </span>
     </button>`;
 }
 
@@ -912,21 +1004,20 @@ function applyFilter() {
 
 // 默认视图：顶部精选 + 按 5 大类分区陈列（降低「一片卡海」的认知负荷）
 function renderHome() {
-    document.getElementById('agent-count').textContent = `${AGENTS.length} 个智能体 · 按教学场景分类`;
+    document.getElementById('agent-count').textContent = `${AGENTS.length} ${agentsPageCopy.memberCountUnit || '位数字成员'}`;
     let html = '';
     const feat = FEATURED.map(id => AGENTS.find(a => a.id === id)).filter(Boolean);
     if (feat.length) {
         html += `<div class="agent-section">
             <div class="agent-section-head featured-head">
                 <div class="sec-ico" style="background:var(--brand-soft);color:var(--brand)"><i class="ph-fill ph-star"></i></div>
-                <span class="sec-title">推荐起点</span>
-                <span class="sec-sub">覆盖最常见的教学任务</span>
+                <span class="sec-title">${escapeHtml(agentsPageCopy.recommendedHeading)}</span>
             </div>
             <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, false, true)).join('')}</div>
         </div>`;
     }
     CATS.forEach(c => {
-        // “推荐起点”已经承担第一次选择，分类区只展示其余能力，避免同一张卡
+        // 推荐成员已经承担第一次选择，分类区只展示其余能力，避免同一位成员
         // 在同一页面连续出现两次。搜索和分类筛选仍会返回完整清单。
         const list = AGENTS.filter(a => a.cat === c.key && !FEATURED.includes(a.id));
         if (!list.length) return;
@@ -949,10 +1040,10 @@ function renderFiltered(q) {
         const qOk = !q || (a.name + a.tagline + a.desc + (a.keywords || '')).toLowerCase().includes(q);
         return catOk && qOk;
     });
-    document.getElementById('agent-count').textContent = `共 ${list.length} 个智能体`;
+    document.getElementById('agent-count').textContent = `共 ${list.length} ${agentsPageCopy.memberCountUnit || '位数字成员'}`;
     const content = document.getElementById('agent-content');
     if (!list.length) {
-        content.innerHTML = `<div class="agent-grid"><div class="empty-hint"><i class="ph ph-robot"></i><p>没有匹配的智能体，换个关键词试试</p></div></div>`;
+        content.innerHTML = `<div class="agent-grid"><div class="empty-hint"><i class="ph ph-users-three"></i><p>${escapeHtml(agentsPageCopy.emptyMessage)}</p></div></div>`;
         return;
     }
     content.innerHTML = `<div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>`;
@@ -2637,6 +2728,7 @@ function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;
 /* ---------- 初始化 ---------- */
 // 常用状态：先用种子（默认两个），待全站使用频率数据返回后覆盖并重渲染
 window.TOP_AGENTS = ['lesson-design', 'quiz-gen'];
+renderHeroRoster();
 renderFilterBar();
 applyFilter();
 renderNav('agents');

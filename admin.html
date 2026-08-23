@@ -6,7 +6,7 @@
     <title>管理后台 · AI 教师培训中心</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <style>
         .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); }
         .admin-sidebar { background: var(--ink); padding: 24px 14px; position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto; }
@@ -80,6 +80,36 @@
         .reject-btn:hover { color: var(--brand-dark); }
         .edit-btn    { color: var(--ink); background: none; border: none; cursor: pointer; font-size: 13px; padding: 5px 10px; font-weight: 500; transition: color 0.15s; }
         .edit-btn:hover { color: var(--brand); }
+        .page-copy-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:20px; }
+        .page-copy-head h2 { font-size:1.3rem; font-weight:800; margin:0 0 6px; }
+        .page-copy-head p { margin:0; color:var(--muted); font-size:13px; line-height:1.7; }
+        .page-copy-picker { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .page-copy-picker label { color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.04em; }
+        .page-copy-select { min-width:170px; height:40px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--paper); color:var(--ink); padding:0 12px; font:inherit; font-size:13px; }
+        .page-copy-sheet { position:relative; overflow:hidden; background:var(--paper); border:1px solid var(--line); border-radius:var(--r-md); box-shadow:var(--shadow-sm); }
+        .page-copy-sheet::before { content:""; position:absolute; inset:0 auto 0 0; width:4px; background:var(--brand); }
+        .page-copy-meta { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 22px 16px 26px; border-bottom:1px solid var(--line); background:#fffaf2; }
+        .page-copy-status { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12.5px; }
+        .page-copy-status.ready { color:var(--success); }
+        .page-copy-preview { color:var(--ink); font-size:12.5px; font-weight:700; display:inline-flex; align-items:center; gap:5px; }
+        .page-copy-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 20px; padding:24px 24px 26px 28px; }
+        .page-copy-field { min-width:0; }
+        .page-copy-field.wide { grid-column:1 / -1; }
+        .page-copy-field-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:7px; }
+        .page-copy-field label { color:var(--ink); font-size:13px; font-weight:750; }
+        .page-copy-count { flex:none; color:var(--subtle); font-family:var(--font-mono); font-size:10px; }
+        .page-copy-field input, .page-copy-field textarea { width:100%; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--soft); color:var(--ink); padding:10px 12px; font:inherit; font-size:13px; line-height:1.6; transition:border-color .15s, background .15s, box-shadow .15s; }
+        .page-copy-field input { height:42px; }
+        .page-copy-field textarea { resize:vertical; min-height:82px; }
+        .page-copy-field input:focus, .page-copy-field textarea:focus { outline:none; border-color:var(--brand); background:var(--paper); box-shadow:0 0 0 3px rgba(192,57,43,.1); }
+        .page-copy-help { margin:6px 0 0; color:var(--subtle); font-size:11.5px; line-height:1.5; }
+        .page-copy-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 22px 16px 26px; border-top:1px solid var(--line); }
+        .page-copy-action-group { display:flex; gap:9px; flex-wrap:wrap; }
+        .page-copy-save, .page-copy-defaults { min-height:40px; border-radius:var(--r-sm); padding:0 15px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+        .page-copy-save { border:1px solid var(--ink); background:var(--ink); color:var(--soft); }
+        .page-copy-defaults { border:1px solid var(--line); background:var(--paper); color:var(--ink); }
+        .page-copy-save:disabled, .page-copy-defaults:disabled { opacity:.55; cursor:not-allowed; }
+        .page-copy-note { max-width:420px; margin:0; color:var(--subtle); font-size:11.5px; line-height:1.55; text-align:right; }
         @media(max-width:768px) {
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; padding: 14px; }
@@ -89,6 +119,10 @@
             .analytics-trend-row { grid-template-columns:70px 1fr 36px 36px 36px 36px; gap:7px; }
             .analytics-funnel { grid-template-columns:1fr 1fr; }
             .analytics-funnel-step:not(:last-child)::after { display:none; }
+            .page-copy-head, .page-copy-actions { align-items:stretch; flex-direction:column; }
+            .page-copy-fields { grid-template-columns:1fr; padding:20px 18px 22px 22px; }
+            .page-copy-field.wide { grid-column:auto; }
+            .page-copy-note { max-width:none; text-align:left; }
         }
     </style>
 </head>
@@ -124,6 +158,7 @@
             <div class="sidebar-item active" onclick="switchPanel('dashboard',this)"><i class="ph ph-squares-four"></i>概览</div>
             <div class="sidebar-item" onclick="switchPanel('analytics',this)"><i class="ph ph-chart-line-up"></i>数据看板</div>
             <div class="sidebar-item" onclick="switchPanel('announcements',this)"><i class="ph ph-megaphone"></i>公告管理</div>
+            <div class="sidebar-item" onclick="switchPanel('page-copy',this)"><i class="ph ph-text-aa"></i>页面文案</div>
             <div class="sidebar-item" onclick="switchPanel('community-prompts',this)"><i class="ph ph-chats-circle"></i>社区提示词</div>
             <div class="sidebar-item" onclick="switchPanel('subscribers',this)"><i class="ph ph-envelope-simple"></i>邮件订阅</div>
             <div class="sidebar-item" onclick="switchPanel('messages',this)"><i class="ph ph-chat-circle-text"></i>联系留言</div>
@@ -188,6 +223,47 @@
                 </div>
                 <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
                     <div class="table-wrap"><table id="ann-table"><thead><tr><th>标题</th><th>内容</th><th>时间</th><th>操作</th></tr></thead><tbody id="ann-tbody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Page copy -->
+            <div class="panel" id="panel-page-copy">
+                <div class="page-copy-head">
+                    <div>
+                        <h2>页面文案</h2>
+                        <p>管理各用户页面的标题、简介、筛选与主要操作文案；保存后对应页面会读取后台值。</p>
+                    </div>
+                    <div class="page-copy-picker">
+                        <label for="page-copy-page">编辑页面</label>
+                        <select id="page-copy-page" class="page-copy-select" onchange="changePageCopyPage(this)">
+                            <option value="home">首页</option>
+                            <option value="multimodal">多模态工作坊</option>
+                            <option value="agents">智能体空间</option>
+                            <option value="classroom">课堂工具</option>
+                            <option value="tools">AI 资源精选</option>
+                            <option value="resources">课件素材</option>
+                            <option value="news">AI 资讯</option>
+                            <option value="paths">学习路径</option>
+                            <option value="articles">精选文章</option>
+                            <option value="article">文章详情</option>
+                            <option value="prompts">提示词库</option>
+                            <option value="workspace">我的备课本</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="page-copy-sheet">
+                    <div class="page-copy-meta">
+                        <span id="page-copy-status" class="page-copy-status"><i class="ph ph-circle-notch"></i>正在读取文案…</span>
+                        <a id="page-copy-preview" class="page-copy-preview" href="/" target="_blank" rel="noopener"><i class="ph ph-arrow-square-out"></i>打开页面预览</a>
+                    </div>
+                    <div id="page-copy-fields" class="page-copy-fields" aria-live="polite"></div>
+                    <div class="page-copy-actions">
+                        <div class="page-copy-action-group">
+                            <button id="page-copy-save" class="page-copy-save" onclick="savePageCopyPanel()"><i class="ph ph-floppy-disk"></i>保存文案</button>
+                            <button class="page-copy-defaults" onclick="loadPageCopyDefaults()"><i class="ph ph-arrow-counter-clockwise"></i>载入本地默认值</button>
+                        </div>
+                        <p class="page-copy-note">“载入本地默认值”只填入表单；点击“保存文案”后才会写入后台。</p>
+                    </div>
                 </div>
             </div>
 
@@ -582,14 +658,19 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];
 let _cpFilter = 'pending';
 let _analyticsLoaded = false;
 let _analyticsLoading = false;
+let _adminPageCopyPage = 'home';
+let _adminPageCopyRemote = null;
+let _adminPageCopyDirty = false;
+let _adminPageCopyLoaded = false;
 
 // ===== GATE =====
 async function gateLogin() {
@@ -633,6 +714,7 @@ async function switchPanel(name, el) {
     el.classList.add('active');
     if (name === 'analytics') await renderAnalyticsPanel();
     if (name === 'announcements') await renderAnnTable();
+    if (name === 'page-copy' && !_adminPageCopyLoaded) await renderPageCopyPanel();
     if (name === 'community-prompts') await renderCPTable();
     if (name === 'subscribers') await renderSubsTable();
     if (name === 'messages') await renderMessagesTable();
@@ -644,10 +726,143 @@ async function switchPanel(name, el) {
     if (name === 'users') await renderUsersTable();
 }
 
+// ===== PAGE COPY =====
+function setPageCopyStatus(message, ready = false, icon = 'ph-info') {
+    const status = document.getElementById('page-copy-status');
+    status.classList.toggle('ready', ready);
+    status.replaceChildren();
+    const indicator = document.createElement('i');
+    indicator.className = `ph ${icon}`;
+    status.append(indicator, document.createTextNode(message));
+}
+
+function updatePageCopyCount(input, count) {
+    count.textContent = `${input.value.length}/${input.maxLength}`;
+}
+
+function markPageCopyDirty() {
+    if (_adminPageCopyDirty) return;
+    _adminPageCopyDirty = true;
+    setPageCopyStatus('有未保存的修改', false, 'ph-pencil-simple');
+}
+
+function renderPageCopyFields(pageId, values) {
+    const definition = SiteCopy.getDefinition(pageId);
+    const container = document.getElementById('page-copy-fields');
+    container.replaceChildren();
+    definition.fields.forEach(field => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `page-copy-field${field.rows ? ' wide' : ''}`;
+        const head = document.createElement('div');
+        head.className = 'page-copy-field-head';
+        const label = document.createElement('label');
+        label.htmlFor = `page-copy-${field.key}`;
+        label.textContent = field.label;
+        const count = document.createElement('span');
+        count.className = 'page-copy-count';
+        const input = document.createElement(field.rows ? 'textarea' : 'input');
+        input.id = `page-copy-${field.key}`;
+        input.dataset.pageCopyKey = field.key;
+        input.maxLength = field.maxLength;
+        input.value = values[field.key] || '';
+        if (field.rows) input.rows = field.rows;
+        input.addEventListener('input', () => {
+            updatePageCopyCount(input, count);
+            markPageCopyDirty();
+        });
+        updatePageCopyCount(input, count);
+        head.append(label, count);
+        wrapper.append(head, input);
+        if (field.help) {
+            const help = document.createElement('p');
+            help.className = 'page-copy-help';
+            help.textContent = field.help;
+            wrapper.append(help);
+        }
+        container.append(wrapper);
+    });
+}
+
+async function renderPageCopyPanel(pageId = document.getElementById('page-copy-page')?.value || _adminPageCopyPage) {
+    const definition = SiteCopy.getDefinition(pageId) || SiteCopy.getDefinition('home');
+    _adminPageCopyPage = definition.id;
+    const select = document.getElementById('page-copy-page');
+    const preview = document.getElementById('page-copy-preview');
+    const save = document.getElementById('page-copy-save');
+    select.value = definition.id;
+    preview.href = definition.path;
+    save.disabled = true;
+    _adminPageCopyDirty = false;
+    _adminPageCopyLoaded = true;
+    setPageCopyStatus('正在读取文案…', false, 'ph-circle-notch');
+    renderPageCopyFields(definition.id, SiteCopy.defaults(definition.id));
+    try {
+        _adminPageCopyRemote = await DB.getPageCopy(definition.id);
+        if (_adminPageCopyPage !== definition.id) return;
+        renderPageCopyFields(definition.id, SiteCopy.normalize(definition.id, _adminPageCopyRemote));
+        if (_adminPageCopyRemote?.localPreview) setPageCopyStatus('本地预览文案已保存，未写入线上', true, 'ph-check-circle');
+        else if (_adminPageCopyRemote) setPageCopyStatus('后台文案已初始化', true, 'ph-check-circle');
+        else setPageCopyStatus('尚未初始化，页面当前使用本地默认文案', false, 'ph-info');
+    } catch (error) {
+        if (_adminPageCopyPage !== definition.id) return;
+        _adminPageCopyRemote = null;
+        setPageCopyStatus('读取失败，已显示本地默认文案', false, 'ph-warning');
+        showToast('页面文案读取失败：' + error.message);
+    } finally {
+        if (_adminPageCopyPage === definition.id) save.disabled = false;
+    }
+}
+
+function changePageCopyPage(select) {
+    if (_adminPageCopyDirty && !window.confirm('当前修改尚未保存，确定切换页面吗？')) {
+        select.value = _adminPageCopyPage;
+        return;
+    }
+    _adminPageCopyDirty = false;
+    renderPageCopyPanel(select.value);
+}
+
+function loadPageCopyDefaults() {
+    renderPageCopyFields(_adminPageCopyPage, SiteCopy.defaults(_adminPageCopyPage));
+    _adminPageCopyDirty = true;
+    setPageCopyStatus('已载入本地默认值，尚未保存', false, 'ph-pencil-simple');
+}
+
+async function savePageCopyPanel() {
+    const save = document.getElementById('page-copy-save');
+    const select = document.getElementById('page-copy-page');
+    const pageId = _adminPageCopyPage;
+    const values = Object.fromEntries([...document.querySelectorAll('#page-copy-fields [data-page-copy-key]')]
+        .map(input => [input.dataset.pageCopyKey, input.value]));
+    const validation = SiteCopy.validate(pageId, values);
+    if (!validation.ok) {
+        showToast(validation.message);
+        document.getElementById(`page-copy-${validation.key}`)?.focus();
+        return;
+    }
+    save.disabled = true;
+    select.disabled = true;
+    setPageCopyStatus('正在保存…', false, 'ph-circle-notch');
+    try {
+        const saved = await DB.savePageCopy(pageId, validation.values);
+        _adminPageCopyRemote = saved || { fields: validation.values };
+        _adminPageCopyDirty = false;
+        const localPreview = _adminPageCopyRemote.localPreview === true;
+        setPageCopyStatus(localPreview ? '本地预览文案已保存，未写入线上' : '后台文案已保存', true, 'ph-check-circle');
+        showToast(localPreview ? '已保存到本地预览' : '页面文案已保存');
+    } catch (error) {
+        setPageCopyStatus('保存失败，当前表单内容仍保留', false, 'ph-warning');
+        showToast('页面文案保存失败：' + error.message);
+    } finally {
+        save.disabled = false;
+        select.disabled = false;
+    }
+}
+
 // ===== INIT =====
 async function initAdmin() {
     const [tools, prompts, users, ann, cps, subs, articles, msgs] = await Promise.all([
-        DB.getTools(), DB.getPrompts(), getAdminUsers(), DB.getAnnouncements(),
+        DB.getTools(), DB.getPrompts(), DB.isLocalPreview() ? Promise.resolve([]) : getAdminUsers(), DB.getAnnouncements(),
         DB.getCommunityPrompts(), DB.getSubscribers(), DB.getArticles(),
         DB.getMessages()
     ]);

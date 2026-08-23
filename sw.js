@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20260822-v9';
+const VERSION = '20260823-v14';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -17,6 +17,7 @@ const CORE_ASSETS = [
     '/js/safe-render.js',
     '/js/firebase-config.js',
     '/js/data.js',
+    '/js/site-copy.js',
     '/js/auth.js',
     '/js/agents-data.js',
     '/js/teaching-projects.js',

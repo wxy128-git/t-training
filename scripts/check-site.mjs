@@ -14,6 +14,11 @@ const publicPages = [
 ];
 const appPages = [...publicPages, 'workspace.html', 'admin.html'];
 const pwaPages = [...publicPages, 'workspace.html'];
+const dataPages = [
+    'index.html', 'agents.html', 'multimodal.html', 'classroom-tools.html', 'tools.html', 'resources.html',
+    'news.html', 'paths.html', 'articles.html', 'article.html', 'prompts.html',
+    'workspace.html', 'admin.html'
+];
 
 function fail(file, message) { failures.push(`${file}: ${message}`); }
 function text(file) { return readFileSync(join(root, file), 'utf8'); }
@@ -35,10 +40,18 @@ for (const file of publicPages) {
 for (const file of appPages) {
     const html = text(file);
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
-    if (!/css\/style\.css\?v=20260822-auth-transition/.test(html)) fail(file, '样式缓存版本未统一');
+    if (!/css\/style\.css\?v=20260823-content-team-workbook/.test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260822-phase1/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20260822-auth-transition/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/auth\.js\?v=20260823-content-team-workbook/.test(html)) fail(file, '认证脚本缓存版本未统一');
     if (!/js\/assistant\.js\?v=20260821-tencent/.test(html)) fail(file, '网站向导缓存版本未统一');
+}
+
+for (const file of dataPages) {
+    if (!/js\/data\.js\?v=20260823-page-copy/.test(text(file))) fail(file, '数据脚本缓存版本未统一');
+}
+
+for (const file of [...dataPages, 'admin.html']) {
+    if (!/js\/site-copy\.js\?v=20260823-page-copy/.test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -78,6 +91,43 @@ if (classroomButtons.length !== 9 || /<div\b[^>]*class="ct-tool-card"/.test(clas
 if (!/ct-tool-open[\s\S]+assistant-launcher/.test(classroomHtml)) fail('classroom-tools.html', '课堂工具工作区未隐藏网站向导');
 const homeHtml = text('index.html');
 if (!/th-mobile-more/.test(homeHtml) || !/th-mobile-secondary/.test(homeHtml)) fail('index.html', '移动首页未接入任务优先折叠结构');
+if (!/data-site-copy-headline="heroTitle"/.test(homeHtml) || !/SiteCopy\.load\('home'\)/.test(homeHtml)) fail('index.html', '首页未接入后台文案');
+const multimodalHtml = text('multimodal.html');
+if (!/data-site-copy-headline="heroTitle"/.test(multimodalHtml) || !/SiteCopy\.load\('multimodal'\)/.test(multimodalHtml)) fail('multimodal.html', '多模态工作坊未接入后台文案');
+const adminHtml = text('admin.html');
+if (!/id="panel-page-copy"/.test(adminHtml) || !/savePageCopyPanel/.test(adminHtml)) fail('admin.html', '后台页面文案管理未接入');
+const dataSource = text('js/data.js');
+if (!/PAGE_COPY_PREVIEW_PREFIX/.test(dataSource) || !/isLocalPreviewRuntime/.test(dataSource)) fail('js/data.js', '页面文案缺少本地安全预览存储');
+const siteCopySource = text('js/site-copy.js');
+for (const pageId of ['home','multimodal','agents','classroom','tools','resources','news','paths','articles','article','prompts','workspace']) {
+    if (!new RegExp(`\\b${pageId}: Object\\.freeze`).test(siteCopySource)) fail('js/site-copy.js', `缺少 ${pageId} 页面文案定义`);
+    if (!new RegExp(`SiteCopy\\.load\\('${pageId}'\\)`).test(text(pageId === 'home' ? 'index.html' : pageId === 'classroom' ? 'classroom-tools.html' : `${pageId}.html`))) {
+        fail(pageId, '页面未读取后台文案');
+    }
+}
+const agentPortraitIds = [
+    'lesson-design', 'courseware-outline', 'micro-script', 'lesson-hook',
+    'socratic', 'layered-q', 'concept-explainer', 'class-activity',
+    'quiz-gen', 'homework-grader', 'essay-review', 'exam-paper', 'error-diagnosis',
+    'parent-comm', 'student-comment', 'class-meeting', 'heart-talk',
+    'teaching-reflection', 'lesson-observe'
+];
+for (const id of agentPortraitIds) {
+    const file = `assets/agent-portraits/${id}.jpg`;
+    if (!existsSync(join(root, file))) fail(file, '正式智能体人物肖像缺失');
+    else if (statSync(join(root, file)).size > 240_000) fail(file, '人物肖像体积超过 240 KB');
+}
+const agentsHtml = text('agents.html');
+if (!/class="agent-member"/.test(agentsHtml) || !/assets\/agent-portraits/.test(agentsHtml)) fail('agents.html', '人物化数字成员墙未接入');
+const workspaceHtml = text('workspace.html');
+if (!/class="wb-binder"/.test(workspaceHtml) || !/class="wb-binder-ring"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
+    fail('workspace.html', '真实活页备课夹结构未接入');
+}
+if (!/data-type="reviewed"/.test(workspaceHtml) || !/class="wb-card-more"/.test(workspaceHtml) || !/wb-sheet-pull/.test(workspaceHtml)) {
+    fail('workspace.html', '备课本章节筛选、页侧操作或抽页交互不完整');
+}
+const previewServerSource = text('scripts/serve.mjs');
+if (!/localApiModules/.test(previewServerSource) || !/\/api\/auth-proxy/.test(previewServerSource)) fail('scripts/serve.mjs', '本地预览未启用认证代理');
 const pathsHtml = text('paths.html');
 if (!/PATH_PROGRESS_PREFIX/.test(pathsHtml) || !/step-complete-btn/.test(pathsHtml) || !/path-continue/.test(pathsHtml)) fail('paths.html', '学习路径续学或完成进度功能不完整');
 const offlineHtml = text('offline.html');
@@ -85,7 +135,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260822-v9/.test(text('sw.js'))) fail('sw.js', 'Service Worker 缓存版本未更新');
+if (!/20260823-v14/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 页面文案缓存未更新');
 
 const loginTransitionSource = text('js/auth.js');
 if (/showWelcomeOverlay\('login'/.test(loginTransitionSource)) fail('js/auth.js', '登录成功仍使用短暂全屏欢迎层');

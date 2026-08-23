@@ -25,42 +25,34 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
     <style>
         .mm-wrap { max-width: 1240px; margin: 0 auto; padding: 48px 24px 88px; }
-        .mm-hero { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(320px, .98fr); gap: 48px; align-items: center; padding: 18px 0 54px; border-bottom: 1px solid var(--line); }
+        .mm-hero { padding: 20px 0 56px; border-bottom: 1px solid var(--line); }
+        .mm-intro { max-width: 900px; }
         .mm-kicker { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); margin-bottom: 16px; }
         .mm-title { margin: 0; color: var(--ink); font-size: clamp(34px, 5vw, 60px); font-weight: 800; letter-spacing: -.03em; line-height: 1.08; }
-        .mm-title em { color: var(--brand); font-style: italic; }
+        .mm-title em, .mm-title .site-copy-accent { color: var(--brand); font-style: italic; }
         .mm-sub { max-width: 640px; margin: 18px 0 0; color: var(--text-soft); font-size: 15px; line-height: 1.85; }
-        .mm-note { display: inline-flex; align-items: flex-start; gap: 9px; margin-top: 24px; padding: 12px 15px; border: 1px dashed var(--line); border-radius: 12px; background: var(--paper); color: var(--muted); font-size: 12.5px; line-height: 1.7; }
-        .mm-note i { color: var(--ochre); font-size: 17px; margin-top: 1px; }
-        .mm-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+        .mm-note { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .mm-note i { color: var(--ochre); font-size: 16px; }
+        .mm-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
         .mm-primary, .mm-secondary { display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 12px 18px; font-weight: 700; font-size: 14px; transition: transform .16s, background .16s, border-color .16s; }
         .mm-primary { background: var(--ink); color: var(--soft); border: 1px solid var(--ink); }
         .mm-primary:hover { background: var(--brand); border-color: var(--brand); transform: translateY(-1px); }
         .mm-secondary { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
         .mm-secondary:hover { border-color: var(--ink); transform: translateY(-1px); }
 
-        .mm-board { position: relative; min-height: 430px; }
-        .mm-print { position: absolute; background: var(--paper); border: 1px solid rgba(26,22,18,.11); border-radius: 14px; box-shadow: 0 18px 42px -24px rgba(26,22,18,.38), 0 2px 7px rgba(26,22,18,.05); overflow: hidden; }
-        .mm-print.one { inset: 0 18% auto 0; height: 250px; transform: rotate(-2deg); }
-        .mm-print.two { right: 0; top: 78px; width: 50%; height: 250px; transform: rotate(3deg); }
-        .mm-print.three { left: 12%; right: 8%; bottom: 0; height: 155px; transform: rotate(-1deg); }
-        .mm-print .cap { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); background: rgba(245,240,228,.72); }
-        .mm-scene { height: calc(100% - 36px); position: relative; overflow: hidden; }
-        .mm-scene img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .mm-scene.ancient { background: linear-gradient(145deg,#f8ecd5 0%,#d9e6e3 48%,#58756f 100%); }
-        .mm-scene.ancient::before { content:""; position:absolute; left:18%; bottom:0; width:34%; height:58%; background:rgba(26,22,18,.72); clip-path:polygon(50% 0,100% 100%,0 100%); }
-        .mm-scene.ancient::after { content:""; position:absolute; right:11%; top:16%; width:58px; height:58px; border-radius:50%; background:rgba(255,246,207,.88); box-shadow:0 0 34px rgba(255,246,207,.7); }
-        .mm-scene.ancient.has-image::before,
-        .mm-scene.ancient.has-image::after { display: none; }
-        .mm-scene.video { background: linear-gradient(135deg,#203848,#5d8790); display:grid; grid-template-columns:repeat(3,1fr); gap:7px; padding:12px; }
-        .mm-scene.video span { border-radius:8px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.2); position:relative; }
-        .mm-scene.video span::after { content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); border-left:13px solid rgba(255,255,255,.84); border-top:8px solid transparent; border-bottom:8px solid transparent; }
-        .mm-scene.prompt { background: #fffdf8; padding: 16px 18px; color: var(--text); font-size: 13px; line-height: 1.75; }
-        .mm-scene.prompt b { color: var(--brand); }
+        .mm-feature { position: relative; width: 100%; height: 390px; display: block; overflow: hidden; margin-top: 36px; padding: 0; border: 0; border-radius: 12px; background: #263a43; text-align: left; cursor: pointer; box-shadow: 0 18px 40px -34px rgba(26,22,18,.62); }
+        .mm-feature img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+        .mm-feature::after { content: ""; position: absolute; inset: 42% 0 0; background: linear-gradient(transparent, rgba(13,25,31,.76)); }
+        .mm-feature:hover img { transform: scale(1.012); }
+        .mm-feature:focus-visible { outline: 3px solid rgba(36,91,120,.32); outline-offset: 3px; }
+        .mm-feature-caption { position: absolute; left: 26px; right: 26px; bottom: 22px; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; color: #fff; }
+        .mm-feature-caption small { display: block; margin-bottom: 7px; opacity: .78; font-family: var(--font-mono); font-size: 9px; letter-spacing: .09em; }
+        .mm-feature-caption b { display: block; font-size: 20px; }
+        .mm-feature-caption > span:last-child { font-size: 11px; opacity: .86; }
 
         .mm-toolbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 30px 0 22px; }
         .mm-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -92,7 +84,7 @@
         .mm-meta { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
         .mm-chip { font-size:11px; padding:3px 8px; border-radius:999px; background:var(--soft-2); color:var(--muted); font-weight:700; }
         .mm-card h3 { margin:0 0 8px; color:var(--ink); font-size:16px; line-height:1.35; }
-        .mm-card p { margin:0; color:var(--text-soft); font-size:13px; line-height:1.7; flex:1; }
+        .mm-card p { margin:0; color:var(--text-soft); font-size:13px; line-height:1.7; flex:1; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .mm-card-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--line-soft); }
         .mm-small-btn { border:1px solid var(--line); background:var(--soft); color:var(--text-soft); border-radius:8px; padding:7px 10px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:5px; transition:all .15s; }
         .mm-small-btn:hover { border-color:var(--ink); color:var(--ink); background:var(--paper); }
@@ -196,17 +188,14 @@
             .frac-step.s4 { display:flex; opacity:1; transform:none; }
         }
         @media (max-width: 960px) {
-            .mm-hero { grid-template-columns: 1fr; }
-            .mm-board { min-height: 360px; }
             .mm-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .mm-modal-body { grid-template-columns:1fr; }
         }
         @media (max-width: 640px) {
             .mm-wrap { padding: 36px 18px 72px; }
-            .mm-board { min-height: 300px; }
-            .mm-print.one { right: 12%; height: 190px; }
-            .mm-print.two { top: 66px; width: 54%; height: 190px; }
-            .mm-print.three { left: 6%; right: 4%; height: 130px; }
+            .mm-hero { padding-top: 16px; }
+            .mm-feature { height: 300px; margin-top: 30px; }
+            .mm-feature-caption { align-items: flex-start; flex-direction: column; left: 18px; right: 18px; bottom: 17px; gap: 8px; }
             .mm-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -218,21 +207,20 @@
     <div class="breadcrumb"><a href="/">首页</a><i class="ph ph-caret-right"></i><span>多模态工作坊</span></div>
 
     <section class="mm-hero">
-        <div>
-            <div class="mm-kicker">Multimodal Studio · 教学素材生成案例</div>
-            <h1 class="mm-title">多模态<em>工作坊</em></h1>
-            <p class="mm-sub">这里不直接调用图片、视频或音频生成模型，而是把适合教师的多模态案例拆开：成果长什么样、提示词怎么写、工具怎么选、课堂里怎么用。你可以复制提示词，到相应工具中低成本复现。</p>
-            <div class="mm-note"><i class="ph ph-info"></i><span>为控制平台成本，本站首版只做案例展示与生成方法复盘，不提供站内图片/视频生成接口。</span></div>
+        <div class="mm-intro">
+            <div class="mm-kicker" data-site-copy="heroKicker">教学素材生成案例</div>
+            <h1 class="mm-title" data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">多模态<em>工作坊</em></h1>
+            <p class="mm-sub" data-site-copy="heroIntro">查看教学素材成品、生成步骤与可复制提示词。</p>
+            <div class="mm-note"><i class="ph ph-info"></i><span data-site-copy="heroNote">案例解析，不在站内生成</span></div>
             <div class="mm-actions">
-                <a class="mm-primary" href="#mm-cases"><i class="ph-fill ph-images-square"></i> 查看案例</a>
-                <a class="mm-secondary" href="/tools"><i class="ph ph-toolbox"></i> 找生成工具</a>
+                <a class="mm-primary" href="#mm-cases"><i class="ph-fill ph-images-square"></i><span data-site-copy="primaryAction">查看案例</span></a>
+                <a class="mm-secondary" href="/tools"><i class="ph ph-toolbox"></i><span data-site-copy="secondaryAction">找生成工具</span></a>
             </div>
         </div>
-        <div class="mm-board" aria-hidden="true">
-            <div class="mm-print one"><div class="cap"><span>IMAGE CASE</span><span>语文 · 意境图</span></div><div class="mm-scene ancient has-image"><img src="多模态素材/poem-landscape-web.jpg" alt="古诗意境图预览" width="1200" height="675" decoding="async" fetchpriority="high"></div></div>
-            <div class="mm-print two"><div class="cap"><span>VIDEO STORYBOARD</span><span>科学 · 实验演示</span></div><div class="mm-scene video"><span></span><span></span><span></span></div></div>
-            <div class="mm-print three"><div class="cap"><span>PROMPT NOTE</span><span>可复制复盘</span></div><div class="mm-scene prompt">角色：<b>中小学教师</b><br>目标：生成可用于课堂导入的视觉素材<br>约束：真实、清晰、避免版权角色</div></div>
-        </div>
+        <button type="button" class="mm-feature" onclick="openCaseModal('poem-image')" aria-label="查看古诗意境导入图案例">
+            <img src="多模态素材/poem-landscape-web.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
+            <span class="mm-feature-caption"><span><small data-site-copy="featureKicker">本期案例 · 语文</small><b data-site-copy="featureTitle">古诗意境导入图</b></span><span><span data-site-copy="featureAction">查看成品、步骤与提示词</span> <i class="ph ph-arrow-right"></i></span></span>
+        </button>
     </section>
 
     <section id="mm-cases">
@@ -280,10 +268,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script>
+SiteCopy.load('multimodal').then(copy => SiteCopy.applyToDocument('multimodal', copy));
+
 const CASES = [
     {
         id: 'poem-image', type: 'image', label: '图片', icon: 'ph-fill ph-image-square', subject: '语文', level: '入门',

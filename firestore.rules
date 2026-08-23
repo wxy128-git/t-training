@@ -76,6 +76,82 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /page_copy/{pageId} {
+      function validText(value, maxSize) {
+        return value is string && value.size() > 0 && value.size() <= maxSize;
+      }
+
+      function validHomeCopy() {
+        return request.resource.data.fields.keys().hasAll([
+            'heroEyebrow', 'heroTitle', 'heroAccent', 'heroIntro', 'primaryAction',
+            'workbookActionGuest', 'workbookActionMember', 'taskHeading',
+            'checklistHeading', 'checklistAction', 'resourcesHeading'
+          ])
+          && request.resource.data.fields.keys().hasOnly([
+            'heroEyebrow', 'heroTitle', 'heroAccent', 'heroIntro', 'primaryAction',
+            'workbookActionGuest', 'workbookActionMember', 'taskHeading',
+            'checklistHeading', 'checklistAction', 'resourcesHeading'
+          ])
+          && validText(request.resource.data.fields.heroEyebrow, 40)
+          && validText(request.resource.data.fields.heroTitle, 50)
+          && validText(request.resource.data.fields.heroAccent, 12)
+          && validText(request.resource.data.fields.heroIntro, 140)
+          && validText(request.resource.data.fields.primaryAction, 24)
+          && validText(request.resource.data.fields.workbookActionGuest, 24)
+          && validText(request.resource.data.fields.workbookActionMember, 24)
+          && validText(request.resource.data.fields.taskHeading, 40)
+          && validText(request.resource.data.fields.checklistHeading, 30)
+          && validText(request.resource.data.fields.checklistAction, 20)
+          && validText(request.resource.data.fields.resourcesHeading, 40);
+      }
+
+      function validMultimodalCopy() {
+        return request.resource.data.fields.keys().hasAll([
+            'heroKicker', 'heroTitle', 'heroAccent', 'heroIntro', 'heroNote',
+            'primaryAction', 'secondaryAction', 'featureKicker', 'featureTitle', 'featureAction'
+          ])
+          && request.resource.data.fields.keys().hasOnly([
+            'heroKicker', 'heroTitle', 'heroAccent', 'heroIntro', 'heroNote',
+            'primaryAction', 'secondaryAction', 'featureKicker', 'featureTitle', 'featureAction'
+          ])
+          && validText(request.resource.data.fields.heroKicker, 40)
+          && validText(request.resource.data.fields.heroTitle, 50)
+          && validText(request.resource.data.fields.heroAccent, 12)
+          && validText(request.resource.data.fields.heroIntro, 120)
+          && validText(request.resource.data.fields.heroNote, 80)
+          && validText(request.resource.data.fields.primaryAction, 24)
+          && validText(request.resource.data.fields.secondaryAction, 24)
+          && validText(request.resource.data.fields.featureKicker, 40)
+          && validText(request.resource.data.fields.featureTitle, 50)
+          && validText(request.resource.data.fields.featureAction, 40);
+      }
+
+      function validExtendedPageCopy() {
+        return pageId in [
+            'agents', 'classroom', 'tools', 'resources', 'news', 'paths',
+            'articles', 'article', 'prompts', 'workspace'
+          ]
+          && request.resource.data.fields.keys().size() > 0
+          && request.resource.data.fields.keys().size() <= 40;
+      }
+
+      allow read: if pageId in [
+          'home', 'multimodal', 'agents', 'classroom', 'tools', 'resources',
+          'news', 'paths', 'articles', 'article', 'prompts', 'workspace'
+        ];
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasAll(['fields', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['fields', 'updatedAt'])
+        && request.resource.data.fields is map
+        && request.resource.data.updatedAt is string
+        && (
+          (pageId == 'home' && validHomeCopy())
+          || (pageId == 'multimodal' && validMultimodalCopy())
+          || validExtendedPageCopy()
+        );
+      allow delete: if isAdmin();
+    }
+
     match /community_prompts/{promptId} {
       function isAuthor() {
         return signedIn() && resource.data.authorId == request.auth.uid;

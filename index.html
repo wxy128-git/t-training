@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260822-auth-transition">
+    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
     <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
     <script type="application/ld+json">
     {
@@ -92,13 +92,9 @@
             box-shadow: 0 0 0 3px var(--th-teal-soft);
         }
 
-        .th-hero { padding: 72px 0 60px; border-bottom: 1px solid var(--th-line); }
-        .th-hero-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.06fr) minmax(420px, .94fr);
-            gap: 72px;
-            align-items: center;
-        }
+        .th-hero { padding: 70px 0 64px; border-bottom: 1px solid var(--th-line); }
+        .th-hero-grid { display: block; }
+        .th-hero-main { max-width: 920px; }
         .th-eyebrow {
             display: inline-flex;
             align-items: center;
@@ -114,7 +110,7 @@
         .th-eyebrow::before { content: ""; width: 24px; height: 2px; background: var(--th-blue); }
         .th-hero h1 {
             margin: 0;
-            max-width: 11em;
+            max-width: 14em;
             color: var(--th-ink);
             font-size: clamp(42px, 5vw, 64px);
             font-weight: 760;
@@ -123,7 +119,7 @@
         }
         .th-hero h1 span { color: var(--th-brand); }
         .th-hero-copy {
-            max-width: 39em;
+            max-width: 43em;
             margin: 24px 0 0;
             color: var(--th-text);
             font-size: 16px;
@@ -148,7 +144,7 @@
         .th-btn:hover { border-color: var(--th-blue); color: var(--th-blue); transform: translateY(-1px); }
         .th-btn.primary { border-color: var(--th-brand); background: var(--th-brand); color: #fff; }
         .th-btn.primary:hover { border-color: var(--th-brand-dark); background: var(--th-brand-dark); color: #fff; }
-        .th-resume { display: none; grid-template-columns: auto minmax(0,1fr) auto; gap: 11px; align-items: center; margin-top: 17px; padding: 12px 13px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f7fafb; }
+        .th-resume { display: none; grid-template-columns: auto minmax(0,1fr) auto; gap: 11px; align-items: center; max-width: 680px; margin-top: 17px; padding: 12px 13px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f7fafb; }
         .th-resume.active { display: grid; }
         .th-resume-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: var(--th-blue-soft); color: var(--th-blue); font-size: 17px; }
         .th-resume-copy { min-width: 0; }
@@ -156,133 +152,10 @@
         .th-resume-copy b { display: block; margin-top: 3px; color: var(--th-ink); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .th-resume-copy span { display: block; margin-top: 2px; color: var(--th-muted); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .th-resume-link { min-height: 38px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #9dbac9; border-radius: 7px; background: var(--th-panel); color: var(--th-blue); padding: 7px 10px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
-        .th-assurance {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px 22px;
-            margin: 30px 0 0;
-            padding: 20px 0 0;
-            border-top: 1px solid var(--th-line);
-        }
-        .th-assurance span {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            color: var(--th-muted);
-            font-size: 12.5px;
-        }
-        .th-assurance i { color: var(--th-teal); font-size: 16px; }
-
-        .th-cycle {
-            overflow: hidden;
-            border: 1px solid var(--th-line-strong);
-            border-radius: 12px;
-            background: var(--th-panel);
-            box-shadow: 0 12px 30px -28px rgba(23, 33, 43, .55);
-        }
-        .th-cycle-head {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 18px;
-            padding: 20px 22px 18px;
-            border-bottom: 1px solid var(--th-line);
-            background: #f9fbfc;
-        }
-        .th-cycle-label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--th-muted);
-            font-family: var(--font-mono);
-            font-size: 10px;
-            letter-spacing: .1em;
-            text-transform: uppercase;
-        }
-        .th-cycle-head h2 { margin: 0; color: var(--th-ink); font-size: 18px; font-weight: 720; }
-        .th-cycle-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-        .th-cycle-tags span {
-            padding: 4px 8px;
-            border: 1px solid var(--th-line);
-            border-radius: 6px;
-            color: var(--th-muted);
-            background: var(--th-panel);
-            font-size: 11px;
-        }
-        .th-cycle-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            flex: none;
-            padding: 5px 8px;
-            border-radius: 6px;
-            background: var(--th-blue-soft);
-            color: var(--th-blue);
-            font-family: var(--font-mono);
-            font-size: 10px;
-            font-weight: 600;
-        }
-        .th-cycle-list { padding: 8px 22px; }
-        .th-cycle-step {
-            position: relative;
-            display: grid;
-            grid-template-columns: 34px minmax(0, 1fr) auto;
-            gap: 12px;
-            align-items: center;
-            min-height: 58px;
-            border-bottom: 1px solid var(--th-line);
-        }
-        .th-cycle-step:last-child { border-bottom: 0; }
-        .th-cycle-step::before {
-            content: "";
-            position: absolute;
-            left: 16px;
-            top: 40px;
-            bottom: -18px;
-            width: 1px;
-            background: var(--th-line-strong);
-        }
-        .th-cycle-step:last-child::before { display: none; }
-        .th-step-no {
-            position: relative;
-            z-index: 1;
-            width: 32px;
-            height: 32px;
-            display: grid;
-            place-items: center;
-            border: 1px solid var(--th-line-strong);
-            border-radius: 50%;
-            background: var(--th-panel);
-            color: var(--th-muted);
-            font-family: var(--font-mono);
-            font-size: 10px;
-        }
-        .th-cycle-step.done .th-step-no { border-color: var(--th-teal); background: var(--th-teal-soft); color: var(--th-teal); }
-        .th-cycle-step.active .th-step-no { border-color: var(--th-blue); background: var(--th-blue); color: #fff; }
-        .th-cycle-step b { display: block; color: var(--th-ink); font-size: 13.5px; font-weight: 680; }
-        .th-cycle-step small { display: block; margin-top: 3px; color: var(--th-muted); font-size: 11.5px; line-height: 1.5; }
-        .th-step-state { color: var(--th-subtle); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .05em; }
-        .th-cycle-step.done .th-step-state { color: var(--th-teal); }
-        .th-cycle-step.active .th-step-state { color: var(--th-blue); font-weight: 600; }
-        .th-cycle-foot {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            padding: 15px 22px;
-            border-top: 1px solid var(--th-line);
-            background: var(--th-panel-muted);
-            color: var(--th-muted);
-            font-size: 11.5px;
-        }
-        .th-cycle-foot a { display: inline-flex; align-items: center; gap: 6px; color: var(--th-blue); font-weight: 700; }
-
-        .th-section { padding: 68px 0; border-bottom: 1px solid var(--th-line); }
+        .th-section { padding: 54px 0; border-bottom: 1px solid var(--th-line); }
         .th-section-head {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(240px, 420px);
-            gap: 32px;
-            align-items: end;
-            margin-bottom: 30px;
+            display: block;
+            margin-bottom: 24px;
         }
         .th-section-head h2 { margin: 0; color: var(--th-ink); font-size: clamp(27px, 3vw, 36px); font-weight: 740; letter-spacing: -.025em; }
         .th-section-head p { margin: 0; color: var(--th-muted); font-size: 13.5px; line-height: 1.75; }
@@ -299,7 +172,7 @@
 
         .th-task-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--th-line-strong); border-left: 1px solid var(--th-line-strong); }
         .th-task {
-            min-height: 196px;
+            min-height: 176px;
             display: flex;
             flex-direction: column;
             padding: 22px;
@@ -322,7 +195,7 @@
         }
         .th-task-kind { color: var(--th-subtle); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase; }
         .th-task h3 { margin: 20px 0 7px; color: var(--th-ink); font-size: 17px; font-weight: 720; }
-        .th-task p { margin: 0; color: var(--th-muted); font-size: 12.5px; line-height: 1.65; }
+        .th-task p { margin: 0; color: var(--th-muted); font-size: 12.5px; line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .th-task-output {
             display: flex;
             align-items: center;
@@ -336,7 +209,35 @@
         .th-task-output i { margin-left: auto; color: var(--th-subtle); font-size: 16px; transition: transform .18s, color .18s; }
         .th-task:hover .th-task-output i { color: var(--task-color, var(--th-blue)); transform: translateX(3px); }
 
-        .th-method-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr); gap: 22px; }
+        .th-task-closure {
+            margin-top: 16px;
+            border: 1px solid var(--th-line-strong);
+            border-radius: 10px;
+            background: var(--th-panel);
+            overflow: hidden;
+        }
+        .th-task-closure > summary {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 24px;
+            min-height: 64px;
+            padding: 10px 18px;
+            cursor: pointer;
+            list-style: none;
+        }
+        .th-task-closure > summary::-webkit-details-marker { display: none; }
+        .th-closure-label { display: inline-flex; align-items: center; gap: 8px; color: var(--th-ink); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+        .th-closure-label i { color: var(--th-blue); font-size: 18px; }
+        .th-closure-more { display: inline-flex; align-items: center; gap: 5px; color: var(--th-blue); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+        .th-closure-more i { transition: transform .18s; }
+        .th-task-closure[open] .th-closure-more i { transform: rotate(180deg); }
+        .th-closure-checks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--th-line); background: #f9fbfc; }
+        .th-closure-check { display: flex; align-items: flex-start; gap: 8px; padding: 14px 16px; border-right: 1px solid var(--th-line); color: var(--th-muted); font-size: 11.5px; line-height: 1.55; }
+        .th-closure-check:last-child { border-right: 0; }
+        .th-closure-check i { flex: none; margin-top: 1px; color: var(--th-teal); font-size: 16px; }
+
+        .th-method-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .th-method-card { border: 1px solid var(--th-line-strong); border-radius: 10px; background: var(--th-panel); overflow: hidden; }
         .th-method-title {
             display: flex;
@@ -351,6 +252,10 @@
             font-weight: 700;
         }
         .th-method-title i { color: var(--th-blue); font-size: 17px; }
+        summary.th-method-title { cursor: pointer; list-style: none; }
+        summary.th-method-title::-webkit-details-marker { display: none; }
+        summary.th-method-title::after { content: "+"; margin-left: auto; color: var(--th-muted); font-family: var(--font-mono); font-size: 17px; font-weight: 500; }
+        details[open] > summary.th-method-title::after { content: "−"; }
         .th-table-wrap { overflow-x: auto; }
         .th-method-table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 12.5px; }
         .th-method-table th,
@@ -423,8 +328,6 @@
         .th-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
         @media (max-width: 980px) {
-            .th-hero-grid { grid-template-columns: 1fr; gap: 42px; }
-            .th-cycle { max-width: 680px; }
             .th-task-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .th-method-grid { grid-template-columns: 1fr; }
         }
@@ -432,12 +335,10 @@
             .th-shell { width: min(100% - 32px, 1240px); }
             .th-system-bar { gap: 10px; }
             .th-system-bar > span:nth-child(2) { display: none; }
-            .th-hero { padding: 40px 0 34px; }
+            .th-hero { padding: 40px 0; }
             .th-hero h1 { font-size: clamp(38px, 11vw, 52px); }
             .th-hero-copy { margin-top: 18px; font-size: 15px; }
             .th-hero-actions { margin-top: 22px; }
-            .th-assurance { margin-top: 22px; padding-top: 16px; gap: 8px 14px; }
-            .th-cycle { display: none; }
             .th-section { padding: 40px 0; }
             .th-section-head { grid-template-columns: 1fr; gap: 12px; }
             .th-task-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; border: 0; }
@@ -447,6 +348,10 @@
             .th-task h3 { margin: 14px 0 0; font-size: 15px; }
             .th-task p { display: none; }
             .th-task-output { padding-top: 12px; font-size: 10.5px; line-height: 1.4; }
+            .th-task-closure > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; padding: 14px 15px; }
+            .th-closure-checks { grid-template-columns: 1fr 1fr; }
+            .th-closure-check:nth-child(2) { border-right: 0; }
+            .th-closure-check:nth-child(-n + 2) { border-bottom: 1px solid var(--th-line); }
             .th-mobile-more { display: inline-flex; }
             #main-content:not(.mobile-expanded) .th-mobile-secondary { display: none; }
             .th-index-row { grid-template-columns: 112px minmax(0, 1fr) 70px; gap: 12px; }
@@ -456,11 +361,10 @@
             .th-hero-actions .th-btn { width: 100%; }
             .th-resume { grid-template-columns: auto minmax(0,1fr); }
             .th-resume-link { grid-column: 1 / -1; justify-content: center; }
-            .th-cycle-head { display: block; }
-            .th-cycle-status { margin-top: 12px; }
-            .th-cycle-step { grid-template-columns: 34px minmax(0, 1fr); }
-            .th-step-state { display: none; }
-            .th-cycle-foot { align-items: flex-start; flex-direction: column; }
+            .th-closure-checks { grid-template-columns: 1fr; }
+            .th-closure-check { border-right: 0; border-bottom: 1px solid var(--th-line); }
+            .th-closure-check:nth-child(3) { border-bottom: 1px solid var(--th-line); }
+            .th-closure-check:last-child { border-bottom: 0; }
             .th-index-row { grid-template-columns: 1fr auto; }
             .th-index-list { grid-column: 1 / -1; grid-row: 2; }
             .th-resource-grid { grid-template-columns: 1fr; }
@@ -478,20 +382,14 @@
 
 <main id="main-content">
     <div class="th-root">
-        <div class="th-shell th-system-bar" aria-label="平台状态">
-            <span><strong>TEACHER AI PRACTICE SYSTEM</strong></span>
-            <span>教学任务 · 人机协同 · 成果沉淀</span>
-            <span class="th-system-state"><span class="th-system-dot" aria-hidden="true"></span>工作台已加载 · <span id="th-system-date"></span></span>
-        </div>
-
         <section class="th-hero">
             <div class="th-shell th-hero-grid">
-                <div>
-                    <div class="th-eyebrow">面向中小学教师的 AI 教学实践平台</div>
-                    <h1>让<span>AI</span>真正走进你的课堂</h1>
-                    <p class="th-hero-copy"><span class="th-agent-count">19</span> 个专业智能体覆盖备课、课堂、评价、家校与教师发展。系统负责结构化起草与适配预检，教师负责判断、修改和最终定稿。</p>
+                <div class="th-hero-main">
+                    <div class="th-eyebrow" data-site-copy="heroEyebrow">教师 AI 教学实践平台</div>
+                    <h1 data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">让<span>AI</span>真正走进你的课堂</h1>
+                    <p class="th-hero-copy" data-site-copy="heroIntro">从真实教学任务出发，填写背景并获得可编辑初稿；重要事实与课堂适配由教师核验。</p>
                     <div class="th-hero-actions">
-                        <a class="th-btn primary" href="#task-start"><i class="ph ph-play-circle"></i>选择教学任务</a>
+                        <a class="th-btn primary" href="#task-start"><i class="ph ph-play-circle"></i><span data-site-copy="primaryAction">选择教学任务</span></a>
                         <a class="th-btn" id="th-personal-link" href="/workspace"><i class="ph ph-notebook"></i>打开我的备课本</a>
                     </div>
                     <div class="th-resume" id="th-resume" aria-live="polite">
@@ -499,66 +397,30 @@
                         <div class="th-resume-copy"><small>CONTINUE WORK</small><b id="th-resume-title"></b><span id="th-resume-meta"></span></div>
                         <a class="th-resume-link" id="th-resume-link" href="/agents"><span>继续</span><i class="ph ph-arrow-right"></i></a>
                     </div>
-                    <div class="th-assurance" aria-label="工作原则">
-                        <span><i class="ph ph-check-circle"></i>涉及学段的任务先做适配预检</span>
-                        <span><i class="ph ph-pencil-line"></i>生成内容可编辑、可重新生成</span>
-                        <span><i class="ph ph-folder-open"></i>成果可保存、导出与继续修改</span>
-                    </div>
                 </div>
-
-                <aside class="th-cycle" aria-labelledby="th-cycle-title">
-                    <div class="th-cycle-head">
-                        <div>
-                            <span class="th-cycle-label">示例工作流 · Lesson preparation</span>
-                            <h2 id="th-cycle-title">备一节课</h2>
-                            <div class="th-cycle-tags"><span>六年级</span><span>数学</span><span>《圆的认识》</span></div>
-                        </div>
-                        <span class="th-cycle-status"><i class="ph ph-circle-half"></i>进行中</span>
-                    </div>
-                    <div class="th-cycle-list">
-                        <div class="th-cycle-step done">
-                            <span class="th-step-no"><i class="ph-bold ph-check"></i></span>
-                            <div><b>确认学段与课题</b><small>检查学科、年级与知识内容是否匹配</small></div>
-                            <span class="th-step-state">已完成</span>
-                        </div>
-                        <div class="th-cycle-step active">
-                            <span class="th-step-no">02</span>
-                            <div><b>形成教学设计初稿</b><small>目标、重难点、教学过程与分层作业</small></div>
-                            <span class="th-step-state">当前步骤</span>
-                        </div>
-                        <div class="th-cycle-step">
-                            <span class="th-step-no">03</span>
-                            <div><b>生成配套练习</b><small>围绕目标设计检测题与参考答案</small></div>
-                            <span class="th-step-state">待开始</span>
-                        </div>
-                        <div class="th-cycle-step">
-                            <span class="th-step-no">04</span>
-                            <div><b>教师核验与定稿</b><small>结合教材、学情与课堂条件完成修改</small></div>
-                            <span class="th-step-state">待开始</span>
-                        </div>
-                        <div class="th-cycle-step">
-                            <span class="th-step-no">05</span>
-                            <div><b>保存并投入使用</b><small>进入备课本，按需要导出或继续完善</small></div>
-                            <span class="th-step-state">待开始</span>
-                        </div>
-                    </div>
-                    <div class="th-cycle-foot">
-                        <span>每一步都有明确输入、处理和教师责任</span>
-                        <a href="/agents#lesson-design">开始教学设计 <i class="ph ph-arrow-right"></i></a>
-                    </div>
-                </aside>
             </div>
         </section>
 
         <section class="th-section" id="task-start">
             <div class="th-shell">
                 <div class="th-section-head">
-                    <div><span class="th-section-code">Task launcher</span><h2>今天要完成什么？</h2></div>
-                    <p>不用先理解全部智能体。选择当前任务，直接进入相应工作台；系统会保留清晰的输入与输出边界。</p>
+                    <div><h2 data-site-copy="taskHeading">今天要完成什么？</h2></div>
                 </div>
                 <div class="th-task-grid" id="th-task-grid"></div>
+                <details class="th-task-closure th-mobile-secondary">
+                    <summary>
+                        <span class="th-closure-label"><i class="ph ph-shield-check"></i><span data-site-copy="checklistHeading">使用前核验</span></span>
+                        <span class="th-closure-more"><span data-site-copy="checklistAction">查看 4 项</span> <i class="ph ph-caret-down"></i></span>
+                    </summary>
+                    <div class="th-closure-checks">
+                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>目标、活动与评价一致</span></div>
+                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>适合当前学生与课堂条件</span></div>
+                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>事实和课程依据已经核实</span></div>
+                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>不输入敏感信息，教师最终定稿</span></div>
+                    </div>
+                </details>
                 <button type="button" class="th-mobile-more" id="th-mobile-more" aria-expanded="false" onclick="toggleHomeDetails()">
-                    <span>继续了解工作方法与配套资源</span><i class="ph ph-caret-down" aria-hidden="true"></i>
+                    <span>查看使用提示与配套资源</span><i class="ph ph-caret-down" aria-hidden="true"></i>
                 </button>
             </div>
         </section>
@@ -566,52 +428,7 @@
         <section class="th-section th-mobile-secondary">
             <div class="th-shell">
                 <div class="th-section-head">
-                    <div><span class="th-section-code">Human–AI protocol</span><h2>AI 起草，教师负责判断</h2></div>
-                    <p>平台不把“生成完成”视为任务完成。每份结果都需要经过输入校验、教师核对和成果沉淀。</p>
-                </div>
-                <div class="th-method-grid">
-                    <div class="th-method-card">
-                        <div class="th-method-title"><i class="ph ph-flow-arrow"></i>标准工作协议</div>
-                        <div class="th-table-wrap">
-                            <table class="th-method-table">
-                                <thead><tr><th>环节</th><th>系统处理</th><th>教师责任</th></tr></thead>
-                                <tbody>
-                                    <tr><td>输入</td><td>收集学科、年级、课题与实际约束</td><td>提供真实学情，避免录入学生敏感信息</td></tr>
-                                    <tr><td>预检</td><td>检查明显的学段、学科与知识内容错配</td><td>确认教材版本和本校教学安排</td></tr>
-                                    <tr><td>起草</td><td>按任务结构生成可编辑的初稿</td><td>核对事实、难度、时间与可操作性</td></tr>
-                                    <tr><td>定稿</td><td>支持编辑、重生成、保存与导出</td><td>结合班级实际完成最终判断</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="th-method-card">
-                        <div class="th-method-title"><i class="ph ph-shield-check"></i>使用前检查</div>
-                        <div class="th-checks">
-                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>目标—活动—评价一致</b><span>教学活动与检测任务应服务于同一组学习目标。</span></div></div>
-                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>适合当前学生</b><span>核对知识基础、班级人数、课时和可用设备。</span></div></div>
-                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>事实和课程依据可核实</b><span>重要知识、数据和政策表述回到教材或权威来源确认。</span></div></div>
-                            <div class="th-check"><i class="ph ph-check-circle"></i><div><b>教师完成最终定稿</b><span>AI 输出是可修改初稿，不代替专业判断与教学责任。</span></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="th-section th-mobile-secondary">
-            <div class="th-shell">
-                <div class="th-section-head">
-                    <div><span class="th-section-code">Capability index</span><h2>专业能力索引</h2></div>
-                    <p>全部智能体按教学环节归类。需要精确查找时，可进入智能体空间使用分类和关键词筛选。</p>
-                </div>
-                <div class="th-index" id="th-capability-index"></div>
-            </div>
-        </section>
-
-        <section class="th-section th-mobile-secondary">
-            <div class="th-shell">
-                <div class="th-section-head">
-                    <div><span class="th-section-code">Supporting resources</span><h2>学习与配套资源</h2></div>
-                    <p>工具、素材和资讯保留为支持层，不打断核心教学任务流程。</p>
+                    <div><h2 data-site-copy="resourcesHeading">学习与配套资源</h2></div>
                 </div>
                 <div class="th-resource-grid">
                     <a class="th-resource" href="/paths"><span class="th-resource-icon"><i class="ph ph-path"></i></span><div><b>学习路径</b><span>系统训练路线</span></div><i class="ph ph-arrow-up-right"></i></a>
@@ -625,32 +442,8 @@
         </section>
     </div>
 
-    <div class="home-main th-mobile-secondary">
+    <div class="home-main th-mobile-secondary" id="home-announcements" hidden>
         <div id="announcements-section"></div>
-
-        <section class="contact-band" aria-labelledby="contact-band-title">
-            <div class="contact-band-icon"><i class="ph ph-chat-circle-text"></i></div>
-            <div class="contact-band-copy">
-                <span>使用反馈</span>
-                <h2 id="contact-band-title">告诉我们哪一步还不够好用</h2>
-                <p>可提交具体任务、使用问题或学校 AI 应用需求，我们会据此继续改进。</p>
-            </div>
-            <button type="button" class="contact-band-button" data-contact-trigger><i class="ph ph-paper-plane-tilt"></i>提交反馈</button>
-        </section>
-
-        <section class="subscribe-section">
-            <div style="max-width:560px;margin:0 auto">
-                <i class="ph ph-envelope-simple" style="font-size:36px;opacity:.85;display:block;margin-bottom:16px"></i>
-                <h2>登记内容更新通知</h2>
-                <p>留下邮箱，用于后续新工具、方法和教学案例的更新通知。</p>
-                <div class="subscribe-form">
-                    <label class="th-sr-only" for="main-sub-email">邮箱地址</label>
-                    <input class="subscribe-input" type="email" inputmode="email" autocomplete="email" id="main-sub-email" placeholder="输入邮箱地址">
-                    <button class="subscribe-btn" type="button" onclick="mainSubscribe()">登记</button>
-                </div>
-                <p style="font-size:12px;opacity:.68;margin-top:14px;position:relative">目前不承诺固定发送频率 · 可联系我们删除登记</p>
-            </div>
-        </section>
     </div>
 </main>
 
@@ -661,8 +454,9 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260822-phase1"></script>
-<script src="js/auth.js?v=20260822-auth-transition"></script>
+<script src="js/data.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/pwa.js?v=20260822-phase1"></script>
 <script src="js/assistant.js?v=20260821-tencent"></script>
@@ -672,12 +466,19 @@
 renderNav('index');
 renderFooter();
 
+let homePageCopy = SiteCopy.defaults('home');
+SiteCopy.load('home').then(copy => {
+    homePageCopy = SiteCopy.applyToDocument('home', copy);
+    updateHomePersonalLink(Auth.getCurrentUser());
+});
+
 function homeEscape(value) {
     return String(value || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 }
 
 DB.getAnnouncements().then(announcements => {
     if (!announcements || !announcements.length) return;
+    document.getElementById('home-announcements').hidden = false;
     document.getElementById('announcements-section').innerHTML = `
         <section>
             <div class="section-header compact"><h2><i class="ph ph-megaphone" style="color:var(--brand);margin-right:8px"></i>平台公告</h2></div>
@@ -688,12 +489,17 @@ DB.getAnnouncements().then(announcements => {
 function updateHomeAccountState(user) {
     renderNav('index');
     renderFooter();
+    updateHomePersonalLink(user);
+    renderHomeContinuation();
+}
+
+function updateHomePersonalLink(user) {
     const link = document.getElementById('th-personal-link');
     if (!link) return;
-    link.innerHTML = user
-        ? '<i class="ph ph-notebook"></i>继续我的备课'
-        : '<i class="ph ph-notebook"></i>打开我的备课本';
-    renderHomeContinuation();
+    const icon = document.createElement('i');
+    icon.className = 'ph ph-notebook';
+    const label = user ? homePageCopy.workbookActionMember : homePageCopy.workbookActionGuest;
+    link.replaceChildren(icon, document.createTextNode(label));
 }
 
 onAuthReady(updateHomeAccountState);
@@ -725,7 +531,7 @@ function syncHomeDetailsToggle() {
     if (!main || !button) return;
     const expanded = main.classList.contains('mobile-expanded');
     button.setAttribute('aria-expanded', String(expanded));
-    button.querySelector('span').textContent = expanded ? '收起工作方法与配套资源' : '继续了解工作方法与配套资源';
+    button.querySelector('span').textContent = expanded ? '收起使用提示与配套资源' : '查看使用提示与配套资源';
     button.querySelector('i').className = `ph ${expanded ? 'ph-caret-up' : 'ph-caret-down'}`;
 }
 
@@ -746,11 +552,9 @@ syncHomeDetailsToggle();
 
 (function renderHomeWorkbench() {
     const agents = window.AGENTS || [];
-    const categories = window.AGENT_CATS || [];
     const agentMap = Object.fromEntries(agents.map(agent => [agent.id, agent]));
     const count = agents.length || 19;
     document.querySelectorAll('.th-agent-count').forEach(element => { element.textContent = count; });
-    document.getElementById('th-system-date').textContent = new Date().toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
 
     const taskConfigs = [
         { id: 'lesson-design', title: '备一节课', output: '完整教学设计', kind: '备课设计', icon: 'ph-blueprint', color: '#287a68', soft: '#e5f2ef' },
@@ -773,37 +577,7 @@ syncHomeDetailsToggle();
         </a>`;
     }).join('');
 
-    const capabilityIndex = document.getElementById('th-capability-index');
-    capabilityIndex.innerHTML = categories.map(category => {
-        const list = agents.filter(agent => agent.cat === category.key);
-        return `<a class="th-index-row" href="/agents?cat=${encodeURIComponent(category.key)}">
-            <span class="th-index-name"><span class="th-index-mark" style="--cat-color:${category.color}"></span>${homeEscape(category.name)}</span>
-            <span class="th-index-list">${list.map(agent => homeEscape(agent.name)).join(' · ')}</span>
-            <span class="th-index-count"><b>${list.length}</b> 项 <i class="ph ph-arrow-right"></i></span>
-        </a>`;
-    }).join('');
 })();
-
-async function mainSubscribe() {
-    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后订阅动态')) return;
-    const input = document.getElementById('main-sub-email');
-    const email = input.value.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('请输入有效邮箱地址');
-        input.focus();
-        return;
-    }
-    try {
-        const result = await DB.addSubscriber(email);
-        if (result === 'exists') showToast('该邮箱已登记，无需重复提交');
-        else {
-            input.value = '';
-            showToast('登记成功，邮件通知功能上线后会向该邮箱发送更新');
-        }
-    } catch {
-        showToast('订阅失败，请稍后重试');
-    }
-}
 </script>
 </body>
 </html>
