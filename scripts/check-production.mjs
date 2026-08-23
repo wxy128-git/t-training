@@ -22,7 +22,7 @@ async function request(path, options = {}) {
     }
 }
 
-const routes = ['/', '/agents', '/multimodal', '/classroom-tools', '/tools', '/resources', '/news', '/paths', '/articles', '/prompts'];
+const routes = ['/', '/agents', '/multimodal', '/classroom-tools', '/tools', '/resources', '/news', '/paths', '/articles', '/prompts', '/workspace'];
 for (const route of routes) {
     const response = await request(route);
     if (!response) continue;
@@ -38,14 +38,15 @@ if (home) {
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    assert(body.includes('css/style.css?v=20260822-auth-transition'), '首页未加载当前全局样式版本');
+    assert(body.includes('css/style.css?v=20260823-content-team-workbook'), '首页未加载当前全局样式版本');
     assert(body.includes('css/pwa.css?v=20260822-phase1'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20260822-auth-transition'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/auth.js?v=20260823-content-team-workbook'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/data.js?v=20260823-page-copy') && body.includes('js/site-copy.js?v=20260823-page-copy'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20260821-tencent'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20260822-phase1'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
-    assert(body.includes('id="th-mobile-more"') && body.includes('继续了解工作方法与配套资源'), '首页移动端渐进展开入口未上线');
+    assert(body.includes('id="th-mobile-more"') && body.includes('th-mobile-secondary'), '首页移动端渐进展开入口未上线');
     assert(body.includes('<meta name="mobile-web-app-capable" content="yes">'), '首页缺少标准移动 Web App 声明');
 }
 
@@ -57,7 +58,7 @@ if (pwaScript) {
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
 }
 
-const authScript = await request('/js/auth.js?v=20260822-auth-transition');
+const authScript = await request('/js/auth.js?v=20260823-content-team-workbook');
 if (authScript) {
     const body = await authScript.text();
     assert(authScript.status === 200 && authScript.headers.get('content-type')?.includes('javascript'), '当前认证脚本未上线');
@@ -75,7 +76,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260822-v9'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260823-v14'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -89,20 +90,28 @@ const paths = await request('/paths');
 if (paths) {
     const body = await paths.text();
     assert(body.includes('PATH_PROGRESS_PREFIX') && body.includes('id="path-continue"'), '学习路径进度与继续学习入口未上线');
-    assert(body.includes('step-complete-btn') && body.includes('标记为已完成'), '学习步骤完成操作未上线');
+    assert(body.includes('step-complete-btn') && body.includes('pathsPageCopy.completeAction'), '学习步骤完成操作未上线');
 }
 
 const classroom = await request('/classroom-tools');
 if (classroom) {
     const body = await classroom.text();
     assert((body.match(/<button type="button" class="ct-tool-card"/g) || []).length === 9, '课堂工具卡片未全部升级为原生按钮');
-    assert(body.includes('ct-tool-open') && body.includes('演示模式会隐藏站点导航与向导'), '课堂演示模式说明或界面避让未上线');
+    assert(body.includes('ct-tool-open') && body.includes('data-site-copy="presentationNote"'), '课堂演示模式说明或界面避让未上线');
 }
 
 const agents = await request('/agents');
 if (agents) {
     const body = await agents.text();
     assert(body.includes("!FEATURED.includes(a.id)"), '精选智能体仍会在分类列表重复展示');
+    assert(body.includes('class="agent-member"') && body.includes('assets/agent-portraits/'), '数字教研团队人物化界面未上线');
+}
+
+const workspace = await request('/workspace');
+if (workspace) {
+    const body = await workspace.text();
+    assert(body.includes('class="wb-binder"') && body.includes('class="wb-directory-page"'), '真实活页备课夹界面未上线');
+    assert(body.includes('data-type="reviewed"') && body.includes('class="wb-card-more"') && body.includes('wb-sheet-pull'), '备课本筛选、页侧操作或抽页交互未上线');
 }
 
 const safeRender = await request('/js/safe-render.js?v=20260719-security');
