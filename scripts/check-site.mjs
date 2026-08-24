@@ -133,12 +133,22 @@ if (!/教学设计助手的交付/.test(agentsHtml) && !/\$\{escapeHtml\(a\.name
     fail('agents.html', '数字成员交付区缺少成员归属');
 }
 if (!/AI 交付的是初稿/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
-const workspaceHtml = text('workspace.html');
-if (!/class="wb-binder"/.test(workspaceHtml) || !/class="wb-binder-ring"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
-    fail('workspace.html', '真实活页备课夹结构未接入');
+if (!/js\/textbook-catalog\.js\?v=20260824-textbook-guard/.test(agentsHtml) || !/class="ws-textbook-locator"/.test(agentsHtml)) {
+    fail('agents.html', '教材版本定位与生成前校验界面未接入');
 }
-if (!/data-type="reviewed"/.test(workspaceHtml) || !/class="wb-card-more"/.test(workspaceHtml) || !/wb-sheet-pull/.test(workspaceHtml)) {
-    fail('workspace.html', '备课本章节筛选、页侧操作或抽页交互不完整');
+if (!/function textbookAnalysis/.test(agentsHtml) || !/curriculumConfirmed/.test(agentsHtml) || !/非教材主题/.test(agentsHtml)) {
+    fail('agents.html', '教材冲突、人工核对或非教材主题链路不完整');
+}
+if (!existsSync(join(root, 'js/textbook-catalog.js'))) fail('js/textbook-catalog.js', '教材目录与课程冲突规则缺失');
+const workspaceHtml = text('workspace.html');
+if (!/class="wb-desk-scene wb-workbook-light"/.test(workspaceHtml) || !/class="wb-binder-spine"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
+    fail('workspace.html', '轻量备课本或装订线索结构未接入');
+}
+if (!/data-type="reviewed"/.test(workspaceHtml) || !/class="wb-card-more"/.test(workspaceHtml) || !/wb-sheet-open/.test(workspaceHtml)) {
+    fail('workspace.html', '备课本章节筛选、页侧操作或轻量打开交互不完整');
+}
+if (/class="(?:wb-paper-under|wb-page-hole|wb-binder-ring|wb-sheet-hole)"/.test(workspaceHtml)) {
+    fail('workspace.html', '备课本仍渲染多层纸边、打孔或金属环等过重拟物元素');
 }
 const previewServerSource = text('scripts/serve.mjs');
 if (!/localApiModules/.test(previewServerSource) || !/\/api\/auth-proxy/.test(previewServerSource)) fail('scripts/serve.mjs', '本地预览未启用认证代理');
@@ -149,7 +159,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260824-v16/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 页面文案缓存未更新');
+if (!/20260824-v17/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/textbook-catalog\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 教材校验缓存未更新');
 
 const loginTransitionSource = text('js/auth.js');
 if (/showWelcomeOverlay\('login'/.test(loginTransitionSource)) fail('js/auth.js', '登录成功仍使用短暂全屏欢迎层');

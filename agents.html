@@ -384,6 +384,40 @@
         .ws-extra-params summary i { transition: transform .16s ease; }
         .ws-extra-params[open] summary i { transform: rotate(180deg); }
         .ws-extra-fields { padding: 3px 1px 2px; }
+        .ws-textbook-locator { margin: 13px 0 4px; border: 1px solid #c8d8df; border-left: 3px solid #6d8e9e; border-radius: 8px; background: #f7fafb; overflow: hidden; transition: border-color .16s ease, background .16s ease; }
+        .ws-textbook-locator[data-state="aligned"], .ws-textbook-locator[data-state="confirmed"] { border-color: #9bc9bd; border-left-color: #287a68; background: #f3faf7; }
+        .ws-textbook-locator[data-state="custom"] { border-color: #b9c9d2; border-left-color: #526f7f; background: #f6f9fa; }
+        .ws-textbook-locator[data-state="needs_details"], .ws-textbook-locator[data-state="needs_confirmation"] { border-color: #dfc28d; border-left-color: #b17a20; background: #fffaf1; }
+        .ws-textbook-locator[data-state="conflict"] { border-color: #e0aaa5; border-left-color: var(--danger); background: #fff7f6; }
+        .ws-textbook-head { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 9px; align-items: center; padding: 11px 12px 9px; }
+        .ws-textbook-seal { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; color: #526f7f; font-size: 16px; }
+        .ws-textbook-locator[data-state="aligned"] .ws-textbook-seal, .ws-textbook-locator[data-state="confirmed"] .ws-textbook-seal { color: #287a68; }
+        .ws-textbook-locator[data-state="needs_details"] .ws-textbook-seal, .ws-textbook-locator[data-state="needs_confirmation"] .ws-textbook-seal { color: #9a681d; }
+        .ws-textbook-locator[data-state="conflict"] .ws-textbook-seal { color: var(--danger); }
+        .ws-textbook-title { min-width: 0; }
+        .ws-textbook-title b { display: block; color: var(--ink); font-size: 12.5px; }
+        .ws-textbook-title small { display: block; margin-top: 2px; color: var(--muted); font-size: 10.8px; line-height: 1.45; }
+        .ws-textbook-status { max-width: 126px; padding: 3px 7px; border: 1px solid #c8d8df; border-radius: 999px; color: #526f7f; background: rgba(255,255,255,.72); font-family: var(--font-mono); font-size: 9.5px; font-weight: 760; line-height: 1.35; text-align: center; }
+        .ws-textbook-locator[data-state="aligned"] .ws-textbook-status, .ws-textbook-locator[data-state="confirmed"] .ws-textbook-status { color: #1f6d5b; border-color: #9bc9bd; }
+        .ws-textbook-locator[data-state="needs_details"] .ws-textbook-status, .ws-textbook-locator[data-state="needs_confirmation"] .ws-textbook-status { color: #875c0e; border-color: #dfc28d; }
+        .ws-textbook-locator[data-state="conflict"] .ws-textbook-status { color: #a1433b; border-color: #e0aaa5; }
+        .ws-textbook-fields { display: grid; grid-template-columns: .78fr 1.2fr .72fr; gap: 8px; padding: 0 12px 10px; }
+        .ws-textbook-field { min-width: 0; }
+        .ws-textbook-field label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 10.5px; font-weight: 680; }
+        .ws-textbook-field select { width: 100%; min-height: 40px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--ink); font: inherit; font-size: 11.5px; outline: none; }
+        .ws-textbook-field select:focus { border-color: #527f96; box-shadow: 0 0 0 3px rgba(82,127,150,.12); }
+        .ws-textbook-field select:disabled { color: var(--subtle); background: #f0f3f4; cursor: not-allowed; }
+        .ws-textbook-result { display: flex; align-items: flex-start; gap: 6px; min-height: 34px; margin: 0 12px; padding: 8px 0; border-top: 1px solid rgba(104,127,139,.18); color: var(--text); font-size: 10.8px; line-height: 1.55; }
+        .ws-textbook-result i { margin-top: 1px; color: #526f7f; font-size: 13px; flex-shrink: 0; }
+        .ws-textbook-locator[data-state="aligned"] .ws-textbook-result i, .ws-textbook-locator[data-state="confirmed"] .ws-textbook-result i { color: #287a68; }
+        .ws-textbook-locator[data-state="needs_details"] .ws-textbook-result i, .ws-textbook-locator[data-state="needs_confirmation"] .ws-textbook-result i { color: #9a681d; }
+        .ws-textbook-locator[data-state="conflict"] .ws-textbook-result i { color: var(--danger); }
+        .ws-textbook-confirm { display: none; align-items: flex-start; gap: 8px; margin: 0 12px 10px; padding: 9px 10px; border: 1px solid #dfc28d; border-radius: 7px; background: rgba(255,255,255,.72); color: #6f521d; font-size: 10.8px; line-height: 1.55; cursor: pointer; }
+        .ws-textbook-confirm.active { display: flex; }
+        .ws-textbook-confirm input { width: 16px; height: 16px; margin: 1px 0 0; flex-shrink: 0; accent-color: #287a68; }
+        .ws-textbook-source { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-top: 1px solid rgba(104,127,139,.16); color: var(--subtle); background: rgba(255,255,255,.42); font-size: 9.8px; line-height: 1.45; }
+        .ws-textbook-source a { margin-left: auto; color: #245b78; text-decoration: none; white-space: nowrap; }
+        .ws-textbook-source a:hover { text-decoration: underline; }
         .ws-run { min-height: 48px; margin-top: 13px; border-radius: 8px; }
         .ws-input-col .ws-draft-state { margin: 12px 0 0; }
         .ws-out-head { min-height: 52px; padding: 13px 18px; background: var(--paper); }
@@ -419,6 +453,11 @@
             .ws-colleague-avatar { width: 42px; height: 42px; }
             .ws-colleague-copy { padding: 9px 10px; }
             .ws-brief-context { grid-template-columns: 1fr; }
+            .ws-textbook-head { grid-template-columns: 30px minmax(0,1fr); }
+            .ws-textbook-status { grid-column: 2; justify-self: start; max-width: none; }
+            .ws-textbook-fields { grid-template-columns: 1fr; }
+            .ws-textbook-source { align-items: flex-start; flex-wrap: wrap; }
+            .ws-textbook-source a { margin-left: 0; width: 100%; }
             .ws-brief-primary .field.is-brief-primary textarea { min-height: 132px; }
             .ws-task-summary { padding-inline: 14px; }
             .ws-task-summary p { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
@@ -687,6 +726,7 @@
 <script src="js/site-copy.js?v=20260824-agent-directory"></script>
 <script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/textbook-catalog.js?v=20260824-textbook-guard"></script>
 <script src="js/agents-data.js?v=20260712-workbench"></script>
 <script src="js/teaching-projects.js?v=20260712-project-flow"></script>
 <script>
@@ -1416,6 +1456,32 @@ function briefFieldMarkup(agent, field, index, primaryFields) {
     return renderField(agent.id, field, options);
 }
 
+function hasTextbookLocator(agent) {
+    if (!window.TextbookCatalog || !CURRICULUM_VALIDATION[agent?.id]) return false;
+    const keys = new Set((agent.fields || []).map(field => field.key));
+    return keys.has('subject') && keys.has('grade');
+}
+
+function textbookLocatorMarkup(agent) {
+    if (!hasTextbookLocator(agent)) return '';
+    const source = window.TextbookCatalog.source;
+    return `<section class="ws-textbook-locator" id="ws-textbook-locator" data-state="waiting" aria-labelledby="ws-textbook-heading">
+        <div class="ws-textbook-head">
+            <span class="ws-textbook-seal"><i class="ph ph-seal-check" aria-hidden="true"></i></span>
+            <div class="ws-textbook-title"><b id="ws-textbook-heading">教材校验章</b><small>${escapeHtml(agent.name)}会先核对教材身份，再接手任务。</small></div>
+            <span class="ws-textbook-status" id="ws-textbook-status">等待任务</span>
+        </div>
+        <div class="ws-textbook-fields">
+            <div class="ws-textbook-field"><label for="curriculum-mode">任务类型</label><select id="curriculum-mode" name="curriculumMode"><option value="textbook">教材同步</option><option value="custom">非教材主题</option></select></div>
+            <div class="ws-textbook-field"><label for="textbook-edition">教材版本</label><select id="textbook-edition" name="textbookEdition"><option value="">请先选择学科和年级</option></select></div>
+            <div class="ws-textbook-field"><label for="textbook-volume">册次</label><select id="textbook-volume" name="textbookVolume"><option value="">请选择册次</option></select></div>
+        </div>
+        <div class="ws-textbook-result" id="ws-textbook-result" role="status" aria-live="polite"><i class="ph ph-info"></i><span>填写学科、年级和课题后自动校验。</span></div>
+        <label class="ws-textbook-confirm" id="ws-textbook-confirm"><input type="checkbox" name="curriculumConfirmed"><span>我已查看手边教材目录，确认这个课题属于上述版本和册次。</span></label>
+        <div class="ws-textbook-source"><i class="ph ph-books" aria-hidden="true"></i><span>${escapeHtml(source.shortTitle)} · ${escapeHtml(source.standard)}</span><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">查看依据 <i class="ph ph-arrow-square-out"></i></a></div>
+    </section>`;
+}
+
 function buildForm(a) {
     clearAgentWorkState({ keepAgent: true });
     const groups = briefFieldGroups(a);
@@ -1423,6 +1489,7 @@ function buildForm(a) {
     const contextHtml = groups.context.map(field => renderField(a.id, field, { context: true })).join('');
     const extraHtml = groups.extra.map(field => renderField(a.id, field)).join('');
     const handwritingAssist = handwritingAssistMarkup(a);
+    const textbookLocator = textbookLocatorMarkup(a);
     const deliverable = agentDeliverable(a);
     document.getElementById('ws-body').innerHTML = `
     <div class="ws-form-layout">
@@ -1443,6 +1510,7 @@ function buildForm(a) {
                 <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
                     <div class="ws-brief-primary">${primaryHtml}</div>
                     ${contextHtml ? `<div class="ws-brief-context" aria-label="任务背景">${contextHtml}</div>` : ''}
+                    ${textbookLocator}
                     ${extraHtml ? `<details class="ws-extra-params" id="ws-extra-params"><summary>展开全部参数 <i class="ph ph-caret-down" aria-hidden="true"></i></summary><div class="ws-extra-fields">${extraHtml}</div></details>` : ''}
                     <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> ${escapeHtml(agentRunLabel(a))}</button>
                 </form>
@@ -1504,6 +1572,7 @@ function buildForm(a) {
     });
     initAgentFormHelpers(a);
     initTeachingProjectForm(a);
+    initTextbookLocator(a);
     updateBriefSummary(a);
     setAgentWorkStage(_lastResult ? 'review' : 'brief', a);
 }
@@ -1580,6 +1649,12 @@ function collectInputs(a) {
             data[f.key] = el ? el.value.trim() : '';
         }
     });
+    if (hasTextbookLocator(a)) {
+        data.curriculumMode = form.querySelector('[name="curriculumMode"]')?.value || 'textbook';
+        data.textbookEdition = form.querySelector('[name="textbookEdition"]')?.value || '';
+        data.textbookVolume = form.querySelector('[name="textbookVolume"]')?.value || '';
+        data.curriculumConfirmed = !!form.querySelector('[name="curriculumConfirmed"]')?.checked;
+    }
     return data;
 }
 
@@ -1727,6 +1802,13 @@ function applyInputValues(agent, values, overwrite) {
     const form = document.getElementById('agent-form');
     if (!form || !values) return;
     agent.fields.forEach(field => setFormInputValue(form, field, values[field.key], overwrite));
+    if (!hasTextbookLocator(agent)) return;
+    const mode = form.querySelector('[name="curriculumMode"]');
+    const confirmed = form.querySelector('[name="curriculumConfirmed"]');
+    if (mode && values.curriculumMode && (overwrite || !mode.value)) mode.value = values.curriculumMode;
+    if (confirmed && values.curriculumConfirmed !== undefined && (overwrite || !confirmed.checked)) confirmed.checked = values.curriculumConfirmed === true || values.curriculumConfirmed === 'true';
+    if (values.textbookEdition && (overwrite || !form.dataset.curriculumEdition)) form.dataset.curriculumEdition = values.textbookEdition;
+    if (values.textbookVolume && (overwrite || !form.dataset.curriculumVolume)) form.dataset.curriculumVolume = values.textbookVolume;
 }
 
 function projectInputValues(project) {
@@ -1740,6 +1822,8 @@ function projectInputValues(project) {
         concept: project.topic,
         scope: project.topic,
         goal: project.goal,
+        curriculumMode: project.textbook ? 'textbook' : undefined,
+        textbookEdition: project.textbook,
         note
     };
 }
@@ -1967,10 +2051,16 @@ function updateBriefSummary(agent) {
     const inputs = collectInputs(agent);
     const groups = briefFieldGroups(agent);
     const contextFields = [...groups.context, ...groups.primary.filter(field => field.type === 'select')];
-    const context = contextFields.map(field => {
+    let context = contextFields.map(field => {
         const value = fieldText(inputs[field.key]);
         return value ? `<span><i class="ph ph-tag" aria-hidden="true"></i>${escapeHtml(field.label)}：${escapeHtml(value)}</span>` : '';
     }).filter(Boolean).slice(0, 4).join('');
+    if (hasTextbookLocator(agent) && inputs.curriculumMode === 'textbook' && inputs.textbookEdition) {
+        const editionLabel = window.TextbookCatalog.getEditionLabel(inputs.subject, inputs.grade, inputs.textbookEdition);
+        context += `<span><i class="ph ph-books" aria-hidden="true"></i>教材：${escapeHtml([editionLabel, inputs.textbookVolume].filter(Boolean).join(' · '))}</span>`;
+    } else if (hasTextbookLocator(agent) && inputs.curriculumMode === 'custom') {
+        context += '<span><i class="ph ph-path" aria-hidden="true"></i>非教材主题</span>';
+    }
     const primaryTextField = groups.primary.find(field => field.type !== 'select' && field.type !== 'chips');
     const primaryText = primaryTextField ? fieldText(inputs[primaryTextField.key]) : '';
     box.innerHTML = `<b>本次任务</b><div class="ws-task-summary-meta">${context || '<span>关键信息尚未填写</span>'}</div><p>${primaryText ? escapeHtml(primaryText) : '填写左侧任务简报后，这里会同步显示关键信息。'}</p>`;
@@ -2277,6 +2367,109 @@ function initAgentFormHelpers(a) {
     sync();
 }
 
+function resolveEditionId(editions, desired) {
+    const value = String(desired || '').trim();
+    if (!value) return '';
+    const exact = editions.find(item => item.id === value || item.label === value);
+    if (exact) return exact.id;
+    const fuzzy = editions.find(item => item.label.includes(value) || value.includes(item.label));
+    return fuzzy?.id || '';
+}
+
+function populateTextbookChoices(agent, preservePending = false) {
+    const form = document.getElementById('agent-form');
+    if (!form || !hasTextbookLocator(agent)) return;
+    const subject = form.querySelector('[name="subject"]')?.value || '';
+    const grade = form.querySelector('[name="grade"]')?.value || '';
+    const mode = form.querySelector('[name="curriculumMode"]')?.value || 'textbook';
+    const editionSelect = form.querySelector('[name="textbookEdition"]');
+    const volumeSelect = form.querySelector('[name="textbookVolume"]');
+    if (!editionSelect || !volumeSelect) return;
+
+    const desiredEdition = preservePending ? (form.dataset.curriculumEdition || editionSelect.value) : editionSelect.value;
+    const desiredVolume = preservePending ? (form.dataset.curriculumVolume || volumeSelect.value) : volumeSelect.value;
+    const editions = window.TextbookCatalog.getEditions(subject, grade);
+    editionSelect.innerHTML = '<option value="">请选择版本</option>' + editions.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.label)}</option>`).join('');
+    const resolvedEdition = resolveEditionId(editions, desiredEdition);
+    editionSelect.value = resolvedEdition || (editions.length === 1 ? editions[0].id : '');
+
+    const volumes = window.TextbookCatalog.getVolumes(grade);
+    volumeSelect.innerHTML = '<option value="">请选择册次</option>' + volumes.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
+    volumeSelect.value = volumes.includes(desiredVolume) ? desiredVolume : '';
+    editionSelect.disabled = mode === 'custom';
+    volumeSelect.disabled = mode === 'custom';
+    if (preservePending) {
+        delete form.dataset.curriculumEdition;
+        delete form.dataset.curriculumVolume;
+    }
+}
+
+function textbookAnalysis(agent, inputs) {
+    if (!hasTextbookLocator(agent)) return { ok: true, status: 'unavailable' };
+    const config = CURRICULUM_VALIDATION[agent.id];
+    return window.TextbookCatalog.analyze({
+        subject: configSubject(inputs, config),
+        grade: configGrade(inputs, config),
+        text: validationText(inputs, config),
+        mode: inputs.curriculumMode,
+        edition: inputs.textbookEdition,
+        volume: inputs.textbookVolume,
+        confirmed: inputs.curriculumConfirmed
+    });
+}
+
+function renderTextbookState(agent) {
+    const form = document.getElementById('agent-form');
+    const locator = document.getElementById('ws-textbook-locator');
+    if (!form || !locator || !hasTextbookLocator(agent)) return;
+    const inputs = collectInputs(agent);
+    const result = textbookAnalysis(agent, inputs);
+    const status = document.getElementById('ws-textbook-status');
+    const resultBox = document.getElementById('ws-textbook-result');
+    const confirm = document.getElementById('ws-textbook-confirm');
+    const icon = resultBox?.querySelector('i');
+    const labels = {
+        waiting: '等待任务', aligned: '课程范围对齐', confirmed: '教师已核对', custom: '非教材主题',
+        needs_details: '教材身份待补全', needs_confirmation: '等待教师核对', conflict: '参数冲突'
+    };
+    const icons = {
+        waiting: 'ph ph-info', aligned: 'ph ph-check-circle', confirmed: 'ph ph-check-circle', custom: 'ph ph-path',
+        needs_details: 'ph ph-warning-circle', needs_confirmation: 'ph ph-warning-circle', conflict: 'ph ph-x-circle'
+    };
+    locator.dataset.state = result.status || 'waiting';
+    if (status) status.textContent = labels[result.status] || result.title || '正在校验';
+    if (resultBox) resultBox.querySelector('span').textContent = result.message || '';
+    if (icon) icon.className = icons[result.status] || 'ph ph-info';
+    const showConfirmation = inputs.curriculumMode === 'textbook'
+        && (result.status === 'needs_confirmation' || (result.status === 'confirmed' && inputs.curriculumConfirmed));
+    confirm?.classList.toggle('active', showConfirmation);
+}
+
+function initTextbookLocator(agent) {
+    const form = document.getElementById('agent-form');
+    if (!form || !hasTextbookLocator(agent)) return;
+    populateTextbookChoices(agent, true);
+    const confirmation = form.querySelector('[name="curriculumConfirmed"]');
+    const relevantTextKeys = new Set(CURRICULUM_VALIDATION[agent.id]?.textKeys || []);
+    const resetConfirmation = target => {
+        if (!confirmation || target?.name === 'curriculumConfirmed') return;
+        confirmation.checked = false;
+    };
+    form.addEventListener('input', event => {
+        if (!relevantTextKeys.has(event.target?.name)) return;
+        resetConfirmation(event.target);
+        renderTextbookState(agent);
+    });
+    form.addEventListener('change', event => {
+        const name = event.target?.name || '';
+        if (!['subject', 'grade', 'curriculumMode', 'textbookEdition', 'textbookVolume', 'curriculumConfirmed'].includes(name)) return;
+        resetConfirmation(event.target);
+        if (name === 'subject' || name === 'grade' || name === 'curriculumMode') populateTextbookChoices(agent);
+        renderTextbookState(agent);
+    });
+    renderTextbookState(agent);
+}
+
 function gradeLevel(grade) {
     return GRADE_LEVEL[grade] || 0;
 }
@@ -2385,6 +2578,8 @@ function validateCurriculumInputs(a, inputs) {
 }
 
 function validateAgentInputs(a, inputs) {
+    const textbookResult = textbookAnalysis(a, inputs);
+    if (!textbookResult.ok) return textbookResult;
     return validateCurriculumInputs(a, inputs);
 }
 
@@ -2401,7 +2596,19 @@ function showInputValidation(result) {
     body.tabIndex = -1;
     body.innerHTML = mdToHtml(`### ${result.title || '参数需要调整'}\n\n${result.message || '当前输入不适合直接生成。'}\n\n${(result.suggestions || []).map(s => `- ${s}`).join('\n')}`);
     setAgentWorkStage('brief', window._wsAgent, '任务需要调整后再交给数字成员');
+    const locator = document.getElementById('ws-textbook-locator');
+    if (locator && result.status && result.status !== 'unavailable') {
+        locator.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
+        formFocusWithoutScroll(locator);
+    }
     body.focus?.();
+}
+
+function formFocusWithoutScroll(element) {
+    if (!element) return;
+    if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1');
+    try { element.focus({ preventScroll: true }); }
+    catch { element.focus?.(); }
 }
 
 function showMissingFields(missing) {
@@ -2447,7 +2654,6 @@ function renderGenerationError(error, aid) {
 
 async function runForm(aid) {
     const a = AGENTS.find(x => x.id === aid);
-    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return false;
     const inputs = collectInputs(a);
     _lastInputs = inputs;
     // 必填校验
@@ -2463,6 +2669,7 @@ async function runForm(aid) {
         showToast(validation.toast || '当前输入不匹配，已停止生成');
         return false;
     }
+    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return false;
     updateInputSummary(a, inputs);
 
     const btn = document.getElementById('run-btn');
@@ -3031,7 +3238,23 @@ function curriculumGuard(agent) {
     if (config.gradeKey === undefined || config.gradeKey) dimensions.push('年级/学段');
     dimensions.push(config.textLabel || '内容');
     const action = config.action || '继续生成';
-    return `请先在内部判断${dimensions.join('、')}是否匹配现行中小学课程体系和学生认知基础；如果明显不匹配，请不要${action}，先输出“参数需要调整”，说明原因，并给出适合当前学科/学段的替代建议，或建议用户调整学科/年级。如果匹配，不要输出任何适配判断过程或通过性说明，直接进入结果正文。\n\n`;
+    return `请先在内部判断${dimensions.join('、')}是否匹配现行中小学课程体系和学生认知基础；如果明显不匹配，请不要${action}，先输出“参数需要调整”，说明原因，并给出适合当前学科/学段的替代建议，或建议用户调整学科/年级。不得为了完成任务而虚构教材单元、课文归属、页码或版本信息。如果匹配，不要输出任何适配判断过程或通过性说明，直接进入结果正文。\n\n`;
+}
+
+function textbookPromptLines(agent, inputs) {
+    if (!hasTextbookLocator(agent)) return [];
+    if (inputs.curriculumMode === 'custom') {
+        return ['【任务类型】非教材主题（仍须严格贴合所选学科与年级，不得伪装成教材原课）'];
+    }
+    const label = window.TextbookCatalog.getEditionLabel(inputs.subject, inputs.grade, inputs.textbookEdition);
+    const lines = [
+        '【任务类型】教材同步',
+        label ? `【教材版本】${label}` : null,
+        inputs.textbookVolume ? `【教材册次】${inputs.textbookVolume}` : null
+    ].filter(Boolean);
+    if (inputs.curriculumConfirmed) lines.push('【教材核对】教师已核对手边教材目录');
+    lines.push('【教材边界】只围绕上述教材身份与用户给出的课题生成；没有提供的单元名、课文归属和页码不得自行补造');
+    return lines;
 }
 
 function buildUserPrompt(agent, inputs) {
@@ -3041,7 +3264,8 @@ function buildUserPrompt(agent, inputs) {
         return val ? `【${f.label}】${val}` : null;
     }).filter(Boolean);
     const guard = curriculumGuard(agent);
-    return `${guard}请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中小学教学实际。不要输出适配判断过程、通过性说明或地域政治表述；除非参数明显不匹配，否则不要出现“参数需要调整”。必要时使用“现行课程标准”“教材要求”“教学实际”等中性说法。`;
+    const taskLines = [...textbookPromptLines(agent, inputs), ...lines];
+    return `${guard}请根据以下信息完成任务：\n\n${taskLines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中小学教学实际。不要输出适配判断过程、通过性说明或地域政治表述；除非参数明显不匹配，否则不要出现“参数需要调整”。必要时使用“现行课程标准”“教材要求”“教学实际”等中性说法。`;
 }
 
 /* ---------- 工具函数 ---------- */

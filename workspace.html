@@ -857,6 +857,208 @@
             .wb-modal-foot a,
             .wb-modal-foot button { min-height: 42px; }
         }
+        /* 2026-08-24 · 轻量备课本：只保留一条装订线索，让内容成为主角 */
+        .wb-workbook-light {
+            padding: 0;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+        }
+        .wb-workbook-light::before { display: none; }
+        .wb-workbook-light .wb-binder {
+            grid-template-columns: 22px minmax(0,1fr);
+            min-height: 660px;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid #d5dddf;
+            border-radius: 10px;
+            box-shadow: 0 18px 42px -38px rgba(23,33,43,.62);
+        }
+        .wb-workbook-light .wb-binder::before,
+        .wb-workbook-light .wb-binder::after { display: none; }
+        .wb-workbook-light .wb-binder-spine {
+            background: #294452;
+            border: 0;
+            box-shadow: none;
+        }
+        .wb-workbook-light .wb-binder-spine::before {
+            top: 28px;
+            bottom: 28px;
+            left: 50%;
+            width: 1px;
+            background: rgba(255,255,255,.28);
+        }
+        .wb-workbook-light .wb-binder-spine::after,
+        .wb-workbook-light .wb-spine-label,
+        .wb-workbook-light .wb-spine-year { display: none; }
+        .wb-workbook-light .wb-paper-stage {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            background: #fff;
+        }
+        .wb-workbook-light .wb-directory-page {
+            order: 2;
+            min-height: 610px;
+            padding: 30px 36px 26px;
+            background: #fff;
+            border: 0;
+            box-shadow: none;
+        }
+        .wb-workbook-light .wb-directory-page::before,
+        .wb-workbook-light .wb-directory-page::after { display: none; }
+        .wb-workbook-light .wb-index-tabs {
+            position: static;
+            order: 1;
+            display: flex;
+            gap: 24px;
+            padding: 0 36px;
+            background: #f7f9f9;
+            border-bottom: 1px solid #dbe2e4;
+        }
+        .wb-workbook-light .wb-index-tab,
+        .wb-workbook-light .wb-index-tab:hover,
+        .wb-workbook-light .wb-index-tab.active {
+            width: auto;
+            min-height: 50px;
+            padding: 0 1px;
+            color: var(--muted);
+            background: transparent;
+            border: 0;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            box-shadow: none;
+            transform: none;
+        }
+        .wb-workbook-light .wb-index-tab:hover { color: var(--ink); }
+        .wb-workbook-light .wb-index-tab.active {
+            color: #294452;
+            border-bottom-color: #294452;
+        }
+        .wb-workbook-light .wb-directory-head {
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #b9c6ca;
+        }
+        .wb-workbook-light .wb-directory-title small { color: #526f7f; }
+        .wb-workbook-light .wb-directory-title h2 {
+            font-family: var(--font-display);
+            font-size: 28px;
+            letter-spacing: -.01em;
+        }
+        .wb-workbook-light .wb-metric b { font-family: var(--font-display); }
+        .wb-workbook-light .wb-controls { padding-top: 18px; }
+        .wb-workbook-light .wb-directory-columns { border-bottom-color: #cbd5d8; }
+        .wb-workbook-light .wb-card:hover {
+            transform: translateX(2px);
+            background: #f7f9f9;
+            box-shadow: none;
+        }
+        .wb-workbook-light #wb-grid:not(.wb-list) {
+            gap: 14px;
+            padding-top: 20px;
+        }
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card,
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card:nth-child(3n+2),
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card:nth-child(3n) {
+            min-height: 232px;
+            overflow: hidden;
+            background: #fbfcfb;
+            border: 1px solid #d8e0e1;
+            border-radius: 8px;
+            box-shadow: 0 12px 28px -28px rgba(23,33,43,.72);
+            transform: none;
+        }
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card:hover {
+            transform: translateY(-1px);
+            border-color: #bccbd0;
+            box-shadow: 0 16px 32px -30px rgba(23,33,43,.7);
+        }
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card::before {
+            left: 0;
+            width: 3px;
+            background: var(--work-color);
+        }
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card-open {
+            min-height: 230px;
+            padding: 22px 20px 22px 26px;
+        }
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-card-open::before { display: none; }
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-entry-copy,
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-entry-state,
+        .wb-workbook-light #wb-grid:not(.wb-list) .wb-entry-date { margin-left: 0; padding-left: 0; }
+        .wb-workbook-light .wb-card-actions { box-shadow: 0 14px 30px -22px rgba(23,33,43,.48); }
+        .wb-workbook-light .wb-directory-foot::before { background: #526f7f; }
+
+        .wb-modal { background: rgba(23,33,43,.5); backdrop-filter: blur(2px); }
+        .wb-modal-box {
+            overflow: hidden;
+            border: 1px solid #d4dddf;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 30px 72px -42px rgba(10,20,27,.72);
+        }
+        .wb-modal-box::before {
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #294452;
+        }
+        .wb-modal-box::after { display: none; }
+        .wb-modal.active .wb-modal-box { animation: wb-sheet-open .2s ease-out both; }
+        @keyframes wb-sheet-open {
+            from { opacity: 0; transform: translateY(10px) scale(.992); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .wb-modal-head,
+        .wb-modal-body,
+        .wb-modal-foot { margin-left: 0; }
+        .wb-modal-head { padding: 23px 28px 18px; border-bottom: 1px solid #c6d0d3; }
+        .wb-modal-head h2 { font-family: var(--font-display); font-size: 22px; }
+        .wb-modal-body { padding: 28px 32px 34px; }
+        .wb-modal-foot { padding: 14px 28px 18px; background: #f7f9f9; border-top-color: #dbe2e4; }
+        .wb-modal-foot button,
+        .wb-modal-foot a { border-radius: 6px; background: #fff; }
+
+        @media (max-width: 980px) {
+            .wb-workbook-light { padding: 0; }
+            .wb-workbook-light .wb-binder { grid-template-columns: 18px minmax(0,1fr); }
+            .wb-workbook-light .wb-paper-stage { margin: 0; }
+            .wb-workbook-light .wb-directory-page { padding: 28px 26px 24px; }
+        }
+        @media (max-width: 760px) {
+            .wb-workbook-light { padding: 0; }
+            .wb-workbook-light .wb-binder { display: block; min-height: 0; border-radius: 8px; }
+            .wb-workbook-light .wb-binder-spine { display: none; }
+            .wb-workbook-light .wb-paper-stage { margin: 0; }
+            .wb-workbook-light .wb-index-tabs {
+                position: static;
+                gap: 0;
+                padding: 0 12px;
+                overflow-x: auto;
+            }
+            .wb-workbook-light .wb-index-tab,
+            .wb-workbook-light .wb-index-tab:hover,
+            .wb-workbook-light .wb-index-tab.active {
+                min-width: max-content;
+                min-height: 46px;
+                flex: 1;
+                padding: 0 9px;
+                white-space: nowrap;
+                border: 0;
+                border-bottom: 2px solid transparent;
+            }
+            .wb-workbook-light .wb-index-tab.active { border-bottom-color: #294452; }
+            .wb-workbook-light .wb-directory-page { min-height: 620px; padding: 24px 16px 22px; }
+            .wb-workbook-light .wb-directory-head { display: block; }
+            .wb-workbook-light .wb-directory-title h2 { font-size: 25px; }
+            .wb-workbook-light .wb-metrics { margin-top: 16px; }
+            .wb-modal-box { width: 100%; max-height: calc(100dvh - 20px); box-shadow: 0 24px 56px -34px rgba(10,20,27,.74); }
+            .wb-modal-head { margin-left: 0; padding: 20px 18px 16px; }
+            .wb-modal-body { margin-left: 0; padding: 22px 18px 28px; }
+            .wb-modal-foot { margin-left: 0; padding: 14px 18px 18px; }
+        }
         @media (prefers-reduced-motion: reduce) {
             .wb-card,
             .wb-index-tab,
@@ -886,7 +1088,7 @@
 
     <!-- 已登录 -->
     <div id="wb-app" style="display:none">
-        <section class="wb-desk-scene" aria-label="真实活页备课夹">
+        <section class="wb-desk-scene wb-workbook-light" aria-label="教学成果备课本">
             <div class="wb-binder">
                 <aside class="wb-binder-spine" aria-hidden="true">
                     <span class="wb-spine-label" data-site-copy="binderLabel">教学成果备课夹</span>
@@ -894,13 +1096,7 @@
                 </aside>
 
                 <div class="wb-paper-stage">
-                    <div class="wb-paper-under" aria-hidden="true"></div>
                     <article class="wb-directory-page">
-                        <div class="wb-page-holes" aria-hidden="true">
-                            <span class="wb-page-hole"></span><span class="wb-page-hole"></span>
-                            <span class="wb-page-hole"></span><span class="wb-page-hole"></span>
-                        </div>
-
                         <div class="wb-directory-content">
                             <header class="wb-directory-head">
                                 <div class="wb-directory-title">
@@ -975,11 +1171,6 @@
                             </footer>
                         </div>
                     </article>
-
-                    <div class="wb-binder-rings" aria-hidden="true">
-                        <span class="wb-binder-ring"></span><span class="wb-binder-ring"></span>
-                        <span class="wb-binder-ring"></span><span class="wb-binder-ring"></span>
-                    </div>
 
                     <nav class="wb-index-tabs" aria-label="备课本章节索引">
                         <button type="button" class="wb-index-tab active" data-type="all" onclick="setWorkType('all')"><span data-site-copy="filterAll">全部</span></button>
@@ -1315,7 +1506,6 @@ function renderWorks() {
                     <button class="danger" onclick="doDelete('${w.id}')"><i class="ph ph-trash"></i> 删除</button>
                 </div>
             </details>
-            <span class="wb-sheet-holes" aria-hidden="true"><span class="wb-sheet-hole"></span><span class="wb-sheet-hole"></span><span class="wb-sheet-hole"></span></span>
         </article>`;
     }).join('');
 }
