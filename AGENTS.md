@@ -35,6 +35,16 @@
 
 ## Deployment History
 
+- **2026-08-24（数字成员个人工作台，本地待上线）**:
+  - `agents.html` 的 17 个表单型数字成员工作台从“参数面板”重构为“任务简报 → 成员处理 → 教师核验”：工作台顶部持续显示成员肖像、在岗状态和三阶段进度，左侧由成员用第一人称了解任务，右侧明确标注为该成员的交付区；对话型成员保持原有对话流程。
+  - 每位成员只把最关键的 1–2 项作为主简报，学科、年级、课时等背景压缩为一行，其余既有参数收进“展开全部参数”；所有原字段、草稿保存、必填校验、项目背景复用、模型调用、结果编辑与备课本保存逻辑继续保留。教学设计助手使用“任务已说清，开始起草”，交付区持续提示 AI 仅提交初稿、需由教师核验。
+  - 已按选定设计稿完成 1440×1024 桌面视觉对照和 390×844 真实手机视口检查，手机页面宽度与滚动宽度均为 390px；参数展开、任务摘要同步及三阶段切换通过浏览器交互验证。Service Worker → `VERSION=20260824-v16`；尚未部署生产。
+
+- **2026-08-24（智能体目录渐进展示，本地待上线）**:
+  - `agents.html` 默认页从“19 人连续陈列”改为“4 位推荐成员 + 5 个教研部门入口”：只让推荐成员使用大幅肖像，部门目录以职责说明、成员数量和少量头像预览建立团队索引；点击部门后只展示该部门 2–5 位成员，搜索仍直接返回匹配成员，另保留次要的“查看全部 19 位成员”入口。
+  - 首屏右侧取消 5 张重复的“今日在席”人脸，改为纯文字团队索引；部门筛选、`?cat=` 深链、19 个智能体、工作台、模型调用和备课本流程均未改动。手机 390×844 默认页、部门视图、全部成员和搜索视图均无横向溢出。
+  - 页面文案新增团队索引、团队总览与部门目录字段；`js/site-copy.js` 缓存版本 → `20260824-agent-directory`，Service Worker → `VERSION=20260824-v15`。本地站点、函数与腾讯云适配检查分别通过 13 页、48 项和 8 项断言；尚未部署生产。
+
 - **2026-08-23（全站文案后台化、数字教研团队与真实活页备课本，已上线）**:
   - 第一阶段页面精简覆盖首页、多模态工作坊、智能体空间、课堂工具、AI 资源精选、课件素材、AI 资讯、学习路径、文章列表与详情、提示词库和备课本。新增 `js/site-copy.js`，以固定字段定义、长度限制和本地默认值管理 12 个页面的关键文案；普通页面经 `/api/content?type=pageCopy&id=...` 读取，管理员在后台「页面文案」面板编辑。`page_copy` Firestore 规则已单独编译并发布；本地预览使用浏览器隔离存储，不会误写线上 Firestore。
   - 智能体空间把 19 个功能卡重构为具有真实人物肖像、身份、分工和开场表达的「数字教研团队」，保留搜索、分类、推荐、深链、工作台和全部模型调用逻辑。19 张发布 JPG 共约 2.4 MB，单张均低于 240 KB。
@@ -290,7 +300,7 @@ match /agent_usage/{agentId} {
 | File | Purpose |
 |---|---|
 | `index.html` | Homepage — **现代教研工作台**。首页 CSS 继续内联并全部使用 `.th-*` 命名，避免污染子页；颜色令牌限定在 `.th-root`。2026-08-23 为减轻首屏重心移除右侧四步 / 五步流程与装饰性阶段编号，当前结构为单列任务主张 → 6 个真实任务入口 → 可折叠的 4 项使用前核验 → 6 个学习与配套资源入口；登录用户可在首屏恢复教学项目或草稿。任务卡从 `window.AGENTS` 读取真实说明并链接到对应智能体。保留：`renderNav` / `renderFooter`、公告、联系反馈、订阅、悬浮向导与分析埋点。 |
-| `agents.html` | **智能体空间** — 19 人数字教研团队 + agent workspace。首页用 `assets/agent-portraits/` 的真实人物肖像、成员姓名、身份、分工和开场表达建立“团队成员”感；人物入口保持原生 `<button>` 语义，不伪装成链接。顶部精选 (`FEATURED` 4 个) + 按类分区陈列，选分类或搜索时切单层网格；hash 深链 `#agent-id`、全部筛选与工作逻辑保持兼容。Two workspace types: **form**（「任务参数 + 文稿工作区」；左参数栏 `sticky`/可折叠摘要，右文稿面板内部滚动，含保存到备课本、编辑、复制、重新生成；`.ws-top` 是普通文档流，勿设 sticky/fixed）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek + 可选 GLM-5.2，前端显示实际 provider/model）。保存表单类和聊天类成果前均确认标题；表单类用 `buildWorkTitle()` 从输入字段生成具体标题。 |
+| `agents.html` | **智能体空间** — 19 人数字教研团队 + agent workspace。默认团队总览只让 `FEATURED` 4 位成员使用大幅肖像，其余能力收进 5 个教研部门目录；部门行显示职责、成员数量和少量头像预览，点击后才展示该部门 2–5 位完整人物，另有搜索与次要“查看全部 19 位成员”入口。首屏不再叠加“今日在席”人脸墙。人物入口和部门入口均保持原生 `<button>` 语义；分类筛选、`?cat=<key>` 与 hash 深链 `#agent-id` 保持兼容。Two workspace types: **form**（「任务简报 + 成员交付」；顶部显示成员肖像、在岗状态与“了解任务 → 起草初稿 → 教师核验”三阶段，左侧前置 1–2 个关键任务字段并把其余原参数收进“展开全部参数”，右侧同步任务摘要、流式接收成员初稿，继续支持草稿保存、项目背景复用、必填校验、结果编辑、复制、重新生成与保存到备课本；`.ws-top` 是普通文档流，勿设 sticky/fixed）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek + 可选 GLM-5.2，前端显示实际 provider/model）。保存表单类和聊天类成果前均确认标题；表单类用 `buildWorkTitle()` 从输入字段生成具体标题。 |
 | `multimodal.html` | **多模态工作坊** — static case gallery for image/video/audio/avatar/courseware generation workflows. It is an owned site feature placed after 智能体空间 in nav, but does **not** call paid generation APIs. Cases live inline in `CASES`; publish-ready assets live in `多模态素材/`. Video case thumbnails use static poster images; detail modals use `media-player.html` or GIF preview + MP4 link. |
 | `media-player.html` | Minimal same-origin video player used by `multimodal.html`; validates `src`/`poster` params so only `多模态素材/` paths without `..` can load. Keep it static and dependency-free. |
 | `tools.html` | Curated directory of **external** third-party AI products (cards link out). User-facing name **「AI资源精选」** (renamed 2026-06-16; nav key stays `tools`). Renders the complete 19-item `DEFAULT_TOOLS` synchronously first; `DB.getTools()` then uses `/api/tools` → browser Firestore → local defaults, so Firebase-unreachable users no longer drop to 14 items. Default "全部" = **grouped by category** (`#tools-grouped`); search/specific category → flat `#tools-grid`; task pills + tag pills from `buildFilterBar()`. **「教师 AI 工具选型台」改版 (2026-07-09)** — all CSS in an **inline `<style>` in tools.html** (not style.css): ① editorial chooser header (`.tt-hero`) + search card. ② Task-oriented categories: `plan` 备课·出题·检索 / `make` 课件·演示·动画 / `media` 图像·音视频·数字人 / `platform` 教研·AI 平台 (+ `more` 更多工具 fallback), each with `CAT_DESCS`/`CAT_ICONS`/`CAT_FITS`. ③ **Category + per-tool tags come from LOCAL `TOOL_META` keyed by tool NAME (NOT Firestore)**; admin 新增工具若未登记进 `TOOL_META` 会落进「更多工具」且无标签。④ Card tags: 免费 / 部分免费 / 付费 / 中文 / 海外 (`.tt-tag` variants; values are estimates and need manual audit). ⑤ Grid override: `#tools-grid, #tools-grouped .cards-grid` use `repeat(auto-fit, minmax(224px,268px))`. Design rule: do not add colored top/side bars to cards; keep category color on section icons / small tags only. |

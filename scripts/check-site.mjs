@@ -51,7 +51,7 @@ for (const file of dataPages) {
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!/js\/site-copy\.js\?v=20260823-page-copy/.test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!/js\/site-copy\.js\?v=20260824-agent-directory/.test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -119,6 +119,20 @@ for (const id of agentPortraitIds) {
 }
 const agentsHtml = text('agents.html');
 if (!/class="agent-member"/.test(agentsHtml) || !/assets\/agent-portraits/.test(agentsHtml)) fail('agents.html', '人物化数字成员墙未接入');
+if (!/class="agent-directory"/.test(agentsHtml) || !/function departmentHtml/.test(agentsHtml) || !/function showAllAgents/.test(agentsHtml)) {
+    fail('agents.html', '智能体部门目录或全部成员入口未接入');
+}
+if (/agent-roster-list|HERO_ROSTER|renderHeroRoster/.test(agentsHtml)) fail('agents.html', '默认页仍保留重复的人物在席墙');
+if (!/AGENT_BRIEF_PRIMARY_KEYS/.test(agentsHtml) || !/教学任务描述/.test(agentsHtml) || !/展开全部参数/.test(agentsHtml)) {
+    fail('agents.html', '数字成员工作台未接入任务简报或渐进参数');
+}
+if (!/id="ws-presence"/.test(agentsHtml) || !/function setAgentWorkStage/.test(agentsHtml) || !/任务已说清，开始起草/.test(agentsHtml)) {
+    fail('agents.html', '数字成员工作阶段或成员化操作未接入');
+}
+if (!/教学设计助手的交付/.test(agentsHtml) && !/\$\{escapeHtml\(a\.name\)\}的交付/.test(agentsHtml)) {
+    fail('agents.html', '数字成员交付区缺少成员归属');
+}
+if (!/AI 交付的是初稿/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
 const workspaceHtml = text('workspace.html');
 if (!/class="wb-binder"/.test(workspaceHtml) || !/class="wb-binder-ring"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
     fail('workspace.html', '真实活页备课夹结构未接入');
@@ -135,7 +149,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260823-v14/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 页面文案缓存未更新');
+if (!/20260824-v16/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 页面文案缓存未更新');
 
 const loginTransitionSource = text('js/auth.js');
 if (/showWelcomeOverlay\('login'/.test(loginTransitionSource)) fail('js/auth.js', '登录成功仍使用短暂全屏欢迎层');

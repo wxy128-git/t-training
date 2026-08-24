@@ -47,18 +47,13 @@
         .filter-pill.active { background: var(--ink); color: var(--soft); border-color: var(--ink); }
         .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
 
-        /* 数字成员墙：肖像、专业姿态与协作语言替代通用圆角卡片 */
+        /* 数字成员目录：主力成员集中展示，其余成员按部门渐进展开 */
         .agents-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 390px); align-items: end; gap: 56px; }
         .agents-head-copy { min-width: 0; }
-        .agent-roster { padding: 16px 0 4px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
-        .agent-roster-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; }
-        .agent-roster-head b { color: var(--ink); font-size: 13px; }
-        .agent-roster-head span { color: #287a68; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; letter-spacing: .03em; }
-        .agent-roster-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; }
-        .agent-roster-avatar { position: relative; min-width: 0; aspect-ratio: 1; overflow: hidden; border-left: 1px solid var(--line); background: #eef3f5; }
-        .agent-roster-avatar:first-child { border-left: 0; }
-        .agent-roster-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 13%; filter: saturate(.84) contrast(.98); }
-        .agent-roster-avatar::after { content: ''; position: absolute; inset: auto 0 0; height: 28%; background: linear-gradient(transparent, rgba(23,33,43,.12)); }
+        .agent-team-index { align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px 0 17px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+        .agent-team-index-label { color: var(--brand); font-family: var(--font-mono); font-size: 9.5px; font-weight: 760; letter-spacing: .09em; text-transform: uppercase; }
+        .agent-team-index strong { display: block; margin-top: 12px; color: var(--ink); font-size: 18px; line-height: 1.45; letter-spacing: -.015em; }
+        .agent-team-index p { margin: 7px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
 
         .agent-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 20px; }
         .agent-member {
@@ -114,17 +109,60 @@
         .agent-section-head .sec-sub { font-size: 12.5px; color: var(--muted); }
         .featured-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
+        .agent-directory { margin-top: 44px; }
+        .agent-directory-intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 16px; }
+        .agent-directory-intro h2 { margin: 0; color: var(--ink); font-size: 20px; letter-spacing: -.02em; }
+        .agent-directory-intro p { max-width: 500px; margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; text-align: right; }
+        .agent-directory-list { border-top: 2px solid var(--ink); }
+        .agent-department {
+            width: 100%; min-height: 96px; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto minmax(138px, auto);
+            align-items: center; gap: 18px; padding: 18px 8px; border: 0; border-bottom: 1px solid var(--line);
+            background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer;
+            transition: background .16s ease, padding .16s ease;
+        }
+        .agent-department:hover, .agent-department:focus-visible { padding-inline: 16px; background: color-mix(in srgb, var(--department-color) 5%, var(--paper)); }
+        .agent-department:focus-visible { outline: 3px solid color-mix(in srgb, var(--department-color) 22%, transparent); outline-offset: 3px; }
+        .agent-department-icon { width: 40px; height: 40px; display: grid; place-items: center; color: var(--department-color); background: var(--department-soft); border-radius: 10px; font-size: 19px; }
+        .agent-department-copy { min-width: 0; }
+        .agent-department-name { display: block; color: var(--ink); font-size: 16px; font-weight: 800; line-height: 1.35; }
+        .agent-department-scope { display: block; margin-top: 5px; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+        .agent-department-avatars { display: flex; align-items: center; justify-content: flex-end; padding-left: 12px; }
+        .agent-department-avatar { width: 42px; height: 42px; overflow: hidden; margin-left: -10px; border: 2px solid var(--paper); border-radius: 50%; background: #eef3f5; box-shadow: 0 2px 8px rgba(23,33,43,.08); }
+        .agent-department-avatar:first-child { margin-left: 0; }
+        .agent-department-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 13%; filter: saturate(.84) contrast(.98); }
+        .agent-department-more { display: grid; place-items: center; color: var(--muted); font-family: var(--font-mono); font-size: 9px; font-weight: 760; background: var(--soft-2); }
+        .agent-department-action { min-height: 44px; display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; color: var(--ink); font-size: 12px; font-weight: 760; white-space: nowrap; }
+        .agent-department-action strong { color: var(--department-color); font-family: var(--font-mono); font-size: 11px; }
+        .agent-department-action i { color: var(--department-color); font-size: 16px; transition: transform .16s ease; }
+        .agent-department:hover .agent-department-action i, .agent-department:focus-visible .agent-department-action i { transform: translateX(3px); }
+        .agent-directory-footer { display: flex; justify-content: flex-end; padding-top: 15px; }
+        .agent-directory-all { min-height: 44px; display: inline-flex; align-items: center; gap: 7px; padding: 8px 2px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 720; cursor: pointer; }
+        .agent-directory-all:hover, .agent-directory-all:focus-visible { color: var(--brand); }
+        .agent-directory-all:focus-visible { outline: 3px solid var(--brand-soft); outline-offset: 3px; }
+        .agent-results-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; padding-top: 2px; }
+        .agent-results-head h2 { margin: 0; color: var(--ink); font-size: 20px; letter-spacing: -.02em; }
+        .agent-results-head p { margin: 5px 0 0; color: var(--muted); font-size: 12.5px; }
+        .agent-results-back { min-height: 44px; display: inline-flex; align-items: center; gap: 7px; padding: 8px 0; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12px; font-weight: 720; cursor: pointer; }
+        .agent-results-back:hover, .agent-results-back:focus-visible { color: var(--brand); }
+        .agent-results-back:focus-visible { outline: 3px solid var(--brand-soft); outline-offset: 3px; }
+
         @media (max-width: 1040px) {
             .agents-head { grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; }
             .agent-grid, .featured-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .agent-department { grid-template-columns: 44px minmax(0, 1fr) auto minmax(126px, auto); gap: 14px; }
         }
         @media (max-width: 760px) {
             .agents-head { grid-template-columns: 1fr; }
-            .agent-roster { display: none; }
+            .agent-team-index { padding-block: 14px; }
             .agent-grid, .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
             .agent-member-speech { display: none; }
             .agent-member-meta { min-height: 122px; }
             .agent-section-head .sec-sub { display: none; }
+            .agent-directory-intro { display: block; }
+            .agent-directory-intro p { margin-top: 6px; text-align: left; }
+            .agent-department { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 13px; }
+            .agent-department-avatars { grid-column: 2; padding-left: 0; justify-content: flex-start; }
+            .agent-department-action { grid-column: 3; grid-row: 1 / 3; }
         }
         @media (max-width: 460px) {
             .agent-grid, .featured-grid { gap: 20px 10px; }
@@ -134,25 +172,43 @@
             .agent-member-meta { min-height: 124px; padding-inline: 1px; }
             .agent-member-name { font-size: 14.5px; }
             .agent-member-specialty { font-size: 11px; }
+            .agent-directory { margin-top: 38px; }
+            .agent-department { min-height: 84px; grid-template-columns: 38px minmax(0, 1fr) auto; padding-inline: 4px; }
+            .agent-department:hover, .agent-department:focus-visible { padding-inline: 8px; }
+            .agent-department-icon { width: 36px; height: 36px; font-size: 17px; }
+            .agent-department-avatars { display: none; }
+            .agent-department-action { grid-row: auto; }
+            .agent-department-action span { display: none; }
+            .agent-results-head { align-items: flex-start; flex-direction: column; gap: 4px; }
         }
 
         /* ===== 工作台 ===== */
-        .ws-wrap { max-width: 1320px; margin: 0 auto; padding: 24px 24px 76px; }
-        .ws-top { display: grid; grid-template-columns: auto auto minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 13px 0 16px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+        .ws-wrap { max-width: 1320px; margin: 0 auto; padding: 18px 24px 76px; }
+        .ws-top { display: grid; grid-template-columns: auto auto minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 8px 0 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
         .ws-back { flex-shrink: 0; width: 42px; height: 42px; border-radius: 11px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 19px; transition: background .15s, border-color .15s; }
         .ws-back:hover { background: var(--soft-2); border-color: var(--subtle); }
-        .ws-ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 27px; flex-shrink: 0; }
+        .ws-ico { width: 54px; height: 54px; overflow: hidden; border-radius: 50%; display: grid; place-items: center; font-size: 27px; flex-shrink: 0; border: 1px solid var(--line); background: var(--paper); }
+        .ws-ico img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 16%; filter: saturate(.86) contrast(.98); transform: scale(1.42); transform-origin: 50% 24%; }
+        .ws-ico i { font-size: 24px; }
         .ws-titles h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.02em; }
         .ws-titles { min-width: 0; }
-        .ws-titles p { font-size: 13.5px; color: var(--muted); margin: 6px 0 0; line-height: 1.7; max-width: 640px; }
+        .ws-titles p { max-width: 640px; margin: 5px 0 0; overflow: hidden; color: var(--muted); font-size: 13px; line-height: 1.65; text-overflow: ellipsis; white-space: nowrap; }
+        .ws-presence { display: none; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 9px; color: #287a68; font-size: 11.8px; font-weight: 720; }
+        .ws-presence.active { display: flex; }
+        .ws-presence > i { font-size: 14px; }
+        .ws-agent-stage { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; color: var(--subtle); font-size: 10.8px; font-weight: 650; }
+        .ws-agent-stage span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .ws-agent-stage span.active { color: #287a68; }
+        .ws-agent-stage span.complete { color: #245b78; }
+        .ws-agent-stage > i { color: var(--line); font-size: 12px; }
         .ws-cat-tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; margin-bottom: 4px; }
         .ws-status { display: flex; align-items: center; gap: 8px; justify-self: end; flex-wrap: wrap; }
         .ws-model-badge { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
         .ws-model-badge strong { color: var(--ink); font-weight: 700; }
         .ws-model-badge i { color: var(--brand); font-size: 15px; }
-        .ws-projectbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: center; margin: -2px 0 18px; padding: 13px 15px; border: 1px solid #bfd1dc; border-radius: 10px; background: #f5f9fb; }
+        .ws-projectbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 11px; align-items: center; margin: 0 0 14px; padding: 9px 12px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f5f9fb; }
         .ws-projectbar.is-empty { border-style: dashed; border-color: var(--line); background: var(--paper); }
-        .ws-project-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; background: #e7f0f5; color: #245b78; font-size: 18px; }
+        .ws-project-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: #e7f0f5; color: #245b78; font-size: 16px; }
         .ws-project-copy { min-width: 0; }
         .ws-project-label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; color: #245b78; font-weight: 700; margin-bottom: 3px; }
         .ws-project-copy b { display: block; color: var(--ink); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -169,6 +225,7 @@
         .ws-origin button:hover { border-color: #245b78; background: #eaf3f7; }
         @media (max-width: 760px) {
             .ws-top { grid-template-columns: auto auto minmax(0,1fr); align-items: flex-start; }
+            .ws-titles p { display: -webkit-box; overflow: hidden; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
             .ws-status { grid-column: 1 / -1; justify-self: start; }
             .ws-projectbar { grid-template-columns: auto minmax(0,1fr); }
             .ws-project-action { grid-column: 1 / -1; justify-content: center; }
@@ -297,6 +354,76 @@
             .ws-out-actions { margin: 12px 0 0; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
             .ws-mini-btn { min-height: 44px; justify-content: center; white-space: nowrap; }
         }
+
+        /* 2026-08-24 · 数字成员个人工作台：对话式任务简报 */
+        .ws-form-layout { grid-template-columns: minmax(430px, .9fr) minmax(0, 1.1fr); gap: 18px; }
+        .ws-input-col, .ws-out-panel { height: clamp(560px, calc(100vh - 352px), 720px); }
+        .ws-input-col { padding: 0; }
+        .ws-brief-head { display: flex; align-items: center; gap: 9px; min-height: 52px; padding: 13px 18px; border-bottom: 1px solid var(--line-soft); background: var(--paper); }
+        .ws-brief-head > i { color: #245b78; font-size: 17px; }
+        .ws-brief-head strong { color: var(--ink); font-size: 13.5px; }
+        .ws-brief-head small { margin-left: auto; color: var(--subtle); font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; }
+        .ws-brief-head .ws-toggle-input { margin-left: 2px; }
+        .ws-input-col .ws-input-summary { margin: 16px 18px 18px; border-radius: 8px; }
+        .ws-input-col .ws-input-scroll { padding: 17px 18px 20px; }
+        .ws-colleague-prompt { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 11px; align-items: start; margin-bottom: 17px; }
+        .ws-colleague-avatar { width: 48px; height: 48px; overflow: hidden; display: block; border: 1px solid var(--line); border-radius: 50%; background: var(--soft); }
+        .ws-colleague-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 16%; filter: saturate(.86) contrast(.98); transform: scale(1.42); transform-origin: 50% 24%; }
+        .ws-colleague-copy { min-height: 48px; padding: 10px 12px; border: 1px solid #d8e4ea; border-radius: 8px; background: #f2f7f9; color: var(--text); font-size: 12.5px; line-height: 1.65; }
+        .ws-colleague-copy b { display: block; margin-bottom: 2px; color: var(--ink); font-size: 12.8px; }
+        .ws-brief-primary .field.is-brief-primary textarea { min-height: 154px; }
+        .ws-brief-primary .field.is-brief-primary input { min-height: 46px; }
+        .ws-brief-primary .field:last-child { margin-bottom: 14px; }
+        .ws-brief-context { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-bottom: 2px; padding: 11px 12px 1px; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); background: #fbfcfd; }
+        .ws-brief-context .field { min-width: 0; margin-bottom: 10px; }
+        .ws-brief-context .field label { font-size: 11.5px; }
+        .ws-brief-context .field select, .ws-brief-context .field input { min-height: 42px; padding: 8px 10px; font-size: 12.5px; background: var(--paper); }
+        .ws-extra-params { margin: 2px 0 4px; border-bottom: 1px solid var(--line-soft); }
+        .ws-extra-params summary { min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 6px; list-style: none; color: #245b78; font-size: 12px; font-weight: 720; cursor: pointer; }
+        .ws-extra-params summary::-webkit-details-marker { display: none; }
+        .ws-extra-params summary i { transition: transform .16s ease; }
+        .ws-extra-params[open] summary i { transform: rotate(180deg); }
+        .ws-extra-fields { padding: 3px 1px 2px; }
+        .ws-run { min-height: 48px; margin-top: 13px; border-radius: 8px; }
+        .ws-input-col .ws-draft-state { margin: 12px 0 0; }
+        .ws-out-head { min-height: 52px; padding: 13px 18px; background: var(--paper); }
+        .ws-task-summary { padding: 14px 18px; border-bottom: 1px solid var(--line-soft); background: #fbfcfd; }
+        .ws-task-summary b { display: block; color: var(--ink); font-size: 12px; }
+        .ws-task-summary-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 6px; color: var(--muted); font-size: 11.5px; }
+        .ws-task-summary-meta span { display: inline-flex; align-items: center; gap: 4px; }
+        .ws-task-summary p { margin: 7px 0 0; color: var(--text); font-size: 11.8px; line-height: 1.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ws-out-body.placeholder .ws-empty-delivery { width: min(420px, 88%); }
+        .ws-out-body.placeholder .ws-empty-delivery i { color: #91a0aa; }
+        .ws-out-body.placeholder .ws-empty-delivery b { display: block; margin-bottom: 5px; color: #245b78; font-size: 14.5px; }
+        .ws-out-body.placeholder .ws-empty-delivery p { margin: 0; color: var(--subtle); font-size: 12.5px; line-height: 1.7; }
+        .ws-delivery-note { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 9px 15px; border-top: 1px solid var(--line-soft); background: #fbfcfd; color: var(--muted); font-size: 11.5px; }
+        .ws-delivery-note i { color: #245b78; font-size: 14px; }
+        .ws-input-col.is-collapsed .ws-brief-head { border-bottom: 0; }
+        .ws-input-col.is-collapsed .ws-colleague-prompt, .ws-input-col.is-collapsed .ws-brief-head small { display: none; }
+        @media (max-width: 1100px) {
+            .ws-form-layout { grid-template-columns: minmax(390px, .9fr) minmax(0, 1.1fr); }
+            .ws-brief-context { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 900px) {
+            .ws-form-layout { grid-template-columns: 1fr; }
+            .ws-input-col { position: static; height: auto; max-height: none; }
+            .ws-out-panel { height: min(72vh, 680px); min-height: 460px; }
+        }
+        @media (max-width: 600px) {
+            .ws-ico { width: 48px; height: 48px; }
+            .ws-presence { grid-column: 1 / -1; }
+            .ws-agent-stage { width: 100%; gap: 4px; }
+            .ws-brief-head { padding-inline: 14px; }
+            .ws-input-col .ws-input-scroll { padding: 15px 14px 17px; }
+            .ws-colleague-prompt { grid-template-columns: 42px minmax(0, 1fr); }
+            .ws-colleague-avatar { width: 42px; height: 42px; }
+            .ws-colleague-copy { padding: 9px 10px; }
+            .ws-brief-context { grid-template-columns: 1fr; }
+            .ws-brief-primary .field.is-brief-primary textarea { min-height: 132px; }
+            .ws-task-summary { padding-inline: 14px; }
+            .ws-task-summary p { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+            .ws-delivery-note { justify-content: flex-start; }
+        }
         /* markdown 渲染样式 */
         .md h1, .md h2, .md h3 { color: var(--ink); font-weight: 700; line-height: 1.3; margin: 1.2em 0 .5em; }
         .md h1 { font-size: 20px; } .md h2 { font-size: 17px; } .md h3 { font-size: 15px; }
@@ -411,12 +538,10 @@
             <h1 class="page-title" data-site-copy="heroTitle">和一位懂教学的数字成员一起工作</h1>
             <p class="page-sub" data-site-copy="heroIntro">他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。</p>
         </div>
-        <aside class="agent-roster" aria-label="数字教研团队在席成员">
-            <div class="agent-roster-head">
-                <b data-site-copy="rosterHeading">今日在席</b>
-                <span data-site-copy="rosterStatus">19 / 19 可协作</span>
-            </div>
-            <div class="agent-roster-list" id="agent-roster-list" aria-hidden="true"></div>
+        <aside class="agent-team-index" aria-label="数字教研团队概况">
+            <span class="agent-team-index-label" data-site-copy="teamIndexHeading">团队索引</span>
+            <strong data-site-copy="teamIndexSummary">5 个教研部门 · 19 位成员可协作</strong>
+            <p data-site-copy="teamIndexHint">先描述任务，或从下方部门进入。</p>
         </aside>
     </div>
 
@@ -442,6 +567,17 @@
                 <div class="ws-cat-tag" id="ws-cat"></div>
                 <h1 id="ws-name"></h1>
                 <p id="ws-intro"></p>
+                <div class="ws-presence" id="ws-presence" role="status" aria-live="polite">
+                    <i class="ph ph-clipboard-text"></i>
+                    <span id="ws-presence-label">正在了解你的教学任务</span>
+                    <span class="ws-agent-stage" id="ws-agent-stage" aria-label="协作进度">
+                        <span data-stage="brief"><b>1</b> 了解任务</span>
+                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        <span data-stage="working"><b>2</b> 起草初稿</span>
+                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        <span data-stage="review"><b>3</b> 教师核验</span>
+                    </span>
+                </div>
             </div>
             <div class="ws-status">
                 <a class="ws-mini-btn" href="/workspace" onclick="return requestWorkbookNavigation(event)"><i class="ph ph-notebook"></i> 备课本</a>
@@ -548,7 +684,7 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=20260822-phase1"></script>
 <script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260823-page-copy"></script>
+<script src="js/site-copy.js?v=20260824-agent-directory"></script>
 <script src="js/auth.js?v=20260823-content-team-workbook"></script>
 <script src="js/analytics.js?v=20260707-analytics"></script>
 <script src="js/agents-data.js?v=20260712-workbench"></script>
@@ -561,7 +697,6 @@
 let agentsPageCopy = SiteCopy.defaults('agents');
 SiteCopy.load('agents').then(copy => {
     agentsPageCopy = SiteCopy.applyToDocument('agents', copy);
-    renderHeroRoster();
     renderFilterBar();
     applyFilter();
 });
@@ -572,38 +707,55 @@ const CAT_MAP = Object.fromEntries(CATS.map(c => [c.key, c]));
 const PROVIDER_LABELS = { deepseek: 'DeepSeek', zhipu: '智谱 GLM-5.2' };
 const requestedCat = new URLSearchParams(location.search).get('cat');
 let currentCat = CATS.some(category => category.key === requestedCat) ? requestedCat : 'all';
+let showAllMembers = false;
 
 /* ---------- 卡片墙 ---------- */
 function renderFilterBar() {
-    const all = `<button class="filter-pill${currentCat === 'all' ? ' active' : ''}" data-cat="all" onclick="setCat('all')">${escapeHtml(agentsPageCopy.allFilter)}</button>`;
+    const all = `<button class="filter-pill" data-cat="all" type="button" aria-pressed="false" onclick="setCat('all')">${escapeHtml(agentsPageCopy.overviewFilter || '团队总览')}</button>`;
     const rest = CATS.map(c =>
-        `<button class="filter-pill${currentCat === c.key ? ' active' : ''}" data-cat="${c.key}" onclick="setCat('${c.key}')"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`
+        `<button class="filter-pill" data-cat="${c.key}" type="button" aria-pressed="false" onclick="setCat('${c.key}')"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`
     ).join('');
     document.getElementById('filter-bar').innerHTML = all + rest;
+    syncFilterState();
 }
 
 function setCat(key) {
     currentCat = key;
-    document.querySelectorAll('#filter-bar .filter-pill').forEach(b =>
-        b.classList.toggle('active', b.dataset.cat === key));
+    showAllMembers = false;
+    if (key === 'all') document.getElementById('agent-search').value = '';
     applyFilter();
 }
 
+function showAllAgents() {
+    currentCat = 'all';
+    showAllMembers = true;
+    document.getElementById('agent-search').value = '';
+    applyFilter();
+}
+
+function syncFilterState() {
+    const q = document.getElementById('agent-search')?.value.trim();
+    document.querySelectorAll('#filter-bar .filter-pill').forEach(button => {
+        const active = !q && !showAllMembers && button.dataset.cat === currentCat;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+}
+
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
-const HERO_ROSTER = ['lesson-design', 'class-activity', 'homework-grader', 'parent-comm', 'teaching-reflection'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
+const CAT_SCOPES = {
+    plan: '教案、课件、微课和新课导入',
+    class: '提问、概念解释、课堂活动与思维引导',
+    assess: '出题、批改、组卷和错因诊断',
+    home: '家校沟通、学生评语、班会与成长支持',
+    growth: '教学反思与听评课记录'
+};
 
 function portraitSrc(agent) {
     return `/assets/agent-portraits/${encodeURIComponent(agent.id)}.jpg`;
 }
 
-function renderHeroRoster() {
-    const roster = document.getElementById('agent-roster-list');
-    if (!roster) return;
-    roster.innerHTML = HERO_ROSTER.map(id => AGENTS.find(agent => agent.id === id)).filter(Boolean).map(agent =>
-        `<span class="agent-roster-avatar"><img src="${portraitSrc(agent)}" alt="" width="900" height="900" decoding="async"></span>`
-    ).join('');
-}
 const QUIZ_POINT_PLACEHOLDERS = {
     '语文': '如：拼音复习 / 识字写字 / 句子排序',
     '数学': '如：20以内加减法 / 小数乘法 / 一元一次方程',
@@ -998,11 +1150,30 @@ function cardHtml(a, allowSeal, featured) {
 
 function applyFilter() {
     const q = document.getElementById('agent-search').value.trim().toLowerCase();
-    if (currentCat === 'all' && !q) renderHome();
+    syncFilterState();
+    if (currentCat === 'all' && !q && !showAllMembers) renderHome();
     else renderFiltered(q);
 }
 
-// 默认视图：顶部精选 + 按 5 大类分区陈列（降低「一片卡海」的认知负荷）
+function departmentHtml(category) {
+    const members = AGENTS.filter(agent => agent.cat === category.key);
+    const visible = members.slice(0, 3);
+    const more = members.length - visible.length;
+    const avatars = visible.map(agent => `
+        <span class="agent-department-avatar"><img src="${portraitSrc(agent)}" alt="" width="900" height="900" loading="lazy" decoding="async"></span>`).join('');
+    const moreAvatar = more > 0 ? `<span class="agent-department-avatar agent-department-more">+${more}</span>` : '';
+    return `<button type="button" class="agent-department" style="--department-color:${category.color};--department-soft:${category.soft}" onclick="setCat('${category.key}')" aria-label="查看${escapeHtml(category.name)}的 ${members.length} 位成员">
+        <span class="agent-department-icon"><i class="ph-fill ${CAT_ICONS[category.key] || 'ph-folder-simple'}"></i></span>
+        <span class="agent-department-copy">
+            <span class="agent-department-name">${escapeHtml(category.name)}</span>
+            <span class="agent-department-scope">${escapeHtml(CAT_SCOPES[category.key] || '')}</span>
+        </span>
+        <span class="agent-department-avatars" aria-hidden="true">${avatars}${moreAvatar}</span>
+        <span class="agent-department-action"><strong>${members.length} 位</strong><span>${escapeHtml(agentsPageCopy.departmentAction || '查看成员')}</span><i class="ph ph-arrow-right"></i></span>
+    </button>`;
+}
+
+// 默认视图：只展示 4 位建议起点，其余能力进入部门目录按需展开。
 function renderHome() {
     document.getElementById('agent-count').textContent = `${AGENTS.length} ${agentsPageCopy.memberCountUnit || '位数字成员'}`;
     let html = '';
@@ -1016,20 +1187,16 @@ function renderHome() {
             <div class="agent-grid featured-grid">${feat.map(a => cardHtml(a, false, true)).join('')}</div>
         </div>`;
     }
-    CATS.forEach(c => {
-        // 推荐成员已经承担第一次选择，分类区只展示其余能力，避免同一位成员
-        // 在同一页面连续出现两次。搜索和分类筛选仍会返回完整清单。
-        const list = AGENTS.filter(a => a.cat === c.key && !FEATURED.includes(a.id));
-        if (!list.length) return;
-        html += `<div class="agent-section">
-            <div class="agent-section-head">
-                <div class="sec-ico" style="background:${c.soft};color:${c.color}"><i class="ph-fill ${CAT_ICONS[c.key] || 'ph-folder-simple'}"></i></div>
-                <span class="sec-title">${c.name}</span>
-                <span class="sec-count">${list.length}</span>
-            </div>
-            <div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>
-        </div>`;
-    });
+    html += `<section class="agent-directory" aria-labelledby="agent-directory-title">
+        <div class="agent-directory-intro">
+            <h2 id="agent-directory-title">${escapeHtml(agentsPageCopy.directoryHeading || '按教研部门找到合适成员')}</h2>
+            <p>${escapeHtml(agentsPageCopy.directoryIntro || '每个部门只处理一组相近任务，进入后再选择具体成员。')}</p>
+        </div>
+        <div class="agent-directory-list">${CATS.map(departmentHtml).join('')}</div>
+        <div class="agent-directory-footer">
+            <button type="button" class="agent-directory-all" onclick="showAllAgents()">${escapeHtml(agentsPageCopy.allMembersAction || '查看全部 19 位成员')} <i class="ph ph-arrow-right"></i></button>
+        </div>
+    </section>`;
     document.getElementById('agent-content').innerHTML = html;
 }
 
@@ -1042,14 +1209,46 @@ function renderFiltered(q) {
     });
     document.getElementById('agent-count').textContent = `共 ${list.length} ${agentsPageCopy.memberCountUnit || '位数字成员'}`;
     const content = document.getElementById('agent-content');
+    const category = currentCat === 'all' ? null : CAT_MAP[currentCat];
+    const heading = q ? '搜索结果' : (showAllMembers ? '全部成员' : category?.name || '成员');
+    const summary = q
+        ? `找到 ${list.length} 位与“${q}”相关的成员`
+        : (category ? (CAT_SCOPES[category.key] || '') : '完整浏览数字教研团队');
+    const head = `<div class="agent-results-head"><div><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(summary)}</p></div><button type="button" class="agent-results-back" onclick="setCat('all')"><i class="ph ph-arrow-left"></i>团队总览</button></div>`;
     if (!list.length) {
-        content.innerHTML = `<div class="agent-grid"><div class="empty-hint"><i class="ph ph-users-three"></i><p>${escapeHtml(agentsPageCopy.emptyMessage)}</p></div></div>`;
+        content.innerHTML = `${head}<div class="agent-grid"><div class="empty-hint"><i class="ph ph-users-three"></i><p>${escapeHtml(agentsPageCopy.emptyMessage)}</p></div></div>`;
         return;
     }
-    content.innerHTML = `<div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>`;
+    content.innerHTML = `${head}<div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>`;
 }
 
 /* ---------- 打开 / 返回 ---------- */
+const AGENT_STAGE_ORDER = ['brief', 'working', 'review'];
+
+function setAgentWorkStage(stage, agent = window._wsAgent, message = '') {
+    const presence = document.getElementById('ws-presence');
+    const label = document.getElementById('ws-presence-label');
+    const stageBox = document.getElementById('ws-agent-stage');
+    const isFormAgent = agent?.type === 'form';
+    presence?.classList.toggle('active', isFormAgent);
+    if (!isFormAgent) return;
+
+    const stageIndex = Math.max(0, AGENT_STAGE_ORDER.indexOf(stage));
+    const defaultMessages = {
+        brief: '正在了解你的教学任务',
+        working: `${agent.name}正在处理任务`,
+        review: `${agent.name}已交付初稿，等待教师核验`
+    };
+    if (label) label.textContent = message || defaultMessages[stage] || defaultMessages.brief;
+    stageBox?.querySelectorAll('[data-stage]').forEach(item => {
+        const itemIndex = AGENT_STAGE_ORDER.indexOf(item.dataset.stage);
+        item.classList.toggle('active', itemIndex === stageIndex);
+        item.classList.toggle('complete', itemIndex < stageIndex);
+        if (itemIndex === stageIndex) item.setAttribute('aria-current', 'step');
+        else item.removeAttribute('aria-current');
+    });
+}
+
 function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {}) {
     const a = AGENTS.find(x => x.id === id);
     if (!a) return;
@@ -1066,7 +1265,7 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
     document.getElementById('view-workspace').style.display = '';
     const ico = document.getElementById('ws-ico');
     ico.style.background = c.soft; ico.style.color = c.color;
-    ico.innerHTML = `<i class="ph-fill ${a.icon}"></i>`;
+    ico.innerHTML = `<img src="${portraitSrc(a)}" alt="" width="900" height="900" decoding="async">`;
     document.getElementById('ws-cat').innerHTML = `<i class="ph ph-circle-fill" style="font-size:6px;color:${c.color}"></i><span style="color:${c.color}">${c.name}</span>`;
     document.getElementById('ws-name').textContent = a.name;
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
@@ -1083,8 +1282,12 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
 
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
-    if (a.type === 'chat') buildChat(a);
-    else buildForm(a);
+    if (a.type === 'chat') {
+        setAgentWorkStage('brief', a);
+        buildChat(a);
+    } else {
+        buildForm(a);
+    }
 }
 
 function backToHome() {
@@ -1138,34 +1341,120 @@ function reviewItemMarkup(key, title, description, agentId) {
 }
 
 /* ---------- form 工作台 ---------- */
+const AGENT_BRIEF_PRIMARY_KEYS = {
+    'lesson-design': ['topic'],
+    'courseware-outline': ['topic'],
+    'micro-script': ['topic'],
+    'lesson-hook': ['topic'],
+    'layered-q': ['topic'],
+    'concept-explainer': ['concept'],
+    'class-activity': ['topic'],
+    'quiz-gen': ['point', 'types'],
+    'homework-grader': ['question', 'answer'],
+    'essay-review': ['title', 'text'],
+    'exam-paper': ['scope'],
+    'error-diagnosis': ['errors'],
+    'parent-comm': ['scene', 'detail'],
+    'student-comment': ['name', 'strength'],
+    'class-meeting': ['theme'],
+    'teaching-reflection': ['topic', 'happened'],
+    'lesson-observe': ['topic', 'notes']
+};
+const AGENT_BRIEF_CONTEXT_KEYS = new Set(['subject', 'grade', 'periods', 'duration', 'time', 'pages', 'size', 'count', 'total', 'len', 'channel', 'depth']);
+
+function briefFieldGroups(agent) {
+    const primaryKeys = new Set(AGENT_BRIEF_PRIMARY_KEYS[agent.id] || []);
+    agent.fields.forEach(field => {
+        if (field.required && !AGENT_BRIEF_CONTEXT_KEYS.has(field.key)) primaryKeys.add(field.key);
+    });
+    const primary = agent.fields.filter(field => primaryKeys.has(field.key));
+    const context = agent.fields.filter(field => !primaryKeys.has(field.key) && AGENT_BRIEF_CONTEXT_KEYS.has(field.key)).slice(0, 3);
+    const visibleKeys = new Set([...primary, ...context].map(field => field.key));
+    const extra = agent.fields.filter(field => !visibleKeys.has(field.key));
+    return { primary, context, extra };
+}
+
+function agentBriefPrompt(agent) {
+    if (agent.id === 'lesson-design') {
+        return '我们先把这节课说清楚。请告诉我：教什么、学生目前怎样、你最希望他们学会什么。';
+    }
+    return `我们先把这次任务说清楚。请填写最重要的信息，我会据此完成${agent.tagline || '初稿'}。`;
+}
+
+function agentRunLabel(agent) {
+    return agent.id === 'lesson-design' ? '任务已说清，开始起草' : `任务已说清，交给${agent.name}`;
+}
+
+function agentDeliverable(agent) {
+    const labels = {
+        'lesson-design': '教案初稿',
+        'courseware-outline': '课件大纲',
+        'micro-script': '微课脚本',
+        'lesson-hook': '课堂导入方案',
+        'quiz-gen': '练习初稿',
+        'homework-grader': '批改建议',
+        'essay-review': '作文评改建议',
+        'exam-paper': '试卷初稿',
+        'error-diagnosis': '错因诊断',
+        'parent-comm': '沟通话术',
+        'student-comment': '学生评语',
+        'class-meeting': '班会方案',
+        'teaching-reflection': '教学反思初稿',
+        'lesson-observe': '听评课记录'
+    };
+    return labels[agent.id] || agent.tagline || '工作成果';
+}
+
+function briefFieldMarkup(agent, field, index, primaryFields) {
+    const hasPrimaryTextarea = primaryFields.some(item => item.type === 'textarea');
+    const makeMultiline = index === 0 && field.type === 'text' && !hasPrimaryTextarea;
+    const options = { primary: true, multiline: makeMultiline };
+    if (agent.id === 'lesson-design' && field.key === 'topic') {
+        options.label = '教学任务描述';
+        options.placeholder = '请说明课题、学生基础，以及你最希望学生学会什么';
+    }
+    return renderField(agent.id, field, options);
+}
+
 function buildForm(a) {
     clearAgentWorkState({ keepAgent: true });
-    const fieldsHtml = a.fields.map(f => renderField(a.id, f)).join('');
+    const groups = briefFieldGroups(a);
+    const primaryHtml = groups.primary.map((field, index) => briefFieldMarkup(a, field, index, groups.primary)).join('');
+    const contextHtml = groups.context.map(field => renderField(a.id, field, { context: true })).join('');
+    const extraHtml = groups.extra.map(field => renderField(a.id, field)).join('');
     const handwritingAssist = handwritingAssistMarkup(a);
+    const deliverable = agentDeliverable(a);
     document.getElementById('ws-body').innerHTML = `
     <div class="ws-form-layout">
         <div class="ws-panel ws-input-col" id="ws-input-panel">
-            <div class="ws-panel-head">
-                <i class="ph ph-sliders-horizontal"></i> 任务参数
-                <span class="mono">INPUT</span>
+            <div class="ws-brief-head">
+                <i class="ph ph-note-pencil"></i>
+                <strong>任务简报</strong>
+                <small>BRIEF</small>
                 <button type="button" class="ws-toggle-input" id="ws-input-toggle" onclick="toggleInputPanel()">收起</button>
             </div>
             <div class="ws-input-summary" id="ws-input-summary"></div>
             <div class="ws-input-scroll" id="ws-input-scroll">
-                <div class="ws-draft-state" id="ws-draft-state" role="status" aria-live="polite">
-                    <i class="ph ph-cloud-check"></i><span>输入会自动保存在这台设备上</span>
-                    <button type="button" onclick="clearCurrentDraft('${a.id}')">清空草稿</button>
+                <div class="ws-colleague-prompt">
+                    <span class="ws-colleague-avatar"><img src="${portraitSrc(a)}" alt="" width="900" height="900" decoding="async"></span>
+                    <div class="ws-colleague-copy"><b>${escapeHtml(a.name)}</b>${escapeHtml(agentBriefPrompt(a))}</div>
                 </div>
                 ${handwritingAssist}
                 <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
-                    ${fieldsHtml}
-                    <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> 开始生成</button>
+                    <div class="ws-brief-primary">${primaryHtml}</div>
+                    ${contextHtml ? `<div class="ws-brief-context" aria-label="任务背景">${contextHtml}</div>` : ''}
+                    ${extraHtml ? `<details class="ws-extra-params" id="ws-extra-params"><summary>展开全部参数 <i class="ph ph-caret-down" aria-hidden="true"></i></summary><div class="ws-extra-fields">${extraHtml}</div></details>` : ''}
+                    <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> ${escapeHtml(agentRunLabel(a))}</button>
                 </form>
+                <div class="ws-draft-state" id="ws-draft-state" role="status" aria-live="polite">
+                    <i class="ph ph-cloud-check"></i><span>任务简报会自动保存在这台设备上</span>
+                    <button type="button" onclick="clearCurrentDraft('${a.id}')">清空草稿</button>
+                </div>
             </div>
         </div>
         <div class="ws-panel ws-out-panel">
             <div class="ws-out-head">
-                <span class="label"><i class="ph ph-file-text"></i> 文稿工作区</span>
+                <span class="label"><i class="ph ph-file-text"></i> ${escapeHtml(a.name)}的交付</span>
                 <div class="ws-out-actions" id="out-actions" style="display:none">
                     <button class="ws-mini-btn" id="save-btn" onclick="saveToWorkbook('${a.id}')"><i class="ph ph-bookmark-simple"></i> 保存到备课本</button>
                     <button class="ws-mini-btn" id="edit-btn" onclick="toggleEdit()"><i class="ph ph-pencil-simple"></i> 编辑</button>
@@ -1173,8 +1462,9 @@ function buildForm(a) {
                     <button class="ws-mini-btn" onclick="runForm('${a.id}')"><i class="ph ph-arrows-clockwise"></i> 重新生成</button>
                 </div>
             </div>
+            <div class="ws-task-summary" id="ws-task-summary" aria-live="polite"></div>
             <div class="ws-out-body placeholder" id="out-body" role="status" aria-live="polite" aria-busy="false">
-                <div><i class="ph ph-cursor-click"></i><p>填好任务参数后点击「开始生成」<br>文稿会显示在这里</p></div>
+                <div class="ws-empty-delivery"><i class="ph ph-file-text"></i><b>${escapeHtml(deliverable)}将在这里交付</b><p>任务确认后，${escapeHtml(a.name)}会在这里提交初稿。</p></div>
             </div>
             <details class="ws-review-panel" id="ws-review-panel" hidden>
                 <summary><i class="ph ph-shield-check"></i><span>下一步：教师核验</span><span class="review-state" id="review-state">0 / 4</span></summary>
@@ -1202,6 +1492,7 @@ function buildForm(a) {
                 </div>
             </details>
             <div class="ws-next" id="ws-next" aria-label="下一步任务"></div>
+            <div class="ws-delivery-note"><i class="ph ph-shield-check"></i>AI 交付的是初稿，请结合教学实际核验后使用。</div>
         </div>
     </div>`;
     // 恢复 chip 多选监听
@@ -1213,6 +1504,8 @@ function buildForm(a) {
     });
     initAgentFormHelpers(a);
     initTeachingProjectForm(a);
+    updateBriefSummary(a);
+    setAgentWorkStage(_lastResult ? 'review' : 'brief', a);
 }
 
 function handwritingAssistMarkup(a) {
@@ -1247,28 +1540,32 @@ function insertHandwritingTemplate(aid, onlyEmpty) {
             el.style.height = Math.max(el.scrollHeight + 8, 96) + 'px';
         }
     });
+    if (window._wsAgent) updateBriefSummary(window._wsAgent);
     showToast(onlyEmpty ? '已填入空白模板' : '已插入粘贴模板');
 }
 
-function renderField(aid, f) {
+function renderField(aid, f, options = {}) {
     const req = f.required ? '<span class="req">*</span>' : '';
     const hint = f.hint ? `<span class="hint">${f.hint}</span>` : '';
     const fieldId = `agent-${aid}-${f.key}`;
     const labelId = `${fieldId}-label`;
+    const fieldLabel = options.label || f.label;
     const label = f.type === 'chips'
-        ? `<div class="field-label" id="${labelId}">${f.label}${req}${hint}</div>`
-        : `<label for="${fieldId}">${f.label}${req}${hint}</label>`;
+        ? `<div class="field-label" id="${labelId}">${fieldLabel}${req}${hint}</div>`
+        : `<label for="${fieldId}">${fieldLabel}${req}${hint}</label>`;
     let control = '';
-    if (f.type === 'textarea') {
-        control = `<textarea id="${fieldId}" name="${f.key}" rows="${f.rows || 4}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`;
+    const placeholder = options.placeholder || f.placeholder || '';
+    if (f.type === 'textarea' || options.multiline) {
+        control = `<textarea id="${fieldId}" name="${f.key}" rows="${options.multiline ? 5 : (f.rows || 4)}" placeholder="${placeholder}" ${f.required ? 'required' : ''}></textarea>`;
     } else if (f.type === 'select') {
         control = `<select id="${fieldId}" name="${f.key}" ${f.required ? 'required' : ''}>${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
     } else if (f.type === 'chips') {
         control = `<div class="chips" data-key="${f.key}" role="group" aria-labelledby="${labelId}">${f.options.map(o => `<button type="button" class="chip-opt" aria-pressed="false">${o}</button>`).join('')}</div>`;
     } else {
-        control = `<input id="${fieldId}" type="${f.type || 'text'}" name="${f.key}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`;
+        control = `<input id="${fieldId}" type="${f.type || 'text'}" name="${f.key}" placeholder="${placeholder}" ${f.required ? 'required' : ''}>`;
     }
-    return `<div class="field" data-field="${f.key}">${label}${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
+    const classes = ['field', options.primary ? 'is-brief-primary' : '', options.context ? 'is-brief-context' : ''].filter(Boolean).join(' ');
+    return `<div class="${classes}" data-field="${f.key}">${label}${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
 }
 
 function collectInputs(a) {
@@ -1386,6 +1683,7 @@ function saveProjectFromModal() {
     renderActiveProject();
     if (window._wsAgent?.type === 'form') {
         applyProjectToForm(window._wsAgent, project, true);
+        updateBriefSummary(window._wsAgent);
         scheduleDraftSave(window._wsAgent, '项目背景已应用并保存');
     }
     if (window.Analytics) Analytics.track('project_saved', {
@@ -1608,13 +1906,19 @@ function initTeachingProjectForm(agent) {
     const form = document.getElementById('agent-form');
     form?.addEventListener('input', event => {
         clearFieldError(event.target);
+        updateBriefSummary(agent);
         scheduleDraftSave(agent);
     });
     form?.addEventListener('change', event => {
         clearFieldError(event.target);
+        updateBriefSummary(agent);
         scheduleDraftSave(agent);
     });
-    form?.querySelectorAll('.chip-opt').forEach(button => button.addEventListener('click', () => scheduleDraftSave(agent)));
+    form?.querySelectorAll('.chip-opt').forEach(button => button.addEventListener('click', () => {
+        updateBriefSummary(agent);
+        scheduleDraftSave(agent);
+    }));
+    updateBriefSummary(agent);
 }
 
 function clearCurrentDraft(agentId) {
@@ -1654,6 +1958,22 @@ function updateInputSummary(a, inputs) {
     const box = document.getElementById('ws-input-summary');
     if (!box) return;
     box.innerHTML = summarizeInputs(a, inputs) || '已填写任务参数。';
+}
+
+function updateBriefSummary(agent) {
+    const box = document.getElementById('ws-task-summary');
+    const form = document.getElementById('agent-form');
+    if (!box || !form || !agent) return;
+    const inputs = collectInputs(agent);
+    const groups = briefFieldGroups(agent);
+    const contextFields = [...groups.context, ...groups.primary.filter(field => field.type === 'select')];
+    const context = contextFields.map(field => {
+        const value = fieldText(inputs[field.key]);
+        return value ? `<span><i class="ph ph-tag" aria-hidden="true"></i>${escapeHtml(field.label)}：${escapeHtml(value)}</span>` : '';
+    }).filter(Boolean).slice(0, 4).join('');
+    const primaryTextField = groups.primary.find(field => field.type !== 'select' && field.type !== 'chips');
+    const primaryText = primaryTextField ? fieldText(inputs[primaryTextField.key]) : '';
+    box.innerHTML = `<b>本次任务</b><div class="ws-task-summary-meta">${context || '<span>关键信息尚未填写</span>'}</div><p>${primaryText ? escapeHtml(primaryText) : '填写左侧任务简报后，这里会同步显示关键信息。'}</p>`;
 }
 
 function toggleInputPanel(forceOpen) {
@@ -2080,6 +2400,7 @@ function showInputValidation(result) {
     body.setAttribute('aria-busy', 'false');
     body.tabIndex = -1;
     body.innerHTML = mdToHtml(`### ${result.title || '参数需要调整'}\n\n${result.message || '当前输入不适合直接生成。'}\n\n${(result.suggestions || []).map(s => `- ${s}`).join('\n')}`);
+    setAgentWorkStage('brief', window._wsAgent, '任务需要调整后再交给数字成员');
     body.focus?.();
 }
 
@@ -2088,6 +2409,8 @@ function showMissingFields(missing) {
     let firstControl = null;
     missing.forEach(field => {
         const wrapper = form?.querySelector(`[data-field="${field.key}"]`);
+        const details = wrapper?.closest('details');
+        if (details) details.open = true;
         const control = field.type === 'chips'
             ? wrapper?.querySelector('.chip-opt')
             : wrapper?.querySelector(`[name="${field.key}"]`);
@@ -2114,10 +2437,12 @@ function generationErrorDetails(error) {
 function renderGenerationError(error, aid) {
     const body = document.getElementById('out-body');
     const info = generationErrorDetails(error);
+    const agent = AGENTS.find(item => item.id === aid);
     body.className = 'ws-out-body placeholder';
     body.setAttribute('role', 'alert');
     body.setAttribute('aria-busy', 'false');
     body.innerHTML = `<div class="ws-error-state"><i class="ph ph-warning-circle"></i><b>${escapeHtml(info.title)}</b><p>${escapeHtml(info.detail)}</p><button type="button" onclick="runForm('${aid}')"><i class="ph ph-arrow-clockwise"></i> ${escapeHtml(info.action)}</button></div>`;
+    setAgentWorkStage('brief', agent, '本次处理没有完成，可以保留简报后重试');
 }
 
 async function runForm(aid) {
@@ -2146,12 +2471,13 @@ async function runForm(aid) {
     const runSeq = ++_formRunSeq;
     const ownerUid = currentAuthUid();
     const runStartedAt = performance.now();
-    btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 生成中…';
+    btn.disabled = true; btn.innerHTML = `<i class="ph ph-spinner-gap ph-spin"></i> ${escapeHtml(a.name)}正在处理…`;
     actions.style.display = 'none';
+    setAgentWorkStage('working', a);
     body.className = 'ws-out-body placeholder';
     body.setAttribute('role', 'status');
     body.setAttribute('aria-busy', 'true');
-    body.innerHTML = '<div><i class="ph ph-spinner-gap ph-spin"></i><p>正在分析任务参数并形成初稿…<br>可以在完成后继续编辑和核验</p></div>';
+    body.innerHTML = `<div class="ws-empty-delivery"><i class="ph ph-spinner-gap ph-spin"></i><b>${escapeHtml(a.name)}正在处理任务</b><p>正在梳理任务简报并形成${escapeHtml(agentDeliverable(a))}，完成后会交付到这里。</p></div>`;
     _lastResult = '';
     _lastWorkbookFingerprint = '';
     _lastWorkbookId = '';
@@ -2174,6 +2500,7 @@ async function runForm(aid) {
         body.setAttribute('aria-busy', 'false');
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
+        setAgentWorkStage('review', a);
         showResultWorkflow(a, {});
         toggleInputPanel(false);
         persistCurrentDraft(a, '生成结果已自动保存');
@@ -2200,7 +2527,7 @@ async function runForm(aid) {
         });
     }
     if (runSeq === _formRunSeq && currentAuthUid() === ownerUid) {
-        btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-sparkle"></i> 开始生成';
+        btn.disabled = false; btn.innerHTML = `<i class="ph-fill ph-sparkle"></i> ${escapeHtml(agentRunLabel(a))}`;
     }
     return false;
 }
@@ -2728,7 +3055,6 @@ function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;
 /* ---------- 初始化 ---------- */
 // 常用状态：先用种子（默认两个），待全站使用频率数据返回后覆盖并重渲染
 window.TOP_AGENTS = ['lesson-design', 'quiz-gen'];
-renderHeroRoster();
 renderFilterBar();
 applyFilter();
 renderNav('agents');

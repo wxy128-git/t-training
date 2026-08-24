@@ -41,7 +41,7 @@ if (home) {
     assert(body.includes('css/style.css?v=20260823-content-team-workbook'), '首页未加载当前全局样式版本');
     assert(body.includes('css/pwa.css?v=20260822-phase1'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20260823-content-team-workbook'), '首页未加载当前导航与账户脚本版本');
-    assert(body.includes('js/data.js?v=20260823-page-copy') && body.includes('js/site-copy.js?v=20260823-page-copy'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20260823-page-copy') && body.includes('js/site-copy.js?v=20260824-agent-directory'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20260821-tencent'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20260822-phase1'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
@@ -76,7 +76,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260823-v14'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260824-v16'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -103,8 +103,12 @@ if (classroom) {
 const agents = await request('/agents');
 if (agents) {
     const body = await agents.text();
-    assert(body.includes("!FEATURED.includes(a.id)"), '精选智能体仍会在分类列表重复展示');
+    assert(body.includes('class="agent-directory"') && body.includes('function departmentHtml') && body.includes('function showAllAgents'), '智能体部门目录或全部成员入口未上线');
+    assert(!/agent-roster-list|HERO_ROSTER|renderHeroRoster/.test(body), '智能体默认页仍保留重复的人物在席墙');
     assert(body.includes('class="agent-member"') && body.includes('assets/agent-portraits/'), '数字教研团队人物化界面未上线');
+    assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('教学任务描述') && body.includes('展开全部参数'), '数字成员任务简报或渐进参数未上线');
+    assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('任务已说清，开始起草'), '数字成员工作阶段或成员化操作未上线');
+    assert(body.includes('${escapeHtml(a.name)}的交付') && body.includes('AI 交付的是初稿'), '数字成员交付归属或教师核验提示未上线');
 }
 
 const workspace = await request('/workspace');
