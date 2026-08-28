@@ -35,10 +35,12 @@
 
 ## Deployment History
 
-- **2026-08-28（知识点课程匹配硬闸门，本地待上线）**:
+- **2026-08-28（知识点课程匹配硬闸门，已上线）**:
   - `agents.html` 移除“教材校验章”、教材同步 / 非教材主题、版本、册次和教师确认等生成前控件；教学项目中的教材版本仍作为可选背景，不再决定是否允许生成。课堂活动与作业批改补齐必填年级，保证知识型任务都能检查年级适配。
   - 新增前后端共用 `js/curriculum-guard.js`：课程知识条目支持一个概念对应多个学科 / 学段，统一返回 `aligned / conflict / ambiguous / unknown` 四种状态；未知不再默认为通过。11 个知识型智能体发送结构化 `curriculum`，服务端重做规则判断并对不确定输入进行独立语义分类；冲突、歧义、未知、低置信度以及缺少学科 / 最低年级证据的结论全部在正文生成前停止。
-  - 删除 `js/textbook-catalog.js` 与旧教材目录测试，改为 `scripts/test-curriculum-guard.mjs`；`npm run check` 当前通过站点检查、13 个课程匹配场景、57 项函数回归和 8 项腾讯云适配断言。腾讯云打包器会把共享判断引擎同时放进 API 包，并忽略 Git 索引中已删除的文件。Service Worker 升级为 `VERSION=20260828-v18`。本条仅记录本地实现，尚未执行生产部署。
+  - 删除 `js/textbook-catalog.js` 与旧教材目录测试，改为 `scripts/test-curriculum-guard.mjs`；`npm run check` 通过站点检查、13 个课程匹配场景、57 项函数回归和 8 项腾讯云适配断言。腾讯云打包器会把共享判断引擎同时放进 API 包，并忽略 Git 索引中已删除的文件。实现提交：`79c4911`（`上线知识点课程匹配硬闸门`）；Service Worker 为 `VERSION=20260828-v18`。
+  - 腾讯云发布目录 `/home/ubuntu/t-training/releases/20260828-curriculum-gate-79c4911`，回滚备份 `/home/ubuntu/t-training/backups/20260828-pre-curriculum-gate-79c4911`。发布采用 3002 候选 API + Nginx 热切换：候选健康、工具、公开内容、认证 / 备课本 / 智能体输入守卫、RSS SSRF 守卫与远端课程冲突规则通过后切换；正式 3001 回归通过后切回并删除候选进程。
+  - 服务器 102 个静态文件、11 个 API 文件与发布包 checksum 零差异，公网生产检查 95 项通过；课程守卫脚本返回 HTTP/2 200、gzip 与 30 天缓存，Cloudflare 旧地址继续保留路径和查询参数 302。`pm2-ubuntu` enabled/active 且 MainPID 有效，`edu-media` 与 `t-training-api` 均 online，教师培训站和教育媒体课程站均返回 HTTP/2 200；API 错误日志为空。
 
 - **2026-08-24（备课本视觉减重，已上线）**:
   - `workspace.html` 从强拟物活页夹收敛为现代内容工作台：仅保留一条窄藏蓝装订轨作为页面识别，章节签改为顶部文字索引；目录、卡片和成果弹层统一使用平整白纸与轻描边，取消实际渲染的金属环、打孔、叠纸、横线纸和旋转效果。
