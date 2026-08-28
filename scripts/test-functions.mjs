@@ -2,7 +2,7 @@
 
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 let passed = 0;
@@ -162,6 +162,161 @@ try {
         env: {}
     });
     assert(unauthenticatedList.status === 401, '用户列表接口未拒绝未登录请求');
+
+    const agentApiUrl = `${pathToFileURL(join(root, 'functions/api/agent.js')).href}?test=${Date.now()}`;
+    const agentApi = await import(agentApiUrl);
+    const agentRequest = payload => new Request('https://site.test/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    const baseAgentPayload = {
+        messages: [
+            { role: 'system', content: '测试系统提示' },
+            { role: 'user', content: '测试任务' }
+        ],
+        idToken: 'test-token'
+    };
+
+    let providerFetchCount = 0;
+    globalThis.fetch = async url => {
+        if (String(url).includes('accounts:lookup')) {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-local-conflict' }] }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        providerFetchCount += 1;
+        throw new Error('课程规则已判定冲突时不应调用模型');
+    };
+    const localConflictResponse = await agentApi.onRequestPost({
+        request: agentRequest({
+            ...baseAgentPayload,
+            agentId: 'quiz-gen',
+            curriculum: {
+                subject: '语文',
+                grade: '小学一年级',
+                knowledgePoint: '二次函数的图像与性质',
+                textLabel: '知识点',
+                action: '出题'
+            }
+        }),
+        env: { DEEPSEEK_API_KEY: 'test-key' }
+    });
+    const localConflictBody = await localConflictResponse.json();
+    assert(localConflictResponse.status === 422 && localConflictBody.curriculum?.status === 'conflict', '确定性课程冲突未被服务端拦截');
+    assert(providerFetchCount === 0, '确定性课程冲突仍然调用了模型');
+
+    providerFetchCount = 0;
+    globalThis.fetch = async (url, options = {}) => {
+        if (String(url).includes('accounts:lookup')) {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-semantic-conflict' }] }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        providerFetchCount += 1;
+        const requestBody = JSON.parse(options.body);
+        assert(requestBody.stream === false && requestBody.temperature === 0, '未知课题没有使用独立的非流式低随机性分类');
+        return new Response(JSON.stringify({
+            choices: [{ message: { content: JSON.stringify({
+                status: 'conflict',
+                confidence: 0.96,
+                detectedSubjects: ['语文'],
+                minGrade: '小学三年级',
+                reason: '该内容是语文阅读任务，与申报的数学学科不匹配。',
+                suggestions: ['将学科改为语文。']
+            }) } }]
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    };
+    const semanticConflictResponse = await agentApi.onRequestPost({
+        request: agentRequest({
+            ...baseAgentPayload,
+            agentId: 'courseware-outline',
+            curriculum: {
+                subject: '数学',
+                grade: '小学三年级',
+                knowledgePoint: '本校自编的春日阅读课',
+                textLabel: '课题',
+                action: '生成课件大纲'
+            }
+        }),
+        env: { DEEPSEEK_API_KEY: 'test-key' }
+    });
+    const semanticConflictBody = await semanticConflictResponse.json();
+    assert(semanticConflictResponse.status === 422 && semanticConflictBody.curriculum?.status === 'conflict', '语义分类发现的课程冲突未被拦截');
+    assert(providerFetchCount === 1, '未知课题应只调用一次分类，不应继续内容生成');
+
+    providerFetchCount = 0;
+    globalThis.fetch = async (url, options = {}) => {
+        if (String(url).includes('accounts:lookup')) {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-incomplete-classification' }] }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        providerFetchCount += 1;
+        return new Response(JSON.stringify({
+            choices: [{ message: { content: JSON.stringify({
+                status: 'aligned',
+                confidence: 0.94,
+                detectedSubjects: ['语文'],
+                reason: '看起来可以匹配，但没有给出最低年级。'
+            }) } }]
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    };
+    const incompleteClassificationResponse = await agentApi.onRequestPost({
+        request: agentRequest({
+            ...baseAgentPayload,
+            agentId: 'courseware-outline',
+            curriculum: {
+                subject: '语文',
+                grade: '小学三年级',
+                knowledgePoint: '本校自编的春日阅读课',
+                textLabel: '课题',
+                action: '生成课件大纲'
+            }
+        }),
+        env: { DEEPSEEK_API_KEY: 'test-key' }
+    });
+    const incompleteClassificationBody = await incompleteClassificationResponse.json();
+    assert(incompleteClassificationResponse.status === 422 && incompleteClassificationBody.curriculum?.status === 'unknown', '缺少可验证年级证据的 aligned 结论不应放行');
+    assert(providerFetchCount === 1, '不完整分类结论不应进入第二次内容生成');
+
+    providerFetchCount = 0;
+    globalThis.fetch = async url => {
+        if (String(url).includes('accounts:lookup')) {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-known-aligned' }] }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        providerFetchCount += 1;
+        return new Response('data: {"choices":[{"delta":{"content":"生成内容"}}]}\n\ndata: [DONE]\n\n', {
+            status: 200,
+            headers: { 'Content-Type': 'text/event-stream' }
+        });
+    };
+    const pending = [];
+    const alignedResponse = await agentApi.onRequestPost({
+        request: agentRequest({
+            ...baseAgentPayload,
+            agentId: 'quiz-gen',
+            curriculum: {
+                subject: '数学',
+                grade: '初中九年级',
+                knowledgePoint: '二次函数的图像与性质',
+                textLabel: '知识点',
+                action: '出题'
+            }
+        }),
+        env: { DEEPSEEK_API_KEY: 'test-key' },
+        waitUntil(promise) { pending.push(promise); }
+    });
+    const alignedText = await alignedResponse.text();
+    await Promise.all(pending);
+    assert(alignedResponse.status === 200 && alignedText === '生成内容', '明确匹配的课程请求没有进入正常流式生成');
+    assert(providerFetchCount === 1, '知识库已明确匹配时不应额外调用语义分类');
 
     console.log(`函数回归通过：${passed} 项断言。`);
 } finally {

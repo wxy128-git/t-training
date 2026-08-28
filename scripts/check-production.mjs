@@ -76,7 +76,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260824-v17'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260828-v18'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -109,15 +109,15 @@ if (agents) {
     assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('教学任务描述') && body.includes('展开全部参数'), '数字成员任务简报或渐进参数未上线');
     assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('任务已说清，开始起草'), '数字成员工作阶段或成员化操作未上线');
     assert(body.includes('${escapeHtml(a.name)}的交付') && body.includes('AI 交付的是初稿'), '数字成员交付归属或教师核验提示未上线');
-    assert(body.includes('js/textbook-catalog.js?v=20260824-textbook-guard') && body.includes('class="ws-textbook-locator"'), '教材版本定位界面未上线');
-    assert(body.includes('function textbookAnalysis') && body.includes('curriculumConfirmed') && body.includes('非教材主题'), '教材冲突、教师核对或非教材任务链路未上线');
+    assert(body.includes('js/curriculum-guard.js?v=20260828-curriculum-gate') && body.includes('function curriculumContext'), '课程匹配守卫未上线');
+    assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('error.curriculum'), '旧教材校验章未移除或服务端拦截反馈未上线');
 }
 
-const textbookCatalog = await request('/js/textbook-catalog.js?v=20260824-textbook-guard');
-if (textbookCatalog) {
-    const body = await textbookCatalog.text();
-    assert(textbookCatalog.status === 200 && textbookCatalog.headers.get('content-type')?.includes('javascript'), '教材目录脚本未正确上线');
-    assert(body.includes('TextbookCatalog') && body.includes('getEditions') && body.includes('analyze'), '教材目录脚本内容不完整');
+const curriculumGuard = await request('/js/curriculum-guard.js?v=20260828-curriculum-gate');
+if (curriculumGuard) {
+    const body = await curriculumGuard.text();
+    assert(curriculumGuard.status === 200 && curriculumGuard.headers.get('content-type')?.includes('javascript'), '课程匹配守卫脚本未正确上线');
+    assert(body.includes('CurriculumGuard') && body.includes('GUARDED_AGENT_IDS') && body.includes("result('unknown'"), '课程匹配守卫脚本内容不完整');
 }
 
 const workspace = await request('/workspace');

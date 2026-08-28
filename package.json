@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node scripts/check-site.mjs && node scripts/test-textbook-catalog.mjs && node scripts/test-functions.mjs && node scripts/test-tencent-server.mjs",
+    "check": "node scripts/check-site.mjs && node scripts/test-curriculum-guard.mjs && node scripts/test-functions.mjs && node scripts/test-tencent-server.mjs",
     "start:tencent": "node server/tencent-api.mjs"
   }
 }

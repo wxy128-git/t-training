@@ -133,13 +133,24 @@ if (!/教学设计助手的交付/.test(agentsHtml) && !/\$\{escapeHtml\(a\.name
     fail('agents.html', '数字成员交付区缺少成员归属');
 }
 if (!/AI 交付的是初稿/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
-if (!/js\/textbook-catalog\.js\?v=20260824-textbook-guard/.test(agentsHtml) || !/class="ws-textbook-locator"/.test(agentsHtml)) {
-    fail('agents.html', '教材版本定位与生成前校验界面未接入');
+if (!/js\/curriculum-guard\.js\?v=20260828-curriculum-gate/.test(agentsHtml) || !/function curriculumContext/.test(agentsHtml)) {
+    fail('agents.html', '课程匹配守卫未接入智能体工作台');
 }
-if (!/function textbookAnalysis/.test(agentsHtml) || !/curriculumConfirmed/.test(agentsHtml) || !/非教材主题/.test(agentsHtml)) {
-    fail('agents.html', '教材冲突、人工核对或非教材主题链路不完整');
+if (/教材校验章|ws-textbook-locator|curriculumConfirmed|textbook-catalog\.js/.test(agentsHtml)) {
+    fail('agents.html', '旧教材校验章或教材版本前置字段仍然存在');
 }
-if (!existsSync(join(root, 'js/textbook-catalog.js'))) fail('js/textbook-catalog.js', '教材目录与课程冲突规则缺失');
+if (!/JSON\.stringify\(\{ messages, idToken, agentId: agent\.id, curriculum \}\)/.test(agentsHtml) || !/error\.curriculum/.test(agentsHtml)) {
+    fail('agents.html', '课程上下文提交或后端拦截反馈链路不完整');
+}
+if (!existsSync(join(root, 'js/curriculum-guard.js'))) fail('js/curriculum-guard.js', '课程知识判断引擎缺失');
+const curriculumGuardSource = text('js/curriculum-guard.js');
+if (!['aligned', 'conflict', 'ambiguous', 'unknown'].every(status => curriculumGuardSource.includes(`'${status}'`)) || !/GUARDED_AGENT_IDS/.test(curriculumGuardSource)) {
+    fail('js/curriculum-guard.js', '课程判断引擎缺少四状态或硬闸门智能体范围');
+}
+const agentApiSource = text('functions/api/agent.js');
+if (!/curriculum-guard\.js/.test(agentApiSource) || !/enforceCurriculumGate/.test(agentApiSource) || !/CLASSIFIER_CONFIDENCE/.test(agentApiSource)) {
+    fail('functions/api/agent.js', '服务端课程硬闸门或独立语义分类未接入');
+}
 const workspaceHtml = text('workspace.html');
 if (!/class="wb-desk-scene wb-workbook-light"/.test(workspaceHtml) || !/class="wb-binder-spine"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
     fail('workspace.html', '轻量备课本或装订线索结构未接入');
@@ -159,7 +170,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260824-v17/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/textbook-catalog\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 教材校验缓存未更新');
+if (!/20260828-v18/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 课程匹配守卫缓存未更新');
 
 const loginTransitionSource = text('js/auth.js');
 if (/showWelcomeOverlay\('login'/.test(loginTransitionSource)) fail('js/auth.js', '登录成功仍使用短暂全屏欢迎层');

@@ -17,7 +17,7 @@ const listed = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-
     encoding: 'utf8'
 });
 if (listed.status !== 0) throw new Error(listed.stderr || '无法读取 Git 文件清单');
-const files = listed.stdout.split('\0').filter(Boolean);
+const files = listed.stdout.split('\0').filter(Boolean).filter(file => existsSync(join(root, file)));
 
 const rootStaticFiles = new Set([
     'manifest.webmanifest', 'offline.html', 'robots.txt', 'sitemap.xml', 'sw.js'
@@ -29,6 +29,7 @@ const isStatic = file => (
 );
 const isApi = file => (
     /^functions\/api\/[^/]+\.js$/.test(file)
+    || file === 'js/curriculum-guard.js'
     || file === 'server/tencent-api.mjs'
     || file === 'package.json'
 );
