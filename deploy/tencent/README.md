@@ -18,7 +18,7 @@ node scripts/test-tencent-server.mjs
 node scripts/build-tencent-package.mjs /tmp/t-training-package
 ```
 
-部署包只包含用户可访问的静态文件、8 个 API 函数、Node 适配层和运维模板；
+部署包只包含用户可访问的静态文件、9 个 API 路由函数、2 个后端共享模块、Node 适配层和运维模板；
 被 `.gitignore` 排除的多模态制作源文件不会进入生产包。
 
 ## 服务器约定

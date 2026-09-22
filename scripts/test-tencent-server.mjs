@@ -54,6 +54,16 @@ try {
     });
     assert(invalidAgent.status === 400, '智能体输入校验没有经 Node 适配层生效');
 
+    const emailAction = await fetch(`${base}/api/email-action?mode=verifyEmail&oobCode=AbCdEfGhIjKlMnOpQrStUvWx`);
+    const emailActionBody = await emailAction.text();
+    assert(emailAction.status === 200 && emailAction.headers.get('content-type')?.includes('text/html'), '本站邮箱操作页未由 Node 适配层提供');
+    assert(emailAction.headers.get('cache-control')?.includes('no-store') && emailAction.headers.get('pragma') === 'no-cache', '邮箱操作页未彻底禁用缓存');
+    assert(emailAction.headers.get('referrer-policy') === 'no-referrer' && emailAction.headers.get('content-security-policy')?.includes("default-src 'none'"), '邮箱操作页缺少验证码防泄漏响应头');
+    assert(emailActionBody.includes('/api/auth-proxy') && emailActionBody.includes('history.replaceState') && emailActionBody.includes('验证邮箱'), '邮箱操作页内容或同源完成链路不完整');
+
+    const emailActionPost = await fetch(`${base}/api/email-action`, { method: 'POST' });
+    assert(emailActionPost.status === 405 && emailActionPost.headers.get('allow') === 'GET', '邮箱操作页没有限制为只读 GET 路由');
+
     console.log(`腾讯云 API 适配层通过：${passed} 项断言。`);
 } finally {
     server.closeAllConnections?.();

@@ -180,6 +180,15 @@ if (auth) {
     assert(auth.headers.get('access-control-allow-origin') !== '*', '认证代理仍允许通配 CORS');
 }
 
+const emailAction = await request('/api/email-action?mode=verifyEmail&oobCode=AbCdEfGhIjKlMnOpQrStUvWx');
+if (emailAction) {
+    const body = await emailAction.text();
+    assert(emailAction.status === 200 && emailAction.headers.get('content-type')?.includes('text/html'), '本站邮箱操作页未上线');
+    assert(emailAction.headers.get('cache-control')?.includes('no-store') && emailAction.headers.get('pragma') === 'no-cache', '邮箱操作页可能缓存一次性验证码');
+    assert(emailAction.headers.get('referrer-policy') === 'no-referrer' && emailAction.headers.get('content-security-policy')?.includes("default-src 'none'"), '邮箱操作页缺少验证码防泄漏响应头');
+    assert(body.includes('/api/auth-proxy') && body.includes('history.replaceState') && body.includes('verifyAndChangeEmail'), '邮箱操作页同源完成链路不完整');
+}
+
 const redirect = await request('/main');
 if (redirect) {
     assert([301, 302, 307, 308].includes(redirect.status), `/main 未跳转，状态为 ${redirect.status}`);

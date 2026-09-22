@@ -9,12 +9,12 @@ let passed = 0, serial = 0;
 const check = (condition, message) => { assert.ok(condition, message); passed++; };
 const freshAuth = () => import(`../functions/api/auth-proxy.js?email-test=${serial++}`);
 const originalFetch = globalThis.fetch;
-let account, calls, profile, sendError, loginUid;
+let account, calls, profile, sendError, oobError, loginUid;
 const field = value => typeof value === 'boolean' ? { booleanValue: value } : { stringValue: value };
 function reset(overrides = {}) {
     account = { localId: 'original-uid', email: 'tel_13800138000@xylaoshi.tel', emailVerified: false, ...overrides };
     profile = { name: '老教师', email: '', phone: '13800138000', school: '原学校', isAdmin: false, joinedAt: '2025-01-01T00:00:00.000Z' };
-    calls = []; sendError = ''; loginUid = '';
+    calls = []; sendError = ''; oobError = ''; loginUid = '';
     globalThis.fetch = async (url, options = {}) => {
         url = String(url);
         const body = options.body ? JSON.parse(options.body) : {};
@@ -25,7 +25,12 @@ function reset(overrides = {}) {
         if (url.includes('accounts:signInWithPassword')) return Response.json({ localId: loginUid || account.localId, email: account.email, idToken: 'fresh-token', refreshToken: 'refresh', expiresIn: '3600' });
         if (url.includes('accounts:sendOobCode')) return sendError
             ? Response.json({ error: { message: sendError } }, { status: 400 }) : Response.json({ email: body.newEmail || body.email });
-        if (url.includes('accounts:update')) return Response.json({});
+        if (url.includes('accounts:update')) return body.oobCode && oobError
+            ? Response.json({ error: { message: oobError } }, { status: 400 })
+            : Response.json(body.oobCode ? { email: 'teacher@example.invalid', emailVerified: true } : {});
+        if (url.includes('accounts:resetPassword')) return oobError
+            ? Response.json({ error: { message: oobError } }, { status: 400 })
+            : Response.json({ email: 'teacher@example.invalid' });
         if (url.includes('/documents/users/')) {
             if (options.method === 'PATCH') profile = Object.fromEntries(Object.entries(body.fields).map(([k, v]) => [k, v.stringValue ?? v.booleanValue]));
             return Response.json({ fields: Object.fromEntries(Object.entries(profile).map(([k, v]) => [k, field(v)])) });
@@ -113,6 +118,32 @@ try {
     check((await post(api, verify())).status === 400, '被其他账号占用的邮箱返回可理解的错误');
     check((await post(api, verify({ idToken: 'expired' }))).status === 401, '过期身份不能发送邮件');
     check((await post(api, verify({ idToken: '' }))).status === 401, '访客不能发送绑定邮件');
+
+    const actionCode = 'AbCdEfGhIjKlMnOpQrStUvWx';
+    reset(); api = await freshAuth();
+    const applied = await post(api, { action: 'complete-email-action', mode: 'verifyEmail', oobCode: actionCode, emailVerified: true, localId: 'forged' });
+    const appliedCall = calls.find(c => c.url.includes('accounts:update'));
+    check(applied.status === 200 && applied.data.email === 'te*****@example.invalid', '本站接口可完成邮箱验证并只返回遮罩邮箱');
+    check(JSON.stringify(appliedCall.body) === JSON.stringify({ oobCode: actionCode }), '邮件操作接口只向 Firebase 转发一次性代码');
+    for (const mode of ['verifyAndChangeEmail', 'recoverEmail']) {
+        reset(); api = await freshAuth();
+        check((await post(api, { action: 'complete-email-action', mode, oobCode: actionCode })).status === 200, `${mode} 可由本站安全完成`);
+    }
+    reset(); api = await freshAuth();
+    check((await post(api, { action: 'complete-email-action', mode: 'resetPassword', oobCode: actionCode })).data.needsPassword === true, '重置密码链接可先校验而不消耗代码');
+    check(Object.keys(calls.at(-1).body).length === 1 && calls.at(-1).body.oobCode === actionCode, '校验重置链接时不提前修改密码');
+    const resetDone = await post(api, { action: 'complete-email-action', mode: 'resetPassword', oobCode: actionCode, newPassword: 'new-password-123' });
+    check(resetDone.status === 200 && calls.at(-1).body.newPassword === 'new-password-123', '有效链接可通过本站完成密码重置');
+    const beforeWeak = calls.length;
+    check((await post(api, { action: 'complete-email-action', mode: 'resetPassword', oobCode: actionCode, newPassword: '123' })).status === 400 && calls.length === beforeWeak, '弱密码在连接 Firebase 前被拒绝');
+    const beforeInvalid = calls.length;
+    check((await post(api, { action: 'complete-email-action', mode: 'other', oobCode: 'bad' })).status === 400 && calls.length === beforeInvalid, '未知模式和畸形代码不访问 Firebase');
+    reset(); api = await freshAuth(); oobError = 'EXPIRED_OOB_CODE';
+    const expired = await post(api, { action: 'complete-email-action', mode: 'verifyEmail', oobCode: actionCode });
+    check(expired.status === 400 && /过期/.test(expired.data.msg), '过期邮件链接返回可理解的提示');
+    reset(); api = await freshAuth(); oobError = 'PASSWORD_DOES_NOT_MEET_REQUIREMENTS : Password must contain a non-alphanumeric character';
+    const passwordPolicy = await post(api, { action: 'complete-email-action', mode: 'resetPassword', oobCode: actionCode, newPassword: 'new-password-123' });
+    check(passwordPolicy.status === 400 && /安全要求/.test(passwordPolicy.data.msg), 'Firebase 带说明文字的密码策略错误仍返回可理解的提示');
 
     // 各条后台通路均检查新鲜的 Firebase 认证状态，而非浏览器提供的状态。
     const endpoints = [

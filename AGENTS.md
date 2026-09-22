@@ -9,7 +9,7 @@
 - Legacy Netlify URL: `https://xylaoshi.netlify.app/` is no longer production. If it still updates, Netlify is still connected to the GitHub repo and auto-deploying `main`.
 - GitHub remote: `git@github.com:wxy128-git/t-training.git`
 - Local SSH: `ssh tencent-teachailab` or `ssh 43.129.232.226`; `/Users/wangxingyu/.ssh/config` binds this host to `en0`, so SSH remains direct while ClashX Pro enhanced/TUN mode stays enabled.
-- Primary deployment: follow `deploy/tencent/README.md`; Nginx serves static files and `t-training-api` adapts the eight `functions/api/` modules to Node on `127.0.0.1:3001`.
+- Primary deployment: follow `deploy/tencent/README.md`; Nginx serves static files and `t-training-api` adapts the nine route modules under `functions/api/` to Node on `127.0.0.1:3001`.
 - Transitional deployment: push to `main` still updates Cloudflare Pages. The old URL currently redirects to Tencent via `_redirects`; reverting those rules restores the Pages site for rollback.
 - Backend services: Firebase Auth (email/password) and Cloud Firestore.
 
@@ -22,8 +22,9 @@
 ## Architecture
 
 - Plain HTML/CSS/JS, no bundler. Pages render skeletons (or in-code defaults), then JS pulls data from Firestore via the global `DB` object in `js/data.js`.
-- Eight Cloudflare Pages Functions under `functions/api/`:
+- Nine Cloudflare Pages Functions under `functions/api/`:
   - `auth-proxy.js` — server-side Firebase Auth proxy. **Login and registration both use this first** so users in mainland networks can authenticate without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Proxy registration returns immediately after server-side `signUp` and must never be followed by browser-side `createUser`; on an ambiguous timeout/network/5xx response, the UI asks the user to try logging in before retrying, avoiding duplicate-account confusion. The proxy derives admin status only from the existing Firebase administrator UID (this original administrator is exempt from email onboarding), never from a client profile field or ownership of the former administrator email. Firebase Auth / Firestore upstream requests have a 6-second timeout; registration performs the display-name update and Firestore profile write in parallel. The proxy ID token + refresh token use `sessionStorage` when「记住我」is unchecked and `localStorage` only when it is checked; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
+  - `email-action.js` — 本站邮箱操作页。Firebase 验证邮箱、换绑确认、邮箱恢复和密码重置邮件统一回到 `https://ai.teachailab.com/api/email-action`；浏览器只访问本站，腾讯云 API 代为连接 Firebase 完成一次性操作。页面禁用缓存与来源发送，并在读取参数后立即从地址栏移除 `oobCode`；Nginx 对该路径关闭访问日志，避免一次性代码落盘。
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
   - `rss-proxy.js` — news-page RSS fetcher with a fixed server-side source allowlist. The browser sends a source key, not an arbitrary URL; redirects are rejected, responses are capped at 1 MiB and validated as RSS / Atom. It keeps a 30-minute in-memory cache plus a 24-hour stale fallback. Do not restore browser fallbacks to public CORS / RSS conversion services or accept arbitrary upstream URLs, otherwise SSRF and domestic-network reliability regress.
   - `agent.js` — 智能体后端代理（2026-06-09；2026-07-09 加多模型路由；2026-08-28 加课程匹配硬闸门）：持 `DEEPSEEK_API_KEY` 转发到 DeepSeek（model `deepseek-v4-flash` + `thinking:{type:'disabled'}` 非思考模式；旧名 `deepseek-chat` 于 2026/07/24 停用，已于 2026-06-29 迁移），也可持 `ZHIPU_API_KEY` 转发到智谱 GLM-5.2（model `glm-5.2`）。用 `accounts:lookup` 校验 Firebase idToken 防盗刷，把上游 SSE 解析成纯文本增量流式回传。前端 `agents.html` 的 `callAgentAPI()` POST `{ messages, idToken, agentId, curriculum }` 调用它。`curriculum` 由前端从学科、年级和知识点字段整理，服务端使用共享 `js/curriculum-guard.js` 重做确定性判断；`conflict` 直接返回 422，`ambiguous / unknown` 先进行一次独立、非流式、低随机性的课程语义分类，只有高置信度 `aligned` 且带可验证学科与最低年级才进入内容生成。默认 DeepSeek；`DEFAULT_ZHIPU_AGENT_IDS` 内的高推理/结构化智能体在配置 `ZHIPU_API_KEY` 后优先走 GLM-5.2，GLM 失败且 DeepSeek 可用时自动回退。响应头 `X-Agent-Provider / X-Agent-Model / X-Agent-Fallback-From` 供前端显示实际模型，header 值必须保持 ASCII key。**限流 (2026-06-29)**：`checkRate(uid)` 软限流——同一登录用户 60 秒内最多 `RATE_MAX=12` 次，超出返回 429 `{ok:false,msg:"提问太频繁啦，请约 N 秒后再试～"}`（前端 `callAgentAPI` 的 `!res.ok` 分支已会显示该 msg，无需改前端）。实现是**单实例内存** `Map`（uid→时间戳数组，>5000 条时清理过期），零配置、不占额度，挡"手滑狂点/刷接口"；Cloudflare 多实例跨服务器非 100% 精确，要"每人每天硬封顶"再升级 KV/Durable Objects。调阈值改 `RATE_WINDOW_MS`/`RATE_MAX` 两常量即可。
@@ -35,6 +36,7 @@
 
 ## Local Changes Pending Deployment
 
+- 本站邮箱操作页及腾讯云代办 Firebase 邮件操作已经本地完成并通过检查，尚未上线；上线时还需将 Firebase `notification.sendEmail.callbackUri` 从 `firebaseapp.com` 切换到 `https://ai.teachailab.com/api/email-action`。
 - 本轮邮箱验证、体验优化及原管理员邮箱验证豁免均已于 2026-09-22 上线，详情见下方部署记录。
 - 19 个智能体的当前提示词已完成 42 次真实模型请求；出题、组卷、错题诊断和听评课的约束已于 2026-09-22 上线，组卷助手最终连续通过 50 分、60 分两套定向复测。详见 `reports/2026-09-22-teaching-retest/`。
 - 用户明确暂缓人工账号恢复，不要求站点负责人提供恢复收件邮箱；不能把管理员登录标识当作联系邮箱。

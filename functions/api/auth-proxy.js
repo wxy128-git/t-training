@@ -10,7 +10,7 @@ const CORS_HEADERS = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 const AUTH_RATE_WINDOW_MS = 10 * 60 * 1000;
-const AUTH_RATE_LIMITS = { login: 15, register: 6, 'reset-password': 4, refresh: 60, subscribe: 10, 'email-status': 60, 'verify-email': 12 };
+const AUTH_RATE_LIMITS = { login: 15, register: 6, 'reset-password': 4, refresh: 60, subscribe: 10, 'email-status': 60, 'verify-email': 12, 'complete-email-action': 300 };
 const FIREBASE_TIMEOUT_MS = 6000;
 const authRateMap = new Map();
 const verificationSentAt = new Map();
@@ -21,6 +21,19 @@ function cleanText(value, maxLength) {
         .replace(/[\u0000-\u001f\u007f]/g, '')
         .trim()
         .slice(0, maxLength);
+}
+
+function maskEmail(value) {
+    const email = cleanText(value, 254).toLowerCase();
+    const at = email.lastIndexOf('@');
+    if (at <= 0) return '';
+    const local = email.slice(0, at);
+    const visible = local.slice(0, Math.min(2, local.length));
+    return `${visible}${'*'.repeat(Math.max(2, Math.min(6, local.length - visible.length)))}${email.slice(at)}`;
+}
+
+function firebaseErrorCode(value) {
+    return cleanText(value, 256).split(/\s*:\s*/, 1)[0];
 }
 
 function jsonResponse(status, body) {
@@ -77,7 +90,8 @@ function firebaseErrorMessage(code) {
         TOKEN_EXPIRED: '登录状态已过期，请使用验证后的邮箱和原密码重新登录',
         CREDENTIAL_TOO_OLD_LOGIN_AGAIN: '请再次输入当前登录密码，确认后重新发送验证邮件',
         INVALID_OOB_CODE: '验证链接无效，请重新发送验证邮件',
-        EXPIRED_OOB_CODE: '验证链接已过期，请重新发送验证邮件'
+        EXPIRED_OOB_CODE: '验证链接已过期，请重新发送验证邮件',
+        PASSWORD_DOES_NOT_MEET_REQUIREMENTS: '新密码不符合安全要求，请换一个密码'
     };
     return messages[code] || '认证服务暂时不可用，请稍后重试';
 }
@@ -86,7 +100,8 @@ function firebaseErrorStatus(code) {
     const definitiveCodes = new Set([
         'EMAIL_EXISTS', 'OPERATION_NOT_ALLOWED', 'TOO_MANY_ATTEMPTS_TRY_LATER',
         'WEAK_PASSWORD', 'INVALID_EMAIL', 'EMAIL_NOT_FOUND', 'INVALID_PASSWORD',
-        'INVALID_LOGIN_CREDENTIALS', 'USER_DISABLED', 'CREDENTIAL_TOO_OLD_LOGIN_AGAIN', 'INVALID_OOB_CODE', 'EXPIRED_OOB_CODE'
+        'INVALID_LOGIN_CREDENTIALS', 'USER_DISABLED', 'CREDENTIAL_TOO_OLD_LOGIN_AGAIN', 'INVALID_OOB_CODE', 'EXPIRED_OOB_CODE',
+        'PASSWORD_DOES_NOT_MEET_REQUIREMENTS'
     ]);
     if (['INVALID_ID_TOKEN', 'TOKEN_EXPIRED', 'USER_NOT_FOUND'].includes(code)) return 401;
     return definitiveCodes.has(code) ? 400 : 502;
@@ -120,7 +135,7 @@ async function callFirebaseAuth(endpoint, payload) {
         throw error;
     }
     if (!response.ok) {
-        const code = data?.error?.message;
+        const code = firebaseErrorCode(data?.error?.message);
         const error = new Error(firebaseErrorMessage(code));
         error.code = code;
         error.statusCode = firebaseErrorStatus(code);
@@ -147,7 +162,7 @@ async function refreshFirebaseToken(refreshToken) {
     }
     const data = await response.json();
     if (!response.ok) {
-        const code = data?.error?.message;
+        const code = firebaseErrorCode(data?.error?.message);
         const error = new Error(firebaseErrorMessage(code) || '登录状态已过期，请重新登录');
         error.code = code;
         throw error;
@@ -265,6 +280,39 @@ export async function onRequestPost({ request }) {
     const retryAfter = authRetryAfter(request, action, action === 'refresh' ? '' : email);
     if (retryAfter) {
         return jsonResponse(429, { ok: false, msg: `请求过于频繁，请约 ${retryAfter} 秒后再试`, retryAfter });
+    }
+    if (action === 'complete-email-action') {
+        const mode = cleanText(payload.mode, 40);
+        const oobCode = cleanText(payload.oobCode, 2048);
+        const supportedModes = new Set(['verifyEmail', 'verifyAndChangeEmail', 'recoverEmail', 'resetPassword']);
+        if (!supportedModes.has(mode) || !/^[A-Za-z0-9_-]{10,2048}$/.test(oobCode)) {
+            return jsonResponse(400, { ok: false, msg: '验证链接不完整或格式不正确' });
+        }
+        try {
+            if (mode === 'resetPassword') {
+                const nextPassword = typeof payload.newPassword === 'string' ? payload.newPassword : '';
+                if (nextPassword && (nextPassword.length < 6 || nextPassword.length > 256)) {
+                    return jsonResponse(400, { ok: false, msg: '新密码至少需要 6 位' });
+                }
+                const result = await callFirebaseAuth('accounts:resetPassword', nextPassword
+                    ? { oobCode, newPassword: nextPassword }
+                    : { oobCode });
+                return jsonResponse(200, {
+                    ok: true,
+                    needsPassword: !nextPassword,
+                    email: maskEmail(result.email),
+                    msg: nextPassword ? '密码已更新，请使用新密码登录' : '链接有效，请设置新密码'
+                });
+            }
+            const result = await callFirebaseAuth('accounts:update', { oobCode });
+            return jsonResponse(200, {
+                ok: true,
+                email: maskEmail(result.email),
+                msg: mode === 'recoverEmail' ? '邮箱地址已恢复，请重新登录' : '邮箱验证成功，请返回网站登录或继续使用'
+            });
+        } catch (error) {
+            return jsonResponse(error.statusCode || 502, { ok: false, msg: error.message, code: error.code || 'EMAIL_ACTION_ERROR' });
+        }
     }
     if (action === 'email-status' || action === 'verify-email') {
         let reservedUid = '', reservedAt = 0;

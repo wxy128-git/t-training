@@ -10,6 +10,7 @@ import * as agent from '../functions/api/agent.js';
 import * as analytics from '../functions/api/analytics.js';
 import * as authProxy from '../functions/api/auth-proxy.js';
 import * as content from '../functions/api/content.js';
+import * as emailAction from '../functions/api/email-action.js';
 import * as rssProxy from '../functions/api/rss-proxy.js';
 import * as tools from '../functions/api/tools.js';
 import * as works from '../functions/api/works.js';
@@ -25,6 +26,7 @@ const ROUTES = new Map([
     ['/api/analytics', analytics],
     ['/api/auth-proxy', authProxy],
     ['/api/content', content],
+    ['/api/email-action', emailAction],
     ['/api/rss-proxy', rssProxy],
     ['/api/tools', tools],
     ['/api/works', works]

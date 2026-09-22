@@ -249,6 +249,9 @@ if (!/listen 443 ssl http2;/.test(nginxConfig)) fail('deploy/tencent/nginx-ai.te
 if (!/gzip_types[\s\S]*text\/css[\s\S]*application\/javascript[\s\S]*application\/json/.test(nginxConfig)) {
     fail('deploy/tencent/nginx-ai.teachailab.com.conf', 'CSS、JS 或 JSON 未纳入 Gzip');
 }
+if (!/location = \/api\/email-action \{[\s\S]*?access_log off;[\s\S]*?Referrer-Policy "no-referrer"[\s\S]*?frame-ancestors 'none'[\s\S]*?\n    \}/.test(nginxConfig)) {
+    fail('deploy/tencent/nginx-ai.teachailab.com.conf', '邮箱操作码未从访问日志排除或专用防泄漏响应头不完整');
+}
 
 const redirects = text('_redirects');
 if (!/^\/main\s+https:\/\/ai\.teachailab\.com\/resources\s+302\s*$/m.test(redirects)) {
@@ -260,8 +263,23 @@ if (!/^\/\*\s+https:\/\/ai\.teachailab\.com\/:splat\s+302\s*$/m.test(redirects))
 
 const safeRender = text('js/safe-render.js');
 if (!/createElement\(['"]template['"]\)/.test(safeRender) || !/safeUrl/.test(safeRender)) fail('js/safe-render.js', 'HTML 清洗或 URL 校验器缺失');
-if (!/reset-password/.test(text('functions/api/auth-proxy.js'))) fail('functions/api/auth-proxy.js', '密码重置代理缺失');
-if (/Access-Control-Allow-Origin['"]?\s*[:,]\s*['"]\*/.test(text('functions/api/auth-proxy.js'))) fail('functions/api/auth-proxy.js', '认证接口不应允许通配 CORS');
+const authProxySource = text('functions/api/auth-proxy.js');
+if (!/reset-password/.test(authProxySource)) fail('functions/api/auth-proxy.js', '密码重置代理缺失');
+if (!/complete-email-action/.test(authProxySource) || !/accounts:update/.test(authProxySource) || !/accounts:resetPassword/.test(authProxySource)) {
+    fail('functions/api/auth-proxy.js', '本站邮箱链接完成接口不完整');
+}
+if (/Access-Control-Allow-Origin['"]?\s*[:,]\s*['"]\*/.test(authProxySource)) fail('functions/api/auth-proxy.js', '认证接口不应允许通配 CORS');
+const emailActionSource = text('functions/api/email-action.js');
+if (!/Cache-Control['"]?:\s*['"]no-store/.test(emailActionSource) || !/Referrer-Policy['"]?:\s*['"]no-referrer/.test(emailActionSource)) {
+    fail('functions/api/email-action.js', '邮箱操作页未禁止缓存或来源泄漏');
+}
+if (!/\/api\/auth-proxy/.test(emailActionSource) || !/history\.replaceState/.test(emailActionSource)) {
+    fail('functions/api/email-action.js', '邮箱操作页未使用同源代理或未及时移除地址栏验证码');
+}
+for (const mode of ['verifyEmail', 'verifyAndChangeEmail', 'recoverEmail', 'resetPassword']) {
+    if (!emailActionSource.includes(mode)) fail('functions/api/email-action.js', `邮箱操作页缺少 ${mode} 模式`);
+}
+if (!/\/api\/email-action/.test(text('server/tencent-api.mjs'))) fail('server/tencent-api.mjs', '腾讯云适配层未注册邮箱操作页');
 const authSource = text('js/auth.js');
 if (!/sessionStorage[\s\S]+persistent/.test(authSource)) fail('js/auth.js', '“记住我”未区分会话与长期存储');
 if (/const PROTECTED_PAGE_NAMES = new Set\(\[[\s\S]*?'tools\.html'/.test(authSource)) fail('js/auth.js', '公开内容页面仍被整页登录门保护');
