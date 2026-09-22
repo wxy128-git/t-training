@@ -111,7 +111,7 @@ if (agents) {
     assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('任务已说清，开始起草'), '数字成员工作阶段或成员化操作未上线');
     assert(body.includes('${escapeHtml(a.name)}的交付') && body.includes('AI 交付的是初稿'), '数字成员交付归属或教师核验提示未上线');
     assert(body.includes('js/curriculum-guard.js?v=20260828-curriculum-gate') && body.includes('function curriculumContext'), '课程匹配守卫未上线');
-    assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('error.curriculum'), '旧教材校验章未移除或服务端拦截反馈未上线');
+    assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('showInputValidation(e.curriculum)'), '旧教材校验章未移除或服务端拦截反馈未上线');
 }
 
 const curriculumGuard = await request('/js/curriculum-guard.js?v=20260828-curriculum-gate');
