@@ -16,8 +16,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>
         .wb-wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 88px; }
         .wb-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: end; margin-bottom: 24px; padding: 6px 0 24px; border-bottom: 1px solid var(--line); }
@@ -123,6 +123,7 @@
         .wb-modal-body { padding: 28px 34px; overflow-y: auto; }
         .wb-modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 14px 24px; border-top: 1px solid var(--line); background: var(--soft); }
         .wb-modal-foot button, .wb-modal-foot a { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-family: inherit; color: var(--text-soft); background: var(--paper); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; cursor: pointer; transition: all .15s; }
+        .wb-modal-foot[hidden] { display: none; }
         .wb-modal-foot button:hover, .wb-modal-foot a:hover { border-color: var(--ink); color: var(--ink); }
         .wb-modal-foot a.primary { color: var(--soft); background: var(--ink); border-color: var(--ink); }
         .wb-modal-foot a.primary:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
@@ -1065,6 +1066,15 @@
             .wb-entry-arrow { transition: none !important; }
             .wb-modal.active .wb-modal-box { animation: none; }
         }
+        .wb-editor { display: grid; gap: 12px; }
+        .wb-editor label { font-size: 14px; font-weight: 650; }
+        .wb-editor input, .wb-editor textarea, .wb-editor select { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; color: var(--ink); background: #fff; }
+        .wb-editor textarea { min-height: 380px; resize: vertical; line-height: 1.8; }
+        .wb-editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .wb-editor-actions button, .wb-version-link { min-height: 44px; border: 1px solid var(--line); border-radius: 7px; padding: 8px 12px; color: #245b78; background: #f3f7f9; font: inherit; cursor: pointer; }
+        .wb-editor-actions button:first-child { background: var(--brand); color: white; }
+        .wb-version-link { margin-bottom: 20px; }
+        #wb-edit-button[hidden] { display: none; }
     </style>
 </head>
 <body>
@@ -1196,7 +1206,8 @@
         </div>
         <div class="wb-modal-body"><div class="wb-md" id="wb-modal-body"></div></div>
         <div class="wb-modal-foot">
-            <a class="primary" id="wb-modal-agent" href="/agents" style="display:none"><i class="ph ph-robot"></i> 继续用该智能体</a>
+            <a class="primary" id="wb-modal-agent" href="/agents" style="display:none"><i class="ph ph-robot"></i> 基于此稿继续</a>
+            <button id="wb-edit-button" onclick="editActiveWork()"><i class="ph ph-pencil-simple"></i> 编辑并另存</button>
             <button onclick="copyActiveWork()"><i class="ph ph-copy"></i> 复制</button>
             <button onclick="exportPdfActive()"><i class="ph ph-file-pdf"></i> PDF</button>
             <button onclick="exportWordActive()"><i class="ph ph-file-doc"></i> Word</button>
@@ -1212,12 +1223,14 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="/vendor/marked/9.1.6/marked.min.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
-<script src="js/teaching-projects.js?v=20260712-project-flow"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
+<script src="js/teaching-projects.js?v=20260922-email-required"></script>
 <script>
 let workspacePageCopy = SiteCopy.defaults('workspace');
 SiteCopy.load('workspace').then(copy => {
@@ -1510,7 +1523,27 @@ function renderWorks() {
     }).join('');
 }
 
+let _workEditing = false;
+let _workSaving = false;
+let _workEditOriginal = '';
+let _worksUid = null;
+let _worksLoadSequence = 0;
+
+function workEditValues() {
+    return { title: document.getElementById('wb-edit-title')?.value || '', content: document.getElementById('wb-edit-content')?.value || '', review: document.getElementById('wb-edit-review')?.value || 'draft' };
+}
+function workEditDirty() { return _workEditing && JSON.stringify(workEditValues()) !== _workEditOriginal; }
+function workEditKey() { return 'xylaoshiWorkbookEdit:' + encodeURIComponent(_worksUid || '') + ':' + encodeURIComponent(_activeWorkId || ''); }
+function persistWorkEdit() {
+    if (!_workEditing || !_worksUid || !_activeWorkId) return;
+    try { localStorage.setItem(workEditKey(), JSON.stringify(workEditValues())); } catch (_) {}
+}
+function discardWorkEdit() { try { localStorage.removeItem(workEditKey()); } catch (_) {} }
+
 function viewWork(id) {
+    _workEditing = false;
+    document.querySelector('.wb-modal-foot').hidden = false;
+    document.getElementById('wb-edit-button').hidden = false;
     const w = findWork(id); if (!w) return;
     _activeWorkId = id;
     _workModalReturnFocus = document.activeElement;
@@ -1528,9 +1561,16 @@ function viewWork(id) {
         <span class="wb-modal-chip"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
         <span class="wb-modal-chip"><i class="ph ph-calendar-blank"></i>${fmtDate(w.updatedAt || w.createdAt)}</span>`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
+    const parent = findWork(w.inputs?._sourceWorkId);
+    if (parent) {
+        const link = document.createElement('button');
+        link.type = 'button'; link.className = 'wb-version-link'; link.textContent = '查看上一版：' + displayWorkTitle(parent);
+        link.addEventListener('click', () => viewWork(parent.id));
+        document.getElementById('wb-modal-body').prepend(link);
+    }
     const agentLink = document.getElementById('wb-modal-agent');
     if (agentLink && w.agentId) {
-        agentLink.href = `/agents#${encodeURIComponent(w.agentId)}`;
+        agentLink.href = `/agents?work=${encodeURIComponent(w.id)}#${encodeURIComponent(w.agentId)}`;
         agentLink.onclick = () => resumeWorkContext(w);
         agentLink.style.display = 'inline-flex';
     } else if (agentLink) {
@@ -1556,7 +1596,61 @@ function resumeWorkContext(w) {
         classProfile: inputs.note || ''
     });
 }
+function editActiveWork() {
+    const work = findWork(_activeWorkId);
+    if (!work) return;
+    _workEditing = true;
+    const values = { title: displayWorkTitle(work), content: work.content || '', review: 'draft' };
+    _workEditOriginal = JSON.stringify(values);
+    let recovered = null;
+    try { recovered = JSON.parse(localStorage.getItem(workEditKey())); } catch (_) {}
+    document.getElementById('wb-edit-button').hidden = true;
+    document.querySelector('.wb-modal-foot').hidden = true;
+    const body = document.getElementById('wb-modal-body');
+    body.innerHTML = `<div class="wb-editor"><p>修改会保存为新版本，原稿继续保留。</p><label for="wb-edit-title">作品标题</label><input id="wb-edit-title" maxlength="160"><label for="wb-edit-content">正文（Markdown）</label><textarea id="wb-edit-content"></textarea><label for="wb-edit-review">教师核验状态</label><select id="wb-edit-review"><option value="draft">待核验</option><option value="needs_revision">待修改</option><option value="reviewed">已核验</option></select><div class="wb-editor-actions"><button type="button" onclick="saveWorkRevision(this)">保存为新版本</button><button type="button" onclick="cancelWorkEdit()">取消编辑</button></div><p id="wb-edit-status" role="status"></p></div>`;
+    document.getElementById('wb-edit-title').value = recovered?.title ?? values.title;
+    document.getElementById('wb-edit-content').value = recovered?.content ?? values.content;
+    document.getElementById('wb-edit-review').value = recovered?.review || 'draft';
+    body.querySelectorAll('input, textarea, select').forEach(el => el.addEventListener('input', persistWorkEdit));
+    if (recovered) document.getElementById('wb-edit-status').textContent = '已恢复此账号在本机尚未保存的修改。';
+    document.getElementById('wb-edit-content').focus();
+}
+function cancelWorkEdit() {
+    if (_workSaving) return;
+    if (workEditDirty() && !confirm('放弃这次尚未保存的修改？原稿不会改变。')) return;
+    discardWorkEdit();
+    viewWork(_activeWorkId);
+}
+async function saveWorkRevision(button) {
+    if (_workSaving) return;
+    const work = findWork(_activeWorkId);
+    const user = Auth.getCurrentUser();
+    if (!work || !user) return;
+    const content = document.getElementById('wb-edit-content').value.trim();
+    const title = document.getElementById('wb-edit-title').value.trim();
+    const status = document.getElementById('wb-edit-review').value;
+    const message = document.getElementById('wb-edit-status');
+    if (!content || !title) { message.textContent = '请填写标题和正文'; return; }
+    const inputs = { ...(work.inputs || {}), _sourceWorkId: work.id, _reviewStatus: status, _reviewDecisions: status === 'reviewed' ? { alignment:'pass', level:'pass', facts:'pass', feasibility:'pass' } : {} };
+    _workSaving = true; button.disabled = true; message.textContent = '正在保存新版本…';
+    try {
+        const id = await DB.saveWork({ uid: user.uid, agentId: work.agentId, agentName: work.agentName, agentType: work.agentType || 'form', workType: work.workType || 'draft', title, content, inputs });
+        if (Auth.getCurrentUser()?.uid !== user.uid) return;
+        discardWorkEdit();
+        _workEditing = false;
+        await loadWorks();
+        if (Auth.getCurrentUser()?.uid !== user.uid) return;
+        if (id) viewWork(id);
+        showToast('新版本已保存，原稿仍在备课本中');
+    } catch (error) { message.textContent = '保存未成功：' + (error.message || '请重试，编辑内容仍保留'); }
+    finally { _workSaving = false; button.disabled = false; }
+}
+
 function closeModal() {
+    if (_workSaving) { showToast('正在保存，请稍候'); return; }
+    if (workEditDirty() && !confirm('关闭会放弃尚未保存的修改，是否继续？')) return;
+    if (_workEditing) discardWorkEdit();
+    _workEditing = false;
     const modal = document.getElementById('wb-modal');
     if (!modal.classList.contains('active')) return;
     modal.classList.remove('active');
@@ -1642,17 +1736,37 @@ async function doDelete(id) {
 
 async function loadWorks() {
     const user = Auth.getCurrentUser();
-    if (!user) {
+    const sequence = ++_worksLoadSequence;
+    const uid = user?.uid || null;
+    if (_worksUid !== uid) {
+        persistWorkEdit();
+        _worksUid = uid;
+        _works = [];
+        _workEditing = false;
+        _activeWorkId = null;
+        _workbookViewTracked = false;
+        const modal = document.getElementById('wb-modal');
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.getElementById('wb-modal-body').replaceChildren();
+        document.body.style.overflow = '';
+        renderWorks();
+    }
+    if (!user || !Auth.canUseFeatures()) {
         _wbError = '';
         document.getElementById('login-gate').style.display = 'flex';
         document.getElementById('wb-app').style.display = 'none';
+        window.syncEmailGate?.();
         return;
     }
     document.getElementById('login-gate').style.display = 'none'; document.getElementById('wb-app').style.display = '';
     try {
-        _works = await DB.getMyWorks(user.uid);
+        const works = await DB.getMyWorks(user.uid);
+        if (sequence !== _worksLoadSequence || Auth.getCurrentUser()?.uid !== uid) return;
+        _works = works;
         _wbError = '';
     } catch (e) {
+        if (sequence !== _worksLoadSequence || Auth.getCurrentUser()?.uid !== uid) return;
         _works = [];
         _wbError = e.message || '无法读取已保存的备课内容，请稍后重试。';
         console.warn('getMyWorks:', e.message);
@@ -1670,8 +1784,10 @@ renderFooter();
 loadWorks();                                  // 乐观渲染（用缓存登录态）
 onAuthReady(() => { renderNav('workspace'); renderFooter(); loadWorks(); });  // Firebase 就绪后校正
 document.addEventListener('authRefresh', () => loadWorks());  // 在本页登录后原地加载内容（不整页刷新）
+document.addEventListener('authChanged', () => loadWorks());
+window.addEventListener('pagehide', persistWorkEdit);
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

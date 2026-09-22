@@ -33,6 +33,17 @@
   - `content.js` — 公开内容同源代理（2026-07-19；2026-08-23 加页面文案）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；`type=pageCopy&id=<pageId>` 只允许 12 个固定页面 id，并以 `no-store` 返回对应 `page_copy` 文档，不进入旧缓存。腾讯云单进程内对原有公开列表使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
 - Frontend always calls these via `/api/...` paths.
 
+## Local Changes Pending Deployment
+
+- **2026-09-21（网站审查后的体验修复，尚未上线）**：详见 [实施与验收记录](reports/2026-09-21-implementation/README.md)。完成按 uid 隔离的 V2 草稿与认证桥接；旧 V1 内容保留但不自动分配给任何账号。智能体新增完整性事件流、取消与超时、失败保留修改、任务搜索和手机长文阅读；备课本支持另存新版本、按选中作品继续生成与按账号保存本机编辑草稿。同步修复多模态主入口、邮箱登记权限路径、工具元数据、学习入口、资讯筛选、内容措辞和键盘操作。
+- 新版生成协议为 `streamProtocol: events-v1`，`application/x-ndjson` 的 `delta / done / error`；服务端保留旧客户端纯文本兼容。Node 客户端断开会取消上游请求。上线顺序为 API → 静态文件；回滚顺序为静态文件 → API。
+- 当前共享资源版本 `20260922-email-required`；Service Worker `20260922-v21`，加入 `agent-stream.js`、`task-search.js`、`account-policy.js`、`email-gate.js`。多模态音频预览使用 `assets/audio/campus-science-peaks.json`，更换音频时需重算并更新缓存版本。
+- 本地自动检查：11 个公开页 / 13 个应用页结构检查；13 个课程场景、67 项函数断言、19 项生成可靠性断言、8 项适配层断言通过。第一轮浏览器使用合成身份与流式响应，详见前述实施记录；后续真实验收见下一条，不能再把整个本地版本描述为“未调用模型、未写测试数据”。
+- **2026-09-21（三项后续，尚未上线）**：详见 [账号与教学质量验收](reports/2026-09-21-account-quality/README.md)。访客可访问账号恢复帮助，手机号不发重置邮件；真实 Firebase 双账号验证云端版本、续写、隔离、会话刷新及订阅重复登记。19 个智能体基线 + 4 项复测，实际共 32 次 DeepSeek 请求（23 次生成、9 次课程分类）；补充事实依据与任务约束，活动评分和家校评语仍有复核项，其他 15 项更新后未实测。2 个测试账号及 5 个文档已删除并回查，私有候选服务和临时目录已清理，没有改动生产发布配置。
+- **2026-09-22（邮箱必填与旧账号完善，尚未上线）**：详见 [邮箱完善实施与验收](reports/2026-09-22-email-verification/README.md)。新注册仅接受邮箱并要求验证；旧手机号用原密码登录后，经 `VERIFY_AND_CHANGE_EMAIL` 绑定真实邮箱，保留 UID、作品与草稿，后续邮箱 + 原密码登录。`verify-email / email-status` 及共享 `account-policy.js` 接入；API 和 Firestore Rules 强制验证，未验证账号只可维护本人资料。发送不等于验证，客户端和资料文档不能提供可信的验证状态。管理员也遵循同一规则。
+- 当前 `npm run check` 通过：11 个公开页 / 13 个应用页、13 个课程场景、67 项函数、46 项邮箱、19 项生成可靠性、8 项适配断言；另通过官方 Auth 模拟器完整绑定流程、26 项 Firestore 模拟器规则断言及桌面 / 手机流程。此次没有真实邮件或模型调用；用户资料及作品的浏览器验收使用隔离内存样本，实际邮件收信仍待上线验收。API 发布包必须包含 `js/account-policy.js`；上线同批更新规则、API 和静态文件。
+- **用户已明确暂缓需要人工的账号恢复情形**，因此不再要求提供账号恢复邮箱；不能把管理员登录标识当作联系邮箱。共享 SDK 延迟加载、学习路径独立成果任务及完整无障碍认证仍作为后续工作。正式部署需用户批准，成功后将本节状态迁入 Deployment History 并补齐发布提交和生产验证。
+
 ## Deployment History
 
 - **2026-08-28（知识点课程匹配硬闸门，已上线）**:
@@ -265,7 +276,7 @@ To verify full SDK auth is healthy when network allows: in DevTools console, `fi
 
 - Admin email: `admin@xylaoshi.com`. Password is **not** in the repo — reset via Firebase Authentication if forgotten. Client UI and Pages Functions derive admin status from the authenticated Firebase email, never from a profile field.
 - **Firebase Console follow-up required:** `users/{uid}` is self-writable, so Firestore rules must not grant admin rights via `get(.../users/$(request.auth.uid)).data.isAdmin == true`. Use `request.auth.token.email == 'admin@xylaoshi.com'` (or a Firebase custom claim) for every admin-only rule, then remove any rule that trusts a user-writable `isAdmin` document field.
-- "Forgot password" flow not yet implemented.
+- 邮箱“忘记密码”已实现。本地待发布版本增加无需登录的账号求助、手机号恢复分流；`js/auth.js` 的 `ACCOUNT_SUPPORT_EMAIL` 仍需负责人提供可收信邮箱，不得直接使用管理员登录标识。真实恢复邮件送达尚未验收。
 - Cloudflare env var `DEEPSEEK_API_KEY` (Type: Secret) — 智能体空间（`/api/agent`）调用 DeepSeek 所需。未配置任何模型密钥时 `/api/agent` 返回 501 并提示。**改动 env 后必须重新部署一次才生效。**
 - Cloudflare env var `ZHIPU_API_KEY` (Type: Secret) — 智能体空间调用智谱 GLM-5.2 所需。配置后 `lesson-design`、`concept-explainer`、`quiz-gen`、`exam-paper`、`error-diagnosis` 默认优先走 GLM-5.2；失败会回退 DeepSeek。可选 env：`ZHIPU_AGENT_IDS`（逗号分隔覆盖 GLM 智能体清单）、`AGENT_DEFAULT_PROVIDER`（`deepseek` 或 `zhipu`）。
 - Cloudflare env var `FIREBASE_SERVICE_ACCOUNT` (Type: Secret) holds the full Firebase Admin SDK JSON. Watch for **leading whitespace in the variable Name** — CF does not auto-trim and it silently breaks reads. Accepted alternate names: `FIREBASE_ADMIN_CREDENTIALS`, `GOOGLE_SERVICE_ACCOUNT_JSON`, `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` + `FIREBASE_PRIVATE_KEY`.
@@ -373,7 +384,7 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 - Use numbered markers only for real sequences (for example a learning path), never as decorative section counters.
 - Homepage signature is now the restrained single-column task launcher; the former teaching-cycle rail was deliberately removed on 2026-08-23 to restore visual balance. Red-pen or document styling may remain in exported teaching documents, but not as the global application shell. The personal `workspace.html` is the deliberate exception: its selected A4 ring-binder metaphor may use paper, punched holes, rings and one signature “pull sheet” transition because the subject itself is a 备课本；do not spread that skeuomorphic treatment to unrelated pages.
 
-**登录 / 注册成功反馈 (2026-08-22)**: 高频登录成功后不使用全屏过渡；`handleLogin()` 关闭弹层后立即调用 `refreshAuthUI()`（=`renderNav()`+`renderFooter()`）、派发 `authRefresh`，并用底部 toast 显示“登录成功，欢迎回来”。这避免短暂全屏层造成闪烁，`workspace.html` 仍会原地加载内容，管理员首次登录仍按页面监听器 reload。低频注册调用 `showWelcomeOverlay('register', name)`：遮罩从首帧保持稳定，卡片约 900ms 后淡出，不再使用会瞬时改变整屏颜色的 `settling` 状态。不要把登录重新接回短时全屏欢迎层。
+**登录 / 注册成功反馈 (2026-09-22 本地更新)**: 已验证用户登录后关闭弹层、刷新导航与页脚、派发 `authRefresh`，用底部 toast 欢迎，不使用全屏过渡。未验证用户进入邮箱完善窗口；注册后同样进入完善窗口并自动请求验证邮件，替代原先的注册欢迎层。`workspace.html` 在验证完成后原地加载内容。不要把登录重新接回短时全屏欢迎层。
 
 **退出提速 + 记住我 / 登录持久化 (2026-08-22)**：①`Auth.logout()` 原地更新，不整页 reload。顺序保持 `await auth.signOut()` → 同时清除 local / session 两套代理会话和用户快照 → `refreshAuthUI()` → 派发 `authRefresh`。②「记住我」默认不勾：勾选时代理令牌、Firebase persistence 和乐观用户快照都使用 `LOCAL` / `localStorage`；不勾时三者都使用 `SESSION` / `sessionStorage`，关闭标签页后退出，更适合公用电脑。注册仍固定长期保持。浏览器存储里的快照只用于首帧 UI，服务端权限始终由 Firebase idToken 和安全规则判断。
 

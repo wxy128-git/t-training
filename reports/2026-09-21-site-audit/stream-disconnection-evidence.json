@@ -1,0 +1,7 @@
+{
+  "test": "upstream-stream-disconnection",
+  "environment": "local mock; no outbound requests",
+  "status": 200,
+  "body": "未完成的教案：第一步",
+  "downstreamError": false
+}

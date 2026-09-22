@@ -49,7 +49,6 @@ function getLastAuthUser() {
 let _currentUser = getLastAuthUser() || getProxyAuthUser();
 let _authReady   = false;
 const _readyCallbacks = [];
-const ADMIN_EMAIL = 'admin@xylaoshi.com';
 
 function getStoredUserProfile(uid) {
     try {
@@ -66,7 +65,7 @@ function getProxyAuthUser() {
             if (!raw) continue;
             const session = JSON.parse(raw);
             if (!session?.user) continue;
-            if (session.expiresAt && Date.now() > session.expiresAt) {
+            if (session.expiresAt && Date.now() > session.expiresAt && !session.refreshToken) {
                 storage.removeItem(window.PROXY_AUTH_SESSION_KEY);
                 continue;
             }
@@ -89,24 +88,34 @@ function authUserFallbackProfile(fbUser) {
         uid: fbUser.uid,
         name,
         email,
+        emailVerified: !!email && fbUser.emailVerified === true,
         phone,
         school: stored.school || '',
-        isAdmin: rawEmail === ADMIN_EMAIL,
+        isAdmin: AccountPolicy.isAdmin(fbUser),
         joinedAt: stored.joinedAt || ''
     };
 }
 
+let authStateSequence = 0;
 auth.onAuthStateChanged(async (fbUser) => {
+    const sequence = ++authStateSequence;
     if (fbUser) {
         const fallback = authUserFallbackProfile(fbUser);
+        const currentIdentity = () => {
+            const proxy = getProxyAuthUser();
+            return proxy?.uid === fbUser.uid ? proxy : fallback;
+        };
         try {
             const snap = await db.collection('users').doc(fbUser.uid).get();
+            if (sequence !== authStateSequence || auth.currentUser?.uid !== fbUser.uid) return;
+            const identity = currentIdentity();
             _currentUser = snap.exists
                 // 管理员身份只认 Firebase Auth 的邮箱；users 文档只是个人资料，不能授予权限。
-                ? { ...fallback, ...snap.data(), uid: fbUser.uid, isAdmin: fallback.isAdmin }
-                : fallback;
+                ? { ...identity, ...snap.data(), uid: fbUser.uid, email: identity.email, emailVerified: identity.emailVerified, isAdmin: identity.isAdmin }
+                : identity;
         } catch {
-            _currentUser = fallback;
+            if (sequence !== authStateSequence || auth.currentUser?.uid !== fbUser.uid) return;
+            _currentUser = currentIdentity();
         }
     } else {
         _currentUser = getProxyAuthUser();

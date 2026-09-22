@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>
         .tt-shell { max-width: 1280px; margin: 0 auto; padding: 42px 24px 88px; }
         .tt-hero { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,360px); gap: 30px; align-items: end; padding: 8px 0 28px; margin-bottom: 18px; border-bottom: 2px solid var(--ink); }
@@ -90,6 +90,28 @@
             .tt-filter-title { width: 100%; }
             .tt-title { font-size: 34px; }
         }
+        @media(max-width:680px) {
+            .tt-shell { padding: 24px 18px 56px; }
+            .tt-hero { gap: 16px; padding: 0 0 16px; margin-bottom: 14px; }
+            .tt-title { font-size: 30px; }
+            .tt-sub { margin-top: 10px; font-size: 14px; }
+            .tt-brief { display: none; }
+            .tt-search-card { padding: 12px; border-radius: 9px; }
+            .tt-filter-panel { padding: 10px; margin: 12px 0; gap: 6px; }
+            .tt-filter-row { flex-wrap: nowrap; align-items: center; }
+            .tt-filter-title { width: auto; min-width: 36px; flex: 0 0 36px; font-size: 12px; }
+            .tt-filter-panel .filter-bar { flex: 1; min-width: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; }
+            .tt-filter-panel .filter-pill { flex-shrink: 0; min-height: 40px; }
+            .tt-review-note { margin-bottom: 20px; font-size: 12px; }
+            #tools-grid, #tools-grouped .cards-grid { grid-template-columns: 1fr; gap: 12px; }
+            .tt-tool-card { min-height: 0; padding: 16px; }
+            .tt-card-top { float: right; margin: 0 0 8px 12px; }
+            .tt-tool-desc { font-size: 14px; }
+            .tt-tags { margin-top: 9px; }
+            .tt-tag { font-size: 12px; }
+            .tt-section-head { grid-template-columns: 34px minmax(0,1fr) auto; }
+            .tt-section-count { grid-column: auto; }
+        }
     </style>
 </head>
 <body>
@@ -125,7 +147,7 @@
     </div>
 
     <div class="tt-count-line" id="count-label"></div>
-    <p class="tt-review-note"><i class="ph ph-info" aria-hidden="true"></i><span data-site-copy="reviewNote">信息核对于 2026 年 8 月，请以官网为准。不要上传学生姓名、联系方式或成绩明细。</span></p>
+    <p class="tt-review-note"><i class="ph ph-info" aria-hidden="true"></i><span data-site-copy="reviewNote">费用与语言支持请以官网为准，单项核对日期见卡片。不要上传学生姓名、联系方式或成绩明细。</span></p>
 
     <!-- 默认「全部」按分类分组陈列；搜索或选具体分类时切换到下面的单层网格 -->
     <div id="tools-grouped"></div>
@@ -144,11 +166,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script>
 let toolsPageCopy = SiteCopy.defaults('tools');
 SiteCopy.load('tools').then(copy => {
@@ -204,10 +228,20 @@ const TAG_CLASS = { '免费':'tt-free', '部分免费':'tt-neutral', '付费':'t
 
 // 把工具的分类归一到新方案 + 附上标签（未登记的工具落入「更多工具」）
 function applyMeta(list) {
-    return (list || []).map(t => {
+    const seen = new Set();
+    return (list || []).filter(tool => {
+        let canonical = tool.url || '';
+        try { const url = new URL(canonical); canonical = url.hostname.toLowerCase() + url.pathname.replace(/\/+$/, ''); } catch {}
+        const key = String(tool.name || '').trim().toLowerCase() + '|' + canonical;
+        if (seen.has(key)) return false;
+        seen.add(key); return true;
+    }).map(t => {
         const m = TOOL_META[t.name] || {};
-        const category = m.cat || 'more';
-        return Object.assign({}, t, { category, _tags: m.tags || [], _fit: m.fit || CAT_FITS[category] });
+        const legacyCategory = { teaching:'plan', search:'plan', creation:'make', dev:'platform' }[t.category];
+        const inferredMedia = /数字人|视频|音乐|图像|绘图/.test((t.name || '') + (t.desc || '')) ? 'media' : '';
+        const category = CAT_ORDER.includes(t.taskCategory) ? t.taskCategory : (m.cat || inferredMedia || legacyCategory || 'more');
+        const tags = Array.isArray(t.tags) ? t.tags : String(t.tags || '').split(/[、,，]/).map(tag => tag.trim()).filter(Boolean);
+        return { ...t, category, _tags: tags.length ? tags : (m.tags || []), _fit: t.fit || m.fit || CAT_FITS[category] };
     });
 }
 
@@ -241,8 +275,8 @@ function setTag(key) {
 }
 
 function toolCardHTML(t) {
-    const tags = (t._tags || []).map(tg => `<span class="tt-tag ${TAG_CLASS[tg] || 'tt-neutral'}">${tg}</span>`).join('');
-    const tagRow = tags ? `<div class="tt-tags">${tags}</div>` : '';
+    const tags = (t._tags || []).map(tg => `<span class="tt-tag ${TAG_CLASS[tg] || 'tt-neutral'}">${esc(tg)}</span>`).join('');
+    const tagRow = `<div class="tt-tags">${tags || '<span class="tt-tag tt-neutral">费用与语言以官网为准</span>'}</div>`;
     const safeToolUrl = SafeRender.safeUrl(t.url);
     if (!safeToolUrl) return '';
     return `
@@ -253,9 +287,10 @@ function toolCardHTML(t) {
             </div>
             <div class="tt-tool-name">${esc(t.name)}</div>
             <div class="tt-tool-desc">${esc(t.desc)}</div>
+            ${t.fit ? `<div class="tt-fit"><i class="ph ph-check-circle" aria-hidden="true"></i><span>${esc(t.fit)}</span></div>` : ''}
             ${tagRow}
             <div class="tt-card-foot">
-                <span class="tt-source-note">外部工具</span>
+                <span class="tt-source-note">${t.reviewedAt ? '核对于 ' + esc(t.reviewedAt) : '外部工具 · 信息待复核'}</span>
                 <span class="tool-card-go">前往官网 <i class="ph-bold ph-arrow-right" style="font-size:11px"></i></span>
             </div>
         </a>`;
@@ -334,7 +369,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

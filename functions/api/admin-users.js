@@ -1,8 +1,8 @@
+import '../../js/account-policy.js';
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
 const FIREBASE_AUTH_BASE = 'https://identitytoolkit.googleapis.com/v1';
 const FIRESTORE_USER_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users`;
-const ADMIN_EMAIL = 'admin@xylaoshi.com';
 const ADMIN_SCOPES = [
     'https://www.googleapis.com/auth/identitytoolkit',
     'https://www.googleapis.com/auth/datastore'
@@ -186,7 +186,8 @@ async function verifyAdmin(adminIdToken) {
         error.statusCode = 401;
         throw error;
     }
-    if (String(user.email || '').toLowerCase() !== ADMIN_EMAIL) {
+    globalThis.AccountPolicy.assertVerifiedEmail(user);
+    if (!globalThis.AccountPolicy.isAdmin(user)) {
         const error = new Error('当前账号没有管理员权限');
         error.statusCode = 403;
         throw error;
@@ -330,7 +331,7 @@ export async function onRequestPost({ request, env }) {
         if (!targetUid) {
             return jsonResponse(404, { ok: false, msg: 'Firebase Authentication 中没有找到这个账号' });
         }
-        if (targetUid === admin.localId || String(target.email || '').toLowerCase() === ADMIN_EMAIL) {
+        if (targetUid === admin.localId || target.localId === globalThis.AccountPolicy.ADMIN_UID) {
             return jsonResponse(400, { ok: false, msg: '不能删除管理员账号' });
         }
 

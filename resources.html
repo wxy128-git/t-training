@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>.resource-hero h1 .site-copy-accent{font-style:italic;color:var(--brand)}</style>
 </head>
 <body>
@@ -59,11 +59,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script>
 SiteCopy.load('resources').then(copy => SiteCopy.applyToDocument('resources', copy));
 
@@ -94,18 +96,19 @@ function renderContent(filterText = '') {
                 <div class="resource-grid">
                     ${filteredItems.map(item => {
                         const safeItemUrl = SafeRender.safeUrl(item.url);
+                        const license = /unsplash\.com/.test(safeItemUrl) ? 'https://unsplash.com/license' : (/pixabay\.com/.test(safeItemUrl) ? 'https://pixabay.com/service/license-summary/' : '');
                         if (!safeItemUrl) return '';
                         const domain = new URL(safeItemUrl, location.href).hostname.replace('www.', '');
                         return `
-                            <a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
+                            <div class="resource-entry"><a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
                                 <div class="resource-card-top">
                                     <i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i>
                                     <h3>${SafeRender.escape(item.name)}</h3>
                                     <span><i class="ph-bold ph-arrow-up-right"></i></span>
                                 </div>
-                                <p>${SafeRender.escape(item.desc)}</p>
+                                <p>${SafeRender.escape(reviewTeachingText(item.desc))}</p>
                                 <div class="resource-domain">${SafeRender.escape(domain)}</div>
-                            </a>
+                            </a>${license ? `<a class="resource-license" href="${license}" target="_blank" rel="noopener noreferrer">查看官方许可 ↗</a>` : ''}</div>
                         `;
                     }).join('')}
                 </div>
@@ -131,7 +134,7 @@ DB.getResources().then(data => {
     }
 });
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

@@ -19,9 +19,13 @@ node scripts/serve.mjs
 ## 质量检查
 
 ```bash
-node scripts/check-site.mjs
-node scripts/test-functions.mjs
-node scripts/test-tencent-server.mjs
+npm run check
+```
+
+包含站点结构与缓存检查、课程匹配、函数行为、邮箱验证、生成中断恢复和腾讯云适配层回归。
+回归使用合成数据，不调用付费模型。生产发布后另行执行：
+
+```bash
 node scripts/check-production.mjs https://ai.teachailab.com/
 ```
 
@@ -41,3 +45,20 @@ npx --yes firebase-tools@latest deploy --only firestore:rules
 
 服务器与 Cloudflare 中需分别保留 Firebase 服务账号以及智能体模型所需的环境变量。
 不要把私钥提交到仓库。
+
+## 2026-09-21 本地体验优化
+
+修改范围、验收截图与待办见 [实施与验收记录](reports/2026-09-21-implementation/README.md)。
+当前尚未发布；生产检查脚本已按待发布版本更新。
+
+后续三项的实施与真实测试见 [账号恢复、真实账号流程与教学质量验收](reports/2026-09-21-account-quality/README.md)。真实账号测试已清理，模型质量问题和复测边界逐项保留在报告中。人工恢复按用户后续要求暂缓，支持邮箱不再作为本次实施前置条件。
+
+## 2026-09-22 邮箱必填与验证（本地完成）
+
+新注册必须填写邮箱并验证；旧手机号账号登录后补全并验证邮箱，原 UID、作品与草稿保留，之后用邮箱和原密码登录。前端、API 和 Firestore Rules 同步限制未验证账号。46 项邮箱行为断言、26 项数据库模拟器权限断言及桌面 / 手机浏览器流程通过；真实邮件投递仍待上线验收。
+
+详见 [邮箱完善实施与验收记录](reports/2026-09-22-email-verification/README.md)。尚未发布，需同批更新 API、静态文件和数据库规则；共享资源版本 `20260922-email-required`，Service Worker `20260922-v21`。
+
+智能体的新客户端使用 `streamProtocol: events-v1`，服务端按 NDJSON 发送 `delta / done / error`；只有明确完成才进入核验与保存。发布时先更新兼容旧客户端的 API，再更新静态文件；回滚时先退回静态文件，再回滚 API。
+
+多模态音频预览波形存放在 `assets/audio/campus-science-peaks.json`，为现有音频解码后按 180 段取峰值并归一化得到；首页不再为波形下载整段 MP3。更换原音频后需重新计算峰值、核对 `audio` 路径并更新请求缓存版本。

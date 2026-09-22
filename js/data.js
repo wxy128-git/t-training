@@ -1,3 +1,15 @@
+// 兼容旧版公开教材文案；不改写教师作品或社区投稿，也不写回云端。
+function reviewTeachingText(value) {
+    let text = String(value || '');
+    const replacements = [["2小时教研效果抵过去半学期。", "围绕同一组课堂证据进行对照讨论，实际用时取决于材料与教研任务。"], ["<strong>效率数据：</strong>全班30份评语，AI辅助从2小时缩短至20分钟。", "<strong>实践建议：</strong>先用匿名学生样例试写并核验，再估算全班评语的准备时间。"], ["批改速度提升3倍，反馈质量不降反升。", "先抽样核对准确性，再决定适合由 AI 辅助的批改环节。"], ["<strong>实验数据：</strong>歌曲记忆的知识点遗忘速度比普通背诵慢3-5倍。", "<strong>实践建议：</strong>把歌曲作为一种记忆辅助，并通过课后回忆与练习检查是否适合本班学生。"], ["AI生成内容用于课堂教学无需担忧，商业出版需查阅平台协议。", "使用前核对素材来源、人物授权与平台许可；公开发布或出版前再次检查适用范围。"], ["全球最大免费图库，数百万张高质量照片，完全开放商用", "摄影与插图素材；使用范围与限制请查阅官方许可"], ["超过460万张图片与视频，支持中文搜索，无版权限制", "图片、视频与音频素材；使用前查阅官方许可及具体素材说明"], ["姓名：[姓名]", "学生代号：[代号]"], ["姓名[  ]", "学生代号[  ]"]];
+    replacements.push(["一节课备课时间从2小时缩短至45分钟。", "记录自己的备课与核验用时，比较哪些环节适合 AI 辅助。"], ["30分钟生成全班个性化报告。", "先用匿名样例试写，逐一核对后再用于沟通。"]);
+    for (const [before, after] of replacements) text = text.split(before).join(after);
+    return text;
+}
+function reviewLearningPaths(items) {
+    return (items || []).map(path => ({ ...path, steps: (path.steps || []).map(step => ({ ...step, detail: reviewTeachingText(step.detail) })) }));
+}
+
 /* ===== 默认数据（Firestore 为空时的兜底） ===== */
 const DEFAULT_TOOLS = [
     { id:'t1', name:"PrompterHub", desc:"把想法转化成完美提示词的社区平台", url:"https://www.prompterhub.cn/home", icon:"ph-pencil", color:"text-blue-500", bg:"bg-blue-50", category:"teaching" },
@@ -24,7 +36,7 @@ const DEFAULT_TOOLS = [
 const DEFAULT_PROMPTS = [
     { id:'p1', label:"备课助手", icon:"ph-book-open-text", color:"text-blue-500", bg:"bg-blue-50", category:"teaching", text:"你是一位经验丰富的[学科]教师，请为[年级]学生设计一节关于「[主题]」的完整教案，包括：①教学目标（知识、能力、情感三维）②教学重难点 ③教学流程（40分钟，含导入-新授-练习-小结）④板书设计 ⑤作业布置。要求贴近学生实际，体现新课程理念。" },
     { id:'p2', label:"智能出题", icon:"ph-exam", color:"text-emerald-500", bg:"bg-emerald-50", category:"teaching", text:"请为[年级][学科]「[知识点]」出[数量]道[题型]题，要求：①难度分布：基础题[X]道、提高题[X]道、拓展题[X]道 ②每道题附参考答案和解题思路 ③题目情境联系生活实际，避免纯机械记忆。" },
-    { id:'p3', label:"学生评语", icon:"ph-star", color:"text-yellow-500", bg:"bg-yellow-50", category:"teaching", text:"请为以下学生生成一段温暖、个性化的期末评语（100-150字）：姓名：[姓名]，性格特点：[特点]，学习优势：[优点]，待改进之处：[不足]，本学期印象深刻的事：[事件]。要求积极正面，给予期待与鼓励。" },
+    { id:'p3', label:"学生评语", icon:"ph-star", color:"text-yellow-500", bg:"bg-yellow-50", category:"teaching", text:"请为以下学生生成一段温暖、个性化的期末评语（100-150字）：学生代号：[代号]，性格特点：[特点]，学习优势：[优点]，待改进之处：[不足]，本学期印象深刻的事：[事件]。要求积极正面，给予期待与鼓励。" },
     { id:'p4', label:"课堂提问", icon:"ph-question", color:"text-purple-500", bg:"bg-purple-50", category:"teaching", text:"请围绕「[课文/主题]」为[年级]学生设计6个由浅入深的课堂提问，要求：①前2题：基础理解层（What）②中2题：分析应用层（Why/How）③后2题：评价创造层（引发思考与讨论）。每题附提问目的和预期学生反应。" },
     { id:'p5', label:"作业设计", icon:"ph-pencil-line", color:"text-rose-500", bg:"bg-rose-50", category:"teaching", text:"请为学完[学科][内容]的[年级]学生设计一项有创意的课后作业，要求：①趣味性强，避免机械练习 ②可操作性强，预计完成时间不超过[X]分钟 ③体现跨学科融合或生活应用 ④附评价标准（优秀/良好/合格三个等级描述）。" },
     { id:'p6', label:"差异化教学", icon:"ph-users-three", color:"text-indigo-500", bg:"bg-indigo-50", category:"advanced", text:"针对[学科][知识点]，请为三类不同水平的学生分别设计学习方案：①学困生：降低难度、提供支架式指导 ②中等生：夯实基础、适当提升 ③优等生：拓展延伸、开放性探究。每类方案包括学习目标、学习活动和评价方式。" },
@@ -47,7 +59,7 @@ const DEFAULT_PATHS = [
             detail:"<strong>国内首选（推荐先从这里开始）：</strong><br>• 文心一言 — 中文理解最优，适合教学内容生成<br>• 豆包 — 字节出品，免费额度大，对话自然<br>• Kimi — 长文档处理强，可上传教材PDF直接提问<br>• 讯飞星火 — 语音交互好，支持实时语音转文字<br><br><strong>国际工具（需科学上网）：</strong>ChatGPT、Claude<br><br><strong>本周任务：</strong>注册2-3个工具，对同一个问题分别提问，找到你最顺手的主力工具。",
             icon:"ph-robot" },
           { name:"用AI高效完成备课准备",
-            detail:"<strong>备课四步AI工作流：</strong><br>① 知识梳理：「请梳理[知识点]的核心概念、易混点和常见错误，面向[年级]学生」<br>② 导入设计：「请为[课题]设计3个不同风格的课堂导入活动（故事型/问题型/情境型）」<br>③ 教案生成：AI生成框架，你补充细节和个人教学风格<br>④ 质量把关：让AI帮你检查教案中是否有知识性错误<br><br><strong>时间目标：</strong>一节课备课时间从2小时缩短至45分钟。",
+            detail:"<strong>备课四步AI工作流：</strong><br>① 知识梳理：「请梳理[知识点]的核心概念、易混点和常见错误，面向[年级]学生」<br>② 导入设计：「请为[课题]设计3个不同风格的课堂导入活动（故事型/问题型/情境型）」<br>③ 教案生成：AI生成框架，你补充细节和个人教学风格<br>④ 质量把关：让AI帮你检查教案中是否有知识性错误<br><br><strong>时间目标：</strong>记录自己的备课与核验用时，比较哪些环节适合 AI 辅助。",
             icon:"ph-book-open-text" },
           { name:"批量生成教学配套材料",
             detail:"<strong>高频材料一键生成：</strong><br>• 课堂练习题（指定题型/难度/数量）<br>• 分层作业单（基础/提高/拓展三版本）<br>• 思维导图文字稿（再用Xmind等工具美化）<br>• 知识总结表格、错题分析报告<br>• 课后反思清单、学习评价量表<br><br><strong>效率技巧：</strong>把你最满意的一份教案输入AI，让它「按这个风格和结构，生成下一单元的教案框架」，比从零开始快5倍。",
@@ -69,13 +81,13 @@ const DEFAULT_PATHS = [
             detail:"<strong>工具：Gamma（PPT） + 即梦AI（视频）</strong><br><br><strong>Gamma使用流程：</strong><br>① 输入「为[年级][学科][主题]生成一份教学PPT，包含学习目标、新知讲解、例题解析、随堂练习、课堂小结」<br>② 选择模板风格，AI自动排版<br>③ 重点页手动调整，替换AI生成图片为真实案例图<br><br><strong>即梦AI：</strong>用文字描述生成教学场景动图或短视频，嵌入PPT让课件更生动。<br><br><strong>注意：</strong>AI生成的数据和案例需人工核实准确性。",
             icon:"ph-presentation-chart" },
           { name:"AI辅助听课评课与教研",
-            detail:"<strong>工具：棒棒糖AI听评课</strong><br><br><strong>个人用法：</strong><br>① 录制自己的课堂音频（用手机即可）<br>② 上传后AI自动转录、统计教师讲授/学生活动/互动提问的时间占比<br>③ 生成结构化评课报告，指出「教师话语量过大」「提问集中在前排学生」等具体问题<br><br><strong>教研组用法：</strong>组织全组同时分析3-5节同课异构录像，AI生成横向比较报告，2小时教研效果抵过去半学期。<br><br><strong>成长价值：</strong>量化数据让教学反思从「感觉」变成「证据」。",
+            detail:"<strong>工具：棒棒糖AI听评课</strong><br><br><strong>个人用法：</strong><br>① 录制自己的课堂音频（用手机即可）<br>② 上传后AI自动转录、统计教师讲授/学生活动/互动提问的时间占比<br>③ 生成结构化评课报告，指出「教师话语量过大」「提问集中在前排学生」等具体问题<br><br><strong>教研组用法：</strong>组织全组同时分析3-5节同课异构录像，AI生成横向比较报告，围绕同一组课堂证据进行对照讨论，实际用时取决于材料与教研任务。<br><br><strong>成长价值：</strong>量化数据让教学反思从「感觉」变成「证据」。",
             icon:"ph-chart-line-up" },
           { name:"AI设计个性化辅导方案",
-            detail:"<strong>差异化教学三步法：</strong><br>① 描述学生特征：「该生数学基础薄弱，特别在分数计算中总忘记约分，上课注意力难以集中超过10分钟」<br>② 让AI生成分层方案：学困生（降难度+支架式提示）、中等生（夯基础+适度提升）、优等生（开放性探究+跨学科联系）<br>③ 布置针对性作业：上传错题截图，让AI分析错误类型并生成专项练习<br><br><strong>实用场景：</strong>家长会前用AI整理每位学生的优势与改进建议，30分钟生成全班个性化报告。",
+            detail:"<strong>差异化教学三步法：</strong><br>① 描述学生特征：「该生数学基础薄弱，特别在分数计算中总忘记约分，上课注意力难以集中超过10分钟」<br>② 让AI生成分层方案：学困生（降难度+支架式提示）、中等生（夯基础+适度提升）、优等生（开放性探究+跨学科联系）<br>③ 布置针对性作业：上传错题截图，让AI分析错误类型并生成专项练习<br><br><strong>实用场景：</strong>家长会前用AI整理每位学生的优势与改进建议，先用匿名样例试写，逐一核对后再用于沟通。",
             icon:"ph-users-three" },
           { name:"AI批量生成个性化评语",
-            detail:"<strong>操作模板：</strong><br>「请为以下学生生成期末评语（100字），要求：①突出个人特点而非套话 ②指出1个核心优势 ③提1个具体改进方向 ④结尾给予期待。学生信息：姓名[  ]，性格[  ]，本学期亮点[  ]，待提升之处[  ]」<br><br><strong>效率数据：</strong>全班30份评语，AI辅助从2小时缩短至20分钟。<br><br><strong>作文批改：</strong>让AI先找出语病、逻辑漏洞和优美表达，再由你做最终判断，批改速度提升3倍，反馈质量不降反升。",
+            detail:"<strong>操作模板：</strong><br>「请为以下学生生成期末评语（100字），要求：①突出个人特点而非套话 ②指出1个核心优势 ③提1个具体改进方向 ④结尾给予期待。学生信息：学生代号[  ]，性格[  ]，本学期亮点[  ]，待提升之处[  ]」<br><br><strong>实践建议：</strong>先用匿名学生样例试写并核验，再估算全班评语的准备时间。<br><br><strong>作文批改：</strong>让AI先找出语病、逻辑漏洞和优美表达，再由你做最终判断，先抽样核对准确性，再决定适合由 AI 辅助的批改环节。",
             icon:"ph-pencil-line" },
           { name:"AI辅助家校沟通与日常事务",
             detail:"<strong>高频场景批量处理：</strong><br>• 家长通知：「写一则关于[运动会/秋游/家长会]的通知，语气亲切、信息完整、200字以内」<br>• 敏感沟通：「学生A存在[问题]，请帮我起草一段微信沟通开场白，既说清问题又不引发家长防御」<br>• 会议记录：录音上传后AI自动整理成结构化记录<br>• 活动方案：「请设计一个45分钟的班级阅读分享活动流程」<br><br><strong>原则：</strong>AI写初稿，你把关语气和细节——既省时间，又避免措辞不当引发误解。",
@@ -94,10 +106,10 @@ const DEFAULT_PATHS = [
             detail:"<strong>工具：飞象老师</strong><br><br><strong>制作流程：</strong><br>① 准备知识点讲解文字稿（500-800字，聚焦单一概念）<br>② 在飞象老师中选择动画风格（科普/卡通/实验演示）<br>③ AI自动生成带配音的动画视频，支持中文配音<br>④ 导出MP4，嵌入PPT或发布到班级学习平台<br><br><strong>最适合场景：</strong>抽象难以描述的概念——细胞分裂、化学反应过程、几何变换、历史事件还原。<br><br><strong>建议规格：</strong>每段3-5分钟，专注1个知识点，课前预习效果最佳。",
             icon:"ph-film-strip" },
           { name:"AI创作教学歌曲与配乐",
-            detail:"<strong>工具：海绵音乐</strong><br><br><strong>歌曲创作两步法：</strong><br>① 先让AI（文心一言等）把知识点改写成押韵朗朗上口的歌词：「请把乘法口诀1-9表改写成适合小学生传唱的儿歌歌词，每句7字以内」<br>② 把歌词粘贴到海绵音乐，选择「儿歌/流行/古风」风格，AI生成完整歌曲含人声演唱<br><br><strong>应用场景：</strong>古诗词记忆歌、数学口诀歌、英语单词记忆歌、班规班约歌。<br><br><strong>实验数据：</strong>歌曲记忆的知识点遗忘速度比普通背诵慢3-5倍。",
+            detail:"<strong>工具：海绵音乐</strong><br><br><strong>歌曲创作两步法：</strong><br>① 先让AI（文心一言等）把知识点改写成押韵朗朗上口的歌词：「请把乘法口诀1-9表改写成适合小学生传唱的儿歌歌词，每句7字以内」<br>② 把歌词粘贴到海绵音乐，选择「儿歌/流行/古风」风格，AI生成完整歌曲含人声演唱<br><br><strong>应用场景：</strong>古诗词记忆歌、数学口诀歌、英语单词记忆歌、班规班约歌。<br><br><strong>实践建议：</strong>把歌曲作为一种记忆辅助，并通过课后回忆与练习检查是否适合本班学生。",
             icon:"ph-music-notes" },
           { name:"AI图文绘本与系列插图创作",
-            detail:"<strong>工具：anygen.io（系列图）+ Nano Banana/Gemini（单图）</strong><br><br><strong>核心优势：</strong>anygen.io能保持角色外观的跨图一致性，适合创作连续故事。<br><br><strong>绘本创作流程：</strong><br>① 先用AI写好故事文稿（5-8页，每页1-2句话）<br>② 设定主角外貌（上传参考图或文字描述）<br>③ 每页输入场景描述，AI生成与主角风格统一的插图<br>④ 用Canva排版，导出PDF打印成班级专属绘本<br><br><strong>版权提示：</strong>AI生成内容用于课堂教学无需担忧，商业出版需查阅平台协议。",
+            detail:"<strong>工具：anygen.io（系列图）+ Nano Banana/Gemini（单图）</strong><br><br><strong>核心优势：</strong>anygen.io能保持角色外观的跨图一致性，适合创作连续故事。<br><br><strong>绘本创作流程：</strong><br>① 先用AI写好故事文稿（5-8页，每页1-2句话）<br>② 设定主角外貌（上传参考图或文字描述）<br>③ 每页输入场景描述，AI生成与主角风格统一的插图<br>④ 用Canva排版，导出PDF打印成班级专属绘本<br><br><strong>版权提示：</strong>使用前核对素材来源、人物授权与平台许可；公开发布或出版前再次检查适用范围。",
             icon:"ph-image-square" },
           { name:"制作专属数字人讲师",
             detail:"<strong>工具：飞影数字人 / 即梦AI</strong><br><br><strong>数字人制作流程：</strong><br>① 上传正面照片，AI生成专属数字分身<br>② 输入讲解文稿，AI自动生成口型同步的数字人讲解视频<br>③ 支持中文配音，可选择声音风格<br>④ 加入PPT背景或课堂场景，导出高清视频<br><br><strong>高效复用策略：</strong>同一个知识点视频可跨班级、跨学年反复使用。一次制作投入，三年持续受益。<br><br><strong>适用场景：</strong>课前预习视频、课后复习资料、家长学校课程、校本课程录制。",
@@ -382,9 +394,9 @@ const DEFAULT_RESOURCES = [
         color: "text-rose-500",
         bg: "bg-rose-50",
         items: [
-            { name: "Unsplash", desc: "全球最大免费图库，数百万张高质量照片，完全开放商用", url: "https://unsplash.com", itemIcon: "ph-camera-plus" },
+            { name: "Unsplash", desc: "摄影与插图素材；使用范围与限制请查阅官方许可", url: "https://unsplash.com", itemIcon: "ph-camera-plus" },
             { name: "Pexels", desc: "精选摄影作品与视频素材，可按颜色、方向快速筛选", url: "https://pexels.com", itemIcon: "ph-video-camera" },
-            { name: "Pixabay", desc: "超过460万张图片与视频，支持中文搜索，无版权限制", url: "https://pixabay.com", itemIcon: "ph-globe" },
+            { name: "Pixabay", desc: "图片、视频与音频素材；使用前查阅官方许可及具体素材说明", url: "https://pixabay.com", itemIcon: "ph-globe" },
             { name: "Picjumbo", desc: "精心策展的图片集合，每日更新，风格独特", url: "https://picjumbo.com", itemIcon: "ph-aperture" },
             { name: "Life of Pix", desc: "摄影师社区贡献，强调自然与人文主题", url: "https://lifeofpix.com", itemIcon: "ph-users-three" },
             { name: "Burst", desc: "专注商业场景的免费图库，按行业与主题分类", url: "https://burst.shopify.com", itemIcon: "ph-storefront" }
@@ -637,14 +649,14 @@ const DB = {
         if (!isAdminRuntimePage()) {
             try {
                 const items = await callContentAPI('paths');
-                if (items.length) return items;
+                if (items.length) return reviewLearningPaths(items);
             } catch(e) { console.warn('getPaths proxy:', e.message); }
         }
         try {
             const snap = await db.collection('paths').orderBy('order').get();
-            if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            if (!snap.empty) return reviewLearningPaths(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         } catch(e) { console.warn('getPaths:', e.message); }
-        return JSON.parse(JSON.stringify(DEFAULT_PATHS));
+        return reviewLearningPaths(JSON.parse(JSON.stringify(DEFAULT_PATHS)));
     },
     async setPaths(items) {
         const batch = db.batch();
@@ -834,9 +846,8 @@ const DB = {
 
     /* ===== 邮件订阅 ===== */
     async addSubscriber(email) {
-        const snap = await db.collection('subscribers').where('email', '==', email).get();
-        if (!snap.empty) return 'exists';
-        await db.collection('subscribers').add({ email, subscribedAt: new Date().toISOString() });
+        const idToken = await SiteAuth.getIdToken();
+        await callAuthProxy('subscribe', { email, idToken });
         return 'ok';
     },
     async getSubscribers() {

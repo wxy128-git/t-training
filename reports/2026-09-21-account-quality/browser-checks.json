@@ -1,0 +1,93 @@
+{
+  "environment": "Private candidate API with real Firebase, independent browser context; analytics and direct browser Firestore blocked. Reset email network failure and configured support mailbox paths mocked; no email sent.",
+  "guestSupport": {
+    "guestHelp": true,
+    "phone": {
+      "text": "联系管理员\n\n账号恢复邮箱暂未配置，请联系本次培训的组织者协助。此处不要求登录。\n\n请说明注册账号、可联系你的方式和遇到的问题。管理员核验归属后处理；不要发送密码、验证码、身份证照片或学生资料。",
+      "requests": 0
+    },
+    "closed": "true"
+  },
+  "cloudVersions": {
+    "version": {
+      "count": 2,
+      "parent": true,
+      "originalIntact": true
+    },
+    "continued": {
+      "title": "QA 分数课修订版",
+      "selectedContent": true
+    }
+  },
+  "accounts": {
+    "wrongPasswordRejected": true,
+    "secondRegistration": true,
+    "isolation": {
+      "visible": 0,
+      "crossAccount": [
+        {
+          "action": "rename",
+          "status": 403
+        },
+        {
+          "action": "delete",
+          "status": 403
+        }
+      ]
+    },
+    "subscription": [
+      {
+        "ok": true,
+        "msg": "邮箱已登记，通知服务开放后会发送更新"
+      },
+      {
+        "ok": true,
+        "msg": "邮箱已登记，通知服务开放后会发送更新"
+      }
+    ],
+    "reload": {
+      "works": 2,
+      "loggedIn": true
+    },
+    "sessionRefresh": {
+      "local": false,
+      "session": true,
+      "refreshed": true,
+      "futureExpiry": true
+    }
+  },
+  "recovery": {
+    "phoneSupported": true,
+    "noHorizontalOverflowAt320": true,
+    "escapeClosed": true,
+    "failureRetry": {
+      "text": "测试：暂时无法连接，请重试",
+      "retryEnabled": true
+    },
+    "configuredMailbox": {
+      "mockConfiguration": true,
+      "mailtoValid": true,
+      "accountPrefilled": true,
+      "copied": true,
+      "focusInside": true
+    }
+  },
+  "cloudRenameDelete": {
+    "renamed": true,
+    "deleted": true,
+    "originalStillPresent": true
+  },
+  "draftIsolation": {
+    "a": {
+      "restored": true,
+      "local": false,
+      "session": true
+    },
+    "b": {
+      "noADraft": true,
+      "local": true,
+      "session": false
+    },
+    "newTabGuest": true
+  }
+}

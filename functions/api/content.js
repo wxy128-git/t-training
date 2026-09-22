@@ -123,6 +123,7 @@ export async function onRequestGet({ request }) {
             }) : undefined
         });
         const data = await upstream.json().catch(() => ({}));
+        if (upstream.status === 404 && type === 'pageCopy') return jsonResponse(200, { ok: true, item: null }, volatileHeaders);
         if (upstream.status === 404) return jsonResponse(404, { ok: false, msg: '内容不存在' }, volatileHeaders);
         if (id && upstream.status === 403) return jsonResponse(404, { ok: false, msg: '内容不存在' }, volatileHeaders);
         if (!upstream.ok) {

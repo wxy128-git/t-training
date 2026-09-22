@@ -732,7 +732,18 @@
         installPrompt = event;
         syncInstallButtons();
         window.clearTimeout(installCardTimer);
-        installCardTimer = window.setTimeout(showInstallCard, 8000);
+        // 首次任务完成后再提示安装；主动安装入口始终保留。
+        if (safeStorage(localStorage, 'get', 'xylaoshi:completed-task')) {
+            installCardTimer = window.setTimeout(showInstallCard, 8000);
+        }
+    });
+
+    document.addEventListener('teachingTaskCompleted', () => {
+        safeStorage(localStorage, 'set', 'xylaoshi:completed-task', '1');
+        if (installPrompt) {
+            window.clearTimeout(installCardTimer);
+            installCardTimer = window.setTimeout(showInstallCard, 8000);
+        }
     });
 
     window.addEventListener('appinstalled', () => {

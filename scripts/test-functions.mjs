@@ -13,9 +13,7 @@ function assert(condition, message) {
 }
 
 async function importSource(file) {
-    const source = readFileSync(join(root, file), 'utf8');
-    const encoded = Buffer.from(source).toString('base64');
-    return import(`data:text/javascript;base64,${encoded}#${Date.now()}-${Math.random()}`);
+    return import(`${pathToFileURL(join(root, file)).href}?test=${Date.now()}-${Math.random()}`);
 }
 
 const originalFetch = globalThis.fetch;
@@ -108,6 +106,14 @@ try {
     });
     assert(invalidAuthResponse.status === 400 && fetchCount === 0, '无效认证输入不应请求 Firebase');
 
+    const phoneResetResponse = await authProxy.onRequestPost({
+        request: new Request('https://site.test/api/auth-proxy', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': 'test-phone-reset' },
+            body: JSON.stringify({ action: 'reset-password', email: 'TEL_13800138000@XYLAOSHI.TEL' })
+        })
+    });
+    assert(phoneResetResponse.status === 400 && (await phoneResetResponse.json()).needsSupport === true && fetchCount === 0, '手机号占位邮箱必须直接进入求助分支，不得发送恢复邮件');
+
     globalThis.fetch = async () => new Response(JSON.stringify({ error: { message: 'EMAIL_NOT_FOUND' } }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -124,6 +130,39 @@ try {
 
     const optionsResponse = await authProxy.onRequestOptions();
     assert(optionsResponse.headers.get('Access-Control-Allow-Origin') !== '*', '认证接口仍允许通配 CORS');
+
+    // 邮箱登记必须验证身份并直接 create，普通账号不读取 subscribers。
+    const subscribeRequest = (payload, ip) => authProxy.onRequestPost({ request: new Request('https://site.test/api/auth-proxy', {
+        method: 'POST', headers: { 'Content-Type':'application/json', 'CF-Connecting-IP':ip }, body: JSON.stringify({ action:'subscribe', ...payload })
+    }) });
+    fetchCount = 0;
+    globalThis.fetch = async () => { fetchCount++; return Response.json({}); };
+    assert((await subscribeRequest({ email:'qa@example.invalid' }, 'subscribe-guest')).status === 401 && fetchCount === 0, '访客登记不应请求 Firebase');
+    assert((await subscribeRequest({ email:'invalid', idToken:'test' }, 'subscribe-invalid')).status === 400 && fetchCount === 0, '无效邮箱不应请求 Firebase');
+    const subscriptionCalls = [];
+    let subscriptionStatus = 200;
+    globalThis.fetch = async (url, options) => {
+        subscriptionCalls.push({ url:String(url), options });
+        return String(url).includes('accounts:lookup') ? Response.json({ users:[{localId:'teacher-test',email:'teacher@example.invalid',emailVerified:true}] }) : Response.json({}, {status:subscriptionStatus});
+    };
+    assert((await subscribeRequest({email:'QA@example.invalid',idToken:'test'}, 'subscribe-create')).status === 200, '已认证账号应可登记');
+    const creation = subscriptionCalls.at(-1);
+    assert(subscriptionCalls.length === 2 && creation.options.method === 'POST' && creation.options.headers.Authorization === 'Bearer test', '登记应只验证身份并带用户凭证创建文档');
+    assert(/subscribers\?documentId=[a-f0-9]{64}$/.test(creation.url) && JSON.parse(creation.options.body).fields.email.stringValue === 'qa@example.invalid', '登记邮箱与文档 ID 应归一化');
+    subscriptionStatus = 409;
+    const repeated = await subscribeRequest({email:'qa@example.invalid',idToken:'test'}, 'subscribe-repeat');
+    assert(repeated.status === 200 && subscriptionCalls.at(-1).url === creation.url, '重复登记应保持幂等且不公开邮箱是否存在');
+    subscriptionStatus = 403;
+    assert((await subscribeRequest({email:'qa@example.invalid',idToken:'test'}, 'subscribe-denied')).status === 502, '权限失败不能伪装登记成功');
+
+    globalThis.fetch = async () => Response.json({}, {status:404});
+    const absentCopy = await content.onRequestGet({request:new Request('https://site.test/api/content?type=pageCopy&id=tools')});
+    assert(absentCopy.status === 200 && (await absentCopy.json()).item === null, '未配置页面文案应正常返回本地默认值信号');
+
+    const toolsApi = await importSource('functions/api/tools.js');
+    globalThis.fetch = async () => Response.json({documents:[{name:'projects/demo/databases/(default)/documents/tools/qa',fields:{name:{stringValue:'测试工具'},url:{stringValue:'https://example.invalid/'},taskCategory:{stringValue:'media'},tags:{stringValue:'中文,免费'},fit:{stringValue:'课堂素材'},reviewedAt:{stringValue:'2026-09-21'}}}]});
+    const toolItem = (await (await toolsApi.onRequestGet()).json()).tools[0];
+    assert(toolItem.taskCategory === 'media' && toolItem.tags === '中文,免费' && toolItem.fit === '课堂素材' && toolItem.reviewedAt === '2026-09-21', '公开工具接口应保留后台编辑的元数据');
 
     const rssProxy = await importSource('functions/api/rss-proxy.js');
     fetchCount = 0;
@@ -181,7 +220,7 @@ try {
     let providerFetchCount = 0;
     globalThis.fetch = async url => {
         if (String(url).includes('accounts:lookup')) {
-            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-local-conflict' }] }), {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-local-conflict', email: 'teacher@example.invalid', emailVerified: true }] }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -210,7 +249,7 @@ try {
     providerFetchCount = 0;
     globalThis.fetch = async (url, options = {}) => {
         if (String(url).includes('accounts:lookup')) {
-            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-semantic-conflict' }] }), {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-semantic-conflict', email: 'teacher@example.invalid', emailVerified: true }] }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -250,7 +289,7 @@ try {
     providerFetchCount = 0;
     globalThis.fetch = async (url, options = {}) => {
         if (String(url).includes('accounts:lookup')) {
-            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-incomplete-classification' }] }), {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-incomplete-classification', email: 'teacher@example.invalid', emailVerified: true }] }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -286,7 +325,7 @@ try {
     providerFetchCount = 0;
     globalThis.fetch = async url => {
         if (String(url).includes('accounts:lookup')) {
-            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-known-aligned' }] }), {
+            return new Response(JSON.stringify({ users: [{ localId: 'curriculum-known-aligned', email: 'teacher@example.invalid', emailVerified: true }] }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }
             });

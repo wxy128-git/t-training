@@ -41,7 +41,8 @@
     }
 
     function featureFromPath(pathname) {
-        const p = pathname.split('/').pop() || 'index.html';
+        const name = pathname.replace(/\/+$/, '').split('/').pop() || 'index';
+        const p = name.endsWith('.html') ? name : `${name}.html`;
         if (p === 'agents.html') return 'agents';
         if (p === 'workspace.html') return 'workspace';
         if (p === 'multimodal.html' || p === 'media-player.html') return 'multimodal';
@@ -56,7 +57,7 @@
     }
 
     function currentUserProfile() {
-        const user = window.Auth && Auth.getCurrentUser ? Auth.getCurrentUser() : window._currentUser;
+        const user = window.SiteAuth?.getCurrentUser?.();
         if (!user) return null;
         return {
             uid: user.uid || '',
@@ -69,7 +70,7 @@
 
     async function idToken() {
         try {
-            if (window.Auth && Auth.getIdToken) return await Auth.getIdToken();
+            if (window.SiteAuth) return await SiteAuth.getIdToken();
         } catch {}
         return '';
     }
@@ -105,7 +106,8 @@
 
     async function track(action, data = {}) {
         try {
-            await post(basePayload(action, data));
+            const response = await post(basePayload(action, data));
+            if (!response.ok) console.warn('统计记录暂未成功：', response.status);
         } catch {
             // 统计失败不影响网站功能；本地静态预览没有 /api/analytics 时会走到这里
         }

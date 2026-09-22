@@ -107,7 +107,7 @@
                 { key: 'conditionFilterHeading', label: '条件筛选标题', maxLength: 16, defaultValue: '条件' },
                 { key: 'allFilter', label: '全部任务筛选', maxLength: 16, defaultValue: '全部' },
                 { key: 'allConditions', label: '全部条件筛选', maxLength: 20, defaultValue: '全部条件' },
-                { key: 'reviewNote', label: '信息核验说明', maxLength: 160, rows: 3, defaultValue: '信息核对于 2026 年 8 月，请以官网为准。不要上传学生姓名、联系方式或成绩明细。' },
+                { key: 'reviewNote', label: '信息核验说明', maxLength: 160, rows: 3, defaultValue: '费用与语言支持请以官网为准，单项核对日期见卡片。不要上传学生姓名、联系方式或成绩明细。' },
                 { key: 'emptyTitle', label: '无结果标题', maxLength: 40, defaultValue: '没有找到匹配的工具' },
                 { key: 'emptyHint', label: '无结果提示', maxLength: 50, defaultValue: '换个关键词试试' }
             ])
@@ -249,7 +249,8 @@
             ? source.fields
             : (source || {});
         return Object.fromEntries(definition.fields.map(field => {
-            const candidate = typeof raw[field.key] === 'string' ? raw[field.key].trim() : '';
+            let candidate = typeof raw[field.key] === 'string' ? raw[field.key].trim() : '';
+            if (pageId === 'tools' && field.key === 'reviewNote' && candidate === '信息核对于 2026 年 8 月，请以官网为准。不要上传学生姓名、联系方式或成绩明细。') candidate = field.defaultValue;
             const value = candidate && candidate.length <= field.maxLength ? candidate : field.defaultValue;
             return [field.key, value];
         }));

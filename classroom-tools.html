@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>
         .ct-page { max-width: 1240px; margin: 0 auto; padding: 56px 24px 88px; }
         .ct-kicker { font-family: var(--font-mono); font-size: 11.5px; color: var(--brand); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
@@ -455,6 +455,19 @@
         .ct-rt-col-sub { font-size: 12px; color: var(--muted); padding: 8px 16px 0; }
         .ct-rt-area { flex: 1; min-height: 200px; border: none; outline: none; resize: vertical; padding: 14px 16px; font-family: inherit; font-size: 14.5px; line-height: 1.85; color: var(--ink); background: transparent; }
         .ct-rt-area::placeholder { color: var(--subtle); }
+        .ct-seat-scroll { max-width: 100%; overflow-x: auto; padding: 4px; }
+        .ct-seat { font: inherit; min-width: 64px; min-height: 48px; }
+        .ct-seat:focus-visible { outline: 3px solid #245b78; outline-offset: 2px; }
+        .ct-seat span { white-space: normal; overflow-wrap: anywhere; }
+        .ct-wb-colors button, .ct-wb-sizes button { min-width: 36px; min-height: 36px; }
+        @media(max-width:680px) {
+            .ct-page { padding: 26px 18px 56px; }
+            .ct-title { font-size: 30px; }
+            .ct-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-top: 26px; }
+            .ct-tool-card { padding: 16px; min-height: 152px; }
+            .ct-tool-name { font-size: 16px; }
+            .ct-tool-desc { font-size: 13px; line-height: 1.6; }
+        }
     </style>
 </head>
 <body>
@@ -534,11 +547,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script>
 let classroomPageCopy = SiteCopy.defaults('classroom');
 SiteCopy.load('classroom').then(copy => {
@@ -575,9 +590,11 @@ document.querySelectorAll('.ct-tool-card').forEach(card => {
     card.addEventListener('click', () => openTool(card.dataset.tool));
 });
 
+let _toolTransition = null;
 function openTool(key) {
     const tool = TOOLS[key];
-    if (!tool) return;
+    if (!tool || _activeTool === key) return;
+    clearTimeout(_toolTransition);
     if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
     _activeTool = key;
     _lastToolTrigger = document.querySelector(`.ct-tool-card[data-tool="${key}"]`) || _lastToolTrigger;
@@ -591,7 +608,7 @@ function openTool(key) {
     document.body.classList.add('ct-tool-open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    setTimeout(() => {
+    _toolTransition = setTimeout(() => {
         home.style.display = 'none';
         home.classList.remove('leaving');
         title.textContent = tool.title;
@@ -607,10 +624,11 @@ function openTool(key) {
 }
 
 function ctBack() {
+    clearTimeout(_toolTransition);
     const home = document.getElementById('ct-home');
     const stage = document.getElementById('ct-stage');
     stage.classList.add('entering');           // fade stage out
-    setTimeout(() => {
+    _toolTransition = setTimeout(() => {
         if (_toolCleanup) { try { _toolCleanup(); } catch {} _toolCleanup = null; }
         _activeTool = null;
         document.body.classList.remove('ct-tool-open');
@@ -641,6 +659,11 @@ window.addEventListener('load', () => {
     const hash = location.hash.replace('#', '');
     if (hash && TOOLS[hash]) openTool(hash);
 });
+window.addEventListener('hashchange', () => {
+    const key = location.hash.slice(1);
+    if (TOOLS[key]) openTool(key);
+    else if (_activeTool) ctBack();
+});
 
 /* ============== 1. 倒计时 ============== */
 function mountCountdown(root) {
@@ -662,9 +685,9 @@ function mountCountdown(root) {
             </div>
             <div class="ct-input-group">
                 <span class="ct-input-label">自定义</span>
-                <input type="number" class="ct-num-input" id="cd-min" min="0" max="180" placeholder="分">
+                <input type="number" class="ct-num-input" id="cd-min" aria-label="倒计时分钟" min="0" max="180" placeholder="分">
                 <span class="ct-input-label">:</span>
-                <input type="number" class="ct-num-input" id="cd-sec" min="0" max="59" placeholder="秒">
+                <input type="number" class="ct-num-input" id="cd-sec" aria-label="倒计时秒数" min="0" max="59" placeholder="秒">
                 <button class="ct-btn-secondary" id="cd-set">设定</button>
             </div>
             <div class="ct-countdown-controls">
@@ -737,7 +760,7 @@ function mountCountdown(root) {
 
     root.querySelectorAll('.ct-preset-btn').forEach(b => {
         b.addEventListener('click', () => {
-            root.querySelectorAll('.ct-preset-btn').forEach(x => x.classList.remove('active'));
+            root.querySelectorAll('.ct-preset-btn').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
             b.classList.add('active');
             setTotal(Number(b.dataset.secs));
         });
@@ -747,7 +770,7 @@ function mountCountdown(root) {
         const m = Number(root.querySelector('#cd-min').value) || 0;
         const s = Number(root.querySelector('#cd-sec').value) || 0;
         const total = Math.max(1, m * 60 + s);
-        root.querySelectorAll('.ct-preset-btn').forEach(x => x.classList.remove('active'));
+        root.querySelectorAll('.ct-preset-btn').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
         setTotal(total);
     });
 
@@ -781,7 +804,7 @@ function mountPicker(root) {
         <div class="ct-picker-wrap">
             <div class="ct-picker-left">
                 <label class="ct-input-label" style="font-weight:500">花名册（每行一个，或用空格/逗号分隔）</label>
-                <textarea class="ct-textarea" id="pk-names" placeholder="李明 张伟 王芳..."></textarea>
+                <textarea class="ct-textarea" id="pk-names" aria-label="随机点名花名册" placeholder="李明 张伟 王芳..."></textarea>
                 <div class="ct-picker-options">
                     <label><input type="checkbox" id="pk-noRepeat" checked> 抽过的不再抽</label>
                     <label><input type="checkbox" id="pk-saveRoster" checked> 记住花名册</label>
@@ -909,7 +932,7 @@ function mountScore(root) {
             const lead = g.score > 0 && g.score === max ? ' leading' : '';
             return `<div class="ct-score-card${lead}">
                 <div class="ct-score-crown" aria-hidden="true"><i class="ph-fill ph-crown"></i></div>
-                <input class="ct-score-name" data-i="${i}" value="${esc(g.name)}" maxlength="10">
+                <input aria-label="第 ${i + 1} 组名称" class="ct-score-name" data-i="${i}" value="${esc(g.name)}" maxlength="10">
                 <div class="ct-score-val">${g.score}</div>
                 <div class="ct-score-btns">
                     <button data-i="${i}" data-d="-1">−1</button>
@@ -966,12 +989,12 @@ function mountBalls(root) {
                 <button class="ct-mic-btn" id="bl-mic"><i class="ph-fill ph-microphone-slash"></i> 启用麦克风</button>
                 <div class="ct-control">
                     <span class="ct-control-label">灵敏度</span>
-                    <input type="range" id="bl-sens" min="0.3" max="3" step="0.1" value="1.2">
+                    <input type="range" id="bl-sens" aria-label="音量灵敏度" min="0.3" max="3" step="0.1" value="1.2">
                     <span class="ct-control-val" id="bl-sens-val">1.2×</span>
                 </div>
                 <div class="ct-control">
                     <span class="ct-control-label">数量</span>
-                    <input type="range" id="bl-count" min="5" max="60" step="1" value="24">
+                    <input type="range" id="bl-count" aria-label="音浪小球数量" min="5" max="60" step="1" value="24">
                     <span class="ct-control-val" id="bl-count-val">24</span>
                 </div>
                 <div class="ct-theme-toggle" id="bl-theme">
@@ -1352,7 +1375,7 @@ function mountGroups(root) {
         <div class="ct-groups-wrap">
             <div class="ct-groups-left">
                 <label class="ct-input-label" style="font-weight:500">花名册（每行/空格/逗号分隔）</label>
-                <textarea class="ct-textarea" id="gp-names" style="min-height:200px"></textarea>
+                <textarea class="ct-textarea" id="gp-names" aria-label="随机分组花名册" style="min-height:200px"></textarea>
                 <div class="ct-groups-controls">
                     <div class="ct-groups-mode">
                         <button class="active" data-mode="groupCount">指定组数</button>
@@ -1360,7 +1383,7 @@ function mountGroups(root) {
                     </div>
                     <div class="ct-input-group" style="justify-content:flex-start">
                         <span class="ct-input-label" id="gp-mode-label">组数</span>
-                        <input type="number" class="ct-num-input" id="gp-num" min="2" max="40" value="4">
+                        <input type="number" class="ct-num-input" id="gp-num" aria-label="分组数量或每组人数" min="2" max="40" value="4">
                     </div>
                     <button class="ct-btn-primary" id="gp-go">随机分组</button>
                 </div>
@@ -1446,22 +1469,22 @@ function mountSeating(root) {
             <div class="ct-seating-controls">
                 <div class="ct-input-group" style="justify-content:flex-start">
                     <span class="ct-input-label">排数</span>
-                    <input type="number" class="ct-num-input" id="st-rows" min="1" max="20" value="6">
+                    <input type="number" class="ct-num-input" id="st-rows" aria-label="座位排数" min="1" max="20" value="6">
                     <span class="ct-input-label">列数</span>
-                    <input type="number" class="ct-num-input" id="st-cols" min="1" max="20" value="6">
+                    <input type="number" class="ct-num-input" id="st-cols" aria-label="座位列数" min="1" max="20" value="6">
                 </div>
                 <button class="ct-btn-primary" id="st-shuffle">随机排座</button>
                 <button class="ct-btn-secondary" id="st-print">打印 / PDF</button>
             </div>
             <details style="background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 18px">
                 <summary style="font-size:13.5px;font-weight:500;color:var(--ink);cursor:pointer">花名册（点击展开）</summary>
-                <textarea class="ct-textarea" id="st-names" style="min-height:120px;margin-top:12px"></textarea>
+                <textarea class="ct-textarea" id="st-names" aria-label="座位表花名册" style="min-height:120px;margin-top:12px"></textarea>
                 <p style="font-size:12px;color:var(--muted);margin:8px 0 0">空格/逗号/换行分隔。修改后点击「随机排座」生效。</p>
             </details>
             <div class="ct-seating-stage">
                 <div class="ct-seating-front">讲台</div>
-                <div class="ct-seating-grid" id="st-grid"></div>
-                <p class="ct-seating-hint">点击两个座位互换 · 选中后再点别处取消</p>
+                <p class="ct-seating-hint">选择两个座位互换 · 再选一次或按 Esc 取消<br>座位较多时，可左右滑动查看。</p>
+                <div class="ct-seat-scroll" tabindex="0" aria-label="座位画布，可横向滚动"><div class="ct-seating-grid" id="st-grid"></div></div><p id="seat-status" role="status" class="sr-only"></p>
             </div>
         </div>`;
 
@@ -1499,11 +1522,11 @@ function mountSeating(root) {
     }
 
     function render() {
-        grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+        grid.style.gridTemplateColumns = `repeat(${cols}, minmax(64px, 1fr))`;
         grid.innerHTML = layout.map((n, i) => {
             const empty = !n ? ' empty' : '';
             const sel = i === selectedIdx ? ' selected' : '';
-            return `<div class="ct-seat${empty}${sel}" data-idx="${i}">${n ? `<span>${escapeHtml(n)}</span>` : '<i class="ph ph-armchair"></i>'}</div>`;
+            return `<button type="button" class="ct-seat${empty}${sel}" data-idx="${i}" aria-pressed="${i === selectedIdx}" aria-label="第 ${Math.floor(i / cols) + 1} 排第 ${i % cols + 1} 列，${escapeHtml(n || '空座')}" title="${escapeHtml(n || '空座')}">${n ? `<span>${escapeHtml(n)}</span>` : '<i class="ph ph-armchair"></i>'}</button>`;
         }).join('');
     }
 
@@ -1522,6 +1545,16 @@ function mountSeating(root) {
             selectedIdx = null;
         }
         render();
+        grid.querySelector(`[data-idx="${idx}"]`)?.focus({ preventScroll: true });
+        root.querySelector('#seat-status').textContent = selectedIdx === null ? '座位操作已完成' : '已选中座位，请再选一个座位进行交换';
+    });
+    grid.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            const idx = selectedIdx;
+            selectedIdx = null; render();
+            grid.querySelector(`[data-idx="${idx}"]`)?.focus({ preventScroll: true });
+            root.querySelector('#seat-status').textContent = '已取消选择';
+        }
     });
 
     root.querySelector('#st-shuffle').addEventListener('click', generate);
@@ -1538,18 +1571,18 @@ function mountWhiteboard(root) {
         <div class="ct-wb-wrap">
             <div class="ct-wb-toolbar">
                 <div class="ct-wb-colors">
-                    <button data-color="#1a1612" class="active" style="background:#1a1612"></button>
-                    <button data-color="#c0392b" style="background:#c0392b"></button>
-                    <button data-color="#2c5282" style="background:#2c5282"></button>
-                    <button data-color="#2d6a4f" style="background:#2d6a4f"></button>
-                    <button data-color="#b08642" style="background:#b08642"></button>
-                    <button data-color="#7c3aed" style="background:#7c3aed"></button>
+                    <button type="button" aria-label="黑色画笔" aria-pressed="true" data-color="#1a1612" class="active" style="background:#1a1612"></button>
+                    <button type="button" aria-label="红色画笔" aria-pressed="false" data-color="#c0392b" style="background:#c0392b"></button>
+                    <button type="button" aria-label="蓝色画笔" aria-pressed="false" data-color="#2c5282" style="background:#2c5282"></button>
+                    <button type="button" aria-label="绿色画笔" aria-pressed="false" data-color="#2d6a4f" style="background:#2d6a4f"></button>
+                    <button type="button" aria-label="褐色画笔" aria-pressed="false" data-color="#b08642" style="background:#b08642"></button>
+                    <button type="button" aria-label="紫色画笔" aria-pressed="false" data-color="#7c3aed" style="background:#7c3aed"></button>
                 </div>
                 <div class="ct-wb-sizes">
-                    <button data-size="2"><span style="width:4px;height:4px"></span></button>
-                    <button data-size="4" class="active"><span style="width:8px;height:8px"></span></button>
-                    <button data-size="8"><span style="width:14px;height:14px"></span></button>
-                    <button data-size="16"><span style="width:20px;height:20px"></span></button>
+                    <button type="button" aria-label="画笔粗细 2" aria-pressed="false" data-size="2"><span style="width:4px;height:4px"></span></button>
+                    <button type="button" aria-label="画笔粗细 4" aria-pressed="true" data-size="4" class="active"><span style="width:8px;height:8px"></span></button>
+                    <button type="button" aria-label="画笔粗细 8" aria-pressed="false" data-size="8"><span style="width:14px;height:14px"></span></button>
+                    <button type="button" aria-label="画笔粗细 16" aria-pressed="false" data-size="16"><span style="width:20px;height:20px"></span></button>
                 </div>
                 <button class="ct-wb-btn" id="wb-eraser"><i class="ph ph-eraser"></i> 橡皮</button>
                 <button class="ct-wb-btn" id="wb-undo"><i class="ph ph-arrow-counter-clockwise"></i> 撤销</button>
@@ -1634,8 +1667,8 @@ function mountWhiteboard(root) {
 
     root.querySelectorAll('.ct-wb-colors button').forEach(b => {
         b.addEventListener('click', () => {
-            root.querySelectorAll('.ct-wb-colors button').forEach(x => x.classList.remove('active'));
-            b.classList.add('active');
+            root.querySelectorAll('.ct-wb-colors button').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
+            b.classList.add('active'); b.setAttribute('aria-pressed', 'true');
             color = b.dataset.color;
             erasing = false;
             root.querySelector('#wb-eraser').classList.remove('active');
@@ -1643,8 +1676,8 @@ function mountWhiteboard(root) {
     });
     root.querySelectorAll('.ct-wb-sizes button').forEach(b => {
         b.addEventListener('click', () => {
-            root.querySelectorAll('.ct-wb-sizes button').forEach(x => x.classList.remove('active'));
-            b.classList.add('active');
+            root.querySelectorAll('.ct-wb-sizes button').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
+            b.classList.add('active'); b.setAttribute('aria-pressed', 'true');
             size = Number(b.dataset.size);
         });
     });
@@ -1749,14 +1782,14 @@ function mountRubric(root) {
     root.innerHTML = `
         <div class="ct-rb-wrap">
             <div class="ct-rb-controls">
-                <select class="ct-rb-select" id="rb-tpl">
+                <select class="ct-rb-select" id="rb-tpl" aria-label="评价量规模板">
                     <option value="">载入模板…</option>
                     <option value="作文">作文评价</option>
                     <option value="口语表达">口语表达</option>
                     <option value="小组合作">小组合作</option>
                     <option value="空白">空白量规</option>
                 </select>
-                <select class="ct-rb-select" id="rb-lv">
+                <select class="ct-rb-select" id="rb-lv" aria-label="评价等级数量">
                     <option value="3">3 个等级</option>
                     <option value="4">4 个等级</option>
                 </select>
@@ -1856,7 +1889,7 @@ function mountRoutine(root) {
         grid.innerHTML = cols.map((col, i) => `<div class="ct-rt-col">
             <div class="ct-rt-col-head" style="background:${col.c}">${esc(col.t)}</div>
             <div class="ct-rt-col-sub">${esc(col.s)}</div>
-            <textarea class="ct-rt-area" data-i="${i}" placeholder="点此输入…">${esc(vals[i] || '')}</textarea>
+            <textarea aria-label="课堂活动第 ${i + 1} 项" class="ct-rt-area" data-i="${i}" placeholder="点此输入…">${esc(vals[i] || '')}</textarea>
         </div>`).join('');
     }
 
@@ -1876,7 +1909,7 @@ function mountRoutine(root) {
     return () => {};
 }
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

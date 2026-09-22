@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>h1 .site-copy-accent{font-style:italic;color:var(--brand)}</style>
 </head>
 <body>
@@ -48,6 +48,8 @@
 
     <!-- Feed selector -->
     <div class="filter-bar" id="feed-tabs"></div>
+    <div class="filter-bar" role="group" aria-label="资讯范围"><button type="button" class="filter-pill active" id="news-teaching" onclick="setNewsScope('teaching')">教师相关</button><button type="button" class="filter-pill" id="news-all" onclick="setNewsScope('all')">综合资讯</button></div>
+    <p style="font-size:13px;color:var(--muted)">教师相关按教育与课堂关键词筛选，阅读时请核对原文。</p>
 
     <!-- Status -->
     <div id="fetch-status" style="font-size:12px;color:var(--subtle);margin-bottom:20px"></div>
@@ -64,11 +66,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script>
 SiteCopy.load('news').then(copy => SiteCopy.applyToDocument('news', copy));
 
@@ -77,6 +81,15 @@ renderFooter();
 onAuthReady(user => { renderNav('news'); renderFooter(); });
 
 let currentFeedKey = 'qbitai';
+let newsScope = 'teaching';
+let currentNews = [];
+let newsLoadSequence = 0;
+function setNewsScope(scope) {
+    newsScope = scope;
+    document.getElementById('news-teaching').classList.toggle('active', scope === 'teaching');
+    document.getElementById('news-all').classList.toggle('active', scope === 'all');
+    renderItems(currentNews);
+}
 
 function buildFeedTabs() {
     document.getElementById('feed-tabs').innerHTML = Object.entries(RSS_FEEDS).map(([key, f]) =>
@@ -113,7 +126,12 @@ function renderItems(items) {
         </div>`;
         return;
     }
-    grid.innerHTML = items.map(item => {
+    const filtered = newsScope === 'all' ? items : items.filter(item => /教师|教学|课堂|学校|教育|教材|教研|学生|素养|learning science|education|teaching|classroom/i.test(item.title + ' ' + (item.description || '')));
+    if (!filtered.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;padding:32px"><p>该资讯源暂时没有匹配的教育内容。</p><button type="button" class="filter-pill" onclick="setNewsScope(\'all\')">查看综合资讯</button> <a href="/articles">阅读教学实践文章</a></div>';
+        return;
+    }
+    grid.innerHTML = filtered.map(item => {
         const date = (() => { try { return new Date(item.pubDate).toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric'}); } catch{return '近期';} })();
         const safeLink = SafeRender.safeUrl(item.link);
         if (!safeLink) return '';
@@ -132,6 +150,7 @@ function renderItems(items) {
 }
 
 async function loadNews(force = false) {
+    const sequence = ++newsLoadSequence;
     const status = document.getElementById('fetch-status');
     status.textContent = '正在获取最新资讯…';
     showSkeletons();
@@ -150,6 +169,8 @@ async function loadNews(force = false) {
     }
 
     const items = await fetchRSSFeed(currentFeedKey, 12);
+    if (sequence !== newsLoadSequence) return;
+    currentNews = items || [];
     icon.style.cssText = '';
     if (items) {
         status.textContent = `已加载 ${items.length} 条资讯 · 来源：${RSS_FEEDS[currentFeedKey].label}`;
@@ -164,7 +185,7 @@ function refresh() { loadNews(true); }
 buildFeedTabs();
 loadNews();
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

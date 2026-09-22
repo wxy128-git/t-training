@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>
         /* ===== 智能体空间 · 页面专属样式（现代教研工作台） ===== */
         .page-kicker { font-family: var(--font-mono); font-size: 10.5px; color: var(--brand); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 13px; font-weight: 600; }
@@ -292,11 +292,16 @@
         .ws-mini-btn.copied { color: var(--success); border-color: var(--success); }
         .ws-out-body { flex: 1; min-height: 0; overflow: auto; padding: 20px 22px; font-size: 14px; line-height: 1.85; color: var(--text); }
         .ws-out-body.placeholder { display: grid; place-items: center; text-align: center; color: var(--subtle); }
-        .ws-out-body.placeholder .ph { font-size: 50px; display: block; margin-bottom: 14px; opacity: .6; }
+        .ws-out-body.placeholder > div > .ph { font-size: 50px; display: block; margin-bottom: 14px; opacity: .6; }
         .ws-out-body[aria-busy="true"] { background: linear-gradient(110deg, var(--soft) 8%, #fff 18%, var(--soft) 33%); background-size: 240% 100%; animation: ws-loading 1.4s linear infinite; }
         @keyframes ws-loading { to { background-position-x: -240%; } }
         .ws-error-state { width: min(460px, 100%); margin: auto; padding: 20px; border: 1px solid #e4b8b3; border-radius: 10px; background: #fff7f6; text-align: left; }
-        .ws-error-state i { color: var(--danger) !important; margin: 0 0 9px !important; }
+        .ws-error-state > i { color: var(--danger); font-size: 28px; margin-bottom: 9px; }
+        .ws-error-state button i { color: inherit; font-size: 17px; margin: 0; display: inline; }
+        .ws-mini-btn:disabled { opacity: .5; cursor: not-allowed; }
+        .ws-stop { margin: 12px 18px; min-height: 44px; padding: 9px 16px; background: #fff; border: 1px solid var(--brand); color: var(--brand); border-radius: 8px; font: inherit; cursor: pointer; }
+        .ws-stop[hidden], #chat-stop[hidden] { display: none; }
+        .ws-preserved { padding: 12px; background: #edf4f7; color: #245b78; border-radius: 8px; }
         .ws-error-state b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 5px; }
         .ws-error-state p { margin: 0; color: var(--text); font-size: 12.5px; line-height: 1.65; }
         .ws-error-state button { margin-top: 12px; min-height: 40px; border: 1px solid var(--ink); border-radius: 7px; background: var(--ink); color: #fff; font: inherit; font-size: 12.5px; font-weight: 650; padding: 8px 13px; cursor: pointer; }
@@ -351,7 +356,7 @@
             .ws-wrap { padding-left: 16px; padding-right: 16px; }
             .ws-titles p { overflow-wrap: anywhere; }
             .ws-out-head { display: block; }
-            .ws-out-actions { margin: 12px 0 0; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .ws-out-actions { margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
             .ws-mini-btn { min-height: 44px; justify-content: center; white-space: nowrap; }
         }
 
@@ -522,6 +527,28 @@
         .project-actions .danger { margin-right: auto; color: var(--danger); }
         .project-actions .primary { border-color: var(--ink); background: var(--ink); color: #fff; font-weight: 700; }
         @media (max-width: 620px) { .project-grid { grid-template-columns: 1fr; } .project-field.wide { grid-column: auto; } .project-actions { flex-wrap: wrap; } .workflow-actions { display: grid; grid-template-columns: 1fr; } .workflow-actions button.primary { grid-row: 1; } }
+        @media (max-width: 680px) {
+            .agent-team-index { display: none; }
+            .agents-head { display: block; }
+            .page-title { font-size: 30px; }
+            .page-sub { margin-top: 10px; font-size: 14px; }
+            .agents-toolbar { margin-top: 20px; gap: 10px; }
+            .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; margin: 14px 0 22px; }
+            .filter-pill { flex-shrink: 0; }
+            .agent-member-portrait { aspect-ratio: 1.35; }
+            .agent-member-speech { display: none; }
+            .agent-member-name { font-size: 16px; }
+            .agent-member-role, .agent-member-action { font-size: 13px; }
+            .ws-top { padding-top: 20px; padding-bottom: 16px; }
+            .ws-identity, .ws-member-intro { min-width: 0; }
+            .ws-out-panel { height: auto; min-height: 340px; }
+            .ws-out-body { overflow: visible; min-height: 200px; font-size: 15px; padding: 18px 16px; }
+            .ws-out-body.md table { display: block; overflow-x: auto; max-width: 100%; }
+            .ws-out-actions { width: 100%; }
+            .ws-out-actions button { flex: 1 1 calc(50% - 8px); min-height: 44px; justify-content: center; }
+            .ws-edit-area { min-height: 420px; font-size: 16px; }
+            .ws-task-summary { font-size: 13px; }
+        }
     </style>
 </head>
 <body>
@@ -682,14 +709,18 @@
 <script src="/vendor/firebase/10.12.0/firebase-app-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script src="js/curriculum-guard.js?v=20260828-curriculum-gate"></script>
-<script src="js/agents-data.js?v=20260712-workbench"></script>
-<script src="js/teaching-projects.js?v=20260712-project-flow"></script>
+<script src="js/agents-data.js?v=20260922-email-required"></script>
+<script src="js/task-search.js?v=20260922-email-required"></script>
+<script src="js/agent-stream.js?v=20260922-email-required"></script>
+<script src="js/teaching-projects.js?v=20260922-email-required"></script>
 <script>
 /* ===================================================================
    智能体空间 · 页面逻辑
@@ -1214,9 +1245,9 @@ function renderHome() {
 function renderFiltered(q) {
     const list = AGENTS.filter(a => {
         const catOk = currentCat === 'all' || a.cat === currentCat;
-        const qOk = !q || (a.name + a.tagline + a.desc + (a.keywords || '')).toLowerCase().includes(q);
+        const qOk = TaskSearch.score(a, q) > 0;
         return catOk && qOk;
-    });
+    }).sort((a, b) => TaskSearch.score(b, q) - TaskSearch.score(a, q));
     document.getElementById('agent-count').textContent = `共 ${list.length} ${agentsPageCopy.memberCountUnit || '位数字成员'}`;
     const content = document.getElementById('agent-content');
     const category = currentCat === 'all' ? null : CAT_MAP[currentCat];
@@ -1226,7 +1257,7 @@ function renderFiltered(q) {
         : (category ? (CAT_SCOPES[category.key] || '') : '完整浏览数字教研团队');
     const head = `<div class="agent-results-head"><div><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(summary)}</p></div><button type="button" class="agent-results-back" onclick="setCat('all')"><i class="ph ph-arrow-left"></i>团队总览</button></div>`;
     if (!list.length) {
-        content.innerHTML = `${head}<div class="agent-grid"><div class="empty-hint"><i class="ph ph-users-three"></i><p>${escapeHtml(agentsPageCopy.emptyMessage)}</p></div></div>`;
+        content.innerHTML = `${head}<div class="agent-grid"><div class="empty-hint"><i class="ph ph-users-three"></i><p>${escapeHtml(agentsPageCopy.emptyMessage)}</p><p>试试“教案”“小组活动”或“评语”，也可以返回团队总览。</p><button type="button" class="filter-pill" onclick="setCat('all')">查看推荐任务</button></div></div>`;
         return;
     }
     content.innerHTML = `${head}<div class="agent-grid">${list.map(a => cardHtml(a)).join('')}</div>`;
@@ -1262,8 +1293,7 @@ function setAgentWorkStage(stage, agent = window._wsAgent, message = '') {
 function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {}) {
     const a = AGENTS.find(x => x.id === id);
     if (!a) return;
-    // 登录门禁：使用智能体需要登录
-    if (!skipGuard && typeof requireLogin === 'function' && !requireLogin(() => openAgent(id, true, historyMode, navigationState), '请先登录后使用智能体')) return;
+    // 任务简报公开预览，实际生成与保存时再登录。
 
     const nextHistoryState = { view: 'agent', agentId: id, ...navigationState };
     if (historyMode === 'push') history.pushState(nextHistoryState, '', '#' + id);
@@ -1472,6 +1502,7 @@ function buildForm(a) {
                     <button class="ws-mini-btn" onclick="runForm('${a.id}')"><i class="ph ph-arrows-clockwise"></i> 重新生成</button>
                 </div>
             </div>
+            <button type="button" id="stop-generation" class="ws-stop" hidden onclick="stopGeneration()"><i class="ph ph-stop-circle"></i> 停止生成</button>
             <div class="ws-task-summary" id="ws-task-summary" aria-live="polite"></div>
             <div class="ws-out-body placeholder" id="out-body" role="status" aria-live="polite" aria-busy="false">
                 <div class="ws-empty-delivery"><i class="ph ph-file-text"></i><b>${escapeHtml(deliverable)}将在这里交付</b><p>任务确认后，${escapeHtml(a.name)}会在这里提交初稿。</p></div>
@@ -1834,6 +1865,7 @@ function persistCurrentDraft(agent, statusText) {
     const ok = window.TeachingProjects?.saveDraft?.(agent.id, {
         inputs,
         result: _lastResult,
+        resultComplete: _resultComplete,
         projectId: project?.id || '',
         projectTitle: project?.title || '',
         review: currentReviewDecisions(),
@@ -1885,6 +1917,7 @@ function restoreAgentDraft(agent, draft) {
     applyInputValues(agent, draft.inputs || {}, true);
     _lastInputs = draft.inputs || null;
     _lastResult = draft.result || '';
+    _resultComplete = draft.resultComplete !== false;
     _lastWorkbookFingerprint = draft.workbookFingerprint || '';
     _lastWorkbookId = draft.workbookId || '';
     if (_lastResult) {
@@ -1893,7 +1926,8 @@ function restoreAgentDraft(agent, draft) {
         body.setAttribute('aria-busy', 'false');
         body.innerHTML = mdToHtml(_lastResult);
         document.getElementById('out-actions').style.display = 'flex';
-        showResultWorkflow(agent, draft);
+        if (_resultComplete) showResultWorkflow(agent, draft);
+        else { renderGenerationError(new Error('上次生成尚未完成，以下文字已保存在本机'), agent.id); syncGenerationUI(); }
         updateInputSummary(agent, _lastInputs || {});
     }
     updateDraftState(`已恢复 ${formatDraftTime(draft.updatedAt)} 的本地草稿`, true);
@@ -2202,6 +2236,11 @@ function performWorkflowTransition(pending) {
 }
 
 let _lastResult = '';
+let _resultComplete = true;
+let _activeGeneration = null;
+let _sourceWork = null;
+let _pendingGuestBrief = null;
+let _workImportSequence = 0;
 let _lastInputs = null;
 let _lastWorkbookFingerprint = '';
 let _lastWorkbookId = '';
@@ -2216,6 +2255,11 @@ function currentAuthUid() {
 
 function clearAgentWorkState(options = {}) {
     clearTimeout(_draftSaveTimer);
+    _activeGeneration?.abort(new Error('已停止生成'));
+    _activeGeneration = null;
+    _resultComplete = true;
+    _sourceWork = null;
+    _workImportSequence++;
     _formRunSeq++;
     _chatRunSeq++;
     _lastResult = '';
@@ -2251,6 +2295,17 @@ function hasAgentWorkState() {
 }
 
 function resetAgentWorkspaceForAuth(nextUid) {
+    const agent = window._wsAgent;
+    if (!_lastAuthUid && nextUid && agent && (_pendingGuestBrief?.agentId === agent.id || new URLSearchParams(location.search).has('work'))) {
+        const brief = _pendingGuestBrief;
+        _pendingGuestBrief = null;
+        if (agent.type === 'form') {
+            buildForm(agent);
+            if (brief) { applyInputValues(agent, brief.inputs, true); persistCurrentDraft(agent, '任务简报已保留，可以继续生成'); }
+        } else buildChat(agent);
+        return;
+    }
+    _pendingGuestBrief = null;
     const workspace = document.getElementById('view-workspace');
     const inWorkspace = workspace && workspace.style.display !== 'none';
     const shouldExitWorkspace = inWorkspace && (hasAgentWorkState() || !nextUid || !!_lastAuthUid);
@@ -2347,7 +2402,11 @@ function showInputValidation(result) {
     const body = document.getElementById('out-body');
     if (actions) actions.style.display = 'none';
     if (!body) return;
-    _lastResult = '';
+    if (_lastResult) {
+        renderGenerationError(new Error(result.message || '请调整当前输入后重试；下方保留上一份内容'), window._wsAgent.id);
+        syncGenerationUI();
+        return;
+    }
     body.className = 'ws-out-body md';
     body.setAttribute('role', 'alert');
     body.setAttribute('aria-busy', 'false');
@@ -2394,18 +2453,39 @@ function generationErrorDetails(error) {
     return { title: '本次生成没有完成', detail: message, action: '保留当前输入并重试' };
 }
 
+function stopGeneration() {
+    _activeGeneration?.abort(new Error('已停止生成'));
+}
+
+function syncGenerationUI() {
+    const busy = !!_activeGeneration;
+    const actions = document.getElementById('out-actions');
+    if (actions) {
+        actions.style.display = !busy && _lastResult ? 'flex' : 'none';
+        actions.querySelectorAll('button').forEach(button => { button.disabled = busy; });
+    }
+    const save = document.getElementById('save-btn');
+    if (save) { save.disabled = busy || !_resultComplete; save.title = _resultComplete ? '' : '内容未生成完整，可复制保留或重新生成'; }
+    const stop = document.getElementById('stop-generation');
+    if (stop) stop.hidden = !busy;
+    const run = document.getElementById('run-btn');
+    if (run) run.disabled = busy;
+}
+
 function renderGenerationError(error, aid) {
     const body = document.getElementById('out-body');
     const info = generationErrorDetails(error);
     const agent = AGENTS.find(item => item.id === aid);
-    body.className = 'ws-out-body placeholder';
+    body.className = 'ws-out-body' + (_lastResult ? ' md' : ' placeholder');
     body.setAttribute('role', 'alert');
     body.setAttribute('aria-busy', 'false');
-    body.innerHTML = `<div class="ws-error-state"><i class="ph ph-warning-circle"></i><b>${escapeHtml(info.title)}</b><p>${escapeHtml(info.detail)}</p><button type="button" onclick="runForm('${aid}')"><i class="ph ph-arrow-clockwise"></i> ${escapeHtml(info.action)}</button></div>`;
-    setAgentWorkStage('brief', agent, '本次处理没有完成，可以保留简报后重试');
+    const preserved = _lastResult ? `<p class="ws-preserved">${_resultComplete ? '下方保留上一份结果；本次重试未替换它。' : '以下是未完成的内容，仅保存在本机，可复制保留后重试。'}</p>${mdToHtml(_lastResult)}` : '';
+    body.innerHTML = `<div class="ws-error-state"><i class="ph ph-warning-circle"></i><b>${escapeHtml(error.cancelled ? '已停止生成' : info.title)}</b><p>${escapeHtml(info.detail)}</p><button type="button" onclick="runForm('${aid}')"><i class="ph ph-arrow-clockwise"></i> 重新生成</button></div>${preserved}`;
+    setAgentWorkStage('brief', agent, _lastResult && _resultComplete ? '本次处理未完成，上一份结果已保留' : '内容尚未完成，可以调整简报后重试');
 }
 
 async function runForm(aid) {
+    if (_activeGeneration) return false;
     const a = AGENTS.find(x => x.id === aid);
     const inputs = collectInputs(a);
     _lastInputs = inputs;
@@ -2422,8 +2502,18 @@ async function runForm(aid) {
         showToast(validation.toast || '当前输入不匹配，已停止生成');
         return false;
     }
-    if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return false;
+    if (!Auth.getCurrentUser()) {
+        _pendingGuestBrief = { agentId: aid, inputs };
+        requireLogin(null, '登录后可继续生成，已填写的任务会保留');
+        return false;
+    }
+    persistCurrentDraft(a); // 先保存手工编辑，重试不能覆盖上一份成果。
+    const previous = { result: _lastResult, complete: _resultComplete, fingerprint: _lastWorkbookFingerprint, id: _lastWorkbookId, review: currentReviewDecisions(), feedback: _resultFeedback };
+    const controller = new AbortController();
+    _activeGeneration = controller;
     updateInputSummary(a, inputs);
+    document.getElementById('ws-review-panel').hidden = true;
+    syncGenerationUI();
 
     const btn = document.getElementById('run-btn');
     const body = document.getElementById('out-body');
@@ -2438,24 +2528,24 @@ async function runForm(aid) {
     body.setAttribute('role', 'status');
     body.setAttribute('aria-busy', 'true');
     body.innerHTML = `<div class="ws-empty-delivery"><i class="ph ph-spinner-gap ph-spin"></i><b>${escapeHtml(a.name)}正在核对课程匹配</b><p>匹配通过后会继续形成${escapeHtml(agentDeliverable(a))}；如果学科或年级不合适，将停止生成。</p></div>`;
-    _lastResult = '';
-    _lastWorkbookFingerprint = '';
-    _lastWorkbookId = '';
     _editing = false;
     const editBtn = document.getElementById('edit-btn');
     if (editBtn) { editBtn.classList.remove('active'); editBtn.innerHTML = '<i class="ph ph-pencil-simple"></i> 编辑'; }
 
     try {
-        await callAgentAPI({
-            agent: a, inputs,
+        const result = await callAgentAPI({
+            agent: a, inputs, signal: controller.signal,
             onToken: (full) => {
                 if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return;
-                _lastResult = full;
                 body.className = 'ws-out-body md cursor-blink';
                 body.innerHTML = mdToHtml(full) + ' ';
             }
         });
         if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return false;
+        _lastResult = result;
+        _resultComplete = true;
+        _lastWorkbookFingerprint = '';
+        _lastWorkbookId = '';
         body.classList.remove('cursor-blink');
         body.setAttribute('aria-busy', 'false');
         body.innerHTML = mdToHtml(_lastResult);
@@ -2464,6 +2554,7 @@ async function runForm(aid) {
         showResultWorkflow(a, {});
         toggleInputPanel(false);
         persistCurrentDraft(a, '生成结果已自动保存');
+        document.dispatchEvent(new Event('teachingTaskCompleted'));
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于常用状态标签）
         if (window.Analytics) Analytics.track('agent_run', {
             feature: 'agents',
@@ -2477,13 +2568,18 @@ async function runForm(aid) {
         });
     } catch (e) {
         if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return false;
+        _lastResult = previous.result || e.partial || '';
+        _resultComplete = previous.result ? previous.complete : false;
+        _lastWorkbookFingerprint = previous.fingerprint;
+        _lastWorkbookId = previous.id;
+        if (_lastResult && _resultComplete) { showResultWorkflow(a, previous); restoreReviewState(aid, previous); }
         if (e.curriculum) {
             showInputValidation(e.curriculum);
             showToast(e.curriculum.toast || '课程匹配未通过，已停止生成');
         } else {
             renderGenerationError(e, aid);
         }
-        persistCurrentDraft(a, '输入已保留，可直接重试');
+        persistCurrentDraft(a, previous.result ? '上一份结果与当前输入已保留' : '当前输入和未完成内容已保存在本机');
         if (window.Analytics) Analytics.track('generation_failed', {
             feature: 'agents', targetId: aid, targetName: a?.name || '', meta: {
                 reason: generationErrorDetails(e).title,
@@ -2491,7 +2587,9 @@ async function runForm(aid) {
             }
         });
     }
+    if (_activeGeneration === controller) _activeGeneration = null;
     if (runSeq === _formRunSeq && currentAuthUid() === ownerUid) {
+        syncGenerationUI();
         btn.disabled = false; btn.innerHTML = `<i class="ph-fill ph-sparkle"></i> ${escapeHtml(agentRunLabel(a))}`;
     }
     return false;
@@ -2638,6 +2736,7 @@ document.addEventListener('keydown', e => {
 });
 
 async function saveToWorkbook(aid, options = {}) {
+    if (_activeGeneration || !_resultComplete) { showToast('内容尚未生成完整，请完成后再保存'); return false; }
     // 编辑态下先把最新文本存回
     if (_editing) { const ta = document.getElementById('edit-area'); if (ta) _lastResult = ta.value; }
     if (!_lastResult) { showToast('还没有可保存的内容'); return false; }
@@ -2666,7 +2765,7 @@ async function saveToWorkbook(aid, options = {}) {
             workType: 'draft',
             title,
             content: _lastResult,
-            inputs: workInputsWithProject(_lastInputs || {})
+            inputs: { ...workInputsWithProject(_lastInputs || {}), ...(_sourceWork ? { _sourceWorkId: _sourceWork.id } : {}) }
         });
         _lastWorkbookFingerprint = savingFingerprint;
         _lastWorkbookId = workId || '';
@@ -2759,7 +2858,8 @@ function buildChat(a) {
                 <div class="chat-input-bar">
                     <textarea id="chat-input" rows="1" placeholder="输入消息，Enter 发送 / Shift+Enter 换行"
                         oninput="autoGrow(this)" onkeydown="chatKey(event,'${a.id}')"></textarea>
-                    <button class="chat-send" id="chat-send" onclick="sendChat('${a.id}')"><i class="ph-fill ph-paper-plane-right"></i></button>
+                    <button type="button" id="chat-stop" class="ws-mini-btn" hidden onclick="stopGeneration()">停止</button>
+                    <button aria-label="发送消息" class="chat-send" id="chat-send" onclick="sendChat('${a.id}')"><i class="ph-fill ph-paper-plane-right"></i></button>
                 </div>
             </div>
         </div>
@@ -2796,9 +2896,12 @@ async function sendChat(aid) {
     const a = AGENTS.find(x => x.id === aid);
     const input = document.getElementById('chat-input');
     const text = input.value.trim();
-    if (!text) return;
+    if (!text || _activeGeneration) return;
     if (typeof requireLogin === 'function' && !requireLogin(null, '请先登录后使用智能体')) return;
 
+    const controller = new AbortController();
+    _activeGeneration = controller;
+    const stop = document.getElementById('chat-stop'); if (stop) stop.hidden = false;
     document.getElementById('chat-starters')?.remove();   // 发首条后收起引导问题
     pushChat('user', text, a);
     _chatHistory.push({ role: 'user', content: text });
@@ -2814,7 +2917,7 @@ async function sendChat(aid) {
     const ownerUid = currentAuthUid();
     try {
         await callAgentAPI({
-            agent: a, inputs: {}, history: _chatHistory,
+            agent: a, inputs: {}, history: _chatHistory, signal: controller.signal,
             onToken: (full) => {
                 if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
                 assistantText = full; target.innerHTML = mdToHtml(full); stream.scrollTop = stream.scrollHeight;
@@ -2834,10 +2937,12 @@ async function sendChat(aid) {
         if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
         const last = _chatHistory[_chatHistory.length - 1];
         if (last?.role === 'user' && last.content === text) _chatHistory.pop();
-        target.innerHTML = `<span style="color:var(--brand)">出错了：${escapeHtml(e.message || '服务暂时不可用')}</span>`;
+        target.innerHTML = `${e.partial ? mdToHtml(e.partial) : ''}<p role="alert" style="color:var(--brand)">本次内容未完成：${escapeHtml(e.message || '服务暂时不可用')}</p>`;
         updateChatActions();
     }
+    if (_activeGeneration === controller) _activeGeneration = null;
     if (runSeq === _chatRunSeq && currentAuthUid() === ownerUid) {
+        if (stop) stop.hidden = true;
         target.parentElement.parentElement.classList.remove('cursor-blink');
         sendBtn.disabled = false;
         input.focus();
@@ -2921,6 +3026,7 @@ function copyChatTranscript(aid) {
 }
 
 function clearChat(aid) {
+    if (_activeGeneration) { showToast('请先停止生成再清空对话'); return; }
     if (_chatHistory.length && !confirm('确定清空当前对话吗？')) return;
     const a = AGENTS.find(x => x.id === aid);
     _chatHistory = [];
@@ -2937,7 +3043,7 @@ function clearChat(aid) {
    （由 functions/api/agent.js 持模型密钥转发，密钥永不出现在前端）
    前端只负责：① 组装发给模型的消息  ② 带上登录令牌  ③ 读流式纯文本
    =================================================================== */
-async function callAgentAPI({ agent, inputs, history, onToken }) {
+async function callAgentAPI({ agent, inputs, history, onToken, signal }) {
     // ① 组装消息
     let messages;
     const projectContext = window.TeachingProjects?.contextLines?.() || [];
@@ -2949,7 +3055,7 @@ async function callAgentAPI({ agent, inputs, history, onToken }) {
                     ...history.map(h => ({ role: h.role, content: h.content }))];
     } else {
         messages = [{ role: 'system', content: systemContent },
-                    { role: 'user', content: buildUserPrompt(agent, inputs) }];
+                    { role: 'user', content: buildUserPrompt(agent, inputs) + (_sourceWork ? `\n\n以下为教师选中的原稿，请依据本次任务修改并输出完整新版本：\n${_sourceWork.content.slice(0, 60000)}` : '') }];
     }
 
     // ② 登录令牌（后端据此校验，防止接口被盗刷）
@@ -2957,17 +3063,9 @@ async function callAgentAPI({ agent, inputs, history, onToken }) {
     try { idToken = await Auth.getIdToken(); } catch {}
 
     const curriculum = agent.type === 'form' ? curriculumContext(agent, inputs) : null;
-    const res = await fetch('/api/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, idToken, agentId: agent.id, curriculum })
-    });
-    if (!res.ok || !res.body) {
-        const err = await res.json().catch(() => ({}));
-        const error = new Error(err.msg || `请求失败（${res.status}）`);
-        if (err.curriculum) error.curriculum = err.curriculum;
-        throw error;
-    }
+    return AgentStream.request({
+        payload: { messages, idToken, agentId: agent.id, curriculum }, signal, onToken,
+        onResponse: res => {
     const provider = res.headers.get('X-Agent-Provider');
     const model = res.headers.get('X-Agent-Model');
     const fallbackFrom = res.headers.get('X-Agent-Fallback-From');
@@ -2976,18 +3074,8 @@ async function callAgentAPI({ agent, inputs, history, onToken }) {
     const modelLabel = providerLabel && model ? `${providerLabel} · ${model}` : (providerLabel || model || '');
     if (modelLabel) setAgentModelLabel(fallbackLabel ? `${modelLabel}（由 ${fallbackLabel} 回退）` : modelLabel);
 
-    // ③ 读取后端转发的纯文本增量流
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let full = '';
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        full += decoder.decode(value, { stream: true });
-        onToken(full);
-    }
-    if (!full.trim()) throw new Error('模型没有返回内容，请稍后重试');
-    return full;
+        }
+    });
 }
 
 // 把表单输入拼成一段给模型的提示
@@ -3050,16 +3138,55 @@ window.addEventListener('hashchange', () => {
     else if (document.getElementById('view-workspace').style.display !== 'none') backToHome();
 });
 
+async function loadRequestedWork(user) {
+    const id = new URLSearchParams(location.search).get('work');
+    if (!id || !user || !window._wsAgent || _sourceWork?.id === id) return;
+    const sequence = ++_workImportSequence;
+    const agent = window._wsAgent;
+    const owner = user.uid;
+    const run = document.getElementById('run-btn');
+    if (run) run.disabled = true;
+    try {
+        const works = await DB.getMyWorks(owner);
+        if (sequence !== _workImportSequence || currentAuthUid() !== owner || window._wsAgent !== agent) return;
+        const work = works.find(item => item.id === id && item.agentId === agent.id);
+        if (!work) throw new Error('这份作品不存在或不属于当前账号');
+        _sourceWork = work;
+        if (agent.type === 'form') {
+            restoreAgentDraft(agent, { inputs: work.inputs || {}, result: work.content, resultComplete: true, review: work.inputs?._reviewDecisions || {}, updatedAt: work.updatedAt || work.createdAt });
+            persistCurrentDraft(agent, '已载入所选作品；修改后保存为新稿');
+        } else {
+            _chatHistory = [{ role: 'user', content: '请基于以下已有记录继续：\n' + work.content }];
+            document.getElementById('chat-stream').innerHTML = '';
+            pushChat('bot', work.content, agent);
+            updateChatActions();
+        }
+        const banner = document.getElementById('ws-origin');
+        banner.classList.add('active');
+        document.getElementById('ws-origin-title').textContent = '基于作品：' + work.title;
+        document.getElementById('ws-origin-action').textContent = '返回备课本';
+        document.getElementById('ws-origin-action').onclick = () => { location.href = '/workspace'; };
+    } catch (error) {
+        if (sequence !== _workImportSequence) return;
+        showToast('未能载入指定作品：' + error.message);
+        const body = document.getElementById('out-body');
+        if (body) { body.className = 'ws-out-body'; body.textContent = '未能载入所选作品，请返回备课本重新打开。'; }
+        return;
+    }
+    if (run) run.disabled = false;
+}
+
 document.addEventListener('authChanged', event => handleAgentAuthUser(event.detail));
-document.addEventListener('authRefresh', event => handleAgentAuthUser(event.detail));
+document.addEventListener('authRefresh', event => { handleAgentAuthUser(event.detail); loadRequestedWork(Auth.getCurrentUser()); });
 
 onAuthReady((user) => {
     handleAgentAuthUser(user);
+    loadRequestedWork(user);
     renderNav('agents');
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

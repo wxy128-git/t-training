@@ -1,0 +1,17 @@
+{
+  "baseCommit": "a33e07a",
+  "unpublished": true,
+  "resourceVersion": "20260921-account-quality",
+  "serviceWorker": "20260921-v20",
+  "sha256": {
+    "js/auth.js": "c80d78ed5ea037a4b7bfe162e44473ee27c33e6cb5a08d27823a8772ffced6a2",
+    "js/assistant.js": "1535abeb2995492af9b988d244c92b693d2bcda5baa4603bccdb0048308f4c51",
+    "js/agents-data.js": "f7a6c796c37edac464d3a7e6f002b9e5af7d9f275ac7b041cb37e9d012760a56",
+    "css/style.css": "555670035667a2873139079e46483e04bece308b96340065bdf381693a52bc98",
+    "agents.html": "fff8ca3d02f9d26395dbe1ece8d044230a477b2dbb9f20e273c36c80e1c9fb2f",
+    "workspace.html": "5e3201409eaca40172b5f5df580f02cc386cd1c90db80cdc466cc381c1c65aad",
+    "functions/api/auth-proxy.js": "49f8db9f6add96ed7db52716a7ffb9e64f46a5dbb2655f5b0d0dd31151a62b6a",
+    "scripts/serve.mjs": "7304e0df864636447ef318a6214ddae7c3a131f5d45bdc066da179e57e8956dc",
+    "sw.js": "630e5c5ed067e83a8dff53e2e5c6cbddd41e66211a481f12accb0aef1d0390ba"
+  }
+}

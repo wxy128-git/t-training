@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>
         .mm-wrap { max-width: 1240px; margin: 0 auto; padding: 48px 24px 88px; }
         .mm-hero { padding: 20px 0 56px; border-bottom: 1px solid var(--line); }
@@ -217,7 +217,7 @@
                 <a class="mm-secondary" href="/tools"><i class="ph ph-toolbox"></i><span data-site-copy="secondaryAction">找生成工具</span></a>
             </div>
         </div>
-        <button type="button" class="mm-feature" onclick="openCaseModal('poem-image')" aria-label="查看古诗意境导入图案例">
+        <button type="button" class="mm-feature" onclick="openCase('poem-image')" aria-label="查看古诗意境导入图案例">
             <img src="多模态素材/poem-landscape-web.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
             <span class="mm-feature-caption"><span><small data-site-copy="featureKicker">本期案例 · 语文</small><b data-site-copy="featureTitle">古诗意境导入图</b></span><span><span data-site-copy="featureAction">查看成品、步骤与提示词</span> <i class="ph ph-arrow-right"></i></span></span>
         </button>
@@ -267,11 +267,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script>
 SiteCopy.load('multimodal').then(copy => SiteCopy.applyToDocument('multimodal', copy));
 
@@ -484,33 +486,14 @@ function audioCaseMarkup(c, mode = 'thumb') {
     </div>`;
 }
 
-async function getAudioPeaks(src, bins = 180) {
+async function getAudioPeaks(src) {
     if (AUDIO_WAVEFORM_CACHE.has(src)) return AUDIO_WAVEFORM_CACHE.get(src);
-    const task = (async () => {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) throw new Error('AudioContext unavailable');
-        const response = await fetch(src);
-        if (!response.ok) throw new Error(`Audio HTTP ${response.status}`);
-        const context = new AudioContextClass();
-        try {
-            const decoded = await context.decodeAudioData(await response.arrayBuffer());
-            const peaks = new Array(bins).fill(0);
-            for (let channel = 0; channel < decoded.numberOfChannels; channel++) {
-                const samples = decoded.getChannelData(channel);
-                for (let bin = 0; bin < bins; bin++) {
-                    const start = Math.floor(bin * samples.length / bins);
-                    const end = Math.max(start + 1, Math.floor((bin + 1) * samples.length / bins));
-                    let peak = 0;
-                    for (let i = start; i < end; i += 2) peak = Math.max(peak, Math.abs(samples[i]));
-                    peaks[bin] = Math.max(peaks[bin], peak);
-                }
-            }
-            const maxPeak = Math.max(...peaks, .001);
-            return peaks.map(peak => peak / maxPeak);
-        } finally {
-            context.close().catch(() => {});
-        }
-    })();
+    const task = fetch('assets/audio/campus-science-peaks.json?v=20260921').then(async response => {
+        if (!response.ok) throw new Error('波形预览暂不可用');
+        const data = await response.json();
+        if (data.audio !== src || !Array.isArray(data.peaks)) throw new Error('尚未生成该音频的波形');
+        return data.peaks;
+    });
     AUDIO_WAVEFORM_CACHE.set(src, task);
     return task;
 }
@@ -605,7 +588,7 @@ function visualMarkup(c, mode = 'thumb') {
     }
     if (c.video) {
         const detailAttrs = mode === 'detail' ? 'controls muted autoplay loop ' : 'muted ';
-        const preload = mode === 'detail' ? 'auto' : 'metadata';
+        const preload = mode === 'detail' ? 'metadata' : 'none';
         const posterAttr = c.image ? ` poster="${escapeHtml(c.image)}"` : '';
         const badge = mode === 'thumb' ? '<span class="mm-video-badge"><i class="ph-fill ph-play"></i> 视频预览</span>' : '';
         return `<video ${detailAttrs}playsinline preload="${preload}" src="${escapeHtml(c.video)}"${posterAttr} aria-label="${escapeHtml(c.videoAlt || c.title)}"></video>${badge}`;
@@ -713,7 +696,7 @@ renderFooter();
 renderCases();
 onAuthReady(() => { renderNav('multimodal'); renderFooter(); });
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

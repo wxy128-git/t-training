@@ -48,6 +48,10 @@ function documentToTool(document) {
         color: cleanText(firestoreScalar(fields.color) || 'text-blue-500', 80),
         bg: cleanText(firestoreScalar(fields.bg) || 'bg-blue-50', 80),
         category: cleanText(firestoreScalar(fields.category) || 'more', 80),
+        taskCategory: cleanText(firestoreScalar(fields.taskCategory), 30),
+        tags: cleanText(firestoreScalar(fields.tags), 120),
+        fit: cleanText(firestoreScalar(fields.fit), 240),
+        reviewedAt: cleanText(firestoreScalar(fields.reviewedAt), 10),
         order: Number(firestoreScalar(fields.order))
     };
     if (!tool.id || !tool.name || !/^https?:\/\//i.test(tool.url)) return null;

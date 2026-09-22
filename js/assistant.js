@@ -589,8 +589,8 @@
     }
 
     function openContactModal() {
-        const user = requireRegisteredUser(() => openContactModal());
-        if (!user) return;
+        const user = getCurrentUser();
+        if (!user) { showAuthModal('help'); return; }
         if (!contactModal) buildContactModal();
         contactReturnFocus = document.activeElement;
         prefillContactForm(user);

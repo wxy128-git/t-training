@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createReadStream, existsSync, statSync } from 'node:fs';
-import { createServer } from 'node:http';
+import { createServer, request as httpRequest } from 'node:http';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,6 +13,11 @@ const valueAfter = (flag, fallback) => {
 };
 const host = valueAfter('--host', '127.0.0.1');
 const port = Number(valueAfter('--port', '8765'));
+const apiOriginValue = valueAfter('--api-origin', '');
+const apiOrigin = apiOriginValue ? new URL(apiOriginValue) : null;
+if (apiOrigin && (apiOrigin.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(apiOrigin.hostname) || apiOrigin.pathname !== '/' || apiOrigin.username || apiOrigin.password || apiOrigin.search || apiOrigin.hash)) {
+    throw new Error('--api-origin 仅允许无路径、无凭据的本机 HTTP 地址');
+}
 const types = {
     '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
@@ -93,6 +98,22 @@ function resolveRequest(pathname) {
 const server = createServer(async (request, response) => {
     const url = new URL(request.url || '/', `http://${request.headers.host || `${host}:${port}`}`);
     if (url.pathname.startsWith('/api/')) {
+        if (apiOrigin) {
+            const upstream = httpRequest(new URL(url.pathname + url.search, apiOrigin), {
+                method: request.method, headers: { ...request.headers, host: apiOrigin.host }
+            }, result => {
+                response.writeHead(result.statusCode, result.headers);
+                result.on('error', error => response.destroy(error));
+                result.pipe(response);
+            });
+            upstream.on('error', () => {
+                if (!response.headersSent) response.writeHead(502, { 'Content-Type':'application/json' });
+                response.end(JSON.stringify({ok:false,msg:'本地测试 API 连接失败'}));
+            });
+            response.once('close', () => { if (!response.writableFinished) upstream.destroy(); });
+            request.pipe(upstream);
+            return;
+        }
         try {
             await handleLocalApi(request, response, url);
         } catch (error) {
@@ -121,4 +142,5 @@ const server = createServer(async (request, response) => {
 server.listen(port, host, () => {
     console.log(`本地预览：http://${host}:${port}`);
     console.log('支持 /agents 等无后缀路由；按 Ctrl+C 停止。');
+    if (apiOrigin) console.log(`测试 API 转发已启用：${apiOrigin.origin}，请求会使用该服务的真实数据。`);
 });

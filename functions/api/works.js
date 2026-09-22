@@ -1,3 +1,4 @@
+import '../../js/account-policy.js';
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
 const FIREBASE_AUTH_BASE = 'https://identitytoolkit.googleapis.com/v1';
@@ -168,6 +169,7 @@ async function requireUser(idToken) {
         error.statusCode = 401;
         throw error;
     }
+    globalThis.AccountPolicy.assertVerifiedEmail(user);
     return user;
 }
 
@@ -405,6 +407,7 @@ export async function onRequestPost({ request, env }) {
     } catch (error) {
         return jsonResponse(error.statusCode || 500, {
             ok: false,
+            code: error.code,
             msg: error.message || '备课本服务暂时不可用'
         });
     }

@@ -40,18 +40,22 @@ for (const file of publicPages) {
 for (const file of appPages) {
     const html = text(file);
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
-    if (!/css\/style\.css\?v=20260823-content-team-workbook/.test(html)) fail(file, '样式缓存版本未统一');
-    if (!/js\/firebase-config\.js\?v=20260822-phase1/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20260823-content-team-workbook/.test(html)) fail(file, '认证脚本缓存版本未统一');
-    if (!/js\/assistant\.js\?v=20260821-tencent/.test(html)) fail(file, '网站向导缓存版本未统一');
+    if (!/css\/style\.css\?v=20260922-email-required/.test(html)) fail(file, '样式缓存版本未统一');
+    if (!/js\/firebase-config\.js\?v=20260922-email-required/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
+    if (!/js\/auth\.js\?v=20260922-email-required/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/assistant\.js\?v=20260922-email-required/.test(html)) fail(file, '网站向导缓存版本未统一');
+    if (!/js\/account-policy\.js\?v=20260922-email-required/.test(html)
+        || !/js\/email-gate\.js\?v=20260922-email-required/.test(html)
+        || html.indexOf('js/account-policy.js') > html.indexOf('js/firebase-config.js')
+        || html.indexOf('js/email-gate.js') < html.indexOf('js/auth.js')) fail(file, '邮箱策略或完善窗口缺失、加载顺序不正确');
 }
 
 for (const file of dataPages) {
-    if (!/js\/data\.js\?v=20260823-page-copy/.test(text(file))) fail(file, '数据脚本缓存版本未统一');
+    if (!/js\/data\.js\?v=20260922-email-required/.test(text(file))) fail(file, '数据脚本缓存版本未统一');
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!/js\/site-copy\.js\?v=20260824-agent-directory/.test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!/js\/site-copy\.js\?v=20260922-email-required/.test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -76,8 +80,8 @@ for (const file of pwaPages) {
     if (!/viewport-fit=cover/.test(html)) fail(file, 'PWA 页面 viewport 未适配设备安全区');
     if (!/display-mode:\s*standalone/.test(html)) fail(file, '缺少安装态首帧识别');
     if (!/<meta\s+name="mobile-web-app-capable"\s+content="yes">/i.test(html)) fail(file, '缺少标准移动 Web App 声明');
-    if (!/css\/pwa\.css\?v=20260822-phase1/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
-    if (!/js\/pwa\.js\?v=20260822-phase1/.test(html)) fail(file, 'PWA 脚本缓存版本未统一');
+    if (!/css\/pwa\.css\?v=20260922-email-required/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
+    if (!/js\/pwa\.js\?v=20260922-email-required/.test(html)) fail(file, 'PWA 脚本缓存版本未统一');
 }
 
 const pwaSource = text('js/pwa.js');
@@ -139,7 +143,7 @@ if (!/js\/curriculum-guard\.js\?v=20260828-curriculum-gate/.test(agentsHtml) || 
 if (/教材校验章|ws-textbook-locator|curriculumConfirmed|textbook-catalog\.js/.test(agentsHtml)) {
     fail('agents.html', '旧教材校验章或教材版本前置字段仍然存在');
 }
-if (!/JSON\.stringify\(\{ messages, idToken, agentId: agent\.id, curriculum \}\)/.test(agentsHtml) || !/error\.curriculum/.test(agentsHtml)) {
+if (!/payload: \{ messages, idToken, agentId: agent\.id, curriculum \}/.test(agentsHtml) || !/error\.curriculum/.test(text('js/agent-stream.js'))) {
     fail('agents.html', '课程上下文提交或后端拦截反馈链路不完整');
 }
 if (!existsSync(join(root, 'js/curriculum-guard.js'))) fail('js/curriculum-guard.js', '课程知识判断引擎缺失');
@@ -166,11 +170,17 @@ if (!/localApiModules/.test(previewServerSource) || !/\/api\/auth-proxy/.test(pr
 const pathsHtml = text('paths.html');
 if (!/PATH_PROGRESS_PREFIX/.test(pathsHtml) || !/step-complete-btn/.test(pathsHtml) || !/path-continue/.test(pathsHtml)) fail('paths.html', '学习路径续学或完成进度功能不完整');
 const offlineHtml = text('offline.html');
-if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20260822-phase1/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
+if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20260922-email-required/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260828-v18/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 课程匹配守卫缓存未更新');
+if (!/20260922-v21/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+for (const module of ['account-policy', 'email-gate']) {
+    if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
+}
+for (const module of ['agent-stream', 'task-search']) {
+    if (!agentsHtml.includes(`js/${module}.js?v=20260922-email-required`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
+}
 
 const loginTransitionSource = text('js/auth.js');
 if (/showWelcomeOverlay\('login'/.test(loginTransitionSource)) fail('js/auth.js', '登录成功仍使用短暂全屏欢迎层');

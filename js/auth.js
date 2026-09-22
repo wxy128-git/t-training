@@ -1,5 +1,8 @@
 /* ===== Auth 操作（Firebase） ===== */
 
+// 公开的账号恢复收件邮箱，由站点负责人确认后配置；不能使用管理员登录占位邮箱。
+const ACCOUNT_SUPPORT_EMAIL = '';
+
 function escapeAuthHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -70,7 +73,7 @@ function getStoredProxyAuthSession(options = {}) {
     return null;
 }
 
-const AUTH_PROXY_TIMEOUT_MS = 8000;
+const AUTH_PROXY_TIMEOUT_MS = 20000;
 
 function shouldUseAuthProxyFirst(action = 'login') {
     // 国内网络下浏览器直连 Firebase Auth 可能长时间无响应；登录和注册都优先走同源代理。
@@ -107,26 +110,34 @@ async function callAuthProxy(action, payload, options = {}) {
         const error = new Error(data.msg || '认证代理请求失败');
         error.code = data.code || 'AUTH_PROXY_ERROR';
         error.status = response.status;
+        error.retryAfter = data.retryAfter;
+        error.reauthRequired = data.reauthRequired === true;
         throw error;
     }
-    if (data.idToken && data.user?.uid) {
-        rememberProxyAuthSession(data, options.persistent !== false);
+    if (options.expectedUid && _currentUser?.uid !== options.expectedUid) return { ok: false, stale: true };
+    if (data.user?.uid) {
+        const existing = getStoredProxyAuthSession({ allowExpired: true });
+        if (data.idToken) rememberProxyAuthSession(data, options.persistent !== false);
+        else if (existing?.user?.uid === data.user.uid) {
+            const storage = existing.persistent ? localStorage : sessionStorage;
+            try { storage.setItem(window.PROXY_AUTH_SESSION_KEY, JSON.stringify({ ...existing, user: data.user })); } catch {}
+        }
         rememberUserProfile(data.user.uid, data.user);
         _currentUser = data.user;
         rememberLastAuthUser(_currentUser);
         document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
     }
-    return { ok: true, viaProxy: true, msg: data.msg || '' };
+    return { ok: true, viaProxy: true, msg: data.msg || '', user: data.user, sentTo: data.sentTo, retryAfter: data.retryAfter, alreadyVerified: data.alreadyVerified };
 }
 
 async function refreshProxyAuthSession() {
     const session = getStoredProxyAuthSession({ allowExpired: true });
     if (!session?.refreshToken) return null;
     try {
-        await callAuthProxy('refresh', { refreshToken: session.refreshToken }, { persistent: session.persistent });
+        await callAuthProxy('refresh', { refreshToken: session.refreshToken }, { persistent: session.persistent, expectedUid: session.user?.uid });
         return getStoredProxyAuthSession();
     } catch(e) {
-        forgetProxyAuthSession();
+        if (_currentUser?.uid === session.user?.uid) forgetProxyAuthSession();
         throw e;
     }
 }
@@ -146,7 +157,8 @@ function syncFirebaseAuthAfterProxy(authEmail, password, remember) {
 
 const Auth = {
     getCurrentUser() { return _currentUser; },
-    isAdmin() { return _currentUser?.isAdmin === true; },
+    isAdmin() { return AccountPolicy.isAdmin(_currentUser); },
+    canUseFeatures() { return AccountPolicy.hasVerifiedEmail(_currentUser); },
     async getIdToken() {
         const proxySession = getStoredProxyAuthSession();
         if (proxySession?.idToken) return proxySession.idToken;
@@ -160,7 +172,7 @@ const Auth = {
         const { authEmail, isPhone } = parseIdentifier(identifier);
         // 手机号账号用的是占位邮箱（tel_…@xylaoshi.tel），无法收信，只能找管理员重置。
         if (isPhone) {
-            return { ok: false, msg: '手机号注册的账号无法通过邮件重置密码，请用「联系我们」联系管理员协助重置。' };
+            return { ok: false, needsSupport: true, msg: '手机号账号需要管理员核验后协助恢复，请查看下方账号求助方式。' };
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail)) {
             return { ok: false, msg: '请输入有效的邮箱地址' };
@@ -176,8 +188,9 @@ const Auth = {
             await auth.sendPasswordResetEmail(authEmail);
             return { ok: true, msg: '如果该邮箱已注册，密码重置链接将发送到邮箱，请留意收件箱和垃圾邮件箱。' };
         } catch(e) {
+            if (e.code === 'auth/user-not-found') return { ok: true, msg: '如果该邮箱已注册，密码重置链接将发送到邮箱，请留意收件箱。' };
             const msgs = {
-                'auth/user-not-found': '该邮箱尚未注册，请确认邮箱或先注册账号',
+                'auth/user-not-found': '如果该邮箱已注册，密码重置链接将发送到邮箱，请留意收件箱。',
                 'auth/invalid-email': '邮箱格式不正确',
                 'auth/missing-email': '请输入邮箱地址',
                 'auth/too-many-requests': '请求过于频繁，请稍后再试',
@@ -231,15 +244,14 @@ const Auth = {
     async register(name, identifier, school, password) {
         if (!name || !identifier || !password) return { ok: false, msg: '请填写所有必填项' };
         const { authEmail, isPhone, phone } = parseIdentifier(identifier);
-        if (isPhone && !/^1[3-9]\d{9}$/.test(phone)) return { ok: false, msg: '请输入有效手机号' };
-        if (!isPhone && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail)) return { ok: false, msg: '请输入有效邮箱或手机号' };
+        if (!AccountPolicy.realEmail(identifier)) return { ok: false, msg: '注册必须填写能够接收邮件的真实邮箱' };
         if (password.length < 6) return { ok: false, msg: '密码至少 6 位' };
         const userData = {
             name,
             email: isPhone ? '' : authEmail,
             phone: phone || '',
             school: school || '',
-            isAdmin: authEmail === ADMIN_EMAIL,
+            isAdmin: false,
             joinedAt: new Date().toISOString()
         };
         if (shouldUseAuthProxyFirst('register')) {
@@ -274,7 +286,7 @@ const Auth = {
             } catch(e) {
                 console.warn('saveUserProfile:', e.message);
             }
-            _currentUser = { uid: cred.user.uid, ...userData };
+            _currentUser = { uid: cred.user.uid, ...userData, emailVerified: false };
             rememberLastAuthUser(_currentUser);
             document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
             return { ok: true };
@@ -305,6 +317,13 @@ const Auth = {
     }
 };
 
+// 显式共享认证接口；顶层 const 不会成为 window 的属性。
+window.SiteAuth = Object.freeze({
+    getCurrentUser: () => Auth.getCurrentUser(),
+    canUseFeatures: () => Auth.canUseFeatures(),
+    getIdToken: () => Auth.getIdToken()
+});
+
 /* ===== 登录门禁 ===== */
 const PROTECTED_PAGE_NAMES = new Set([
     'workspace.html',
@@ -321,6 +340,7 @@ function promptLoginRequired(message = '请先登录后使用该功能') {
 function requireLogin(onReady, message = '请先登录后使用该功能') {
     const user = Auth.getCurrentUser();
     if (user) {
+        if (!Auth.canUseFeatures()) { window.syncEmailGate?.(); return null; }
         if (typeof onReady === 'function') onReady(user);
         return user;
     }
@@ -328,6 +348,7 @@ function requireLogin(onReady, message = '请先登录后使用该功能') {
         showToast('正在确认登录状态...');
         onAuthReady(readyUser => {
             if (readyUser) {
+                if (!Auth.canUseFeatures()) { window.syncEmailGate?.(); return; }
                 if (typeof onReady === 'function') onReady(readyUser);
             } else {
                 promptLoginRequired(message);
@@ -468,7 +489,7 @@ function renderNav(currentPage) {
     <a class="skip-link" href="#main-content">跳到主要内容</a>
     <header class="site-header">
         <div class="site-header-inner">
-            <a href="/" class="site-logo">
+            <a href="/" class="site-logo" aria-label="AI 教师培训中心首页">
                 <div class="site-logo-icon"><i class="ph-fill ph-graduation-cap" style="color:white;font-size:18px"></i></div>
                 <div class="site-logo-text hm"><strong>AI 教师培训中心</strong></div>
             </a>
@@ -627,18 +648,28 @@ function showAuthModal(tab) {
                 <p class="modal-footer-text">还没有账号？<button onclick="switchAuthTab('register')">立即注册</button></p>
             </div>
             <div id="form-fp" class="modal-body" role="tabpanel" aria-labelledby="tab-li" style="display:none">
-                <p style="font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:16px">输入注册时使用的<strong>邮箱</strong>，我们会把密码重置链接发到你的邮箱，按邮件指引设置新密码即可。</p>
-                <div class="form-group"><label class="form-label" for="fp-email">注册邮箱</label><input type="email" id="fp-email" class="form-input" autocomplete="email" maxlength="254" placeholder="your@email.com" onkeydown="if(event.key==='Enter')handleForgotPassword()"></div>
+                <h3 style="margin-bottom:12px">找回账号</h3>
+                <p style="font-size:14px;color:var(--text-soft);line-height:1.7;margin-bottom:16px">邮箱账号可接收重置邮件；手机号账号需由管理员核验后协助恢复。两种方式都不需要先登录。</p>
+                <div class="form-group"><label class="form-label" for="fp-email">注册邮箱或手机号</label><input type="text" id="fp-email" class="form-input" autocomplete="username" maxlength="254" placeholder="输入注册邮箱或手机号" oninput="syncRecoveryAction()" onkeydown="if(event.key==='Enter')handleForgotPassword()"></div>
                 <div id="fp-msg" role="status" aria-live="polite" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="fp-btn" onclick="handleForgotPassword()">发送重置邮件</button></div>
+                <div id="fp-support" class="account-support" hidden></div>
+                <p class="modal-footer-text"><button type="button" onclick="switchAuthTab('help')">无法收邮件或需要其他帮助？</button></p>
                 <p class="modal-footer-text"><button onclick="switchAuthTab('login')">← 返回登录</button></p>
+            </div>
+            <div id="form-help" class="modal-body" role="tabpanel" aria-labelledby="tab-help" style="display:none">
+                <h3 id="tab-help" tabindex="-1">账号与使用帮助</h3>
+                <p style="margin:12px 0;font-size:14px;line-height:1.8">登录不了也可以求助。邮箱账号可先尝试重置密码；手机号账号、邮箱无法收信等情况，请联系管理员核验。</p>
+                <div id="help-support" class="account-support"></div>
+                <p class="modal-footer-text"><button type="button" onclick="switchAuthTab('forgot')">重置密码 / 查找账号恢复方式</button></p>
+                <p class="modal-footer-text"><button type="button" onclick="switchAuthTab('login')">← 返回登录</button></p>
             </div>
             <div id="form-rg" class="modal-body" role="tabpanel" aria-labelledby="tab-rg" style="display:none">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="form-group"><label class="form-label" for="rg-name">姓名 *</label><input type="text" id="rg-name" class="form-input" autocomplete="name" maxlength="80" required aria-required="true" placeholder="您的姓名"></div>
                     <div class="form-group"><label class="form-label" for="rg-school">学校/单位</label><input type="text" id="rg-school" class="form-input" autocomplete="organization" maxlength="120" placeholder="所在单位"></div>
                 </div>
-                <div class="form-group"><label class="form-label" for="rg-email">邮箱或手机号 *</label><input type="text" id="rg-email" class="form-input" autocomplete="username" maxlength="254" required aria-required="true" placeholder="your@email.com 或 13800138000"></div>
+                <div class="form-group"><label class="form-label" for="rg-email">邮箱 *</label><input type="email" id="rg-email" class="form-input" autocomplete="email" inputmode="email" maxlength="254" required aria-required="true" aria-describedby="rg-email-hint" placeholder="填写您能收到邮件的邮箱"><p id="rg-email-hint" class="auth-email-hint">注册后需要点击邮件中的验证链接，才能使用网站功能。邮箱也用于找回密码。</p></div>
                 <div class="form-group"><label class="form-label" for="rg-pwd">密码 *</label><input type="password" id="rg-pwd" class="form-input" autocomplete="new-password" minlength="6" maxlength="128" required aria-required="true" placeholder="至少 6 位"></div>
                 <div id="rg-err" class="form-error" role="alert" aria-live="assertive" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="rg-btn" onclick="handleRegister()">创建账号</button></div>
@@ -666,28 +697,55 @@ function closeAuthModal() {
 }
 
 function switchAuthTab(tab) {
-    const views = { login: 'form-li', register: 'form-rg', forgot: 'form-fp' };
+    const views = { login: 'form-li', register: 'form-rg', forgot: 'form-fp', help: 'form-help' };
     Object.entries(views).forEach(([key, id]) => {
         const el = document.getElementById(id);
         if (el) el.style.display = (key === tab) ? '' : 'none';
     });
     // 「忘记密码」沿用登录页签的高亮（它是登录流程的分支，不单独占一个页签）
-    const activeTab = (tab === 'forgot') ? 'login' : tab;
+    const activeTab = (tab === 'forgot' || tab === 'help') ? 'login' : tab;
     const li = document.getElementById('tab-li'); if (li) li.className = 'modal-tab' + (activeTab === 'login' ? ' active' : '');
     const rg = document.getElementById('tab-rg'); if (rg) rg.className = 'modal-tab' + (activeTab === 'register' ? ' active' : '');
     li?.setAttribute('aria-selected', String(activeTab === 'login'));
     rg?.setAttribute('aria-selected', String(activeTab === 'register'));
     const title = document.getElementById('auth-modal-title');
-    if (title) title.textContent = tab === 'register' ? '注册账号' : (tab === 'forgot' ? '重置密码' : '账户登录');
+    if (title) title.textContent = tab === 'help' ? '账号与使用帮助' : (tab === 'register' ? '注册账号' : (tab === 'forgot' ? '找回账号' : '账户登录'));
     if (tab === 'forgot') {
         // 把登录框里已输入的邮箱带过来，省去重复输入
         const liEmail = document.getElementById('li-email')?.value.trim();
         const fpEmail = document.getElementById('fp-email');
         if (fpEmail && liEmail && !fpEmail.value) fpEmail.value = liEmail;
         const fpMsg = document.getElementById('fp-msg'); if (fpMsg) fpMsg.style.display = 'none';
+        syncRecoveryAction();
     }
+    if (tab === 'help') renderAccountSupport(document.getElementById('help-support'));
     const firstField = document.querySelector(`#${views[tab]} input:not([type="checkbox"]), #${views[tab]} select`);
-    setTimeout(() => firstField?.focus(), 30);
+    setTimeout(() => (firstField || document.getElementById('tab-help'))?.focus(), 30);
+}
+
+function renderAccountSupport(container) {
+    if (!container) return;
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ACCOUNT_SUPPORT_EMAIL) && !/@xylaoshi\.tel$/i.test(ACCOUNT_SUPPORT_EMAIL);
+    const account = document.getElementById('fp-email')?.value.trim() || '';
+    const subject = 'AI 教师培训中心：账号恢复求助';
+    const body = `我的注册账号：${account}\n可联系我的方式：\n遇到的问题：\n\n请协助核验账号归属。`;
+    container.innerHTML = `<p><strong>联系管理员</strong></p>${valid ? `<a class="account-support-link" href="mailto:${encodeURIComponent(ACCOUNT_SUPPORT_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}">${escapeAuthHtml(ACCOUNT_SUPPORT_EMAIL)}</a><button type="button" class="account-support-copy" onclick="copyAccountSupport(this)">复制邮箱</button><p>点击邮箱可打开邮件应用，也可以复制后自行发信。页面不会自动发送邮件。</p>` : '<p role="status">账号恢复邮箱暂未配置，请联系本次培训的组织者协助。此处不要求登录。</p>'}<p>请说明注册账号、可联系你的方式和遇到的问题。管理员核验归属后处理；不要发送密码、验证码、身份证照片或学生资料。</p>`;
+}
+
+function syncRecoveryAction() {
+    const input = document.getElementById('fp-email');
+    const button = document.getElementById('fp-btn');
+    const panel = document.getElementById('fp-support');
+    if (!input || !button || !panel) return;
+    const phone = parseIdentifier(input.value).isPhone || /^tel_.*@xylaoshi\.tel$/i.test(input.value.trim());
+    button.textContent = phone ? '查看账号求助方式' : '发送重置邮件';
+    panel.hidden = !phone;
+    if (phone) renderAccountSupport(panel);
+}
+
+async function copyAccountSupport(button) {
+    try { await navigator.clipboard.writeText(ACCOUNT_SUPPORT_EMAIL); button.textContent = '已复制'; }
+    catch { showToast('暂时无法自动复制，请长按上方邮箱复制'); }
 }
 
 // 登录/注册成功后，原地更新导航/页脚（不整页 reload）
@@ -758,7 +816,8 @@ async function handleLogin() {
         closeAuthModal();
         refreshAuthUI();
         document.dispatchEvent(new CustomEvent('authRefresh', { detail: _currentUser }));
-        showToast(userName ? `登录成功，欢迎回来，${userName}` : '登录成功，欢迎回来');
+        if (Auth.canUseFeatures()) showToast(userName ? `登录成功，欢迎回来，${userName}` : '登录成功，欢迎回来');
+        else window.syncEmailGate?.();
     } catch(error) {
         err.textContent = `登录失败：${error?.message || '请稍后重试'}`;
         err.style.display = '';
@@ -779,8 +838,10 @@ async function handleRegister() {
     try {
         const result = await Auth.register(name, identifier, school, pwd);
         if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
-        showWelcomeOverlay('register', name);
         closeAuthModal();
+        refreshAuthUI();
+        window.syncEmailGate?.();
+        await window.sendAccountVerification?.();
     } catch(error) {
         err.textContent = `注册失败：${error?.message || '请稍后重试'}`;
         err.style.display = '';
@@ -793,14 +854,22 @@ async function handleForgotPassword() {
     const email = document.getElementById('fp-email').value.trim();
     const msg = document.getElementById('fp-msg');
     const btn = document.getElementById('fp-btn');
+    if (btn.disabled) return;
     msg.style.display = 'none';
-    if (!email) { msg.className = 'form-error'; msg.textContent = '请输入邮箱地址'; msg.style.display = ''; return; }
+    if (!email) { msg.className = 'form-error'; msg.textContent = '请输入注册邮箱或手机号'; msg.style.display = ''; return; }
+    if (parseIdentifier(email).isPhone || /^tel_.*@xylaoshi\.tel$/i.test(email)) {
+        const panel = document.getElementById('fp-support');
+        panel.hidden = false; renderAccountSupport(panel); panel.scrollIntoView({ block: 'nearest' });
+        return;
+    }
     btn.disabled = true; btn.textContent = '发送中…';
-    const result = await Auth.sendPasswordReset(email);
-    btn.disabled = false; btn.textContent = '发送重置邮件';
-    msg.className = result.ok ? 'form-success' : 'form-error';
-    msg.textContent = result.msg;
-    msg.style.display = '';
+    try {
+        const result = await Auth.sendPasswordReset(email);
+        msg.className = result.ok ? 'form-success' : 'form-error';
+        msg.textContent = result.msg;
+        msg.style.display = '';
+    } catch { msg.className = 'form-error'; msg.textContent = '暂时无法发送，请稍后重试或使用账号求助方式。'; msg.style.display = ''; }
+    finally { btn.disabled = false; syncRecoveryAction(); }
 }
 
 /* ===== Toast ===== */
@@ -813,6 +882,8 @@ function showToast(msg) {
 
 /* ===== Footer 订阅 ===== */
 async function footerSubscribe() {
+    const button = document.querySelector('.subscribe-btn');
+    if (button?.disabled) return;
     if (!requireLogin(null, '请先登录后订阅动态')) return;
     const input = document.getElementById('footer-sub-email');
     if (!input) return;
@@ -821,6 +892,7 @@ async function footerSubscribe() {
         showToast('请输入有效邮箱地址');
         return;
     }
+    if (button) { button.disabled = true; button.textContent = '登记中…'; }
     try {
         const result = await DB.addSubscriber(email);
         if (result === 'exists') {
@@ -831,7 +903,7 @@ async function footerSubscribe() {
         }
     } catch(e) {
         showToast('订阅失败，请稍后重试');
-    }
+    } finally { if (button) { button.disabled = false; button.textContent = '登记'; } }
 }
 
 /* ===== Footer ===== */
@@ -858,7 +930,7 @@ function renderFooter() {
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>
             <div class="footer-col"><h4>内容更新</h4>
-                <p style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:14px">登记邮箱，接收后续内容更新。</p>
+                <p style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:14px">登记邮箱，邮件通知服务开放后接收更新。</p>
                 <div class="subscribe-form">
                     <label class="sr-only" for="footer-sub-email">邮箱地址</label>
                     <input class="subscribe-input" type="email" inputmode="email" autocomplete="email" id="footer-sub-email" placeholder="输入您的邮箱">

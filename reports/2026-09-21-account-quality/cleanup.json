@@ -1,0 +1,11 @@
+{
+  "cleaned": true,
+  "users": 2,
+  "documents": 5,
+  "modelCalls": 32,
+  "classificationCalls": 9,
+  "models": ["deepseek-v4-flash"],
+  "serverStopped": true,
+  "stagingRemoved": true,
+  "verification": "Firestore 删除后逐条 GET 返回 404；Authentication 删除后按测试 uid 查询为空。2 个作品文档（其中修订版已在功能测试中删除）、1 个订阅文档、2 个用户资料文档。"
+}

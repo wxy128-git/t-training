@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -92,7 +92,7 @@
             box-shadow: 0 0 0 3px var(--th-teal-soft);
         }
 
-        .th-hero { padding: 70px 0 64px; border-bottom: 1px solid var(--th-line); }
+        .th-hero { padding: 46px 0 42px; border-bottom: 1px solid var(--th-line); }
         .th-hero-grid { display: block; }
         .th-hero-main { max-width: 920px; }
         .th-eyebrow {
@@ -335,8 +335,8 @@
             .th-shell { width: min(100% - 32px, 1240px); }
             .th-system-bar { gap: 10px; }
             .th-system-bar > span:nth-child(2) { display: none; }
-            .th-hero { padding: 40px 0; }
-            .th-hero h1 { font-size: clamp(38px, 11vw, 52px); }
+            .th-hero { padding: 28px 0; }
+            .th-hero h1 { font-size: clamp(32px, 9vw, 44px); }
             .th-hero-copy { margin-top: 18px; font-size: 15px; }
             .th-hero-actions { margin-top: 22px; }
             .th-section { padding: 40px 0; }
@@ -453,15 +453,17 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
-<script src="js/agents-data.js?v=20260712-workbench"></script>
-<script src="js/teaching-projects.js?v=20260712-project-flow"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
+<script src="js/agents-data.js?v=20260922-email-required"></script>
+<script src="js/teaching-projects.js?v=20260922-email-required"></script>
 <script>
 renderNav('index');
 renderFooter();

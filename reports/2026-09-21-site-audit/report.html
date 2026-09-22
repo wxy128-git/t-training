@@ -1,0 +1,520 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>教师培训网站检查报告 · 2026-09-21</title><style>
+:root{color-scheme:light;--ink:#21313d;--muted:#596977;--line:#dce2e6;--accent:#b33d31}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:30px}body{margin:0;background:#f4f6f7;color:var(--ink);font:16px/1.85 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.top{background:#fff;border-top:5px solid var(--accent);border-bottom:1px solid var(--line);padding:18px max(24px,calc((100% - 1160px)/2));display:flex;gap:16px;justify-content:space-between;align-items:center}.top span{font-size:13px;color:var(--muted)}.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:36px;padding:32px}.toc{position:sticky;top:24px;align-self:start;font-size:13px}.toc strong{display:block;margin-bottom:14px}.toc a{display:block;padding:9px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--muted)}main{min-width:0;background:white;border:1px solid var(--line);border-radius:12px;padding:36px 44px 60px}h1{font-size:32px;line-height:1.4;letter-spacing:-.03em;margin:0 0 24px}h2{font-size:24px;line-height:1.5;margin:54px 0 20px;padding-top:18px;border-top:2px solid var(--line)}h3{font-size:21px;line-height:1.6;margin:34px 0 14px}p{margin:15px 0}strong{font-weight:650}a{color:#8e3127;text-underline-offset:3px}a:hover{color:#bd4b3e}a:focus-visible{outline:3px solid #246994;outline-offset:3px}code{font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;background:#f1f4f6;padding:2px 4px;border-radius:3px}.table-wrap{overflow-x:auto;margin:20px 0 30px}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8}th{text-align:left;background:#f1f4f6;white-space:nowrap}th,td{border:1px solid var(--line);padding:13px 14px;vertical-align:top}td:first-child{min-width:115px}td:last-child{min-width:76px}tr:nth-child(even) td{background:#fcfdfd}ul{padding-left:24px}.evidence{display:block;text-decoration:none;background:#f4f6f7;border:1px solid var(--line);border-radius:8px;padding:16px;margin:24px 0;text-align:center}.evidence img{display:block;max-width:100%;max-height:650px;width:auto;height:auto;margin:auto;border:1px solid var(--line)}.evidence span{display:block;font-size:13px;color:var(--muted);margin-top:12px}footer{max-width:1100px;margin:20px auto 40px;padding:0 28px;color:var(--muted);font-size:13px}@media(max-width:1000px){.layout{display:block;padding:20px}.toc{position:static;display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:24px}.toc strong{width:100%;margin:0}.toc a{border:0;padding:3px 0}main{padding:28px}h1{font-size:27px}}@media(max-width:600px){body{font-size:15px}.layout{padding:12px}.top{padding:12px 16px;display:block}.top span{display:block}.toc{padding:8px}.toc a{font-size:12px}main{padding:22px 16px;border-radius:8px}h1{font-size:25px}h2{font-size:21px}h3{font-size:18px}.table-wrap table{min-width:670px}.evidence{padding:8px}}@media print{body{background:#fff}.top,.toc{display:none}.layout{display:block;padding:0}main{border:0;padding:0}h2,h3{break-after:avoid}.table-wrap{overflow:visible}tr{break-inside:avoid}.evidence img{max-height:500px}a{color:inherit}}
+</style></head><body><div class="top"><strong>AI 教师培训中心 · 检查报告</strong><span>2026-09-21 · 仅检查，待你决定修改范围 · <a href="README.md">Markdown 原稿</a></span></div><div class="layout"><nav class="toc" aria-label="报告目录"><strong>报告目录</strong><a href="#s1">1. 总体判断</a><a href="#s2">2. 检查覆盖与边界</a><a href="#s3">3. 教师使用旅程中出现的问题</a><a href="#s4">4. 优先修复：5 项 P1</a><a href="#s5">5. 流程、内容和运营：12 项 P2</a><a href="#s6">6. 按方向选择：3 项 P3</a><a href="#s7">7. 建议实施顺序，供你决定</a><a href="#s8">8. 证据图册</a></nav><main><h1>教师培训网站：运行、体验与视觉检查</h1>
+<p>检查日期：2026 年 9 月 21 日（北京时间）<br>项目：AI 教师培训中心 · 本地版本 <code>a33e07a</code><br>线上检查地址：<a href="https://ai.teachailab.com/">ai.teachailab.com</a><br>本次交付：检查报告与截图证据。未修改网站代码，未发布。</p>
+<h2 id="s1">1. 总体判断</h2>
+<p>网站的基础结构和主要页面能够正常运行。现有红色品牌、教学任务分类、数字教师形象、备课本的阅读样式都有保留价值。当前最需要处理的是生成过程与草稿保护，然后是手机操作效率和内容质量；整体重做视觉的收益低于先修这些具体问题。</p>
+<p>共整理 <strong>20 项问题与改进建议：5 项 P1、12 项 P2、3 项 P3</strong>。其中既有已复现的功能故障，也有基于界面证据的体验建议，不能把它们都理解为线上故障。</p>
+<ul>
+<li><strong>P1：优先修复。</strong> 影响主要功能、已有成果或同设备账号隔离。</li>
+<li><strong>P2：下一批完善。</strong> 影响使用效率、学习连续性、内容可信度或运营判断。</li>
+<li><strong>P3：按产品方向选择。</strong> 视觉打磨、资讯定位与进一步性能优化。</li>
+</ul>
+<p>证据标记：<strong>线上实测</strong>＝在公开网站实际操作；<strong>本地复现</strong>＝真实前端/接口代码配合合成账号与模拟响应；<strong>代码确认</strong>＝从实现与规则发现矛盾，尚未在真实登录账号下提交验证；<strong>体验判断</strong>＝截图与操作观察支持的设计建议。</p>
+<h2 id="s2">2. 检查覆盖与边界</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>实际覆盖与结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>桌面与手机页面</td>
+<td>首页、智能体、多模态、课堂工具、AI 工具、资源、资讯、学习路径、文章列表、提示词、备课本，共 11 个主要页面；桌面 1440×1000、手机 390×844</td>
+</tr>
+<tr>
+<td>页面基础表现</td>
+<td>上述手机页面未发现整页横向溢出；抽查可见图片正常加载；公开页面可以打开</td>
+</tr>
+<tr>
+<td>智能体</td>
+<td>19 个工作区本地逐一打开，17 个表单型、2 个对话型；测试必填、学段冲突、成功生成、编辑保存、失败重试、截断响应与重复提交</td>
+</tr>
+<tr>
+<td>课堂工具</td>
+<td>9 个工具逐一打开；实操倒计时、随机点名、小组计分、随机分组、座位交换；点名使用虚构姓名，未操作真实学生名单</td>
+</tr>
+<tr>
+<td>多模态</td>
+<td>下方案例详情可打开关闭；音频预览载入正常，时长约 20 秒；主推案例按钮发现故障；未评估实际扬声器音质</td>
+</tr>
+<tr>
+<td>阅读与账户入口</td>
+<td>文章详情可阅读；学习步骤、提示词复制、联系我们的游客限制已检查；登录弹窗 Escape 关闭正常</td>
+</tr>
+<tr>
+<td>离线</td>
+<td>已访问并缓存的课堂工具页面在断网后可重新打开；这不代表在线 AI 或全部页面都能离线使用</td>
+</tr>
+<tr>
+<td>项目自动检查</td>
+<td><code>npm run check</code> 通过：站点 11 个公开页面 / 13 个应用页面检查、课程约束 13 个场景、函数 57 项断言、腾讯云适配 8 项断言</td>
+</tr>
+<tr>
+<td>线上回归脚本</td>
+<td><code>node scripts/check-production.mjs https://ai.teachailab.com/</code>：95 项断言通过</td>
+</tr>
+</tbody></table></div>
+<p>**未覆盖的部分：**真实账号的注册、邮件/手机账户恢复、真实云端保存和跨账号云数据权限、管理后台实际增删改、真实模型输出质量与计费、麦克风采集、原生 Word/PDF 打开与打印、真机 Safari/微信浏览器。没有调用付费模型，没有向生产站提交测试作品、订阅邮箱或联系留言。登录后生成及保存界面的检查使用本地合成数据，因此报告不会把这些结果表述成真实云端端到端验收。</p>
+<p>本报告是功能和产品体验检查，不是完整安全审计或无障碍合规认证。自动检查通过说明现有断言成立，不能覆盖本次发现的所有交互状态。</p>
+<h2 id="s3">3. 教师使用旅程中出现的问题</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>使用步骤</th>
+<th>当前表现</th>
+<th>关联问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① 找到教学任务</td>
+<td>手机首屏被介绍与筛选占用；照搜索框例句输入也可能无结果</td>
+<td>F06、F11</td>
+</tr>
+<tr>
+<td>② 了解并准备输入</td>
+<td>从目录点任务先要求登录，直接链接却可预览；学习内容展开也被登录拦截</td>
+<td>F09</td>
+</tr>
+<tr>
+<td>③ 生成教学材料</td>
+<td>手机端隐藏按钮失效，可重复生成；等待缺乏取消；截断响应被当作完成</td>
+<td>F02、F04</td>
+</tr>
+<tr>
+<td>④ 修改与重试</td>
+<td>再次生成失败会清掉已有结果；同浏览器切换账号可能恢复另一人的本地草稿</td>
+<td>F01、F03</td>
+</tr>
+<tr>
+<td>⑤ 收藏、复用、继续备课</td>
+<td>已保存作品缺少直接修改入口；继续操作未携带所选作品上下文</td>
+<td>F10、F12</td>
+</tr>
+<tr>
+<td>⑥ 持续学习与求助</td>
+<td>文章类别大量为空、路径材料不够对应；订阅与手机号恢复存在流程矛盾</td>
+<td>F07、F08、F14、F15</td>
+</tr>
+</tbody></table></div>
+<h2 id="s4">4. 优先修复：5 项 P1</h2>
+<h3 id="F01">F01 · 同一设备上，草稿没有正确按账号隔离</h3>
+<p><strong>证据：本地复现 + 代码确认。工作量：中。</strong></p>
+<p>草稿模块从 <code>window.Auth</code> 或 <code>window._currentUser</code> 读取用户，但实际认证脚本使用顶层 <code>const Auth</code> 和 <code>let _currentUser</code>，没有把它们挂到 <code>window</code>。本地检查中，认证 getter 返回 <code>audit-a</code>，草稿模块却返回 <code>guest</code>。</p>
+<p>复现：合成教师 A 填写专属草稿，切换合成教师 B，再打开同一工作区，仍恢复 A 的文字。下图的登录名是 B，输入框保留 A 的专属文本。<strong>风险限于同一浏览器的本地草稿/项目数据；本次没有发现或验证云端作品跨账号泄露。</strong></p>
+<p>**建议方案：**建立唯一的认证状态读取接口，草稿键使用真实 UID；退出和切换账号时清空当前界面并重新加载所属草稿。旧 <code>guest</code> 数据不能静默归入任意新登录用户，应提供明确的认领或清理方式。</p>
+<p>**验收：**A/B 切换、退出后游客浏览、游客再登录三个场景都不能自动显示他人草稿；刷新和重新打开自己的任务仍能恢复。</p>
+<p>定位：<code>js/teaching-projects.js:11–21</code>，<code>js/auth.js:147</code>，<code>js/firebase-config.js</code>。</p>
+<p><a class="evidence" href="screenshots/30-local-draft-account-switch.png" target="_blank"><img loading="lazy" src="screenshots/30-local-draft-account-switch.png" alt="本地合成账号 B 下恢复了 A 的草稿，非真实用户数据"><span>本地合成账号 B 下恢复了 A 的草稿，非真实用户数据 · 点击查看原图</span></a></p>
+<h3 id="F02">F02 · 手机端在不应出现时显示结果操作，可重复发起生成</h3>
+<p><strong>证据：线上实测 + 本地复现。工作量：中。</strong></p>
+<p>手机样式的 <code>display: grid !important</code> 覆盖了脚本的 <code>display:none</code>，导致尚未生成、校验失败和生成中仍显示保存、编辑、复制、重新生成按钮。线上故意输入学段冲突内容被正确拦截，但这些按钮仍然出现。本地给接口增加延迟，先点主生成按钮，再点仍可用的重新生成，记录到 <strong>2 次生成请求</strong>。</p>
+<p>**建议方案：**把“未生成 / 生成中 / 成功 / 失败”的显示和可操作性集中管理，移除覆盖隐藏状态的样式；所有生成入口共用请求锁。只有存在可用结果时显示保存/编辑/复制。</p>
+<p>**验收：**快速连点、不同入口交替点击都只能有一个有效请求；空结果无法保存；错误和等待状态按钮一致。修复后回归桌面端与手机端。</p>
+<p>定位：<code>agents.html:354</code>、<code>:1468</code>、<code>:2408</code>。</p>
+<p><a class="evidence" href="screenshots/28-validation-actions-mobile.png" target="_blank"><img loading="lazy" src="screenshots/28-validation-actions-mobile.png" alt="手机端校验失败后仍显示结果操作按钮"><span>手机端校验失败后仍显示结果操作按钮 · 点击查看原图</span></a></p>
+<h3 id="F03">F03 · 再次生成失败会丢掉上一份成功结果</h3>
+<p><strong>证据：本地复现 + 代码确认。工作量：中。</strong></p>
+<p>复现：先生成一份有效教案，再重新生成，让模拟接口返回 502。界面换成错误提示，保存到本地的结果字段也变成空字符串。错误提示却仍说输入和已有草稿已保存，会让教师误以为旧版本还在。</p>
+<p>**建议方案：**在新请求成功前保留上一份结果及教师修改；将“本次尝试失败”显示为独立提示，支持返回上一版。新版本完整到达后再替换，不在请求开始时清空正式草稿。</p>
+<p>**验收：**断网、502、超时、取消都不丢失上一次成功内容和手工编辑；刷新后仍可找回。</p>
+<p>定位：<code>agents.html:2393</code>、<code>:2441</code> 及错误后的草稿持久化逻辑。</p>
+<p>证据：<a href="screenshots/35-local-regeneration-error.png">重新生成失败界面</a>。该错误界面的重试图标还受到占位图标大字号样式影响，建议随错误状态一起调整。</p>
+<h3 id="F04">F04 · 流式响应中途断开，会被当作完整结果；等待缺少取消</h3>
+<p><strong>证据：真实接口代码的本地故障注入 + 本地界面复现。工作量：中至大。</strong></p>
+<p>后端读取上游流时吞掉异常，并正常关闭下游。用真实接口函数模拟“先返回一段文字，再断流”，下游仍得到 HTTP 200 和半段正文，没有错误信号。前端也把只写到“2. 能够”的示例判定为“已交付初稿，等待教师核验”，并开放保存。生成链路同时缺少明确的首字/空闲超时和用户停止操作。</p>
+<p>**建议方案：**流协议区分内容片段、完成和错误；只有收到明确完成标记才显示完成。中断时保留部分文本并标注“未完成”，提供重试；加入停止生成、首字超时与空闲超时，并向上游传递取消信号。与 F03 的版本保留一起设计。</p>
+<p>**验收：**首字前失败、输出中断、永不结束、主动取消、正常结束五类状态可以被可靠区分；部分内容不被自动标为完整交付。</p>
+<p>定位：<code>functions/api/agent.js:93–110</code>、<code>:407–430</code>，<code>agents.html:2940</code> 起。机器可读证据：<a href="stream-disconnection-evidence.json">断流测试结果</a>。</p>
+<p><a class="evidence" href="screenshots/36-local-partial-result.png" target="_blank"><img loading="lazy" src="screenshots/36-local-partial-result.png" alt="模拟半段内容仍显示已交付初稿"><span>模拟半段内容仍显示已交付初稿 · 点击查看原图</span></a></p>
+<h3 id="F05">F05 · 多模态工作坊的主推案例按钮无效</h3>
+<p><strong>证据：线上实测 + 代码确认。工作量：小。</strong></p>
+<p>点击页面顶部“古诗意境导入图”主推案例，控制台报 <code>ReferenceError: openCaseModal is not defined</code>，没有打开案例。原因是这里调用 <code>openCaseModal(&#39;poem-image&#39;)</code>，实际函数名为 <code>openCase</code>。下方卡片的“看步骤”能正常打开同一类详情。</p>
+<p>**建议方案：**统一为现有正确的打开函数或共用事件入口，主卡与列表卡共用相同案例数据。</p>
+<p>**验收：**主卡点击和键盘 Enter 都能打开指定案例；关闭后焦点回到原按钮。</p>
+<p>定位：<code>multimodal.html:220</code>、<code>:650</code>。证据：<a href="screenshots/05-multimodal-desktop.png">主推区域</a>、<a href="screenshots/37-multimodal-detail.png">可正常打开的下方案例详情</a>。</p>
+<h2 id="s5">5. 流程、内容和运营：12 项 P2</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>问题、证据与影响</th>
+<th>建议方案与验收</th>
+<th>工作量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>F06</strong></td>
+<td><strong>任务搜索与提示不匹配。</strong> 线上输入搜索框建议的“设计一场小组活动”，返回 0 项，尽管已有课堂活动设计助手。代码只做完整字符串包含匹配。</td>
+<td>加关键词拆分、任务同义词与简易排序；例句可点击试用；无结果时展示接近任务。验收以页面提供的全部示例及教师常用说法为准，无需增加模型费用。定位 <code>agents.html:1217</code>。<a href="screenshots/24-agent-search-empty.png">截图</a></td>
+<td>小至中</td>
+</tr>
+<tr>
+<td><strong>F07</strong></td>
+<td><strong>邮箱登记存在权限逻辑冲突。</strong> 代码先查询 subscribers 去重，仓库规则却仅允许管理员读取。按当前仓库规则，普通登录用户查询会被拒绝，无法进入新增步骤。未向生产提交邮箱，未核实生产所部署规则。</td>
+<td>通过服务端完成去重和登记，不开放邮箱列表读取权限；提示明确是“登记待通知”还是已经提供邮件服务。验收普通用户首次登记、重复登记、未登录和网络失败。定位 <code>js/data.js:836</code>、<code>js/auth.js:815</code>、<code>firestore.rules:213</code>。</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F08</strong></td>
+<td><strong>手机号账号的恢复求助入口形成循环。</strong> 密码恢复实现告诉手机账号用户“联系我们”，而游客点击“联系我们”实际打开注册/登录窗口；忘记密码页面只提供邮箱输入。</td>
+<td>为未登录用户提供可访问的账号恢复说明与支持渠道，采用独立身份核验流程；手机登录旁明确展示恢复入口。验收忘记手机账号密码的用户可在不登录的情况下发起求助。定位 <code>js/auth.js:159</code>、<code>js/assistant.js:591</code>。</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F09</strong></td>
+<td><strong>预览、学习、复制的登录门槛不一致。</strong> 线上从目录点任务被要求登录，直接进入任务链接却可看表单；学习路径写“登录后记录进度”，实际展开步骤也要求登录；公开可读的提示词点击复制又要求登录。</td>
+<td>建议允许公开内容阅读、任务表单预览和官方提示词复制；在 AI 生成、个人保存、进度同步、投稿时登录。若保留门槛，应提前准确说明，并在登录后自动继续刚才的动作。定位 <code>paths.html:345</code>、<code>prompts.html:183</code>。<a href="screenshots/25-directory-login-gate.png">目录登录门槛</a></td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F10</strong></td>
+<td><strong>备课本缺少保存后的修改与继续流程。</strong> 本地作品详情可阅读/导出，但没有直接修改正文入口。“继续用该智能体”只进入 <code>/agents#智能体ID</code>，没有携带选中作品 ID 或正文，不能保证继续的是这一份作品。</td>
+<td>增加“编辑此作品”“以此为基础继续”，把选中正文与原始输入显式带入，保存为新版本或明确覆盖；教师核验状态可更新。验收旧作品 A 在已有任务草稿 B 时继续，加载的必须是 A。定位 <code>workspace.html:1533</code>、<code>functions/api/works.js</code>。<a href="screenshots/33-local-work-detail-desktop.png">作品详情</a></td>
+<td>中至大</td>
+</tr>
+<tr>
+<td><strong>F11</strong></td>
+<td><strong>手机首屏用于介绍和筛选的空间过多。</strong> 智能体首个可用任务、工具页首个工具都靠近或低于首屏下缘；学习路径先堆叠三张大卡；课堂工具大卡单列滚动较长。页面没有横向溢出，但找任务仍慢。</td>
+<td>手机标题和介绍压缩；成员索引改成可展开；筛选合并为一行滚动标签；工具使用紧凑列表或合适的双列。目标是在 390×844 首屏看到搜索和至少一个可直接执行的任务，不能靠缩小字体达成。<a href="screenshots/14-agents-mobile.png">智能体</a> / <a href="screenshots/16-tools-mobile.png">工具</a> / <a href="screenshots/19-paths-mobile.png">路径</a></td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F12</strong></td>
+<td><strong>手机生成结果阅读区拥挤。</strong> 输出标题、操作、说明占据固定高度面板的大部分空间，正文形成小窗口和内外两层滚动；不利于读完整教案。</td>
+<td>手机上正文随内容自然伸展，或提供“展开阅读”视图；摘要/核验说明可折叠；保存、复制放在不遮正文的工具栏。验收长教案、表格、编辑和屏幕键盘打开时都能连续阅读。<a href="screenshots/31-local-result-mobile.png">结果区</a></td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F13</strong></td>
+<td><strong>工具目录出现重复和信息缺失。</strong> 线上“蝉镜AI数字人”重复两次，缺少费用/语言等标签并归到“更多工具”。这些标签依赖按名称写死的 <code>TOOL_META</code>，新增内容无法完整继承。</td>
+<td>用稳定 ID 和规范网址去重；任务、语言、费用、审核日期作为可维护的数据字段；空分类自动隐藏。验收新增工具后分类和标签完整、同名相同链接不重复。定位 <code>tools.html:181</code> 起。<a href="screenshots/29-tools-duplicate-mobile.png">重复卡片</a></td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F14</strong></td>
+<td><strong>学习路径与配套内容连接薄弱。</strong> 当前 3 篇文章都属“实战技巧”，其余四类为空；部分“阅读配套实践文章”只去文章总列表，找不到对应步骤材料。学习进度存在本机 localStorage，不是跨设备云同步。</td>
+<td>暂时隐藏空类或给出下一步推荐；每个路径步骤关联具体材料与一个可交付练习；明确进度仅存本机，或之后增加账号同步。验收每一步都能直达相关示例，空状态有有效去向。定位 <code>paths.html:226–270</code>。<a href="screenshots/38-empty-article-category.png">空分类</a></td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F15</strong></td>
+<td><strong>内容表达需要证据与边界。</strong> 页面有“歌曲记忆遗忘慢 3–5 倍”“2 小时教研抵半学期”等未显示来源的效果判断；部分模板鼓励填真实姓名；素材描述使用“无版权限制”等绝对表述。这里指出的是内容缺少依据与限定，未作具体授权法律判断。</td>
+<td>无依据的效果改为目标或场景示例，有数据则标出处和条件；示例统一用化名；素材卡链接各平台当前官方许可和适用范围；建立内容审核日期。验收每个量化效果都有依据或被改写。定位 <code>js/data.js:72</code>、<code>:78</code>、<code>:97</code>、<code>:100</code>、<code>:385–387</code>。</td>
+<td>中，需内容审核</td>
+</tr>
+<tr>
+<td><strong>F17</strong></td>
+<td><strong>部分课堂工具的键盘与读屏支持不足。</strong> 白板颜色/笔宽按钮无可理解名称；座位格是无 tabindex、无按钮语义的可点击 div；手机 6 列座位单格约 39px，长姓名截断。部分表单也缺少明确标签。</td>
+<td>为按钮补名称和选中状态；座位支持键盘选中/交换，手机提供横向座位画布或缩放并保留完整姓名查看；输入项补 label，动态结果提示状态。验收仅用键盘完成设置和交换，再做读屏抽查。此项不等同全站 WCAG 认证。<a href="screenshots/26-seating-mobile.png">座位表</a></td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>F18</strong></td>
+<td><strong>统计数据存在归类和身份丢失风险。</strong> 埋点也使用 <code>window.Auth</code>，本地已登录合成用户事件仍无身份；路径识别只匹配 <code>.html</code>，线上 <code>/agents</code> 等会归到 site；关闭安装提示产生的事件在线返回 400。</td>
+<td>统一认证读取；同时规范化无后缀和 <code>.html</code> 路径；前后端事件名单一致，并记录失败。验收登录/游客、主要入口、生成/保存、安装提示关闭均正确归类，不重复计数。定位 <code>js/analytics.js:43–72</code>、<code>functions/api/analytics.js</code>。</td>
+<td>中</td>
+</tr>
+</tbody></table></div>
+<h2 id="s6">6. 按方向选择：3 项 P3</h2>
+<h3 id="F16">F16 · 资讯应更贴近教师任务</h3>
+<p><strong>证据：线上内容观察。工作量：中，持续编辑投入另计。</strong></p>
+<p>默认资讯里混有汽车销售、企业动态等内容，和备课、教学评价、教师成长的直接关系较弱。页面看起来更新频繁，但教师需要自己筛选价值。<a href="screenshots/08-news-desktop.png">当前资讯截图</a></p>
+<p>建议默认提供“课堂实践 / 教研方法 / 教育政策 / 工具变化”栏目，每条增加简短的教师用途说明并保留原文链接；综合 AI 新闻作为可选栏目。先用少量人工精选验证使用价值，不必立即增加自动摘要模型成本。</p>
+<h3 id="F19">F19 · 保留品牌，统一视觉层级与阅读体验</h3>
+<p><strong>证据：桌面与手机截图对照。工作量：中；建议先选方向，再逐页调整。</strong></p>
+<p>当前红色品牌和偏纸面阅读感适合教育场景，建议保留。问题是不同页面的标题尺度、斜体强调、卡片密度、小字与操作层级不够一致；头像、介绍和装饰有时比教学任务更抢眼。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>视觉部位</th>
+<th>观察</th>
+<th>建议调整</th>
+<th>判断改善的标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>首页与列表首屏</td>
+<td>首页介绍较高，桌面右侧留白较大；手机主要内容出现偏晚</td>
+<td>压缩介绍高度，首屏突出“我要备课 / 出题 / 做课件”等已有任务入口；保留清晰留白</td>
+<td>用户无需先阅读长介绍即可开始；手机首屏有真实操作</td>
+</tr>
+<tr>
+<td>字号与颜色</td>
+<td>部分辅助文字很小且颜色浅，标题与说明比例差距过大</td>
+<td>建立少量统一字号；正文约 15–16px、说明约 12–13px，关键操作不使用弱对比；对真实配色做对比度检查</td>
+<td>普通浏览与 200% 放大时仍清楚；不用缩小字体换密度</td>
+</tr>
+<tr>
+<td>智能体卡片</td>
+<td>人物识别突出，任务与交付物信息相对分散</td>
+<td>保留人物但缩减手机头像占比，突出“适用任务、输出什么、开始”</td>
+<td>看卡片即可判断能否解决当前任务</td>
+</tr>
+<tr>
+<td>结果与错误状态</td>
+<td>信息框较多，手机正文拥挤；错误重试图标异常大</td>
+<td>以正文为中心，说明次级；统一按钮高度、图标 16–20px 和加载/错误样式</td>
+<td>状态变化不跳成另一套布局，错误提示仍有清晰下一步</td>
+</tr>
+<tr>
+<td>文章阅读</td>
+<td>大面积深色通用封面后连续出现两次相同大标题，正文被推到下方</td>
+<td>封面改为主题相关的小型示意或真实教学产物预览；正文去掉重复一级标题</td>
+<td>打开文章更快看到实质内容，标题层级清晰</td>
+</tr>
+<tr>
+<td>安装提示</td>
+<td>首次访问较早出现的底部浮层会遮住部分任务内容</td>
+<td>在首次完成任务后或回访时轻提示，保留导航中的主动安装入口</td>
+<td>新用户首次任务不被遮挡，提示可关闭并尊重选择</td>
+</tr>
+</tbody></table></div>
+<p>证据：<a href="screenshots/01-home-desktop.png">首页</a>、<a href="screenshots/03-agents-desktop.png">智能体桌面</a>、<a href="screenshots/14-agents-mobile.png">手机智能体</a>、<a href="screenshots/39-article-reading.png">文章重复标题</a>、<a href="screenshots/35-local-regeneration-error.png">错误样式</a>。</p>
+<p><strong>建议选择的整体方向：</strong>“清晰的教师工作台”。保留现有红色标识与人物，减少大标题和装饰占高，把任务、填写、结果、保存做成一致的操作语言。此处是方向建议，尚未生成新视觉稿或修改页面。</p>
+<h3 id="F20">F20 · 减少公共页无效请求和媒体预加载</h3>
+<p><strong>证据：浏览器请求观察 + 代码确认。工作量：中。</strong></p>
+<p>公共页面仍普遍加载认证/Firestore 相关脚本；多模态列表会为波形读取整段音频，并较早请求视频元信息；多个页面的 pageCopy 请求 404 后再使用默认文案，虽然页面可用，但增加错误噪声和回退路径。</p>
+<p>一次首页加载观察到文档首字节约 0.95 秒、DOMContentLoaded 约 1.81 秒、load 约 2.02 秒；后续页面受缓存和 Service Worker 影响。这些仅是本次浏览器样本，<strong>不能作为全国移动网络表现、Lighthouse 分数或性能百分位</strong>。本次没有证据表明需要整体重构。</p>
+<p>建议预生成音频波形，媒体按接近可见或用户操作延迟加载；公共数据走轻量公共接口，对个人能力按需初始化；文案“未配置覆盖值”使用明确的正常返回语义。验收应在固定设备、清缓存、固定网络条件下重复比较请求数、传输量和首屏可操作时间。</p>
+<p>定位：<code>multimodal.html:487–542</code>、公共脚本引用、<code>js/site-copy.js</code> 与 <code>/api/content</code> 回退逻辑。</p>
+<h2 id="s7">7. 建议实施顺序，供你决定</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>批次</th>
+<th>建议范围</th>
+<th>预期结果</th>
+<th>决策说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>A · 核心可靠性</strong></td>
+<td>F01–F05</td>
+<td>草稿不串账号、不因失败丢失，不重复生成，完整/中断状态明确，主推案例可点</td>
+<td>优先建议；包含前后端改动，F04 与 F03 应配套回归</td>
+</tr>
+<tr>
+<td><strong>B · 使用更顺畅</strong></td>
+<td>F06、F08–F12、F17</td>
+<td>找任务、预览、生成、阅读、继续修改构成连续流程</td>
+<td>需要确定公开内容的登录门槛；不必等待大改版</td>
+</tr>
+<tr>
+<td><strong>C · 内容与运营可信度</strong></td>
+<td>F07、F13–F16、F18</td>
+<td>分类不空转，工具不重复，描述有依据，统计能反映真实使用</td>
+<td>一部分是代码，一部分是持续编辑工作</td>
+</tr>
+<tr>
+<td><strong>D · 统一视觉与加载</strong></td>
+<td>F19、F20</td>
+<td>保留品牌，统一层级，手机首屏紧凑，减少非必要加载</td>
+<td>先确认“教师工作台”方向，再做首页、智能体、结果页三页样式样板</td>
+</tr>
+</tbody></table></div>
+<p>建议先做 <strong>A + F06</strong>，再处理手机端的 <strong>F11、F12</strong>。如果这次只想改善外观，可以先确认 F19 的方向，但这不能替代生成和草稿问题的修复。本报告中的小/中/大是相对改动范围，不是工期或费用承诺。</p>
+<h2 id="s8">8. 证据图册</h2>
+<p>所有截图都来自本次检查；带“本地”字样的使用虚构教师与示例内容。截图没有经过视觉修饰。点击图片链接可查看原图。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>页面或状态</th>
+<th>环境</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td><a href="screenshots/01-home-desktop.png">首页桌面与安装浮层</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="screenshots/02-task-preview-desktop.png">任务表单直接链接预览</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="screenshots/03-agents-desktop.png">智能体桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="screenshots/04-tools-desktop.png">工具目录桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="screenshots/05-multimodal-desktop.png">多模态桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="screenshots/06-classroom-tools-desktop.png">课堂工具桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="screenshots/07-resources-desktop.png">资源桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="screenshots/08-news-desktop.png">资讯桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="screenshots/09-paths-desktop.png">学习路径桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="screenshots/10-articles-desktop.png">文章列表桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="screenshots/11-prompts-desktop.png">提示词桌面</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="screenshots/12-workspace-desktop.png">游客备课本登录提示</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>13</td>
+<td><a href="screenshots/13-home-mobile.png">首页手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>14</td>
+<td><a href="screenshots/14-agents-mobile.png">智能体手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>15</td>
+<td><a href="screenshots/15-agents-lesson-design-mobile.png">任务表单手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>16</td>
+<td><a href="screenshots/16-tools-mobile.png">工具目录手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>17</td>
+<td><a href="screenshots/17-multimodal-mobile.png">多模态手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>18</td>
+<td><a href="screenshots/18-classroom-tools-mobile.png">课堂工具手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>19</td>
+<td><a href="screenshots/19-paths-mobile.png">学习路径手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>20</td>
+<td><a href="screenshots/20-prompts-mobile.png">提示词手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>21</td>
+<td><a href="screenshots/21-resources-mobile.png">资源手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>22</td>
+<td><a href="screenshots/22-news-mobile.png">资讯手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>23</td>
+<td><a href="screenshots/23-articles-mobile.png">文章列表手机</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>24</td>
+<td><a href="screenshots/24-agent-search-empty.png">任务搜索例句无结果</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>25</td>
+<td><a href="screenshots/25-directory-login-gate.png">从目录进入任务的登录门槛</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>26</td>
+<td><a href="screenshots/26-seating-mobile.png">手机座位表</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>28</td>
+<td><a href="screenshots/28-validation-actions-mobile.png">手机校验失败后的结果按钮</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>29</td>
+<td><a href="screenshots/29-tools-duplicate-mobile.png">重复的数字人工具卡片</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>30</td>
+<td><a href="screenshots/30-local-draft-account-switch.png">合成账号切换后恢复前一账号草稿</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>31</td>
+<td><a href="screenshots/31-local-result-mobile.png">手机生成结果阅读区</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>32</td>
+<td><a href="screenshots/32-local-workspace-desktop.png">示例作品列表</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>33</td>
+<td><a href="screenshots/33-local-work-detail-desktop.png">示例作品桌面详情</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>34</td>
+<td><a href="screenshots/34-local-work-detail-mobile.png">示例作品手机详情</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>35</td>
+<td><a href="screenshots/35-local-regeneration-error.png">重新生成失败</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>36</td>
+<td><a href="screenshots/36-local-partial-result.png">部分内容被标记交付</a></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>37</td>
+<td><a href="screenshots/37-multimodal-detail.png">可正常打开的多模态详情</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>38</td>
+<td><a href="screenshots/38-empty-article-category.png">空文章分类</a></td>
+<td>线上</td>
+</tr>
+<tr>
+<td>39</td>
+<td><a href="screenshots/39-article-reading.png">文章封面与重复标题</a></td>
+<td>线上</td>
+</tr>
+</tbody></table></div>
+<p>截图 27 是重复的校验过程截图，已用信息更完整的 28 替代，不作为交付保留。</p>
+</main></div><footer>现场截图与模拟测试已明确区分。所有建议尚未实施；本报告不代表生产登录链路与后台已经通过完整验收。</footer></body></html>

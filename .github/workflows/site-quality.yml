@@ -16,12 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Check site structure and security invariants
-        run: node scripts/check-site.mjs
-      - name: Test rendering and Pages Function behavior
-        run: node scripts/test-functions.mjs
-      - name: Test Tencent Cloud Node adapter
-        run: node scripts/test-tencent-server.mjs
+      - name: Check site and run all offline regressions
+        run: npm run check
       - name: Check browser JavaScript syntax
         shell: bash
         run: |

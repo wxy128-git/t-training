@@ -6,7 +6,7 @@
     <title>管理后台 · AI 教师培训中心</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
     <style>
         .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); }
         .admin-sidebar { background: var(--ink); padding: 24px 14px; position: sticky; top: 72px; height: calc(100vh - 72px); overflow-y: auto; }
@@ -141,7 +141,7 @@
             <h2 style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--ink);letter-spacing:-0.02em">管理员登录</h2>
             <p style="font-size:13px;color:var(--muted);margin-top:8px">仅限平台管理员访问</p>
         </div>
-        <div class="form-group"><label class="form-label">管理员邮箱</label><input type="email" id="gate-email" class="form-input" placeholder="admin@xylaoshi.com" value="admin@xylaoshi.com"></div>
+        <div class="form-group"><label class="form-label">管理员邮箱</label><input type="email" id="gate-email" class="form-input" autocomplete="username" placeholder="管理员当前绑定的邮箱"></div>
         <div class="form-group"><label class="form-label">密码</label><input type="password" id="gate-pwd" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')gateLogin()"></div>
         <div id="gate-err" class="form-error" style="display:none;margin-bottom:12px"></div>
         <button class="btn-primary" id="gate-btn" onclick="gateLogin()">进入管理后台</button>
@@ -436,6 +436,10 @@
                 </div>
             </div>
             <div class="form-group"><label class="form-label">工具链接 *</label><input type="url" id="tool-url" class="form-input" placeholder="https://"></div>
+            <div class="form-group"><label class="form-label" for="tool-task-category">教师任务分类</label><select id="tool-task-category" class="form-input"><option value="">沿用默认分类</option><option value="plan">备课与资料</option><option value="make">课件制作</option><option value="media">图片、视频与音频</option><option value="platform">平台与工作流</option><option value="more">其他</option></select></div>
+            <div class="form-group"><label class="form-label" for="tool-tags">语言与费用标签（逗号分隔，核实后填写）</label><input id="tool-tags" class="form-input" maxlength="120" placeholder="例如：中文，部分免费"></div>
+            <div class="form-group"><label class="form-label" for="tool-fit">适用教学任务</label><input id="tool-fit" class="form-input" maxlength="240"></div>
+            <div class="form-group"><label class="form-label" for="tool-reviewed-at">最近核对日期</label><input id="tool-reviewed-at" class="form-input" type="date"></div>
             <div class="form-group"><label class="form-label">工具描述 *</label><input type="text" id="tool-desc" class="form-input" placeholder="简短描述工具的核心功能"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <div class="form-group"><label class="form-label">图标</label>
@@ -657,10 +661,12 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
 let _adminCPs = [], _adminSubs = [], _adminArticles = [];
@@ -693,6 +699,11 @@ async function gateLogin() {
 
     await waitForAuth;
 
+    if (!Auth.canUseFeatures()) {
+        btn.disabled = false; btn.textContent = '进入管理后台';
+        window.syncEmailGate?.();
+        return;
+    }
     if (!Auth.isAdmin()) {
         err.textContent = '该账号没有管理员权限'; err.style.display = '';
         await Auth.logout();
@@ -1362,7 +1373,7 @@ function setToolIcon(val) {
 function openToolModal() {
     document.getElementById('tool-modal-title').textContent = '添加工具';
     document.getElementById('tool-edit-id').value = '';
-    ['tool-name','tool-url','tool-desc'].forEach(id => document.getElementById(id).value = '');
+    ['tool-name','tool-url','tool-desc','tool-tags','tool-fit','tool-reviewed-at','tool-task-category'].forEach(id => document.getElementById(id).value = '');
     setToolIcon('ph-robot');
     openModal('tool-modal');
 }
@@ -1375,6 +1386,10 @@ function editTool(i) {
     document.getElementById('tool-cat').value = t.category;
     document.getElementById('tool-url').value = t.url;
     document.getElementById('tool-desc').value = t.desc;
+    document.getElementById('tool-task-category').value = t.taskCategory || '';
+    document.getElementById('tool-tags').value = Array.isArray(t.tags) ? t.tags.join('，') : t.tags || '';
+    document.getElementById('tool-fit').value = t.fit || '';
+    document.getElementById('tool-reviewed-at').value = t.reviewedAt || '';
     setToolIcon(t.icon);
     openModal('tool-modal');
 }
@@ -1391,6 +1406,12 @@ async function saveTool() {
     const tools = [..._adminTools];
     const idx = document.getElementById('tool-edit-id').value;
     const item = { name, url: safeUrl, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, id: idx !== '' ? tools[parseInt(idx)].id : ('t' + Date.now()) };
+    item.taskCategory = document.getElementById('tool-task-category').value;
+    item.tags = document.getElementById('tool-tags').value.trim();
+    item.fit = document.getElementById('tool-fit').value.trim();
+    item.reviewedAt = document.getElementById('tool-reviewed-at').value;
+    const normalizedUrl = value => { try { const u = new URL(value); return u.hostname.toLowerCase() + u.pathname.replace(/\/+$/, ''); } catch { return value; } };
+    if (tools.some((t, i) => String(i) !== idx && t.name.trim().toLowerCase() === name.toLowerCase() && normalizedUrl(t.url) === normalizedUrl(safeUrl))) { showToast('已存在同名、相同网址的工具，请编辑原条目'); return; }
     if (idx !== '') { tools[parseInt(idx)] = item; } else { tools.push(item); }
     await DB.setTools(tools);
     closeModal('tool-modal');
@@ -1916,6 +1937,6 @@ document.addEventListener('authRefresh', async () => {
     }
 });
 </script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

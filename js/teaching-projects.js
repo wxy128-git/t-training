@@ -4,21 +4,22 @@
    - 按登录用户隔离；用于跨智能体复用教学背景与意外恢复
    =================================================================== */
 (function () {
-    const PREFIX = 'xylaoshiTeachingV1';
+    // V1 的 guest 槽可能混有多个账号的内容，保留原数据但不自动认领。
+    const PREFIX = 'xylaoshiTeachingV2';
     const MAX_DRAFTS = 8;
     const MAX_RESULT_LENGTH = 80000;
 
     function currentUid() {
         try {
-            const user = window.Auth?.getCurrentUser?.() || window._currentUser;
-            return String(user?.uid || 'guest').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 128) || 'guest';
+            const user = window.SiteAuth?.getCurrentUser?.();
+            return String(user?.uid || 'guest');
         } catch {
             return 'guest';
         }
     }
 
     function storageKey(kind) {
-        return `${PREFIX}:${kind}:${currentUid()}`;
+        return `${PREFIX}:${kind}:${encodeURIComponent(currentUid())}`;
     }
 
     function read(kind, fallback) {

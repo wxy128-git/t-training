@@ -54,7 +54,7 @@ function clientIp(request) {
     return forwarded.at(-1) || request.socket.remoteAddress || 'unknown';
 }
 
-function toWebRequest(request, publicOrigin) {
+function toWebRequest(request, publicOrigin, response) {
     const headers = new Headers();
     for (const [key, value] of Object.entries(request.headers)) {
         if (Array.isArray(value)) value.forEach(item => headers.append(key, item));
@@ -64,6 +64,7 @@ function toWebRequest(request, publicOrigin) {
 
     const controller = new AbortController();
     request.once('aborted', () => controller.abort());
+    response?.once('close', () => { if (!response.writableFinished) controller.abort(); });
     const init = {
         method: request.method || 'GET',
         headers,
@@ -90,8 +91,9 @@ function sendWebResponse(nodeResponse, webResponse, requestMethod) {
     body.on('error', error => {
         console.error('[t-training-api] response stream failed:', error.message);
         if (!nodeResponse.headersSent) nodeResponse.writeHead(502);
-        nodeResponse.end();
+        nodeResponse.destroy(error);
     });
+    nodeResponse.once('close', () => { if (!nodeResponse.writableFinished) body.destroy(); });
     body.pipe(nodeResponse);
 }
 
@@ -143,7 +145,7 @@ export function createApiServer(options = {}) {
                 return;
             }
 
-            const webRequest = toWebRequest(request, publicOrigin);
+            const webRequest = toWebRequest(request, publicOrigin, response);
             const result = await handler({ request: webRequest, env, waitUntil });
             if (!(result instanceof Response)) throw new Error(`${handlerName} did not return a Response`);
             sendWebResponse(response, result, request.method);

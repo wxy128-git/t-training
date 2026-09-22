@@ -25,8 +25,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260823-content-team-workbook">
-    <link rel="stylesheet" href="css/pwa.css?v=20260822-phase1">
+    <link rel="stylesheet" href="css/style.css?v=20260922-email-required">
+    <link rel="stylesheet" href="css/pwa.css?v=20260922-email-required">
     <style>
         .paths-page-title { font-family: var(--font-display); font-size: clamp(32px,4.6vw,52px); font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
         .paths-page-title .site-copy-accent { font-style:italic; color:var(--brand); }
@@ -141,6 +141,17 @@
             .path-continue > i { display: none; }
             .step-detail-inner { padding-left: 16px; }
         }
+        .path-local-note { font-size: 13px; color: var(--text); margin-bottom: 22px; }
+        @media(max-width:680px) {
+            .paths-page-title { font-size: 30px; }
+            .path-nav-grid { gap: 8px; margin-bottom: 22px; }
+            .path-nav-card { min-height: 0; padding: 14px 16px; border-radius: 9px; }
+            .path-nav-number, .path-nav-icon, .path-nav-level { display: none; }
+            .path-nav-title { font-size: 16px; margin: 0 0 4px; }
+            .path-nav-progress { margin-top: 8px; font-size: 12px; }
+            .step-detail-inner { padding: 14px 16px; font-size: 15px; }
+            .step-detail.open { max-height: none; }
+        }
     </style>
 </head>
 <body>
@@ -167,6 +178,7 @@
     </div>
 
     <!-- Detailed paths -->
+    <p class="path-local-note">学习内容可直接阅读；完成标记保存在当前浏览器，暂不跨设备同步。</p>
     <div id="paths-detail" style="display:flex;flex-direction:column;gap:40px"></div>
 </main>
 
@@ -176,11 +188,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
-<script src="js/firebase-config.js?v=20260822-phase1"></script>
-<script src="js/data.js?v=20260823-page-copy"></script>
-<script src="js/site-copy.js?v=20260824-agent-directory"></script>
-<script src="js/auth.js?v=20260823-content-team-workbook"></script>
-<script src="js/analytics.js?v=20260707-analytics"></script>
+<script src="js/account-policy.js?v=20260922-email-required"></script>
+<script src="js/firebase-config.js?v=20260922-email-required"></script>
+<script src="js/data.js?v=20260922-email-required"></script>
+<script src="js/site-copy.js?v=20260922-email-required"></script>
+<script src="js/auth.js?v=20260922-email-required"></script>
+<script src="js/email-gate.js?v=20260922-email-required"></script>
+<script src="js/analytics.js?v=20260922-email-required"></script>
 <script>
 let pathsPageCopy = SiteCopy.defaults('paths');
 
@@ -258,6 +272,8 @@ function setPathStepOpen(row, open) {
 }
 
 function pathPracticeAction(step) {
+    const explicit = SafeRender.safeUrl(step?.practiceUrl || '');
+    if (explicit) return { href: explicit, label: step.practiceLabel || '打开本步骤配套材料' };
     const name = String(step?.name || '');
     if (/提示词|提问/.test(name)) return { href:'/prompts', label:'打开提示词库实践' };
     if (/备课|教案|教学设计/.test(name)) return { href:'/agents#lesson-design', label:'用教学设计助手实践' };
@@ -267,7 +283,7 @@ function pathPracticeAction(step) {
     if (/家校|沟通/.test(name)) return { href:'/agents#parent-comm', label:'用家校沟通助手实践' };
     if (/课堂|活动|分组/.test(name)) return { href:'/classroom-tools', label:'打开课堂工具实践' };
     if (/智能体|助手|工作流/.test(name)) return { href:'/agents', label:'浏览智能体实践' };
-    return { href:'/articles', label:'阅读配套实践文章' };
+    return { href:'/article?id=tip-classroom-profile', label:'阅读：如何描述课堂任务' };
 }
 
 function syncPathProgressUI() {
@@ -340,14 +356,12 @@ function togglePathStepCompletion(button, pathSlug, stepIndex) {
 }
 
 function toggleStep(row) {
-    if (!requirePathLogin(() => toggleStep(row))) return;
     const detail = row.nextElementSibling;
     const isOpen = detail.classList.contains('open');
     row.closest('section').querySelectorAll('.step-row').forEach(r => setPathStepOpen(r, !isOpen && r === row));
 }
 
 function startPath(btn) {
-    if (!requirePathLogin(() => startPath(btn))) return;
     const section = btn.closest('section');
     section.querySelectorAll('.step-row').forEach(r => setPathStepOpen(r, true));
     btn.innerHTML = '<i class="ph ph-check-circle"></i> 已展开全部步骤，点击各步骤可折叠';
@@ -461,7 +475,7 @@ onAuthReady((user) => { renderNav('paths'); renderFooter(); syncPathProgressUI()
     }
 })();
 </script>
-<script src="js/pwa.js?v=20260822-phase1"></script>
-<script src="js/assistant.js?v=20260821-tencent"></script>
+<script src="js/pwa.js?v=20260922-email-required"></script>
+<script src="js/assistant.js?v=20260922-email-required"></script>
 </body>
 </html>

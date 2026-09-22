@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20260828-v18';
+const VERSION = '20260922-v21';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -21,6 +21,10 @@ const CORE_ASSETS = [
     '/js/auth.js',
     '/js/agents-data.js',
     '/js/curriculum-guard.js',
+    '/js/account-policy.js',
+    '/js/email-gate.js',
+    '/js/agent-stream.js',
+    '/js/task-search.js',
     '/js/teaching-projects.js',
     '/vendor/firebase/10.12.0/firebase-app-compat.js',
     '/vendor/firebase/10.12.0/firebase-auth-compat.js',

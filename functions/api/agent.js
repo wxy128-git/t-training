@@ -1,3 +1,4 @@
+import '../../js/account-policy.js';
 import '../../js/curriculum-guard.js';
 
 /* ===================================================================
@@ -6,7 +7,7 @@ import '../../js/curriculum-guard.js';
    - 本函数持有模型密钥（CF 环境变量 DEEPSEEK_API_KEY / ZHIPU_API_KEY，Secret），
      密钥永不下发到浏览器
    - 校验调用者已登录（Firebase idToken），防止接口被匿名盗刷
-   - 把上游 SSE 流解析成纯文本增量，流式回传给前端
+   - 把上游 SSE 转为含 delta / done / error 的事件流，保留旧客户端纯文本兼容
    配置：在 Cloudflare Pages 项目 → Settings → Environment variables
         新增 DEEPSEEK_API_KEY / ZHIPU_API_KEY（Type: Secret）。
    =================================================================== */
@@ -19,6 +20,22 @@ const TEMPERATURE = 0.6;
 const MAX_TOKENS = 8192;
 const CLASSIFIER_MAX_TOKENS = 600;
 const CLASSIFIER_CONFIDENCE = 0.78;
+const upstreamResources = new WeakMap();
+
+function releaseUpstream(response) {
+    upstreamResources.get(response)?.();
+    upstreamResources.delete(response);
+}
+
+async function readWithTimeout(reader, milliseconds = 45000) {
+    let timer;
+    try {
+        return await Promise.race([
+            reader.read(),
+            new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('生成等待超时，请重试')), milliseconds); })
+        ]);
+    } finally { clearTimeout(timer); }
+}
 // DeepSeek v4-flash 和 GLM-5.2 默认可开「思考模式」（更慢更贵）；起草教学内容用非思考即可。
 const THINKING = { type: 'disabled' };
 const DEFAULT_ZHIPU_AGENT_IDS = [
@@ -97,15 +114,27 @@ async function fetchProvider(provider, env, messages, options = {}) {
         e.statusCode = 501;
         throw e;
     }
-    const upstream = await fetch(provider.url, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(providerBody(provider, messages, options))
-    });
-    return upstream;
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    if (options.signal?.aborted) abort();
+    else options.signal?.addEventListener('abort', abort, { once: true });
+    const timer = setTimeout(abort, options.stream === false ? 45000 : 60000);
+    const cleanup = () => { clearTimeout(timer); options.signal?.removeEventListener('abort', abort); controller.abort(); };
+    try {
+        const upstream = await fetch(provider.url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(providerBody(provider, messages, options)),
+            signal: controller.signal
+        });
+        // 流式正文的空闲超时由读取器处理；非流式分类保留整个请求的时限。
+        if (options.stream !== false) clearTimeout(timer);
+        upstreamResources.set(upstream, cleanup);
+        return upstream;
+    } catch (error) { cleanup(); throw error; }
 }
 
 async function callProviderWithFallback(provider, env, messages, options = {}) {
@@ -114,12 +143,14 @@ async function callProviderWithFallback(provider, env, messages, options = {}) {
         const upstream = await fetchProvider(provider, env, messages, options);
         if (upstream.ok && upstream.body) return { upstream, provider };
         if (fallback && env[fallback.envKey]) {
+            releaseUpstream(upstream);
             const retry = await fetchProvider(fallback, env, messages, options);
             if (retry.ok && retry.body) return { upstream: retry, provider: fallback, fallbackFrom: provider };
             return { upstream: retry, provider: fallback, fallbackFrom: provider };
         }
         return { upstream, provider };
     } catch (e) {
+        if (options.signal?.aborted) throw new Error('已停止生成');
         if (fallback && env[fallback.envKey]) {
             try {
                 const retry = await fetchProvider(fallback, env, messages, options);
@@ -139,10 +170,12 @@ async function verifyUser(idToken) {
     const r = await fetch(FIREBASE_AUTH_LOOKUP, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken })
+        body: JSON.stringify({ idToken }),
+        signal: AbortSignal.timeout(6000)
     });
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.users?.[0]) { const e = new Error('登录状态已过期，请重新登录'); e.statusCode = 401; throw e; }
+    globalThis.AccountPolicy.assertVerifiedEmail(d.users[0]);
     return d.users[0];
 }
 
@@ -249,13 +282,14 @@ function classifierMessages(curriculum) {
     ];
 }
 
-async function classifyCurriculum(provider, env, curriculum) {
+async function classifyCurriculum(provider, env, curriculum, signal) {
     let result;
     try {
         result = await callProviderWithFallback(provider, env, classifierMessages(curriculum), {
             stream: false,
             temperature: 0,
-            maxTokens: CLASSIFIER_MAX_TOKENS
+            maxTokens: CLASSIFIER_MAX_TOKENS,
+            signal
         });
     } catch (error) {
         return {
@@ -266,9 +300,11 @@ async function classifyCurriculum(provider, env, curriculum) {
     }
 
     if (!result.upstream.ok) {
+        releaseUpstream(result.upstream);
         return { status: 'unknown', confidence: 0, reason: '课程语义判断服务暂时不可用。' };
     }
     const data = await result.upstream.json().catch(() => null);
+    releaseUpstream(result.upstream);
     const parsed = extractJsonObject(data?.choices?.[0]?.message?.content);
     if (!parsed || !CLASSIFIER_STATUSES.has(parsed.status)) {
         return { status: 'unknown', confidence: 0, reason: '课程语义判断没有返回可验证的结论。' };
@@ -306,7 +342,7 @@ async function classifyCurriculum(provider, env, curriculum) {
     };
 }
 
-async function enforceCurriculumGate(agentId, curriculumValue, provider, env) {
+async function enforceCurriculumGate(agentId, curriculumValue, provider, env, signal) {
     if (!GUARDED_AGENT_IDS.has(agentId)) return { ok: true };
     const curriculum = normalizeCurriculumPayload(agentId, curriculumValue);
     if (!curriculum) {
@@ -332,7 +368,7 @@ async function enforceCurriculumGate(agentId, curriculumValue, provider, env) {
     }
     if (localResult.status === 'aligned') return { ok: true, source: 'knowledge-base' };
 
-    const semanticResult = await classifyCurriculum(provider, env, curriculum);
+    const semanticResult = await classifyCurriculum(provider, env, curriculum, signal);
     if (semanticResult.status === 'aligned') return { ok: true, source: 'semantic-classifier' };
     return { ok: false, statusCode: 422, result: publicCurriculumResult(semanticResult) };
 }
@@ -356,7 +392,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     try {
         user = await verifyUser(idToken);
     } catch (e) {
-        return jsonResponse(e.statusCode || 401, { ok: false, msg: e.message });
+        return jsonResponse(e.statusCode || 401, { ok: false, msg: e.message, code: e.code });
     }
 
     // 限流：同一用户问太频繁就拦下（防手滑狂点 / 刷接口、控成本）
@@ -369,7 +405,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
     // 课程匹配硬闸门：知识库能确定的直接裁决，其余先做独立语义分类。
     // 只有明确 aligned 才进入下面的内容生成调用；unknown 不再默认放行。
-    const curriculumGate = await enforceCurriculumGate(agentId, curriculum, selectedProvider, env);
+    const curriculumGate = await enforceCurriculumGate(agentId, curriculum, selectedProvider, env, request.signal);
     if (!curriculumGate.ok) {
         return jsonResponse(curriculumGate.statusCode || 422, {
             ok: false,
@@ -383,58 +419,81 @@ export async function onRequestPost({ request, env, waitUntil }) {
     let activeProvider = selectedProvider;
     let fallbackFrom = null;
     try {
-        const result = await callProviderWithFallback(selectedProvider, env, messages);
+        const result = await callProviderWithFallback(selectedProvider, env, messages, { signal: request.signal });
         upstream = result.upstream;
         activeProvider = result.provider;
         fallbackFrom = result.fallbackFrom || null;
     } catch (e) {
-        return jsonResponse(e.statusCode || 502, { ok: false, msg: e.message });
+        return jsonResponse(e.statusCode || 502, { ok: false, msg: e.message, code: e.code });
     }
 
     if (!upstream.ok || !upstream.body) {
         const errText = await upstream.text().catch(() => '');
+        releaseUpstream(upstream);
         let msg = `${activeProvider.label} 调用失败（${upstream.status}）`;
         try { msg = JSON.parse(errText)?.error?.message || msg; } catch {}
         return jsonResponse(upstream.status || 502, { ok: false, msg });
     }
 
-    // 解析上游 SSE → 纯文本增量，用 TransformStream 管道流式回传
-    // （在 Cloudflare Workers 上比手写 ReadableStream.pull 更可靠）
+    // 新客户端使用有明确 done/error 的事件流；旧客户端仍接收纯文本。
+    const structured = payload.streamProtocol === 'events-v1';
     const encoder = new TextEncoder();
     const { readable, writable } = new TransformStream();
-
     const pump = (async () => {
         const reader = upstream.body.getReader();
         const decoder = new TextDecoder();
         const writer = writable.getWriter();
-        let buffer = '';
+        writer.closed.catch(() => {
+            releaseUpstream(upstream);
+            reader.cancel().catch(() => {});
+        });
+        let buffer = '', completed = false, finishReason = '', hasText = false;
+        const emit = event => writer.write(encoder.encode(structured ? JSON.stringify(event) + '\n' : event.text || ''));
+        const consume = async line => {
+            const t = line.trim();
+            if (!t.startsWith('data:')) return;
+            const data = t.slice(5).trim();
+            if (data === '[DONE]') { completed = true; return; }
+            if (!data) return;
+            const event = JSON.parse(data);
+            if (event.error) throw new Error('生成服务中断，请稍后重试');
+            const choice = event.choices?.[0];
+            if (choice?.finish_reason) finishReason = choice.finish_reason;
+            const delta = choice?.delta?.content;
+            if (typeof delta === 'string' && delta) { hasText = true; await emit({ type: 'delta', text: delta }); }
+        };
         try {
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                buffer += decoder.decode(value, { stream: true });
+            while (!completed) {
+                const { done, value } = await readWithTimeout(reader);
+                buffer += decoder.decode(value, { stream: !done });
                 const lines = buffer.split('\n');
-                buffer = lines.pop();   // 末尾可能是半行，留到下次
-                for (const line of lines) {
-                    const t = line.trim();
-                    if (!t.startsWith('data:')) continue;
-                    const data = t.slice(5).trim();
-                    if (data === '[DONE]') { buffer = ''; break; }
-                    try {
-                        const delta = JSON.parse(data)?.choices?.[0]?.delta?.content;
-                        if (delta) await writer.write(encoder.encode(delta));
-                    } catch { /* 忽略心跳/空行 */ }
-                }
+                buffer = lines.pop();
+                for (const line of lines) await consume(line);
+                if (done) { if (buffer.trim()) await consume(buffer); break; }
             }
-        } catch { /* 上游中断，下面照常收尾 */ }
-        try { await writer.close(); } catch {}
+            if (request.signal.aborted) throw new Error('已停止生成');
+            if (finishReason && finishReason !== 'stop') throw new Error(finishReason === 'length' ? '内容达到长度上限，尚未完成；请缩小任务范围后重试' : '生成提前停止，内容尚未完成');
+            if (!completed && finishReason !== 'stop') throw new Error('连接提前结束，内容尚未生成完整');
+            if (!hasText) throw new Error('模型没有返回内容，请重试');
+            if (structured) await emit({ type: 'done' });
+            await writer.close();
+        } catch (error) {
+            if (structured) {
+                try { await emit({ type: 'error', message: error.message || '生成中断，请重试' }); await writer.close(); } catch {}
+            } else {
+                await writer.abort(error).catch(() => {});
+            }
+        } finally {
+            releaseUpstream(upstream);
+            await reader.cancel().catch(() => {});
+        }
     })();
 
     if (typeof waitUntil === 'function') waitUntil(pump);
 
     return new Response(readable, {
         headers: {
-            'Content-Type': 'text/plain; charset=utf-8',
+            'Content-Type': structured ? 'application/x-ndjson; charset=utf-8' : 'text/plain; charset=utf-8',
             'Cache-Control': 'no-cache',
             'X-Accel-Buffering': 'no',
             'X-Agent-Provider': activeProvider.key,

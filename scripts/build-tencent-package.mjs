@@ -30,6 +30,7 @@ const isStatic = file => (
 const isApi = file => (
     /^functions\/api\/[^/]+\.js$/.test(file)
     || file === 'js/curriculum-guard.js'
+    || file === 'js/account-policy.js'
     || file === 'server/tencent-api.mjs'
     || file === 'package.json'
 );
