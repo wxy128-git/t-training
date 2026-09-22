@@ -47,8 +47,20 @@ try {
     check(AccountPolicy.hasVerifiedEmail({ email: 'a@example.com', emailVerified: true }), '真实邮箱验证成功可放行');
     check(AccountPolicy.isAdmin({ localId: AccountPolicy.ADMIN_UID, email: 'new-admin@example.invalid', emailVerified: true }), '管理员绑定新邮箱后保留原权限');
     check(!AccountPolicy.isAdmin({ localId: 'other', email: 'admin@xylaoshi.com', emailVerified: true }), '其他账号占用旧管理员邮箱也不能获得权限');
-    check(!AccountPolicy.isAdmin({ uid: AccountPolicy.ADMIN_UID, email: 'admin@xylaoshi.com', emailVerified: false }), '管理员同样需要邮箱验证');
+    const existingAdmin = { uid: AccountPolicy.ADMIN_UID, email: 'admin@xylaoshi.com', emailVerified: false };
+    check(AccountPolicy.isAdmin(existingAdmin) && AccountPolicy.canUseFeatures(existingAdmin), '仅原管理员可免邮箱完善使用功能');
+    check(!AccountPolicy.hasVerifiedEmail(existingAdmin) && existingAdmin.emailVerified === false, '管理员例外不伪造邮箱验证状态');
+    check(!AccountPolicy.canUseFeatures({ uid: 'other', email: 'admin@xylaoshi.com', isAdmin: true, emailVerified: false }), '邮箱和客户端管理员标志不能获得例外');
+    check(!AccountPolicy.canUseFeatures(null), '访客不能获得管理员例外');
     check(readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8').includes(`request.auth.uid == '${AccountPolicy.ADMIN_UID}'`), '数据库与应用使用同一个管理员身份');
+
+    reset({ localId: AccountPolicy.ADMIN_UID, email: existingAdmin.email });
+    const adminApi = await freshAuth();
+    for (const body of [{ action: 'login', email: existingAdmin.email, password: 'test-password' }, { action: 'email-status', idToken: 'old-token' }]) {
+        const result = await post(adminApi, body);
+        check(result.status === 200 && result.data.user.isAdmin && !result.data.user.emailVerified && AccountPolicy.canUseFeatures(result.data.user), '管理员登录和状态检查保留真实验证状态并允许访问');
+    }
+    check(!calls.some(c => c.url.includes('sendOobCode') || c.url.includes('accounts:update')), '管理员正常登录不发验证邮件、不修改认证账号');
 
     reset(); let api = await freshAuth();
     for (const email of ['13800138000', 'tel_13800138000@xylaoshi.tel']) {
@@ -112,8 +124,15 @@ try {
         reset({ email: 'admin@xylaoshi.com', emailVerified: false });
         const module = await import(`../functions/api/${name}.js?email-guard=${serial++}`);
         const result = await post(module, { ...body, idToken: 'token', adminIdToken: 'token', emailVerified: true, isAdmin: true });
-        check(result.status === 403, `${name} 拒绝未验证用户（包括管理员）`);
+        check(result.status === 403, `${name} 拒绝使用旧管理员邮箱冒充的未验证普通用户`);
         check(calls.length === 1 && calls[0].url.includes('accounts:lookup'), `${name} 拦截后不能读取业务数据或调用模型`);
+    }
+    for (const [name, body] of endpoints.filter(([name]) => name !== 'auth-proxy')) {
+        reset({ localId: AccountPolicy.ADMIN_UID, email: existingAdmin.email, emailVerified: false });
+        const module = await import(`../functions/api/${name}.js?admin-access=${serial++}`);
+        const result = await post(module, { ...body, idToken: 'token', adminIdToken: 'token' });
+        check(result.status === 501, `${name} 原管理员通过认证守卫，进入缺少测试环境密钥的业务阶段`);
+        check(calls.length === 1 && calls[0].url.includes('accounts:lookup'), `${name} 仅核对真实认证身份，不调用模型或写入数据`);
     }
 
     // 重现慢速资料请求与切换账号 / 邮箱验证响应交错，避免旧身份覆盖新状态。
@@ -142,5 +161,8 @@ try {
     sandbox.sessionStorage.setItem('xylaoshiProxyAuthSession', JSON.stringify({ idToken: 'fresh', expiresAt: Date.now() + 60000, user: { ...next, emailVerified: true } }));
     pendingProfiles.get('next')({ exists: true, data: () => ({ name: '教师', emailVerified: false }) }); await sameRead;
     check(vm.runInContext('_currentUser.emailVerified === true', sandbox), '慢速 SDK 资料加载不能把已完成验证的账号退回未验证状态');
+    sdk.currentUser = existingAdmin; const adminRead = authChanged(existingAdmin);
+    pendingProfiles.get(existingAdmin.uid)({ exists: true, data: () => ({ isAdmin: false }) }); await adminRead;
+    check(vm.runInContext('_currentUser.isAdmin && !_currentUser.emailVerified && AccountPolicy.canUseFeatures(_currentUser)', sandbox), '浏览器 SDK 恢复原管理员时不被旧资料或未验证状态阻挡');
     console.log(`邮箱验证回归通过：${passed} 项行为断言（离线，无真实邮件或模型调用）。`);
 } finally { globalThis.fetch = originalFetch; }

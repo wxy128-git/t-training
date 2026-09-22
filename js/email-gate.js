@@ -133,6 +133,9 @@
                 syncEmailGate(); refreshAuthUI();
                 document.dispatchEvent(new CustomEvent('authRefresh', { detail: Auth.getCurrentUser() }));
                 if (manual) showToast('邮箱已验证，可以继续使用');
+            } else if (AccountPolicy.isAdmin(result.user)) {
+                syncEmailGate(); refreshAuthUI();
+                document.dispatchEvent(new CustomEvent('authRefresh', { detail: Auth.getCurrentUser() }));
             } else if (manual) message('暂未确认邮箱验证成功。请点击邮件里的链接，再回来确认；失效链接可以重新发送。', true);
         } catch (error) {
             if (Auth.getCurrentUser()?.uid !== user.uid) return;

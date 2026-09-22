@@ -216,7 +216,7 @@ async function verifyAdmin(adminIdToken) {
         error.statusCode = 401;
         throw error;
     }
-    globalThis.AccountPolicy.assertVerifiedEmail(user);
+    globalThis.AccountPolicy.assertCanUseFeatures(user);
     if (!globalThis.AccountPolicy.isAdmin(user)) {
         const error = new Error('当前账号没有管理员权限');
         error.statusCode = 403;

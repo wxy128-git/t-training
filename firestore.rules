@@ -8,13 +8,13 @@ service cloud.firestore {
 
     function signedIn() {
       return authenticated()
-        && request.auth.token.email_verified == true
+        && (isAdmin() || (request.auth.token.email_verified == true
         && request.auth.token.email is string
-        && !request.auth.token.email.lower().matches('.*@xylaoshi[.]tel');
+        && !request.auth.token.email.lower().matches('.*@xylaoshi[.]tel')));
     }
 
     function isAdmin() {
-      return signedIn()
+      return authenticated()
         && request.auth.uid == 'MCUSTieySYczODKB9hkERtyvtZG2';
     }
 

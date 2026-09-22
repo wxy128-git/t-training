@@ -56,7 +56,11 @@ try {
     const usage = { count: 1, updatedAt: new Date() };
     await call(`agent_usage/${uid}`, token(false), usage, 403, '未验证用户不能写入使用次数');
     await call(`agent_usage/${uid}`, token(true), usage, 200, '验证后可正常记录使用次数');
-    await call(`tools/${uid}`, token(false, 'admin@xylaoshi.com', AccountPolicy.ADMIN_UID), { title: '工具' }, 403, '管理员也必须验证邮箱');
+    const adminToken = token(false, 'admin@xylaoshi.com', AccountPolicy.ADMIN_UID);
+    await call(`tools/${uid}`, adminToken, { title: '工具' }, 200, '原管理员无需验证占位邮箱即可管理内容');
+    await call(`users/${other}`, adminToken, null, 200, '原管理员可读取用户资料');
+    await call(`works/${uid}-admin`, adminToken, { ...work, uid: AccountPolicy.ADMIN_UID }, 200, '原管理员可保存自己的作品');
+    await call(`works/${uid}-admin`, adminToken, null, 200, '原管理员可读取自己的作品');
     await call(`tools/${uid}`, token(true, 'new-admin@example.invalid', AccountPolicy.ADMIN_UID), { title: '工具' }, 200, '管理员换绑邮箱后保留原权限');
     await call(`tools/${uid}`, token(true, 'admin@xylaoshi.com'), { title: '工具' }, 403, '旧邮箱不能把管理权限转给他人');
     console.log(`Firestore 邮箱规则通过：${passed} 项模拟器断言。`);

@@ -169,7 +169,7 @@ async function requireUser(idToken) {
         error.statusCode = 401;
         throw error;
     }
-    globalThis.AccountPolicy.assertVerifiedEmail(user);
+    globalThis.AccountPolicy.assertCanUseFeatures(user);
     return user;
 }
 

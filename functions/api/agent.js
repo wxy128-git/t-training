@@ -175,7 +175,7 @@ async function verifyUser(idToken) {
     });
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.users?.[0]) { const e = new Error('登录状态已过期，请重新登录'); e.statusCode = 401; throw e; }
-    globalThis.AccountPolicy.assertVerifiedEmail(d.users[0]);
+    globalThis.AccountPolicy.assertCanUseFeatures(d.users[0]);
     return d.users[0];
 }
 

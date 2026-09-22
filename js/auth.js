@@ -158,7 +158,7 @@ function syncFirebaseAuthAfterProxy(authEmail, password, remember) {
 const Auth = {
     getCurrentUser() { return _currentUser; },
     isAdmin() { return AccountPolicy.isAdmin(_currentUser); },
-    canUseFeatures() { return AccountPolicy.hasVerifiedEmail(_currentUser); },
+    canUseFeatures() { return AccountPolicy.canUseFeatures(_currentUser); },
     async getIdToken() {
         const proxySession = getStoredProxyAuthSession();
         if (proxySession?.idToken) return proxySession.idToken;

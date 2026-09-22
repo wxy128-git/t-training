@@ -218,7 +218,7 @@ async function readUserProfile(idToken, uid) {
 }
 
 function userFromAuth(data, profile = {}) {
-    // 身份与管理员权限只认 Firebase Auth 返回的 UID 和验证状态。
+    // 身份只认 Firebase Auth；管理员按固定 UID 判断，邮箱验证状态单独如实返回。
     const rawEmail = String(data.email || '').trim().toLowerCase();
     const phoneMatch = rawEmail.match(/^tel_(1[3-9]\d{9})@xylaoshi\.tel$/);
     const phone = phoneMatch ? phoneMatch[1] : cleanText(profile.phone, 20);
@@ -324,7 +324,7 @@ export async function onRequestPost({ request }) {
         try {
             const user = await lookupIdToken(payload.idToken);
             if (!user?.localId) return jsonResponse(401, { ok: false, msg: '登录状态已过期，请重新登录' });
-            globalThis.AccountPolicy.assertVerifiedEmail(user);
+            globalThis.AccountPolicy.assertCanUseFeatures(user);
             const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized));
             const documentId = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
             const collection = FIRESTORE_USER_BASE.replace(/\/users$/, '/subscribers');
