@@ -1,8 +1,11 @@
 {
   "cleaned": true,
-  "authenticationUsersDeletedAndVerified": 2,
-  "firestoreDocumentsDeletedAndVerified": 2,
-  "modelCallsRecorded": 32,
+  "authenticationUsersDeletedAndVerified": 5,
+  "followupAuthenticationUsersDeletedAndVerified": 3,
+  "firestoreDocumentsDeletedAndVerified": 5,
+  "followupFirestoreDocumentsDeletedAndVerified": 3,
+  "modelCallsRecorded": 42,
+  "followupModelCallsRecorded": 10,
   "candidateServerStopped": true,
   "serverStagingRemoved": true,
   "productionChanged": false

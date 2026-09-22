@@ -1,16 +1,18 @@
 {
   "reviewedAt": "2026-09-22",
   "scope": "19 个匿名固定样例；逐份阅读、计算与条件核对",
-  "requestBudget": 32,
-  "actualRequests": 32,
-  "generationRequests": 23,
+  "requestBudget": 42,
+  "initialRequestBudget": 32,
+  "followupRequestBudget": 10,
+  "actualRequests": 42,
+  "generationRequests": 33,
   "classificationRequests": 9,
   "provider": "deepseek",
   "model": "deepseek-v4-flash",
   "summary": {
-    "readyForThisSample": 13,
+    "readyForThisSample": 14,
     "usableAfterMinorTeacherEdit": 5,
-    "notReady": 1
+    "notReady": 0
   },
   "cases": [
     { "id": "lesson-primary", "verdict": "ready", "evidence": "5+10+12+8+5=40 分钟；45 人、9 组、材料和可观察任务均落实；平均分前提正确。" },
@@ -24,7 +26,7 @@
     { "id": "quiz", "verdict": "ready-after-targeted-retest", "evidence": "初测错误地产生 10 题，且前两道选择题有多个正确项；提示词收紧后复测为 3 道选择题+2 道判断题，恰好 5 题，逐项答案正确且选择题唯一。" },
     { "id": "grader", "verdict": "ready", "evidence": "独立算出 5/6，识别参考答案错误，按分数单位解释错法，没有把态度或心理原因写成事实。" },
     { "id": "essay", "verdict": "minor-edit", "evidence": "所有引用均来自原文，并明确键入文字不能判断字迹；扩写内容标成微调示例，但教师仍应确认不把示例当作学生真实经历。" },
-    { "id": "exam", "verdict": "not-ready", "evidence": "初测第 11 题暗自假定两种分组的组数相同；首轮修正后题面补足条件，但第 2 道选择题仍有两个正确项，细目表还把应用题重复计分，行合计实际为 60 而非 50。当前样例不能直接使用。" },
+    { "id": "exam", "verdict": "ready-after-final-retest", "evidence": "初测及中间复测先后暴露分组条件缺失、选择题多解、细目表重复计分、答案与运算不一致及应用题非整数解。最终提示词要求题干条件溯源、先定合理整数答案再反推数据、直接修正错误且细目表只保留逐题单表；最后 60 分和 50 分两套独立样例连续通过逐题验算、选项唯一性、应用题条件与实际意义、总分核对。" },
     { "id": "diagnosis", "verdict": "ready-after-targeted-retest", "evidence": "复测将可观察错误与可能原因分开；OCR 缺字题不评分、不猜填；补救练习均附答案。" },
     { "id": "parent", "verdict": "ready", "evidence": "只陈述两次未交和原因未知；用开放问题了解情况，给出小而具体的目标，没有编造成绩、家庭背景或保证立即解决。" },
     { "id": "comment", "verdict": "ready", "evidence": "约 100 字，保留学生代号，只使用倾听同伴与少检查两项输入，建议可执行。" },
