@@ -122,6 +122,7 @@ for (const id of agentPortraitIds) {
     else if (statSync(join(root, file)).size > 240_000) fail(file, '人物肖像体积超过 240 KB');
 }
 const agentsHtml = text('agents.html');
+const agentsDataSource = text('js/agents-data.js');
 if (!/class="agent-member"/.test(agentsHtml) || !/assets\/agent-portraits/.test(agentsHtml)) fail('agents.html', '人物化数字成员墙未接入');
 if (!/class="agent-directory"/.test(agentsHtml) || !/function departmentHtml/.test(agentsHtml) || !/function showAllAgents/.test(agentsHtml)) {
     fail('agents.html', '智能体部门目录或全部成员入口未接入');
@@ -137,6 +138,14 @@ if (!/教学设计助手的交付/.test(agentsHtml) && !/\$\{escapeHtml\(a\.name
     fail('agents.html', '数字成员交付区缺少成员归属');
 }
 if (!/AI 交付的是初稿/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
+for (const [pattern, label] of [
+    [/题量是所有题型合计总数/, '出题总题量约束'],
+    [/最终正文不能保留错误原题再附“修正说明”/, '组卷自检修正约束'],
+    [/错误归类表只描述作答中可直接观察到的规则错用或步骤/, '错题诊断事实边界'],
+    [/同样整体的单位分数中，分母越大，分数单位越小/, '听评课分数表述核对']
+]) {
+    if (!pattern.test(agentsDataSource)) fail('js/agents-data.js', `${label}缺失`);
+}
 if (!/js\/curriculum-guard\.js\?v=20260828-curriculum-gate/.test(agentsHtml) || !/function curriculumContext/.test(agentsHtml)) {
     fail('agents.html', '课程匹配守卫未接入智能体工作台');
 }

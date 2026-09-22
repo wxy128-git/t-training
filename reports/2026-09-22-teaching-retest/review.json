@@ -1,0 +1,36 @@
+{
+  "reviewedAt": "2026-09-22",
+  "scope": "19 个匿名固定样例；逐份阅读、计算与条件核对",
+  "requestBudget": 32,
+  "actualRequests": 32,
+  "generationRequests": 23,
+  "classificationRequests": 9,
+  "provider": "deepseek",
+  "model": "deepseek-v4-flash",
+  "summary": {
+    "readyForThisSample": 13,
+    "usableAfterMinorTeacherEdit": 5,
+    "notReady": 1
+  },
+  "cases": [
+    { "id": "lesson-primary", "verdict": "ready", "evidence": "5+10+12+8+5=40 分钟；45 人、9 组、材料和可观察任务均落实；平均分前提正确。" },
+    { "id": "courseware", "verdict": "ready", "evidence": "完整 10 页；颜色词和问候句型正确；互动能在普通教室执行。" },
+    { "id": "micro-science", "verdict": "minor-edit", "evidence": "180 秒时间轴、四季成因与南北半球关系正确；标注 520 字、预计口播 155 秒，正式录制前仍应按真实语速试读。" },
+    { "id": "hook", "verdict": "minor-edit", "evidence": "5 种导入及概念衔接完整；前 4 种可直接选用，第 5 种含密封手机近水方案，虽有安全边界，普通课堂宜改用土电话或教师演示。" },
+    { "id": "socratic", "verdict": "ready", "evidence": "只提出 1 个基于同样大蛋糕的问题，没有直接公布答案。" },
+    { "id": "layered", "verdict": "ready", "evidence": "3 层各 3 问，层级差异明确；纯数值与实际量比较均说明同样整体条件。" },
+    { "id": "concept", "verdict": "ready", "evidence": "电流、电压、能量和电荷区分正确；水流类比明确对应与局限，并指出电荷不会被灯泡耗尽。" },
+    { "id": "activity", "verdict": "minor-edit", "evidence": "9×5=45，10 张卡每人 2 张，时间 1+2+3+2+2=10 分钟，答案与单一量规一致；第 9 组与第 8 组互查会让第 8 组重复承担，实施前需改成轮换检查或教师抽查。" },
+    { "id": "quiz", "verdict": "ready-after-targeted-retest", "evidence": "初测错误地产生 10 题，且前两道选择题有多个正确项；提示词收紧后复测为 3 道选择题+2 道判断题，恰好 5 题，逐项答案正确且选择题唯一。" },
+    { "id": "grader", "verdict": "ready", "evidence": "独立算出 5/6，识别参考答案错误，按分数单位解释错法，没有把态度或心理原因写成事实。" },
+    { "id": "essay", "verdict": "minor-edit", "evidence": "所有引用均来自原文，并明确键入文字不能判断字迹；扩写内容标成微调示例，但教师仍应确认不把示例当作学生真实经历。" },
+    { "id": "exam", "verdict": "not-ready", "evidence": "初测第 11 题暗自假定两种分组的组数相同；首轮修正后题面补足条件，但第 2 道选择题仍有两个正确项，细目表还把应用题重复计分，行合计实际为 60 而非 50。当前样例不能直接使用。" },
+    { "id": "diagnosis", "verdict": "ready-after-targeted-retest", "evidence": "复测将可观察错误与可能原因分开；OCR 缺字题不评分、不猜填；补救练习均附答案。" },
+    { "id": "parent", "verdict": "ready", "evidence": "只陈述两次未交和原因未知；用开放问题了解情况，给出小而具体的目标，没有编造成绩、家庭背景或保证立即解决。" },
+    { "id": "comment", "verdict": "ready", "evidence": "约 100 字，保留学生代号，只使用倾听同伴与少检查两项输入，建议可执行。" },
+    { "id": "meeting", "verdict": "ready", "evidence": "5+10+12+6+7=40 分钟；只用虚构情境，表演与分享自愿，并提供观察和书面替代任务。" },
+    { "id": "heart", "verdict": "ready", "evidence": "明确不能诊断；区分已知观察与假设，给出中性开场和危机转介边界，不索取真实姓名。" },
+    { "id": "reflection", "verdict": "minor-edit", "evidence": "明确 3/8 只是样本而非全班掌握率，原因均标为假设并给核实指标；“小组练习提供动手与交流机会”仍略超出原始记录，教师使用前宜删去或确认。" },
+    { "id": "observation", "verdict": "ready-after-targeted-retest", "evidence": "初测建议中曾把分数单位关系说反；提示词收紧后复测正确说明同样整体中分母越大、分数单位越小，并始终限定前 15 分钟证据。" }
+  ]
+}

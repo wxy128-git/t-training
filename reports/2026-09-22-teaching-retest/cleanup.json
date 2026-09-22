@@ -1,0 +1,9 @@
+{
+  "cleaned": true,
+  "authenticationUsersDeletedAndVerified": 2,
+  "firestoreDocumentsDeletedAndVerified": 2,
+  "modelCallsRecorded": 32,
+  "candidateServerStopped": true,
+  "serverStagingRemoved": true,
+  "productionChanged": false
+}
