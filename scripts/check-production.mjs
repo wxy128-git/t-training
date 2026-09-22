@@ -45,6 +45,7 @@ if (home) {
     assert(body.includes('js/data.js?v=20260922-admin-access') && body.includes('js/site-copy.js?v=20260922-admin-access'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20260922-admin-access'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20260922-admin-access'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
     assert(body.includes('id="th-mobile-more"') && body.includes('th-mobile-secondary'), '首页移动端渐进展开入口未上线');
@@ -67,6 +68,12 @@ if (authScript) {
     assert(/showToast\(userName \? `登录成功/.test(body), '登录成功缺少非阻塞反馈');
 }
 
+const agentsData = await request('/js/agents-data.js?v=20260922-teaching-quality');
+if (agentsData) {
+    const body = await agentsData.text();
+    assert(agentsData.status === 200 && body.includes('先在内部选定符合实际的正整数答案'), '组卷教学质量约束未上线');
+}
+
 const manifest = await request('/manifest.webmanifest');
 if (manifest) {
     const body = await manifest.json().catch(() => null);
@@ -77,7 +84,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260922-v22'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260922-v23'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
