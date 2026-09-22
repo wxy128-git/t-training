@@ -23,7 +23,7 @@
 
 - Plain HTML/CSS/JS, no bundler. Pages render skeletons (or in-code defaults), then JS pulls data from Firestore via the global `DB` object in `js/data.js`.
 - Eight Cloudflare Pages Functions under `functions/api/`:
-  - `auth-proxy.js` — server-side Firebase Auth proxy. **Login and registration both use this first** so users in mainland networks can authenticate without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Proxy registration returns immediately after server-side `signUp` and must never be followed by browser-side `createUser`; on an ambiguous timeout/network/5xx response, the UI asks the user to try logging in before retrying, avoiding duplicate-account confusion. The proxy derives admin status only from the existing Firebase administrator UID plus verified email state, never from a client profile field or ownership of the former administrator email. Firebase Auth / Firestore upstream requests have a 6-second timeout; registration performs the display-name update and Firestore profile write in parallel. The proxy ID token + refresh token use `sessionStorage` when「记住我」is unchecked and `localStorage` only when it is checked; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
+  - `auth-proxy.js` — server-side Firebase Auth proxy. **Login and registration both use this first** so users in mainland networks can authenticate without waiting for the browser Firebase SDK to time out; after proxy success, `js/auth.js` starts a background Firebase SDK sign-in to restore `auth.currentUser` when the network allows. Proxy registration returns immediately after server-side `signUp` and must never be followed by browser-side `createUser`; on an ambiguous timeout/network/5xx response, the UI asks the user to try logging in before retrying, avoiding duplicate-account confusion. The proxy derives admin status only from the existing Firebase administrator UID (this original administrator is exempt from email onboarding), never from a client profile field or ownership of the former administrator email. Firebase Auth / Firestore upstream requests have a 6-second timeout; registration performs the display-name update and Firestore profile write in parallel. The proxy ID token + refresh token use `sessionStorage` when「记住我」is unchecked and `localStorage` only when it is checked; action `refresh` exchanges the refresh token for a new idToken when the proxy session expires.
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
   - `rss-proxy.js` — news-page RSS fetcher with a fixed server-side source allowlist. The browser sends a source key, not an arbitrary URL; redirects are rejected, responses are capped at 1 MiB and validated as RSS / Atom. It keeps a 30-minute in-memory cache plus a 24-hour stale fallback. Do not restore browser fallbacks to public CORS / RSS conversion services or accept arbitrary upstream URLs, otherwise SSRF and domestic-network reliability regress.
   - `agent.js` — 智能体后端代理（2026-06-09；2026-07-09 加多模型路由；2026-08-28 加课程匹配硬闸门）：持 `DEEPSEEK_API_KEY` 转发到 DeepSeek（model `deepseek-v4-flash` + `thinking:{type:'disabled'}` 非思考模式；旧名 `deepseek-chat` 于 2026/07/24 停用，已于 2026-06-29 迁移），也可持 `ZHIPU_API_KEY` 转发到智谱 GLM-5.2（model `glm-5.2`）。用 `accounts:lookup` 校验 Firebase idToken 防盗刷，把上游 SSE 解析成纯文本增量流式回传。前端 `agents.html` 的 `callAgentAPI()` POST `{ messages, idToken, agentId, curriculum }` 调用它。`curriculum` 由前端从学科、年级和知识点字段整理，服务端使用共享 `js/curriculum-guard.js` 重做确定性判断；`conflict` 直接返回 422，`ambiguous / unknown` 先进行一次独立、非流式、低随机性的课程语义分类，只有高置信度 `aligned` 且带可验证学科与最低年级才进入内容生成。默认 DeepSeek；`DEFAULT_ZHIPU_AGENT_IDS` 内的高推理/结构化智能体在配置 `ZHIPU_API_KEY` 后优先走 GLM-5.2，GLM 失败且 DeepSeek 可用时自动回退。响应头 `X-Agent-Provider / X-Agent-Model / X-Agent-Fallback-From` 供前端显示实际模型，header 值必须保持 ASCII key。**限流 (2026-06-29)**：`checkRate(uid)` 软限流——同一登录用户 60 秒内最多 `RATE_MAX=12` 次，超出返回 429 `{ok:false,msg:"提问太频繁啦，请约 N 秒后再试～"}`（前端 `callAgentAPI` 的 `!res.ok` 分支已会显示该 msg，无需改前端）。实现是**单实例内存** `Map`（uid→时间戳数组，>5000 条时清理过期），零配置、不占额度，挡"手滑狂点/刷接口"；Cloudflare 多实例跨服务器非 100% 精确，要"每人每天硬封顶"再升级 KV/Durable Objects。调阈值改 `RATE_WINDOW_MS`/`RATE_MAX` 两常量即可。
@@ -35,15 +35,22 @@
 
 ## Local Changes Pending Deployment
 
-- 本轮邮箱验证与体验优化已于 2026-09-22 上线，详情见下方部署记录。
+- 本轮邮箱验证、体验优化及原管理员邮箱验证豁免均已于 2026-09-22 上线，详情见下方部署记录。
 - 用户明确暂缓人工账号恢复，不要求站点负责人提供恢复收件邮箱；不能把管理员登录标识当作联系邮箱。
 - 后续仍有：共享 SDK 延迟加载、学习路径独立成果任务、完整无障碍认证，以及教学质量报告中未完成的复测。
 
 ## Deployment History
 
+- **2026-09-22（原管理员邮箱验证阻挡修复，已上线）**：
+  - 原管理员使用无法收信的占位邮箱，邮箱完善弹窗阻挡了后台与站内功能。现仅对既有 Firebase UID `MCUSTieySYczODKB9hkERtyvtZG2` 豁免邮箱完善；前端、API、Firestore 同步生效。邮箱与客户端 `isAdmin` 字段均不能授予例外，普通用户继续强制验证；未修改原账号邮箱、密码或实际验证状态。
+  - 实现提交 `260dfff`；共享资源 `20260922-admin-access`，Service Worker `20260922-v22`。本地全量检查通过，其中 65 项邮箱行为断言、30 项 Firestore 模拟器权限断言；候选 / 正式 API 各 9 项、生产 96 项检查通过。
+  - 发布目录 `/home/ubuntu/t-training/releases/20260922-admin-260dfff`；备份 `/home/ubuntu/t-training/backups/20260922-pre-admin-260dfff`。107 个静态文件 / 12 个 API 文件校验和一致；新规则集 `7cb6254d-1ba9-4ce8-97aa-d2ee33df9528`，上版 `0fd0e37e-89eb-44ca-8bcd-73c035135dbd` 已备份。首次目录交换因系统目录权限失败并自动回滚，修正权限调用后发布成功。
+  - 只读查询真实管理员确认账号有效、邮箱仍未验证且新策略允许访问；生产页面隔离浏览器测试确认管理员后台可见、无验证弹窗，普通用户仍有验证弹窗，脚本错误为 0。浏览器身份与后台数据为测试替身，未使用用户密码或冒充真实登录，未发送邮件或调用模型。
+  - 正式 API 已回到 3001，候选进程已删除并 `pm2 save`；`pm2-ubuntu` enabled / active，两个站点均 200、旧站保留路径参数 302，API 错误日志 0 字节。GitHub 检查与 Cloudflare 部署成功；临时发布目录、交换目录、本机模拟器和隔离浏览器均已清理。详细边界与清理记录见 [邮箱验证报告](reports/2026-09-22-email-verification/README.md)。
+
 - **2026-09-22（邮箱验证与教师备课体验优化，已上线）**：
   - 新注册仅接受真实邮箱并要求验证；旧手机号账号登录后补全、验证邮箱，保留 UID、原密码、作品和本机草稿，后续使用邮箱登录。发送邮件不等于验证；页面、API 与 Firestore Rules 同时限制未验证账号，个人资料字段不能授予验证状态或管理员权限。
-  - 发布预检发现现有管理员邮箱未验证，补齐管理员换绑兼容：权限绑定既有 Firebase UID，换邮箱不会丢失权限，其他人取得旧邮箱也不会成为管理员；管理员仍需自行验证邮箱。管理后台专用登录入口不会在待验证阶段自动退出。
+  - 发布预检发现现有管理员邮箱未验证，补齐管理员换绑兼容：权限绑定既有 Firebase UID，换邮箱不会丢失权限，其他人取得旧邮箱也不会成为管理员；当时管理员仍需自行验证邮箱（已由上方同日修复改为仅原管理员豁免）。管理后台专用登录入口不会在待验证阶段自动退出。
   - 合并此前已授权的体验修复：按 UID 隔离草稿、生成中断与取消、结果完整性协议、搜索、手机长文、备课本另存版本及续写、多模态入口、学习进度、资讯筛选和键盘操作。生成协议 `events-v1` 保留旧客户端兼容。教学质量基线及复测边界继续见 [账号与教学质量报告](reports/2026-09-21-account-quality/README.md)，本次发布未新增模型请求。
   - 实现提交 `899bb48`；资源版本 `20260922-email-required`，Service Worker `20260922-v21`。本地检查通过：11 个公开页 / 13 个应用页、13 个课程场景、67 项函数、50 项邮箱、19 项生成可靠性、8 项适配断言；另通过 27 项 Firestore 模拟器断言。
   - 发布目录 `/home/ubuntu/t-training/releases/20260922-email-899bb48`，回滚备份 `/home/ubuntu/t-training/backups/20260922-pre-email-899bb48`（静态、API、Nginx、旧规则均保留）。先验收 3002 候选 API，经 Nginx 热切换及目录原子交换更新，正式进程回到 3001 后删除候选并执行 `pm2 save`。
@@ -280,9 +287,9 @@ To verify full SDK auth is healthy when network allows: in DevTools console, `fi
 
 ## Auth & Admin
 
-- Admin email: `admin@xylaoshi.com`. Password is **not** in the repo — reset via Firebase Authentication if forgotten. Client UI and Pages Functions derive admin status from the authenticated Firebase email, never from a profile field.
-- **Firebase Console follow-up required:** `users/{uid}` is self-writable, so Firestore rules must not grant admin rights via `get(.../users/$(request.auth.uid)).data.isAdmin == true`. Use `request.auth.token.email == 'admin@xylaoshi.com'` (or a Firebase custom claim) for every admin-only rule, then remove any rule that trusts a user-writable `isAdmin` document field.
-- 邮箱“忘记密码”已实现。本地待发布版本增加无需登录的账号求助、手机号恢复分流；`js/auth.js` 的 `ACCOUNT_SUPPORT_EMAIL` 仍需负责人提供可收信邮箱，不得直接使用管理员登录标识。真实恢复邮件送达尚未验收。
+- 既有管理员登录标识为 `admin@xylaoshi.com`，不代表真实收件邮箱；密码不存入仓库。管理权限仅绑定 Firebase UID `MCUSTieySYczODKB9hkERtyvtZG2`，不可改回按邮箱或用户资料判断。此原管理员免邮箱完善；普通用户必须验证邮箱。
+- Firestore Rules 已与应用使用同一固定管理员 UID。`users/{uid}` 可由本人维护资料，绝不能信任其中 `isAdmin` 字段，也不能根据是否拥有旧管理员邮箱授予权限。
+- 邮箱“忘记密码”、无需登录的账号求助与手机号恢复分流已上线。人工恢复按用户要求暂缓，`ACCOUNT_SUPPORT_EMAIL` 保持未配置，不要求负责人现在提供邮箱，也不得使用管理员登录标识代替。真实恢复邮件送达尚未验收。
 - Cloudflare env var `DEEPSEEK_API_KEY` (Type: Secret) — 智能体空间（`/api/agent`）调用 DeepSeek 所需。未配置任何模型密钥时 `/api/agent` 返回 501 并提示。**改动 env 后必须重新部署一次才生效。**
 - Cloudflare env var `ZHIPU_API_KEY` (Type: Secret) — 智能体空间调用智谱 GLM-5.2 所需。配置后 `lesson-design`、`concept-explainer`、`quiz-gen`、`exam-paper`、`error-diagnosis` 默认优先走 GLM-5.2；失败会回退 DeepSeek。可选 env：`ZHIPU_AGENT_IDS`（逗号分隔覆盖 GLM 智能体清单）、`AGENT_DEFAULT_PROVIDER`（`deepseek` 或 `zhipu`）。
 - Cloudflare env var `FIREBASE_SERVICE_ACCOUNT` (Type: Secret) holds the full Firebase Admin SDK JSON. Watch for **leading whitespace in the variable Name** — CF does not auto-trim and it silently breaks reads. Accepted alternate names: `FIREBASE_ADMIN_CREDENTIALS`, `GOOGLE_SERVICE_ACCOUNT_JSON`, `GOOGLE_CREDENTIALS`, or `FIREBASE_CLIENT_EMAIL` + `FIREBASE_PRIVATE_KEY`.
@@ -390,7 +397,7 @@ Both families are enforced at render time, **not** trusted from Firestore. Path 
 - Use numbered markers only for real sequences (for example a learning path), never as decorative section counters.
 - Homepage signature is now the restrained single-column task launcher; the former teaching-cycle rail was deliberately removed on 2026-08-23 to restore visual balance. Red-pen or document styling may remain in exported teaching documents, but not as the global application shell. The personal `workspace.html` is the deliberate exception: its selected A4 ring-binder metaphor may use paper, punched holes, rings and one signature “pull sheet” transition because the subject itself is a 备课本；do not spread that skeuomorphic treatment to unrelated pages.
 
-**登录 / 注册成功反馈 (2026-09-22 已上线)**: 已验证用户登录后关闭弹层、刷新导航与页脚、派发 `authRefresh`，用底部 toast 欢迎，不使用全屏过渡。未验证用户进入邮箱完善窗口；注册后同样进入完善窗口并自动请求验证邮件，替代原先的注册欢迎层。`workspace.html` 在验证完成后原地加载内容。不要把登录重新接回短时全屏欢迎层。
+**登录 / 注册成功反馈 (2026-09-22 已上线)**: 已验证用户及原管理员登录后关闭弹层、刷新导航与页脚、派发 `authRefresh`，用底部 toast 欢迎，不使用全屏过渡。未验证用户进入邮箱完善窗口；注册后同样进入完善窗口并自动请求验证邮件，替代原先的注册欢迎层。`workspace.html` 在验证完成后原地加载内容。不要把登录重新接回短时全屏欢迎层。
 
 **退出提速 + 记住我 / 登录持久化 (2026-08-22)**：①`Auth.logout()` 原地更新，不整页 reload。顺序保持 `await auth.signOut()` → 同时清除 local / session 两套代理会话和用户快照 → `refreshAuthUI()` → 派发 `authRefresh`。②「记住我」默认不勾：勾选时代理令牌、Firebase persistence 和乐观用户快照都使用 `LOCAL` / `localStorage`；不勾时三者都使用 `SESSION` / `sessionStorage`，关闭标签页后退出，更适合公用电脑。注册仍固定长期保持。浏览器存储里的快照只用于首帧 UI，服务端权限始终由 Firebase idToken 和安全规则判断。
 
