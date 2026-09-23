@@ -6,5 +6,9 @@
   "scripts": {
     "check": "node scripts/check-site.mjs && node scripts/test-curriculum-guard.mjs && node scripts/test-functions.mjs && node scripts/test-email-verification.mjs && node scripts/test-generation-reliability.mjs && node scripts/test-tencent-server.mjs",
     "start:tencent": "node server/tencent-api.mjs"
+  },
+  "dependencies": {
+    "mysql2": "3.24.4",
+    "nodemailer": "10.0.10"
   }
 }

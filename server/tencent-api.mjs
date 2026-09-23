@@ -5,15 +5,25 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { Readable } from 'node:stream';
 
-import * as adminUsers from '../functions/api/admin-users.js';
+import * as adminUsersFirebase from '../functions/api/admin-users.js';
 import * as agent from '../functions/api/agent.js';
-import * as analytics from '../functions/api/analytics.js';
-import * as authProxy from '../functions/api/auth-proxy.js';
-import * as content from '../functions/api/content.js';
+import * as analyticsFirebase from '../functions/api/analytics.js';
+import * as authProxyFirebase from '../functions/api/auth-proxy.js';
+import * as contentFirebase from '../functions/api/content.js';
 import * as emailAction from '../functions/api/email-action.js';
 import * as rssProxy from '../functions/api/rss-proxy.js';
-import * as tools from '../functions/api/tools.js';
-import * as works from '../functions/api/works.js';
+import * as toolsFirebase from '../functions/api/tools.js';
+import * as worksFirebase from '../functions/api/works.js';
+
+const authProxy = process.env.T_TRAINING_AUTH_BACKEND === 'local'
+    ? await import('./local-auth-proxy.mjs')
+    : authProxyFirebase;
+const localData = process.env.T_TRAINING_DATA_BACKEND === 'local';
+const adminUsers = localData ? await import('./local-admin-users.mjs') : adminUsersFirebase;
+const analytics = localData ? await import('./local-analytics.mjs') : analyticsFirebase;
+const content = localData ? await import('./local-content.mjs') : contentFirebase;
+const tools = localData ? await import('./local-tools.mjs') : toolsFirebase;
+const works = localData ? await import('./local-works.mjs') : worksFirebase;
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 3001;

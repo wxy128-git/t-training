@@ -19,10 +19,20 @@ const optional = value => value === undefined || value === null ? null : String(
 const bool = value => value === true ? 1 : 0;
 const authFile = await readJson(path.join(backupDir, 'firebase-auth-users.json'));
 const manifest = await readJson(path.join(backupDir, 'manifest.json'));
+const reconcile = process.env.T_TRAINING_IMPORT_RECONCILE === '1';
+if (!Array.isArray(authFile.users) || Number(manifest.authUserCount) !== authFile.users.length) {
+    throw new Error('Auth 快照数量与 manifest 不一致，拒绝导入');
+}
 
 await db.beginTransaction();
 try {
+    if (reconcile) {
+        await db.query('CREATE TEMPORARY TABLE source_auth_uids (uid varchar(128) NOT NULL PRIMARY KEY) ENGINE=MEMORY');
+        await db.query('CREATE TEMPORARY TABLE source_profile_uids (uid varchar(128) NOT NULL PRIMARY KEY) ENGINE=MEMORY');
+        await db.query('CREATE TEMPORARY TABLE source_firestore_keys (collection_name varchar(128) NOT NULL, document_id varchar(255) NOT NULL, PRIMARY KEY (collection_name, document_id)) ENGINE=InnoDB');
+    }
     for (const user of authFile.users || []) {
+        if (reconcile) await db.execute('INSERT INTO source_auth_uids (uid) VALUES (?)', [optional(user.localId)]);
         await db.execute(`
             INSERT INTO auth_users
               (uid, email, display_name, email_verified, disabled, phone_number,
@@ -54,6 +64,7 @@ try {
         for (const document of data.documents || []) {
             const documentId = String(document.name || '').split('/').pop();
             if (!documentId) throw new Error(`缺少文档 ID：${collectionName}`);
+            if (reconcile) await db.execute('INSERT INTO source_firestore_keys (collection_name, document_id) VALUES (?, ?)', [collectionName, documentId]);
             await db.execute(`
                 INSERT INTO firestore_documents
                   (collection_name, document_id, document_name, fields_json, create_time_iso, update_time_iso, raw_json)
@@ -68,6 +79,7 @@ try {
             ]);
 
             if (collectionName === 'users') {
+                if (reconcile) await db.execute('INSERT INTO source_profile_uids (uid) VALUES (?)', [documentId]);
                 const fields = document.fields || {};
                 const value = (key, fallback = '') => {
                     const field = fields[key];
@@ -92,18 +104,34 @@ try {
         }
     }
 
+    const removed = { authUsers: 0, userProfiles: 0, firestoreDocuments: 0, authSessions: 0 };
+    if (reconcile) {
+        const [sessionResult] = await db.query('DELETE s FROM auth_sessions s LEFT JOIN source_auth_uids src ON src.uid=s.uid WHERE src.uid IS NULL');
+        const [profileResult] = await db.query('DELETE p FROM user_profiles p LEFT JOIN source_profile_uids src ON src.uid=p.uid WHERE src.uid IS NULL');
+        const [authResult] = await db.query('DELETE a FROM auth_users a LEFT JOIN source_auth_uids src ON src.uid=a.uid WHERE src.uid IS NULL');
+        const [documentResult] = await db.query('DELETE d FROM firestore_documents d LEFT JOIN source_firestore_keys src ON src.collection_name=d.collection_name AND src.document_id=d.document_id WHERE src.document_id IS NULL');
+        removed.authSessions = Number(sessionResult.affectedRows || 0);
+        removed.userProfiles = Number(profileResult.affectedRows || 0);
+        removed.authUsers = Number(authResult.affectedRows || 0);
+        removed.firestoreDocuments = Number(documentResult.affectedRows || 0);
+    }
+
     const counts = {};
     for (const table of ['auth_users', 'user_profiles', 'firestore_documents']) {
         const [rows] = await db.query(`SELECT COUNT(*) AS count FROM \`${table}\``);
         counts[table] = Number(rows[0].count);
     }
+    const sourceDocumentCount = Number(manifest.firestoreDocumentCount ?? Object.values(manifest.firestoreCollections || {}).reduce((sum, value) => sum + Number(value?.documents ?? value ?? 0), 0));
+    if (reconcile && (counts.auth_users !== authFile.users.length || counts.firestore_documents !== sourceDocumentCount)) {
+        throw new Error(`镜像核对失败：Auth ${counts.auth_users}/${authFile.users.length}，Firestore ${counts.firestore_documents}/${sourceDocumentCount}`);
+    }
     await db.execute(`
         INSERT INTO migration_meta (meta_key, meta_value)
         VALUES ('firebase_import', ?)
         ON DUPLICATE KEY UPDATE meta_value=VALUES(meta_value), updated_at=CURRENT_TIMESTAMP()
-    `, [JSON.stringify({ importedAt: new Date().toISOString(), sourceManifest: manifest, counts })]);
+    `, [JSON.stringify({ importedAt: new Date().toISOString(), sourceManifest: manifest, reconcile, removed, counts })]);
     await db.commit();
-    console.log(JSON.stringify({ ok: true, sourceAuthUsers: authFile.users?.length || 0, sourceCollections: manifest.firestoreCollectionCount, counts }, null, 2));
+    console.log(JSON.stringify({ ok: true, reconcile, sourceAuthUsers: authFile.users?.length || 0, sourceCollections: manifest.firestoreCollectionCount, sourceDocuments: sourceDocumentCount, removed, counts }, null, 2));
 } catch (error) {
     await db.rollback();
     throw error;

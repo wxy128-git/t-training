@@ -127,7 +127,7 @@ async function callAuthProxy(action, payload, options = {}) {
         rememberLastAuthUser(_currentUser);
         document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
     }
-    return { ok: true, viaProxy: true, msg: data.msg || '', user: data.user, sentTo: data.sentTo, retryAfter: data.retryAfter, alreadyVerified: data.alreadyVerified };
+    return { ok: true, viaProxy: true, authBackend: data.authBackend || '', msg: data.msg || '', user: data.user, sentTo: data.sentTo, retryAfter: data.retryAfter, alreadyVerified: data.alreadyVerified };
 }
 
 async function refreshProxyAuthSession() {
@@ -209,7 +209,7 @@ const Auth = {
         if (shouldUseAuthProxyFirst('login')) {
             try {
                 const result = await callAuthProxy('login', { email: authEmail, password }, { persistent: remember });
-                syncFirebaseAuthAfterProxy(authEmail, password, remember);
+                if (result.authBackend !== 'local') syncFirebaseAuthAfterProxy(authEmail, password, remember);
                 return result;
             } catch(proxyError) {
                 // 正式站的代理网络异常时不再回落到国内网络可能不可达的 Firebase SDK，
@@ -258,7 +258,7 @@ const Auth = {
             try {
                 const result = await callAuthProxy('register', { email: authEmail, password, profile: userData }, { persistent: true });
                 // 代理已经创建账号并写入会话；这里只在后台恢复 Firebase SDK 状态，不会重复注册。
-                syncFirebaseAuthAfterProxy(authEmail, password, true);
+                if (result.authBackend !== 'local') syncFirebaseAuthAfterProxy(authEmail, password, true);
                 return result;
             } catch(proxyError) {
                 // 注册不是幂等操作。网络中断、超时或服务端 5xx 时，账号可能已创建但响应丢失，
@@ -308,6 +308,10 @@ const Auth = {
     },
 
     async logout() {
+        const proxySession = getStoredProxyAuthSession({ allowExpired: true });
+        if (proxySession?.idToken) {
+            try { await callAuthProxy('logout', { idToken: proxySession.idToken }); } catch {}
+        }
         try { await auth.signOut(); } catch {}                                // 先真正登出：清掉本机 Firebase 令牌（本地操作、几毫秒完成）
         forgetProxyAuthSession();
         rememberLastAuthUser(null);

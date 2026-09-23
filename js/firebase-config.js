@@ -105,6 +105,20 @@ auth.onAuthStateChanged(async (fbUser) => {
             const proxy = getProxyAuthUser();
             return proxy?.uid === fbUser.uid ? proxy : fallback;
         };
+        // 迁移候选/腾讯本地认证会话已经带有经过服务端筛选的资料；
+        // 不再为了补读 users 文档而让浏览器直连 Firestore，避免国内网络下
+        // 登录成功后又因 Firebase 读取超时出现闪烁或长时间等待。
+        const proxyIdentity = getProxyAuthUser();
+        if (proxyIdentity?.uid === fbUser.uid) {
+            _currentUser = proxyIdentity;
+            rememberLastAuthUser(_currentUser);
+            if (!_authReady) {
+                _authReady = true;
+                _readyCallbacks.splice(0).forEach(fn => fn(_currentUser));
+            }
+            document.dispatchEvent(new CustomEvent('authChanged', { detail: _currentUser }));
+            return;
+        }
         try {
             const snap = await db.collection('users').doc(fbUser.uid).get();
             if (sequence !== authStateSequence || auth.currentUser?.uid !== fbUser.uid) return;

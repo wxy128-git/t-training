@@ -630,22 +630,41 @@
         submitButton.textContent = '提交中...';
         try {
             const data = Object.fromEntries(new FormData(contactForm).entries());
-            await db.collection('contact_messages').add({
-                name: data.name || user.name || '',
-                contact: data.contact || user.email || user.phone || '',
-                message,
-                page: data.page || location.href,
-                userId: user.uid || '',
-                userEmail: user.email || '',
-                userPhone: user.phone || '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                handled: false
-            });
+            let proxyResponse;
+            try {
+                proxyResponse = await fetch('/api/content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'submitContact',
+                        idToken: await SiteAuth.getIdToken(),
+                        data: { ...data, message, page: data.page || location.href }
+                    })
+                });
+            } catch (error) { error.status = 0; throw error; }
+            if (!proxyResponse.ok) {
+                const proxyError = new Error('本地留言接口暂不可用');
+                proxyError.status = proxyResponse.status;
+                throw proxyError;
+            }
             contactForm.reset();
             closeContactModal();
             toast('留言已提交，感谢您的反馈');
         } catch (error) {
-            toast('提交失败，请稍后再试');
+            const status = Number(error?.status || 0);
+            if (![404, 405, 501].includes(status)) {
+                toast(error.message || '提交失败，请稍后再试');
+                return;
+            }
+            try {
+                const data = Object.fromEntries(new FormData(contactForm).entries());
+                await db.collection('contact_messages').add({
+                    name: data.name || user.name || '', contact: data.contact || user.email || user.phone || '', message,
+                    page: data.page || location.href, userId: user.uid || '', userEmail: user.email || '', userPhone: user.phone || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(), handled: false
+                });
+                contactForm.reset(); closeContactModal(); toast('留言已提交，感谢您的反馈');
+            } catch { toast('提交失败，请稍后再试'); }
         } finally {
             submitButton.disabled = false;
             submitButton.textContent = '提交留言';

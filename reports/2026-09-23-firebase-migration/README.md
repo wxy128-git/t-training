@@ -1,29 +1,40 @@
-# Firebase → 腾讯服务器迁移进度（第一阶段）
+# Firebase → 腾讯服务器迁移进度
 
-本阶段只做备份、盘点和隔离目标库准备，没有切换生产登录、没有修改 Firebase 数据，也没有删除任何账号。
+当前处于“隔离候选验证完成、生产尚未切换”阶段。线上 `t-training-api` 仍使用 Firebase；所有本地认证和数据读写只运行在腾讯服务器 `127.0.0.1:3003` 的隔离候选进程中。
 
-## 已完成
+## 数据保护与两次快照
 
-- 在腾讯服务器建立受限回滚快照：`/home/ubuntu/t-training/backups/20260923-pre-migration-firebase`。
-- 快照统计：Firebase Authentication 358 个账号；Firestore 11 个顶层集合、10,729 条文档，其中 `users` 350 条、`works` 145 条、`analytics_events` 10,190 条。
-- 账号快照保留原 UID、邮箱验证状态、账号状态和密码哈希字段；不含明文密码。
-- 腾讯服务器安装并启用 MariaDB，数据库只监听 `127.0.0.1:3306`，建立隔离库 `t_training_migration`。
-- 已将快照导入隔离库并核对数量：`auth_users` 358、`user_profiles` 350、`firestore_documents` 10,729。线上 `t-training-api` 仍使用 Firebase。
-- 新增 `migration/schema.sql`、`migration/import-firebase.mjs` 和对应依赖，导入脚本使用 upsert，可重复执行，不删除目标数据。
+- 初始回滚快照：`/home/ubuntu/t-training/backups/20260923-pre-migration-firebase`，包含 Firebase Authentication 358 个账号、Firestore 11 个顶层集合和 10,729 条文档。
+- 切换前复核快照：`/home/ubuntu/t-training/backups/20260923-pre-cutover-check`，包含 367 个账号和 10,982 条文档。迁移期间真实新增了 9 个账号和 253 条文档；已全部补入腾讯隔离库。
+- 最新隔离库核对结果：`auth_users` 367、`user_profiles` 359、`firestore_documents` 10,982、测试后活动会话 0、一次性邮箱令牌 0。
+- 两份快照目录权限为 `700`，文件权限为 `600`。最新快照的 12 个数据文件均通过 SHA-256 校验。
+- Firebase 全程只读，没有删除、改写或停用任何线上账号和文档。
 
-## 进入账号并行迁移前的人工步骤
+## 已完成的候选实现
 
-Firebase 当前服务账号可以读取用户记录和密码哈希，但不能读取 Firebase 专用 SCRYPT 哈希参数。若要让用户继续使用原密码，需要由有 Google Cloud IAM 权限的管理员给服务账号增加只读权限 `firebaseauth.configs.getHashConfig`。Firebase 官方要求通过自定义 IAM 角色授予该权限，见 [Firebase 用户管理文档](https://firebase.google.com/docs/auth/admin/manage-users) 和 [Firebase 密码导入文档](https://firebase.google.com/docs/auth/admin/import-users)。
+- 腾讯 MariaDB 只监听 `127.0.0.1:3306`，账号、资料、原始 Firestore 文档、本地会话和一次性邮箱令牌均保存在独立迁移库。
+- 登录使用本地加密会话。旧账号第一次登录时只让 Firebase 校验一次原密码，随后在腾讯库保存新的 `scrypt` 哈希；不保存明文密码。这样不需要额外读取 Firebase 的专用哈希参数，也不会强迫已有用户统一改密码。
+- 新注册可完全在腾讯创建 UID、资料和密码，不再依赖 Firebase 注册接口。该能力由环境开关控制，尚未在生产启用。
+- 邮箱验证和密码重置已支持腾讯本地一次性链接：令牌只以 SHA-256 摘要入库，30 分钟失效、使用一次后立即作废，重置密码后撤销旧会话。邮件链接直接回到 `ai.teachailab.com`，不需要 VPN。
+- 服务器尚无真实邮件发送账号；候选测试使用 Nodemailer JSON 传输，只生成邮件结构，不向外发送。正式启用前需要配置 SMTP 发件账号。
+- Firestore 的备课本、公开内容、工具、后台文案与文章、资源、留言、社区提示词、订阅、统计和用户列表均已有 MariaDB 适配层。前端在本地模式走同源 API，旧 Cloudflare 环境明确回退现有 Firebase 路径。
+- 智能体接口可校验本地登录令牌；无效令牌在调用模型前返回 401，不产生模型费用。
+- 管理员删除用户在并行迁移阶段仍返回保护性提示，避免只删除一侧导致账号重新出现；正式脱离 Firebase 后再开启本地彻底删除。
 
-服务账号标识：
+## 验证结果
 
-`firebase-adminsdk-fbsvc@xylaoshi-28f6c.iam.gserviceaccount.com`
+- 项目全量回归通过：11 个公开页、13 个应用页、13 个课程场景、67 项函数断言、79 项邮箱断言、19 项生成可靠性断言、15 项腾讯适配断言。
+- 候选认证与数据回归通过：备课本 CRUD、文章与工具读取 8 项；管理员读取/保存、权限拒绝、订阅和留言 8 项；登出撤销 3 项。
+- 本地注册和邮箱候选回归通过 14 项：注册、生成验证邮件、验证链接单次使用、邮箱状态刷新、密码重置、旧密码失效和新密码登录。
+- 候选智能体使用无效令牌返回 401，未发起模型请求。
+- 所有测试账号、留言、订阅、会话、邮箱令牌和远端临时脚本均已清理；复测后的数据库数量与最新快照一致。
 
-不要把服务账号 JSON、私钥或密码发送给我。授权完成后先只读验证哈希参数，再继续编写本地登录校验和灰度接口；如果不授予该权限，只能保留账号和资料并要求用户重置密码，不能无损保留原密码登录。
+## 正式切换前仍需完成
 
-## 尚未执行
+1. 配置一个能向国内常用邮箱稳定投递的 SMTP 发件账号，并完成 SPF、DKIM 等域名验证。
+2. 使用真实收件箱各验证一次注册、验证邮件、密码重置和垃圾邮件表现。
+3. 切换前再生成最后一份只读快照并用 `T_TRAINING_IMPORT_RECONCILE=1` 严格镜像导入，防止最后几小时的数据遗漏。
+4. 先启用本地会话和本地数据，保留 Firebase 注册/邮件桥接作为短期回滚层；稳定后再启用本地注册和本地邮件。
+5. 完成公网候选检查后才修改正式 PM2 环境和 Nginx 指向，并保留发布目录、数据库快照和一键回滚配置。
 
-- 未把腾讯 MariaDB 接入生产 API。
-- 未停止 Firebase Authentication 或 Firestore。
-- 未修改 DNS、Nginx、PM2、Firestore Rules 或任何线上账号资料。
-- 未发送迁移通知邮件，未调用模型。
+迁移脚本见 `migration/export-firebase.mjs`、`migration/import-firebase.mjs` 和 `migration/schema.sql`。导出脚本只读 Firebase；导入默认只做 upsert，只有显式设置 `T_TRAINING_IMPORT_RECONCILE=1` 才会把隔离库严格对齐到快照，避免误删本地新增数据。

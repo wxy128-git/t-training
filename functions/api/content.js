@@ -79,6 +79,9 @@ function sortItems(type, items) {
 
 export async function onRequestGet({ request }) {
     const requestUrl = new URL(request.url);
+    if (requestUrl.searchParams.get('scope') === 'admin') {
+        return jsonResponse(501, { ok: false, msg: '当前环境未启用本地管理内容接口' }, { 'Cache-Control': 'no-store' });
+    }
     const type = requestUrl.searchParams.get('type') || '';
     const collection = CONTENT_TYPES[type];
     if (!collection) return jsonResponse(400, { ok: false, msg: '不支持的内容类型' }, { 'Cache-Control': 'no-store' });

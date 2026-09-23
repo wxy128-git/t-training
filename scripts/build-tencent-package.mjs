@@ -32,7 +32,9 @@ const isApi = file => (
     || file === 'js/curriculum-guard.js'
     || file === 'js/account-policy.js'
     || file === 'server/tencent-api.mjs'
+    || /^server\/[^/]+\.mjs$/.test(file)
     || file === 'package.json'
+    || file === 'package-lock.json'
 );
 const isOps = file => /^deploy\/tencent\//.test(file);
 

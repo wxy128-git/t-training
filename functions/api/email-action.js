@@ -62,10 +62,10 @@ const PAGE = `<!doctype html>
 </main>
 <script>
 (()=>{
-const params=new URLSearchParams(location.search);let mode=params.get('mode')||'';let oobCode=params.get('oobCode')||'';const rawContinue=params.get('continueUrl')||'';const title=document.getElementById('title');const description=document.getElementById('description');const state=document.getElementById('state');const stateText=document.getElementById('state-text');const form=document.getElementById('password-form');const linkForm=document.getElementById('link-form');const linkInput=document.getElementById('email-link');const actions=document.getElementById('actions');const continueLink=document.getElementById('continue-link');let continueUrl='/';
+const params=new URLSearchParams(location.search);let mode=params.get('mode')||'';let oobCode=params.get('oobCode')||'';let token=params.get('token')||'';const rawContinue=params.get('continueUrl')||'';const title=document.getElementById('title');const description=document.getElementById('description');const state=document.getElementById('state');const stateText=document.getElementById('state-text');const form=document.getElementById('password-form');const linkForm=document.getElementById('link-form');const linkInput=document.getElementById('email-link');const actions=document.getElementById('actions');const continueLink=document.getElementById('continue-link');let continueUrl='/';
 try{const candidate=new URL(rawContinue,location.origin);if(candidate.origin===location.origin&&!candidate.pathname.startsWith('/api/email-action'))continueUrl=candidate.pathname+candidate.search+candidate.hash}catch{}
 continueLink.href=continueUrl;history.replaceState({},'',location.pathname+(mode?'?mode='+encodeURIComponent(mode):''));
-const labels={verifyEmail:['验证邮箱','邮箱验证成功'],verifyAndChangeEmail:['确认新邮箱','新邮箱验证成功'],recoverEmail:['恢复邮箱','邮箱地址已恢复'],resetPassword:['重置密码','密码已更新']};
+const labels={verifyEmail:['验证邮箱','邮箱验证成功'],verifyAndChangeEmail:['确认新邮箱','新邮箱验证成功'],recoverEmail:['恢复邮箱','邮箱地址已恢复'],resetPassword:['重置密码','密码已更新'],localVerifyEmail:['验证邮箱','邮箱验证成功'],localResetPassword:['重置密码','密码已更新']};
 if(labels[mode])title.textContent=labels[mode][0];
 function setState(kind,message){state.className='state'+(kind?' '+kind:'');stateText.textContent=message}
 function showActions(){actions.hidden=false}
@@ -73,20 +73,22 @@ function showError(message){title.textContent='链接未能完成';description.t
 function showPasteForm(){title.textContent='在本站完成邮箱操作';description.textContent='邮件里的验证或重置按钮打不开时，把按钮链接复制到这里即可，不需要连接 VPN。';setState('','请复制邮件按钮的完整链接并粘贴到下方。');linkForm.hidden=false;actions.hidden=false;linkInput.focus()}
 const readActionLink=${parseEmailActionLink.toString()};
 async function complete(newPassword){
- const response=await fetch('/api/auth-proxy',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'omit',cache:'no-store',body:JSON.stringify({action:'complete-email-action',mode,oobCode,...(newPassword?{newPassword}:{})})});
+ const local=mode==='localVerifyEmail'||mode==='localResetPassword';
+ const response=await fetch('/api/auth-proxy',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'omit',cache:'no-store',body:JSON.stringify({action:local?'complete-local-email-action':'complete-email-action',mode,...(local?{token}:{oobCode}),...(newPassword?{newPassword}:{})})});
  const data=await response.json().catch(()=>({}));if(!response.ok||!data.ok)throw new Error(data.msg||'暂时无法完成操作，请稍后重试');return data;
 }
 async function start(){
- if(!mode&&!oobCode){showPasteForm();return}
- if(!labels[mode]||!oobCode){showError('验证链接不完整，请重新发送邮件。');return}
+ if(!mode&&!oobCode&&!token){showPasteForm();return}
+ const local=mode==='localVerifyEmail'||mode==='localResetPassword';
+ if(!labels[mode]||(local?!/^[A-Za-z0-9_-]{40,128}$/.test(token):!oobCode)){showError('验证链接不完整，请重新发送邮件。');return}
  try{
   const data=await complete();
-  if(mode==='resetPassword'&&data.needsPassword){description.textContent=data.email?'正在为 '+data.email+' 设置新密码。':'请输入新的登录密码。';setState('',data.msg);form.hidden=false;document.getElementById('new-password').focus();return}
+  if((mode==='resetPassword'||mode==='localResetPassword')&&data.needsPassword){description.textContent=data.email?'正在为 '+data.email+' 设置新密码。':'请输入新的登录密码。';setState('',data.msg);form.hidden=false;document.getElementById('new-password').focus();return}
   title.textContent=labels[mode][1];description.textContent=data.email?'已完成 '+data.email+' 的操作。':'操作已经完成。';setState('success',data.msg);showActions();
  }catch(error){showError(error.message)}
 }
-linkForm.addEventListener('submit',event=>{event.preventDefault();try{const parsed=readActionLink(linkInput.value);mode=parsed.mode;oobCode=parsed.oobCode;linkInput.value='';linkForm.hidden=true;actions.hidden=true;title.textContent=labels[mode][0];description.textContent='请稍候，系统正在通过本站安全完成操作。';setState('','正在处理，请不要关闭页面…');history.replaceState({},'',location.pathname+'?mode='+encodeURIComponent(mode));start()}catch(error){setState('error',error.message)}});
-form.addEventListener('submit',async event=>{event.preventDefault();const password=document.getElementById('new-password').value;const confirmation=document.getElementById('confirm-password').value;if(password.length<6){setState('error','新密码至少需要 6 位。');return}if(password!==confirmation){setState('error','两次输入的密码不一致。');return}const submit=document.getElementById('submit-password');submit.disabled=true;setState('','正在更新密码…');try{const data=await complete(password);form.hidden=true;title.textContent=labels.resetPassword[1];description.textContent=data.email?'账号 '+data.email+' 已可使用新密码登录。':'现在可以使用新密码登录。';setState('success',data.msg);showActions()}catch(error){setState('error',error.message);submit.disabled=false}});
+linkForm.addEventListener('submit',event=>{event.preventDefault();try{const parsed=readActionLink(linkInput.value);mode=parsed.mode;oobCode=parsed.oobCode;token='';linkInput.value='';linkForm.hidden=true;actions.hidden=true;title.textContent=labels[mode][0];description.textContent='请稍候，系统正在通过本站安全完成操作。';setState('','正在处理，请不要关闭页面…');history.replaceState({},'',location.pathname+'?mode='+encodeURIComponent(mode));start()}catch(error){setState('error',error.message)}});
+form.addEventListener('submit',async event=>{event.preventDefault();const password=document.getElementById('new-password').value;const confirmation=document.getElementById('confirm-password').value;if(password.length<6){setState('error','新密码至少需要 6 位。');return}if(password!==confirmation){setState('error','两次输入的密码不一致。');return}const submit=document.getElementById('submit-password');submit.disabled=true;setState('','正在更新密码…');try{const data=await complete(password);form.hidden=true;title.textContent=labels[mode][1];description.textContent=data.email?'账号 '+data.email+' 已可使用新密码登录。':'现在可以使用新密码登录。';setState('success',data.msg);showActions()}catch(error){setState('error',error.message);submit.disabled=false}});
 start();
 })();
 </script>

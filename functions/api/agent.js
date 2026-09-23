@@ -165,8 +165,21 @@ async function callProviderWithFallback(provider, env, messages, options = {}) {
     }
 }
 
-async function verifyUser(idToken) {
+async function verifyUser(idToken, env) {
     if (!idToken) { const e = new Error('请先登录后使用智能体'); e.statusCode = 401; throw e; }
+    if (env?.T_TRAINING_AUTH_BACKEND === 'local') {
+        const { readLocalAccessToken } = await import('../../server/local-auth-store.mjs');
+        const session = await readLocalAccessToken(env, idToken);
+        if (!session) { const e = new Error('登录状态已过期，请重新登录'); e.statusCode = 401; e.code = 'INVALID_ID_TOKEN'; throw e; }
+        const user = {
+            localId: session.user.uid,
+            email: session.user.email,
+            emailVerified: session.user.emailVerified,
+            displayName: session.user.name
+        };
+        globalThis.AccountPolicy.assertCanUseFeatures(user);
+        return user;
+    }
     const r = await fetch(FIREBASE_AUTH_LOOKUP, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -390,7 +403,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     // 登录校验（防盗刷）
     let user;
     try {
-        user = await verifyUser(idToken);
+        user = await verifyUser(idToken, env);
     } catch (e) {
         return jsonResponse(e.statusCode || 401, { ok: false, msg: e.message, code: e.code });
     }

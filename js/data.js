@@ -540,15 +540,19 @@ function getLocalPageCopy(pageId) {
     }
 }
 
-async function callContentAPI(type, id = '') {
+async function callContentAPI(type, id = '', options = {}) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
     try {
         const params = new URLSearchParams({ type });
         if (id) params.set('id', id);
+        if (options.scope) params.set('scope', options.scope);
+        if (options.status) params.set('status', options.status);
+        const requestHeaders = { 'Accept': 'application/json' };
+        if (options.idToken) requestHeaders.Authorization = `Bearer ${options.idToken}`;
         const response = await fetch(`/api/content?${params}`, {
             method: 'GET',
-            headers: { 'Accept': 'application/json' },
+            headers: requestHeaders,
             signal: controller.signal
         });
         const data = await response.json().catch(() => ({}));
@@ -565,16 +569,55 @@ async function callContentAPI(type, id = '') {
     }
 }
 
+async function callContentMutation(action, payload = {}) {
+    let response;
+    try {
+        response = await fetch('/api/content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, ...payload })
+        });
+    } catch (error) {
+        error.status = 0;
+        throw error;
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false) {
+        const error = new Error(data.msg || `内容写入接口请求失败（${response.status}）`);
+        error.status = response.status;
+        error.code = data.code;
+        throw error;
+    }
+    return data;
+}
+
+function shouldFallbackContentMutation(error) {
+    const status = Number(error?.status || 0);
+    // 5xx 代表已启用的本地数据服务自身出错，不能把写入悄悄送回
+    // Firebase 造成双写分叉；只有旧环境明确返回 404/405/501 才回退。
+    return status === 404 || status === 405 || status === 501;
+}
+
+async function adminContentRead(type, id = '') {
+    const token = await Auth.getIdToken();
+    return callContentAPI(type, id, { scope: 'admin', idToken: token });
+}
+
+async function adminContentMutation(action, payload = {}) {
+    return callContentMutation(action, { ...payload, idToken: await Auth.getIdToken() });
+}
+
 /* ===== Firestore 数据访问（异步） ===== */
 const DB = {
     async getPageCopy(pageId) {
         if (!PAGE_COPY_IDS.has(pageId)) return null;
         if (isLocalPreviewRuntime()) return getLocalPageCopy(pageId);
-        if (!isAdminRuntimePage()) {
-            try { return await callContentAPI('pageCopy', pageId); }
-            catch(e) {
-                if (Number(e?.status) !== 404) console.warn('getPageCopy proxy:', e.message);
-            }
+        try {
+            const result = await (isAdminRuntimePage() ? adminContentRead('pageCopy', pageId) : callContentAPI('pageCopy', pageId));
+            return isAdminRuntimePage() ? (result?.item || null) : result;
+        }
+        catch(e) {
+            if (Number(e?.status) !== 404) console.warn('getPageCopy proxy:', e.message);
         }
         try {
             const doc = await db.collection('page_copy').doc(pageId).get();
@@ -595,21 +638,21 @@ const DB = {
             localStorage.setItem(`${PAGE_COPY_PREVIEW_PREFIX}${pageId}`, JSON.stringify(preview));
             return preview;
         }
-        await db.collection('page_copy').doc(pageId).set({
-            fields,
-            updatedAt: new Date().toISOString()
-        });
+        try {
+            await adminContentMutation('savePageCopy', { id: pageId, fields });
+        } catch(e) {
+            if (!shouldFallbackContentMutation(e)) throw e;
+            await db.collection('page_copy').doc(pageId).set({ fields, updatedAt: new Date().toISOString() });
+        }
         return { fields, localPreview: false };
     },
     isLocalPreview() { return isLocalPreviewRuntime(); },
 
     async getTools() {
-        if (!isAdminRuntimePage()) {
-            try {
-                const tools = await callToolsAPI();
-                if (tools.length) return tools;
-            } catch(e) { console.warn('getTools proxy:', e.message); }
-        }
+        try {
+            const tools = isAdminRuntimePage() ? await adminContentRead('tools') : await callToolsAPI();
+            if (tools.length || isAdminRuntimePage()) return isAdminRuntimePage() ? tools.items : tools;
+        } catch(e) { console.warn('getTools proxy:', e.message); }
         try {
             const snap = await db.collection('tools').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -617,6 +660,8 @@ const DB = {
         return JSON.parse(JSON.stringify(DEFAULT_TOOLS));
     },
     async setTools(items) {
+        try { await adminContentMutation('replaceCollection', { type: 'tools', items }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const batch = db.batch();
         const ex = await db.collection('tools').get();
         ex.docs.forEach(d => batch.delete(d.ref));
@@ -625,12 +670,10 @@ const DB = {
     },
 
     async getPrompts() {
-        if (!isAdminRuntimePage()) {
-            try {
-                const items = await callContentAPI('prompts');
-                if (items.length) return items;
-            } catch(e) { console.warn('getPrompts proxy:', e.message); }
-        }
+        try {
+            const result = isAdminRuntimePage() ? await adminContentRead('prompts') : { items: await callContentAPI('prompts') };
+            if (result.items?.length || isAdminRuntimePage()) return result.items || [];
+        } catch(e) { console.warn('getPrompts proxy:', e.message); }
         try {
             const snap = await db.collection('prompts').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -638,6 +681,8 @@ const DB = {
         return JSON.parse(JSON.stringify(DEFAULT_PROMPTS));
     },
     async setPrompts(items) {
+        try { await adminContentMutation('replaceCollection', { type: 'prompts', items }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const batch = db.batch();
         const ex = await db.collection('prompts').get();
         ex.docs.forEach(d => batch.delete(d.ref));
@@ -646,12 +691,10 @@ const DB = {
     },
 
     async getPaths() {
-        if (!isAdminRuntimePage()) {
-            try {
-                const items = await callContentAPI('paths');
-                if (items.length) return reviewLearningPaths(items);
-            } catch(e) { console.warn('getPaths proxy:', e.message); }
-        }
+        try {
+            const result = isAdminRuntimePage() ? await adminContentRead('paths') : { items: await callContentAPI('paths') };
+            if (result.items?.length || isAdminRuntimePage()) return reviewLearningPaths(result.items || []);
+        } catch(e) { console.warn('getPaths proxy:', e.message); }
         try {
             const snap = await db.collection('paths').orderBy('order').get();
             if (!snap.empty) return reviewLearningPaths(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -659,6 +702,8 @@ const DB = {
         return reviewLearningPaths(JSON.parse(JSON.stringify(DEFAULT_PATHS)));
     },
     async setPaths(items) {
+        try { await adminContentMutation('replaceCollection', { type: 'paths', items }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const batch = db.batch();
         const ex = await db.collection('paths').get();
         ex.docs.forEach(d => batch.delete(d.ref));
@@ -667,22 +712,26 @@ const DB = {
     },
 
     async getAnnouncements() {
-        if (!isAdminRuntimePage()) {
-            try { return await callContentAPI('announcements'); }
-            catch(e) { console.warn('getAnnouncements proxy:', e.message); }
-        }
+        try { return (await (isAdminRuntimePage() ? adminContentRead('announcements') : { items: await callContentAPI('announcements') })).items; }
+        catch(e) { console.warn('getAnnouncements proxy:', e.message); }
         try {
             const snap = await db.collection('announcements').orderBy('createdAt', 'desc').get();
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         } catch(e) { console.warn('getAnnouncements:', e.message); return []; }
     },
     async addAnnouncement(title, content) {
+        try { await adminContentMutation('addAnnouncement', { title, content }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('announcements').add({ title, content, createdAt: new Date().toISOString() });
     },
     async updateAnnouncement(id, title, content) {
+        try { await adminContentMutation('updateAnnouncement', { id, title, content }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('announcements').doc(id).update({ title, content });
     },
     async deleteAnnouncement(id) {
+        try { await adminContentMutation('deleteAnnouncement', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('announcements').doc(id).delete();
     },
 
@@ -709,6 +758,14 @@ const DB = {
     /* ===== 社区提示词 ===== */
     async getCommunityPrompts(status = null) {
         try {
+            const result = isAdminRuntimePage()
+                ? await adminContentRead('communityPrompts')
+                : await callContentAPI('communityPrompts', '', { status: status || 'approved' });
+            const items = result.items || [];
+            return (status ? items.filter(item => item.status === status) : items)
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        } catch(e) { console.warn('getCommunityPrompts proxy:', e.message); }
+        try {
             let q = db.collection('community_prompts');
             if (status) q = q.where('status', '==', status);
             else q = q.orderBy('createdAt', 'desc');
@@ -721,6 +778,10 @@ const DB = {
     async getMyCommunityPrompts(userId) {
         if (!userId) return [];
         try {
+            const items = await callContentAPI('communityPrompts', '', { scope: 'mine', idToken: await Auth.getIdToken() });
+            return items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        } catch(e) { console.warn('getMyCommunityPrompts proxy:', e.message); }
+        try {
             const snap = await db.collection('community_prompts').where('authorId', '==', userId).get();
             return snap.docs
                 .map(d => ({ id: d.id, ...d.data() }))
@@ -729,9 +790,13 @@ const DB = {
     },
     async submitCommunityPrompt(userId, userName, data) {
         const item = { ...data, authorId: userId, authorName: userName, status: 'pending', likes: 0, likedBy: [], createdAt: new Date().toISOString() };
+        try { await callContentMutation('submitCommunityPrompt', { idToken: await Auth.getIdToken(), data: item }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('community_prompts').add(item);
     },
     async likeCommunityPrompt(promptId, userId) {
+        try { return (await callContentMutation('likeCommunityPrompt', { idToken: await Auth.getIdToken(), id: promptId })).liked; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const ref = db.collection('community_prompts').doc(promptId);
         const doc = await ref.get();
         if (!doc.exists) return false;
@@ -746,14 +811,23 @@ const DB = {
         }
     },
     async approveCommunityPrompt(id) {
+        try { await adminContentMutation('approveCommunityPrompt', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('community_prompts').doc(id).update({ status: 'approved' });
     },
     async deleteCommunityPrompt(id) {
+        try { await adminContentMutation('deleteCommunityPrompt', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('community_prompts').doc(id).delete();
     },
 
     /* ===== 工具评分 ===== */
     async getToolRatings() {
+        try {
+            const result = await callContentAPI('ratings');
+            const mapped = {}; (result || []).forEach(item => { mapped[item.id] = item; });
+            return mapped;
+        } catch(e) { console.warn('getToolRatings proxy:', e.message); }
         try {
             const snap = await db.collection('tool_ratings').get();
             const result = {};
@@ -762,6 +836,8 @@ const DB = {
         } catch(e) { return {}; }
     },
     async rateToolByUser(toolId, userId, rating) {
+        try { await callContentMutation('rateTool', { idToken: await Auth.getIdToken(), id: toolId, rating }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const ref = db.collection('tool_ratings').doc(toolId);
         const doc = await ref.get();
         if (doc.exists) {
@@ -776,6 +852,10 @@ const DB = {
     },
     async getUserToolRating(toolId, userId) {
         try {
+            const item = await callContentAPI('ratings', toolId);
+            return item?.ratings?.[userId] || null;
+        } catch {}
+        try {
             const doc = await db.collection('tool_ratings').doc(toolId).get();
             if (!doc.exists) return null;
             return doc.data().ratings?.[userId] || null;
@@ -784,16 +864,15 @@ const DB = {
 
     /* ===== 精选文章 ===== */
     async getArticles(status = null) {
-        if (!isAdminRuntimePage()) {
-            try {
-                const items = await callContentAPI('articles');
-                const existingIds = new Set(items.map(item => item.id));
-                const fallbackItems = DEFAULT_ARTICLES.filter(item => !existingIds.has(item.id));
-                return [...items, ...fallbackItems]
-                    .filter(item => !status || item.status === status)
-                    .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
-            } catch(e) { console.warn('getArticles proxy:', e.message); }
-        }
+        try {
+            const result = isAdminRuntimePage() ? await adminContentRead('articles') : { items: await callContentAPI('articles') };
+            const items = result.items || [];
+            const existingIds = new Set(items.map(item => item.id));
+            const fallbackItems = isAdminRuntimePage() ? [] : DEFAULT_ARTICLES.filter(item => !existingIds.has(item.id));
+            return [...items, ...fallbackItems]
+                .filter(item => !status || item.status === status)
+                .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
+        } catch(e) { console.warn('getArticles proxy:', e.message); }
         try {
             let q = db.collection('articles');
             if (status) q = q.where('status', '==', status);
@@ -813,12 +892,13 @@ const DB = {
         return list.sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
     },
     async getArticle(id) {
-        if (!isAdminRuntimePage()) {
-            try { return await callContentAPI('articles', id); }
-            catch(e) {
-                if (Number(e?.status) === 404) return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
-                console.warn('getArticle proxy:', e.message);
-            }
+        try {
+            const result = await (isAdminRuntimePage() ? adminContentRead('articles', id) : callContentAPI('articles', id));
+            return isAdminRuntimePage() ? (result?.item || null) : result;
+        }
+        catch(e) {
+            if (Number(e?.status) === 404) return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
+            console.warn('getArticle proxy:', e.message);
         }
         try {
             const doc = await db.collection('articles').doc(id).get();
@@ -829,6 +909,8 @@ const DB = {
         }
     },
     async addArticle(data) {
+        try { return (await adminContentMutation('addArticle', { data: { ...data, readCount: 0, publishedAt: new Date().toISOString(), createdAt: new Date().toISOString() } })).id; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const doc = await db.collection('articles').add({
             ...data,
             readCount: 0,
@@ -838,9 +920,13 @@ const DB = {
         return doc.id;
     },
     async updateArticle(id, data) {
+        try { await adminContentMutation('updateArticle', { id, data }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('articles').doc(id).update({ ...data, updatedAt: new Date().toISOString() });
     },
     async deleteArticle(id) {
+        try { await adminContentMutation('deleteArticle', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('articles').doc(id).delete();
     },
 
@@ -851,37 +937,45 @@ const DB = {
         return 'ok';
     },
     async getSubscribers() {
+        try { return (await adminContentRead('subscribers')).items || []; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         try {
             const snap = await db.collection('subscribers').orderBy('subscribedAt', 'desc').get();
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         } catch(e) { return []; }
     },
     async deleteSubscriber(id) {
+        try { await adminContentMutation('deleteSubscriber', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('subscribers').doc(id).delete();
     },
 
     /* ===== 联系留言 ===== */
     async getMessages() {
+        try { return (await adminContentRead('messages')).items || []; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         try {
             const snap = await db.collection('contact_messages').orderBy('createdAt', 'desc').get();
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         } catch(e) { console.warn('getMessages:', e.message); return []; }
     },
     async updateMessage(id, data) {
+        try { await adminContentMutation('updateMessage', { id, data }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('contact_messages').doc(id).update(data);
     },
     async deleteMessage(id) {
+        try { await adminContentMutation('deleteMessage', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('contact_messages').doc(id).delete();
     },
 
     /* ===== 设计资源 ===== */
     async getResources() {
-        if (!isAdminRuntimePage()) {
-            try {
-                const items = await callContentAPI('resources');
-                if (items.length) return items;
-            } catch(e) { console.warn('getResources proxy:', e.message); }
-        }
+        try {
+            const result = isAdminRuntimePage() ? await adminContentRead('resources') : { items: await callContentAPI('resources') };
+            if (result.items?.length || isAdminRuntimePage()) return result.items || [];
+        } catch(e) { console.warn('getResources proxy:', e.message); }
         try {
             const snap = await db.collection('resource_categories').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -889,6 +983,8 @@ const DB = {
         return JSON.parse(JSON.stringify(DEFAULT_RESOURCES));
     },
     async setResources(categories) {
+        try { await adminContentMutation('setResources', { categories }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const batch = db.batch();
         const ex = await db.collection('resource_categories').get();
         ex.docs.forEach(d => batch.delete(d.ref));
@@ -896,11 +992,15 @@ const DB = {
         await batch.commit();
     },
     async saveResourceCategory(cat) {
+        try { await adminContentMutation('saveResourceCategory', { category: cat }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         const id = cat.id;
         const { id: _ignore, ...rest } = cat;
         await db.collection('resource_categories').doc(id).set(rest, { merge: true });
     },
     async deleteResourceCategory(id) {
+        try { await adminContentMutation('deleteResourceCategory', { id }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) throw e; }
         await db.collection('resource_categories').doc(id).delete();
     },
 
@@ -954,6 +1054,8 @@ const DB = {
     /* ===== 智能体使用计数（用于「热门」印章，按全站使用频率取 Top-N）===== */
     async bumpAgentUsage(agentId) {
         if (!agentId) return;
+        try { await callContentMutation('bumpAgentUsage', { idToken: await Auth.getIdToken(), id: agentId }); return; }
+        catch(e) { if (!shouldFallbackContentMutation(e)) return; }
         try {
             await db.collection('agent_usage').doc(agentId).set(
                 { count: firebase.firestore.FieldValue.increment(1), updatedAt: new Date().toISOString() },
@@ -962,6 +1064,10 @@ const DB = {
         } catch (e) { /* 计数失败不影响智能体使用，静默 */ }
     },
     async getTopAgents(n = 2) {
+        try {
+            const items = await callContentAPI('agentUsage');
+            return (items || []).filter(r => Number(r.count || 0) > 0).sort((a, b) => Number(b.count || 0) - Number(a.count || 0)).slice(0, n).map(r => r.id);
+        } catch (e) {}
         try {
             const snap = await db.collection('agent_usage').get();
             return snap.docs

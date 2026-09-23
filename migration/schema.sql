@@ -19,10 +19,14 @@ CREATE TABLE IF NOT EXISTS `auth_users` (
   `password_hash` longtext DEFAULT NULL,
   `password_salt` longtext DEFAULT NULL,
   `hash_version` varchar(64) DEFAULT NULL,
+  `local_password_hash` varchar(255) DEFAULT NULL,
+  `local_password_salt` varchar(255) DEFAULT NULL,
+  `local_password_scheme` varchar(32) DEFAULT NULL,
+  `local_password_migrated_at` timestamp NULL DEFAULT NULL,
   `raw_json` longtext NOT NULL,
   `imported_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`uid`),
-  KEY `idx_auth_email` (`email`)
+  UNIQUE KEY `uq_auth_email` (`email`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `user_profiles` (
@@ -57,4 +61,32 @@ CREATE TABLE IF NOT EXISTS `migration_meta` (
   `meta_value` longtext NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`meta_key`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `auth_sessions` (
+  `session_id` char(64) NOT NULL,
+  `uid` varchar(128) NOT NULL,
+  `refresh_token_hash` char(64) NOT NULL,
+  `expires_at` datetime(3) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `last_used_at` datetime(3) NOT NULL,
+  `revoked_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`session_id`),
+  UNIQUE KEY `uq_refresh_token_hash` (`refresh_token_hash`),
+  KEY `idx_session_uid` (`uid`),
+  KEY `idx_session_expiry` (`expires_at`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `auth_action_tokens` (
+  `token_hash` char(64) NOT NULL,
+  `uid` varchar(128) NOT NULL,
+  `action_type` varchar(32) NOT NULL,
+  `target_email` varchar(320) NOT NULL DEFAULT '',
+  `expires_at` datetime(3) NOT NULL,
+  `created_at` datetime(3) NOT NULL,
+  `used_at` datetime(3) DEFAULT NULL,
+  `metadata_json` longtext NOT NULL,
+  PRIMARY KEY (`token_hash`),
+  KEY `idx_action_uid_type` (`uid`, `action_type`),
+  KEY `idx_action_expiry` (`expires_at`)
 ) ENGINE=InnoDB;
