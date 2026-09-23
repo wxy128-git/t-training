@@ -36,7 +36,7 @@
 
 ## Local Changes Pending Deployment
 
-- 本站邮箱操作页 API 已随提交 `cef2e2a` 上线；邮件链接粘贴入口、前端提示和缓存版本 `20260923-email-link-help` 已本地完成并通过检查，尚待第二次发布。Firebase 回调仍为原 `firebaseapp.com` 地址；管理 API 返回 `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`，未发生配置变更。
+- 本站邮箱操作页 API、邮件链接粘贴入口、前端提示和缓存版本 `20260923-email-link-help` 已随提交 `cef2e2a` / `d938aac` 上线。Firebase 回调仍为原 `firebaseapp.com` 地址；管理 API 返回 `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`，未发生配置变更，因此国内网络打不开邮件按钮时应使用本站粘贴入口。
 - 本轮邮箱验证、体验优化及原管理员邮箱验证豁免均已于 2026-09-22 上线，详情见下方部署记录。
 - 19 个智能体的当前提示词已完成 42 次真实模型请求；出题、组卷、错题诊断和听评课的约束已于 2026-09-22 上线，组卷助手最终连续通过 50 分、60 分两套定向复测。详见 `reports/2026-09-22-teaching-retest/`。
 - 用户明确暂缓人工账号恢复，不要求站点负责人提供恢复收件邮箱；不能把管理员登录标识当作联系邮箱。
@@ -44,6 +44,13 @@
 - 教学质量后续重点：服务器当前没有配置智谱密钥，本轮未覆盖 GLM-5.2 与供应商回退；随机组卷仍需教师核验答案、条件和分值。
 
 ## Deployment History
+
+- **2026-09-23（邮箱链接国内网络备用入口，已上线）**：
+  - 新增本站邮箱操作页的完整链接粘贴入口。老师不必连接 VPN，复制验证、换绑、恢复或密码重置邮件中按钮的完整链接，打开 `https://ai.teachailab.com/api/email-action` 粘贴后即可由本站完成一次性操作；验证弹窗和忘记密码页均提供入口与说明。页面只接受本项目 Firebase / 本站链接，使用后立即清理地址栏中的 `oobCode`，并通过 `no-store`、`no-referrer`、CSP 和 Nginx 关闭访问日志降低一次性链接泄露风险。
+  - 已尝试将 Firebase 邮件模板的 `callbackUri` 改为本站地址，但项目管理 API 明确返回 `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`，所以邮件按钮仍可能先打开 Firebase 默认页面；本次上线的是可直接使用的粘贴备用流程，未修改 Firebase 配置。Firebase 官方说明了自定义邮件处理页和 `mode` / `oobCode` 参数的工作方式，详见 [自定义邮箱操作处理页](https://firebase.google.com/docs/auth/custom-email-handler) 和 [Identity Platform Config](https://docs.cloud.google.com/identity-platform/docs/reference/rest/v2/Config)。
+  - 实现提交 `cef2e2a`、`d938aac`；发布目录 `/home/ubuntu/t-training/releases/20260923-email-link-d938aac`；回滚备份 `/home/ubuntu/t-training/backups/20260923-pre-email-link-d938aac`。共享资源版本为 `20260923-email-link-help`，Service Worker 为 `20260923-v24`；发布包包含 107 个静态文件、13 个 API 文件。
+  - 本地全量检查通过：站点 11 个公开页 / 13 个应用页、13 个课程场景、67 项函数、79 项邮箱、19 项生成可靠性、15 项腾讯云适配；候选和正式 API 通过 15 项邮箱操作断言，公网生产检查通过 103 项。正式 `t-training-api` 与 `edu-media` online，`pm2-ubuntu` enabled / active，Nginx 配置检查通过，API 错误日志为空。
+  - 发布未发送邮件、未创建账号、未调用模型。候选进程、交换目录和临时脚本已清理，正式发布包与回滚备份保留。为避免泄露，临时 Firebase 配置工具已删除；服务账号密钥未能自动轮换，因为项目的 IAM API 未启用且当前服务账号无权启用，后续需由有权限的 Google Cloud / Firebase 管理员手动轮换。
 
 - **2026-09-22（智能体教学质量约束，已上线）**：
   - 出题助手收紧总题量、范围和选择项唯一性；组卷助手增加题干条件溯源、合理整数答案反推、逐题验算及单一细目表；错题诊断区分可观察事实与待核实原因；听评课修正分数单位表述。42 次真实模型请求覆盖 19 个匿名样例及重点复测，最终统计为 14 项可进入教师核验、5 项需少量编辑、0 项不合格；服务器仍未配置智谱密钥，本轮全部使用 `deepseek-v4-flash`。
