@@ -1109,7 +1109,7 @@ tr:hover td { background: var(--soft); }
 .email-gate-tip { margin: 18px 0 12px; font-size: 12px; line-height: 1.8; color: var(--text-soft); }
 .email-gate-message { margin: 12px 0; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; color: var(--text); }
 .email-gate-message:empty { display: none; }
-.email-gate-check { display: block; width: 100%; margin-top: 16px; padding: 10px 14px; background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; }
+.email-gate-check { display: block; width: 100%; margin-top: 16px; padding: 10px 14px; background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; text-align: center; text-decoration: none; }
 .email-gate-logout { display: block; margin: 12px auto 0; padding: 8px; background: none; border: 0; color: var(--text-soft); font-size: 13px !important; }
 @media (max-width: 480px) { .email-gate { padding: 24px 20px; } .email-gate h2 { font-size: 22px; } }
 .account-support p + p { margin-top: 10px; }

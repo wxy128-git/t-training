@@ -60,6 +60,9 @@ try {
     assert(emailAction.headers.get('cache-control')?.includes('no-store') && emailAction.headers.get('pragma') === 'no-cache', '邮箱操作页未彻底禁用缓存');
     assert(emailAction.headers.get('referrer-policy') === 'no-referrer' && emailAction.headers.get('content-security-policy')?.includes("default-src 'none'"), '邮箱操作页缺少验证码防泄漏响应头');
     assert(emailActionBody.includes('/api/auth-proxy') && emailActionBody.includes('history.replaceState') && emailActionBody.includes('验证邮箱'), '邮箱操作页内容或同源完成链路不完整');
+    assert(emailActionBody.includes('id="link-form"') && emailActionBody.includes('在本站完成邮箱操作') && emailActionBody.includes('不需要连接 VPN'), '邮件链接粘贴备用流程未接入');
+    const inlineScript = emailActionBody.match(/<script>([\s\S]+)<\/script>/)?.[1] || '';
+    assert(inlineScript.length > 0 && (() => { try { new Function(inlineScript); return true; } catch { return false; } })(), '邮箱操作页内联脚本语法错误');
 
     const emailActionPost = await fetch(`${base}/api/email-action`, { method: 'POST' });
     assert(emailActionPost.status === 405 && emailActionPost.headers.get('allow') === 'GET', '邮箱操作页没有限制为只读 GET 路由');

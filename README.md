@@ -59,7 +59,9 @@ npx --yes firebase-tools@latest deploy --only firestore:rules
 
 新注册必须填写邮箱并验证；旧手机号账号登录后补全并验证邮箱，原 UID、作品与草稿保留，之后用邮箱和原密码登录。前端、API 和 Firestore Rules 同步限制未验证的普通账号；原管理员按固定 UID 豁免，不必向占位邮箱发信。65 项邮箱行为断言、30 项数据库模拟器权限断言及桌面 / 手机浏览器流程通过；真实邮件投递仍未实测；管理员换绑邮箱后按原账号编号保留权限。
 
-详见 [邮箱完善实施与验收记录](reports/2026-09-22-email-verification/README.md)。邮箱功能实现提交 `899bb48`，原管理员修复提交 `260dfff`；API、静态文件和数据库规则已同步发布。全局共享资源沿用 `20260922-admin-access`，智能体数据脚本为 `20260922-teaching-quality`，Service Worker 为 `20260922-v23`。
+如果 Firebase 邮件按钮在国内网络无法打开，老师可在验证弹窗或忘记密码页进入本站邮箱操作页，复制并粘贴邮件按钮的完整链接，由腾讯云服务器完成验证或密码重置，不需要连接 VPN。
+
+详见 [邮箱完善实施与验收记录](reports/2026-09-22-email-verification/README.md)。邮箱功能实现提交 `899bb48`，原管理员修复提交 `260dfff`；API、静态文件和数据库规则已同步发布。全局共享资源为 `20260923-email-link-help`，智能体数据脚本为 `20260922-teaching-quality`，Service Worker 为 `20260923-v24`。
 
 智能体的新客户端使用 `streamProtocol: events-v1`，服务端按 NDJSON 发送 `delta / done / error`；只有明确完成才进入核验与保存。发布时先更新兼容旧客户端的 API，再更新静态文件；回滚时先退回静态文件，再回滚 API。
 

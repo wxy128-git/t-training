@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import '../js/account-policy.js';
+import { parseEmailActionLink } from '../functions/api/email-action.js';
 
 let passed = 0, serial = 0;
 const check = (condition, message) => { assert.ok(condition, message); passed++; };
@@ -58,6 +59,15 @@ try {
     check(!AccountPolicy.canUseFeatures({ uid: 'other', email: 'admin@xylaoshi.com', isAdmin: true, emailVerified: false }), '邮箱和客户端管理员标志不能获得例外');
     check(!AccountPolicy.canUseFeatures(null), '访客不能获得管理员例外');
     check(readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8').includes(`request.auth.uid == '${AccountPolicy.ADMIN_UID}'`), '数据库与应用使用同一个管理员身份');
+
+    const actionCode = 'AbCdEfGhIjKlMnOpQrStUvWx';
+    const directAction = parseEmailActionLink(`https://xylaoshi-28f6c.firebaseapp.com/__/auth/action?mode=verifyEmail&oobCode=${actionCode}`);
+    check(directAction.mode === 'verifyEmail' && directAction.oobCode === actionCode, '可从 Firebase 原始邮件链接提取一次性代码');
+    const wrappedAction = parseEmailActionLink(`https://mail.example.invalid/redirect?url=${encodeURIComponent(`https://xylaoshi-28f6c.web.app/__/auth/action?mode=resetPassword&oobCode=${actionCode}`)}`);
+    check(wrappedAction.mode === 'resetPassword' && wrappedAction.oobCode === actionCode, '可识别邮件服务包装后的本站账号链接');
+    check(['https://evil.invalid/?mode=verifyEmail&oobCode=' + actionCode, 'javascript:alert(1)'].every(link => {
+        try { parseEmailActionLink(link); return false; } catch { return true; }
+    }), '拒绝外部域名和非 HTTPS 邮件链接');
 
     reset({ localId: AccountPolicy.ADMIN_UID, email: existingAdmin.email });
     const adminApi = await freshAuth();
@@ -119,7 +129,6 @@ try {
     check((await post(api, verify({ idToken: 'expired' }))).status === 401, '过期身份不能发送邮件');
     check((await post(api, verify({ idToken: '' }))).status === 401, '访客不能发送绑定邮件');
 
-    const actionCode = 'AbCdEfGhIjKlMnOpQrStUvWx';
     reset(); api = await freshAuth();
     const applied = await post(api, { action: 'complete-email-action', mode: 'verifyEmail', oobCode: actionCode, emailVerified: true, localId: 'forged' });
     const appliedCall = calls.find(c => c.url.includes('accounts:update'));

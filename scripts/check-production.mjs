@@ -38,13 +38,13 @@ if (home) {
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    assert(body.includes('css/style.css?v=20260922-admin-access'), '首页未加载当前全局样式版本');
-    assert(body.includes('css/pwa.css?v=20260922-admin-access'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20260922-admin-access'), '首页未加载当前导航与账户脚本版本');
-    assert(body.includes('js/account-policy.js?v=20260922-admin-access') && body.includes('js/email-gate.js?v=20260922-admin-access'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20260922-admin-access') && body.includes('js/site-copy.js?v=20260922-admin-access'), '首页未加载当前页面文案模块');
-    assert(body.includes('js/assistant.js?v=20260922-admin-access'), '首页未加载当前网站向导脚本版本');
-    assert(body.includes('js/pwa.js?v=20260922-admin-access'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('css/style.css?v=20260923-email-link-help'), '首页未加载当前全局样式版本');
+    assert(body.includes('css/pwa.css?v=20260923-email-link-help'), '首页未加载当前 PWA 样式版本');
+    assert(body.includes('js/auth.js?v=20260923-email-link-help'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/account-policy.js?v=20260923-email-link-help') && body.includes('js/email-gate.js?v=20260923-email-link-help'), '首页未加载邮箱完善流程');
+    assert(body.includes('js/data.js?v=20260923-email-link-help') && body.includes('js/site-copy.js?v=20260923-email-link-help'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/assistant.js?v=20260923-email-link-help'), '首页未加载当前网站向导脚本版本');
+    assert(body.includes('js/pwa.js?v=20260923-email-link-help'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
@@ -52,7 +52,7 @@ if (home) {
     assert(body.includes('<meta name="mobile-web-app-capable" content="yes">'), '首页缺少标准移动 Web App 声明');
 }
 
-const pwaScript = await request('/js/pwa.js?v=20260922-admin-access');
+const pwaScript = await request('/js/pwa.js?v=20260923-email-link-help');
 if (pwaScript) {
     const body = await pwaScript.text();
     assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
@@ -60,7 +60,7 @@ if (pwaScript) {
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
 }
 
-const authScript = await request('/js/auth.js?v=20260922-admin-access');
+const authScript = await request('/js/auth.js?v=20260923-email-link-help');
 if (authScript) {
     const body = await authScript.text();
     assert(authScript.status === 200 && authScript.headers.get('content-type')?.includes('javascript'), '当前认证脚本未上线');
@@ -84,7 +84,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260922-v23'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260923-v24'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -187,6 +187,7 @@ if (emailAction) {
     assert(emailAction.headers.get('cache-control')?.includes('no-store') && emailAction.headers.get('pragma') === 'no-cache', '邮箱操作页可能缓存一次性验证码');
     assert(emailAction.headers.get('referrer-policy') === 'no-referrer' && emailAction.headers.get('content-security-policy')?.includes("default-src 'none'"), '邮箱操作页缺少验证码防泄漏响应头');
     assert(body.includes('/api/auth-proxy') && body.includes('history.replaceState') && body.includes('verifyAndChangeEmail'), '邮箱操作页同源完成链路不完整');
+    assert(body.includes('id="link-form"') && body.includes('在本站完成邮箱操作') && body.includes('不需要连接 VPN'), '邮件链接粘贴备用流程未上线');
 }
 
 const redirect = await request('/main');

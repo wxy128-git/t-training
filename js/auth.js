@@ -653,6 +653,7 @@ function showAuthModal(tab) {
                 <div class="form-group"><label class="form-label" for="fp-email">注册邮箱或手机号</label><input type="text" id="fp-email" class="form-input" autocomplete="username" maxlength="254" placeholder="输入注册邮箱或手机号" oninput="syncRecoveryAction()" onkeydown="if(event.key==='Enter')handleForgotPassword()"></div>
                 <div id="fp-msg" role="status" aria-live="polite" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="fp-btn" onclick="handleForgotPassword()">发送重置邮件</button></div>
+                <p class="modal-footer-text"><a href="/api/email-action" target="_blank" rel="noopener">邮件里的重置链接打不开？在本站粘贴处理</a></p>
                 <div id="fp-support" class="account-support" hidden></div>
                 <p class="modal-footer-text"><button type="button" onclick="switchAuthTab('help')">无法收邮件或需要其他帮助？</button></p>
                 <p class="modal-footer-text"><button onclick="switchAuthTab('login')">← 返回登录</button></p>
