@@ -46,4 +46,4 @@ Firebase 当前服务账号能导出密码哈希字段，但没有读取项目�
 
 ## 生产切换边界
 
-正式启用本地注册与邮箱前，还必须配置 SMTP、验证真实投递，并完成最终快照。切换分两段：先启用本地会话和本地数据，保留 Firebase 注册/邮件桥接；稳定后再启用 `T_TRAINING_REGISTRATION_BACKEND=local` 与 `T_TRAINING_EMAIL_BACKEND=local`。服务器环境密钥不得写入仓库或备份清单。
+正式启用本地注册与邮箱前，还必须配置腾讯云 SES API、审核邮箱验证与密码重置两个模板、验证真实投递，并完成最终快照。个人实名认证账号不支持 SMTP，生产使用 `T_TRAINING_EMAIL_TRANSPORT=tencent-ses`；模板文件位于 `deploy/tencent/ses-templates/`。切换分两段：先启用本地会话和本地数据，保留 Firebase 注册/邮件桥接；稳定后再启用 `T_TRAINING_REGISTRATION_BACKEND=local` 与 `T_TRAINING_EMAIL_BACKEND=local`。服务器环境密钥不得写入仓库或备份清单。

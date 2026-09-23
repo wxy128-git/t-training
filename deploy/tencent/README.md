@@ -18,8 +18,15 @@ node scripts/test-tencent-server.mjs
 node scripts/build-tencent-package.mjs /tmp/t-training-package
 ```
 
-部署包只包含用户可访问的静态文件、9 个 API 路由函数、2 个后端共享模块、Node 适配层和运维模板；
+部署包只包含用户可访问的静态文件、API 路由函数、本地认证与数据适配模块、Node 适配层和运维模板；
 被 `.gitignore` 排除的多模态制作源文件不会进入生产包。
+
+## 腾讯云邮件推送
+
+个人实名认证账号使用 SES API，不使用 SMTP。发信域名是 `notify.teachailab.com`，发信地址是
+`no-reply@notify.teachailab.com`。邮箱验证和密码重置模板源文件位于
+`ses-templates/`；模板审核通过后，把模板 ID、最小权限 API 身份和发件地址按
+`env.example` 写入服务器私密环境文件。API 密钥不得进入仓库、部署清单或命令输出。
 
 ## 服务器约定
 
