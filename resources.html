@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-resource-atlas">
+    <link rel="stylesheet" href="css/style.css?v=20260924-resource-cabinet">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
 </head>
@@ -33,43 +33,44 @@
 <div id="main-nav"></div>
 
 <main class="resource-page" id="main-content">
-    <section class="resource-hero resource-hero-atlas">
+    <section class="resource-hero resource-hero-cabinet">
         <div class="resource-hero-copy">
             <div class="resource-kicker">
                 <span class="resource-kicker-mark" data-site-copy="heroKicker">素材入口</span>
-                <span class="resource-kicker-note">为课堂准备的开放网站地图</span>
+                <span class="resource-kicker-note">课件设计常用网站</span>
             </div>
             <h1 data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">课件<span class="site-copy-accent">素材</span></h1>
             <p data-site-copy="heroIntro">搜索图片、图标、免抠素材与生成平台。</p>
-            <div class="resource-hero-stats" aria-label="素材库概况">
-                <span class="resource-stat"><strong id="resource-count">28</strong><small>个精选入口</small></span>
-                <span class="resource-stat"><strong id="resource-category-count">5</strong><small>类课堂用途</small></span>
-            </div>
         </div>
         <div class="resource-hero-tools">
-            <div class="resource-search-label">从网站名或用途开始</div>
+            <div class="resource-search-label">想找什么素材？</div>
             <label class="resource-search">
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                 <input type="search" id="searchInput" placeholder="搜索资源名称或描述…" aria-label="搜索课件素材" data-site-copy-placeholder="searchPlaceholder">
+                <button type="button" id="resource-search-clear" class="resource-search-clear" aria-label="清除搜索" hidden><i class="ph-bold ph-x" aria-hidden="true"></i></button>
             </label>
-            <div class="resource-search-hint"><i class="ph ph-sparkle" aria-hidden="true"></i><span>每张卡片都带有官网标志，打开前先看许可说明。</span></div>
-        </div>
-        <div class="resource-hero-stamp" aria-hidden="true"><span>TEACHER<br>RESOURCE<br>ATLAS</span><i class="ph ph-arrow-up-right"></i></div>
-    </section>
-
-    <section class="resource-browser" aria-label="素材分类浏览">
-        <div class="resource-browser-head">
-            <div class="resource-browser-summary"><span class="resource-browser-kicker">快速浏览</span><span id="resource-match-count">全部 28 个入口</span></div>
-            <div id="resource-category-pills" class="resource-category-pills" role="tablist" aria-label="按用途筛选"></div>
+            <div class="resource-search-hint"><i class="ph ph-info" aria-hidden="true"></i><span>点击卡片会在新窗口打开对应官网。</span></div>
         </div>
     </section>
 
-    <div id="content-area" class="resource-content"></div>
-
-    <div id="no-results" class="resource-empty" hidden>
-        <div class="resource-empty-mark"><i class="ph ph-compass" aria-hidden="true"></i></div>
-        <p data-site-copy="emptyMessage">没有找到相关资源，换个关键词试试</p>
-        <span>可以试试网站名、用途或分类名称。</span>
+    <div class="resource-workbench">
+        <aside class="resource-catalog" aria-label="素材分类">
+            <div class="resource-catalog-head"><span>素材分类</span><small id="resource-category-count">5 类</small></div>
+            <div id="resource-category-pills" class="resource-category-pills"></div>
+            <div class="resource-catalog-note"><i class="ph ph-book-open-text" aria-hidden="true"></i><p>下载和使用素材前，请查看对应网站的授权说明。</p></div>
+        </aside>
+        <section class="resource-shelf" aria-label="素材网站列表">
+            <div class="resource-shelf-head">
+                <div><span>网站目录</span><strong id="resource-match-count">全部 28 个入口</strong></div>
+                <button type="button" id="resource-reset" class="resource-reset" hidden><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>清除筛选</button>
+            </div>
+            <div id="content-area" class="resource-content"></div>
+            <div id="no-results" class="resource-empty" hidden>
+                <div class="resource-empty-mark"><i class="ph ph-compass" aria-hidden="true"></i></div>
+                <p data-site-copy="emptyMessage">没有找到相关资源，换个关键词试试</p>
+                <span>可以试试网站名、用途或分类名称。</span>
+            </div>
+        </section>
     </div>
 </main>
 
@@ -100,6 +101,7 @@ const RESOURCE_LOGOS = Object.freeze({
     pixabay: '/assets/resource-logos/pixabay.png',
     picjumbo: '/assets/resource-logos/picjumbo.png',
     lifeofpix: '/assets/resource-logos/lifeofpix.png',
+    'life of pix': '/assets/resource-logos/lifeofpix.png',
     burst: '/assets/resource-logos/burst.png',
     cleanpng: '/assets/resource-logos/cleanpng.png',
     stickpng: '/assets/resource-logos/stickpng.png',
@@ -115,8 +117,8 @@ const RESOURCE_LOGOS = Object.freeze({
     pixian: '/assets/resource-logos/pixian.png',
     ai好记: '/assets/resource-logos/aihaoji.png',
     aihaoji: '/assets/resource-logos/aihaoji.png',
-    快出题: '/assets/resource-logos/kuaichuti.png',
-    kuaichuti: '/assets/resource-logos/kuaichuti.png',
+    快出题: '/assets/resource-logos/kuaichuti.svg',
+    kuaichuti: '/assets/resource-logos/kuaichuti.svg',
     棒棒糖ai: '/assets/resource-logos/bangbangtang.png',
     bangbangtang: '/assets/resource-logos/bangbangtang.png',
     'nano banana': '/assets/resource-logos/gemini.png',
@@ -126,20 +128,46 @@ const RESOURCE_LOGOS = Object.freeze({
     metaso: '/assets/resource-logos/metaso.png',
     海绵音乐: '/assets/resource-logos/haimian.png',
     haimian: '/assets/resource-logos/haimian.png',
-    飞象老师: '/assets/resource-logos/feixianglaoshi.png',
-    feixianglaoshi: '/assets/resource-logos/feixianglaoshi.png',
+    飞象老师: '/assets/resource-logos/feixianglaoshi.webp',
+    feixianglaoshi: '/assets/resource-logos/feixianglaoshi.webp',
     即梦ai: '/assets/resource-logos/jimeng.png',
     jimeng: '/assets/resource-logos/jimeng.png',
     coze: '/assets/resource-logos/coze.png',
     扣子: '/assets/resource-logos/coze.png',
     飞影数字人: '/assets/resource-logos/feiying.png',
-    feiying: '/assets/resource-logos/feiying.png'
+    feiying: '/assets/resource-logos/feiying.png',
+    字由: '/assets/resource-logos/hellofont.png',
+    hellofont: '/assets/resource-logos/hellofont.png',
+    'hellofont.cn': '/assets/resource-logos/hellofont.png',
+    '100font': '/assets/resource-logos/100font.png',
+    '100font.com': '/assets/resource-logos/100font.png',
+    字魂: '/assets/resource-logos/izihun.svg',
+    izihun: '/assets/resource-logos/izihun.svg',
+    'izihun.com': '/assets/resource-logos/izihun.svg'
 });
 
 function resourceLogoFor(item, domain) {
-    const customLogo = typeof item.logo === 'string' && /^\/assets\/resource-logos\/[a-z0-9-]+\.png$/i.test(item.logo) ? item.logo : '';
+    const customLogo = typeof item.logo === 'string' && /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(item.logo) ? item.logo : '';
     const name = String(item.name || '').trim().toLowerCase();
     return customLogo || RESOURCE_LOGOS[name] || RESOURCE_LOGOS[domain] || '';
+}
+
+function resourceInitials(name) {
+    const compact = String(name || '网站').replace(/[^\p{L}\p{N}]/gu, '');
+    return compact.slice(0, 2).toUpperCase() || '网站';
+}
+
+function resourceLogoMarkup(item, logo) {
+    const name = String(item.name || '网站').trim();
+    const normalized = name.toLowerCase();
+    if (normalized === 'pngimg') {
+        return '<span class="resource-logo-frame resource-logo-wordmark" aria-hidden="true"><span><b>pngimg</b>.com</span></span>';
+    }
+    const wideLogo = ['stickpng', '趣作图', '字由', '100font', '字魂'].includes(normalized);
+    const fallback = `<span class="resource-logo-fallback" aria-hidden="true">${SafeRender.escape(resourceInitials(name))}</span>`;
+    return logo
+        ? `<span class="resource-logo-frame${wideLogo ? ' is-wide' : ''}"><img src="${SafeRender.escape(logo)}" alt="" loading="lazy" decoding="async" data-resource-logo>${fallback}</span>`
+        : `<span class="resource-logo-frame is-fallback">${fallback}</span>`;
 }
 
 function resourceItemsCount() {
@@ -150,17 +178,20 @@ function renderCategoryPills() {
     const pills = document.getElementById('resource-category-pills');
     if (!pills) return;
     const allCount = resourceItemsCount();
-    const entries = [{ id: 'all', title: '全部', count: allCount }, ...categories.map(category => ({
+    const entries = [{ id: 'all', title: '全部素材', count: allCount, icon: 'ph-squares-four' }, ...categories.map(category => ({
         id: String(category.id || category.title || '').toLowerCase(),
         title: String(category.title || '未分类'),
-        count: Array.isArray(category.items) ? category.items.length : 0
+        count: Array.isArray(category.items) ? category.items.length : 0,
+        icon: SafeRender.classNames(category.icon, 'ph-folder')
     }))];
     pills.innerHTML = entries.map(entry => `
-        <button type="button" class="resource-category-pill${activeCategory === entry.id ? ' is-active' : ''}" data-resource-category="${SafeRender.escape(entry.id)}" role="tab" aria-selected="${activeCategory === entry.id}">
-            <span>${SafeRender.escape(entry.title)}</span><small>${entry.count}</small>
+        <button type="button" class="resource-category-pill${activeCategory === entry.id ? ' is-active' : ''}" data-resource-category="${SafeRender.escape(entry.id)}" aria-pressed="${activeCategory === entry.id}">
+            <span class="resource-category-icon"><i class="ph ${entry.icon}" aria-hidden="true"></i></span>
+            <span class="resource-category-copy"><strong>${SafeRender.escape(entry.title)}</strong><small>${entry.count} 个网站</small></span>
+            <i class="ph ph-caret-right resource-category-caret" aria-hidden="true"></i>
         </button>
     `).join('');
-    document.getElementById('resource-category-count').textContent = categories.length;
+    document.getElementById('resource-category-count').textContent = `${categories.length} 类`;
 }
 
 function bindLogoFallbacks(container) {
@@ -181,7 +212,7 @@ function renderContent(filterText = '') {
     let matchCount = 0;
     const totalCount = resourceItemsCount();
 
-    container.innerHTML = categories.map((category, categoryIndex) => {
+    container.innerHTML = categories.map(category => {
         const categoryId = String(category.id || category.title || '').toLowerCase();
         if (activeCategory !== 'all' && categoryId !== activeCategory) return '';
         const filteredItems = (category.items || []).filter(item => {
@@ -194,9 +225,8 @@ function renderContent(filterText = '') {
         return `
             <section class="resource-section resource-section-${SafeRender.classNames(categoryId, 'resources')}" data-resource-section="${SafeRender.escape(categoryId)}">
                 <div class="resource-section-title">
-                    <span class="resource-section-index">${String(categoryIndex + 1).padStart(2, '0')}</span>
                     <span class="resource-section-icon ${SafeRender.classNames(category.bg)} ${SafeRender.classNames(category.color)}"><i class="ph-fill ${SafeRender.classNames(category.icon, 'ph-folder')}"></i></span>
-                    <div><h2>${SafeRender.escape(category.title || '未分类')}</h2><p>${filteredItems.length} 个入口</p></div>
+                    <div><h2>${SafeRender.escape(category.title || '未分类')}</h2><p>${filteredItems.length} 个网站</p></div>
                 </div>
                 <div class="resource-grid">
                     ${filteredItems.map(item => {
@@ -205,19 +235,16 @@ function renderContent(filterText = '') {
                         const license = /unsplash\.com/.test(safeItemUrl) ? 'https://unsplash.com/license' : (/pixabay\.com/.test(safeItemUrl) ? 'https://pixabay.com/service/license-summary/' : '');
                         const domain = new URL(safeItemUrl, location.href).hostname.replace(/^www\./, '');
                         const logo = resourceLogoFor(item, domain);
-                        const logoFrame = logo
-                            ? `<span class="resource-logo-frame"><img src="${SafeRender.escape(logo)}" alt="" loading="lazy" decoding="async" data-resource-logo><span class="resource-logo-fallback" aria-hidden="true"><i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i></span></span>`
-                            : `<span class="resource-logo-frame is-fallback"><span class="resource-logo-fallback" aria-hidden="true"><i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i></span></span>`;
                         return `
                             <div class="resource-entry">
                                 <a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
                                     <div class="resource-card-top">
-                                        ${logoFrame}
+                                        ${resourceLogoMarkup(item, logo)}
                                         <div class="resource-card-name"><h3>${SafeRender.escape(item.name || '未命名资源')}</h3><span>${SafeRender.escape(domain)}</span></div>
                                         <span class="resource-open" aria-hidden="true"><i class="ph-bold ph-arrow-up-right"></i></span>
                                     </div>
                                     <p>${SafeRender.escape(reviewTeachingText(item.desc || '打开官网查看可用素材。'))}</p>
-                                    <div class="resource-card-footer"><span><i class="ph ph-globe-hemisphere-west" aria-hidden="true"></i> 官方网站</span><span>打开入口 <i class="ph ph-arrow-right" aria-hidden="true"></i></span></div>
+                                    <div class="resource-card-footer"><span class="resource-card-category">${SafeRender.escape(category.title || '素材网站')}</span><span class="resource-card-action">访问官网 <i class="ph ph-arrow-right" aria-hidden="true"></i></span></div>
                                 </a>
                                 ${license ? `<a class="resource-license" href="${license}" target="_blank" rel="noopener noreferrer">查看官方许可 ↗</a>` : ''}
                             </div>
@@ -228,9 +255,10 @@ function renderContent(filterText = '') {
         `;
     }).join('');
 
-    document.getElementById('resource-count').textContent = totalCount;
     document.getElementById('resource-match-count').textContent = query || activeCategory !== 'all' ? `显示 ${matchCount} 个入口` : `全部 ${totalCount} 个入口`;
     noResults.hidden = hasResults;
+    document.getElementById('resource-search-clear').hidden = !query;
+    document.getElementById('resource-reset').hidden = !query && activeCategory === 'all';
     bindLogoFallbacks(container);
 }
 
@@ -238,6 +266,17 @@ renderCategoryPills();
 renderContent();
 const searchInput = document.getElementById('searchInput');
 searchInput.addEventListener('input', event => renderContent(event.target.value));
+document.getElementById('resource-search-clear').addEventListener('click', () => {
+    searchInput.value = '';
+    searchInput.focus();
+    renderContent();
+});
+document.getElementById('resource-reset').addEventListener('click', () => {
+    activeCategory = 'all';
+    searchInput.value = '';
+    renderCategoryPills();
+    renderContent();
+});
 document.getElementById('resource-category-pills').addEventListener('click', event => {
     const button = event.target.closest('[data-resource-category]');
     if (!button) return;
