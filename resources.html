@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-unified-logo-tiles">
+    <link rel="stylesheet" href="css/style.css?v=20260925-resource-cards-2x1">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
 </head>
@@ -245,7 +245,6 @@ function renderContent(filterText = '') {
                                     <div class="resource-card-top">
                                         ${resourceLogoMarkup(item, logo)}
                                         <div class="resource-card-name"><h3>${SafeRender.escape(item.name || '未命名资源')}</h3></div>
-                                        <span class="resource-open" aria-hidden="true"><i class="ph-bold ph-arrow-up-right"></i></span>
                                     </div>
                                     <p>${SafeRender.escape(compactResourceDescription(item.desc || '打开官网查看可用素材。'))}</p>
                                 </a>
