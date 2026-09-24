@@ -1,90 +1,58 @@
-# 课件素材目录页 Design QA
+# AI 工具目录页 Design QA
 
 ## 对照对象
 
-- source visual truth: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/reference.png`
-- implementation screenshot: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/implementation-desktop.png`
-- responsive screenshot: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/implementation-mobile.png`
-- full comparison: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/comparison-desktop.png`
-- focused comparison: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/comparison-cards.png`
-- route: `http://127.0.0.1:8765/resources`
+- source visual truth: `/Users/wangxingyu/C-C/t-training/reports/2026-09-25-tools-redesign/reference-resources.png`
+- implementation screenshot: `/Users/wangxingyu/C-C/t-training/reports/2026-09-25-tools-redesign/implementation-desktop.png`
+- responsive screenshot: `/Users/wangxingyu/C-C/t-training/reports/2026-09-25-tools-redesign/implementation-mobile.png`
+- full comparison: `/Users/wangxingyu/C-C/t-training/reports/2026-09-25-tools-redesign/comparison-desktop.png`
+- focused comparison: `/Users/wangxingyu/C-C/t-training/reports/2026-09-25-tools-redesign/comparison-cards.png`
+- route: `http://127.0.0.1:8765/tools`
 
 ## 尺寸、密度与状态
 
-- 原始参考图为 3392×1874 px；以等比裁切归一化到 1440×1000 px，用于与实现截图对照。
-- 桌面实现的 CSS viewport 为 1440×1000，截图为 1440×1000 px。
-- 手机实现的 CSS viewport 为 390×844，页面没有横向溢出。
-- 参考图与实现使用不同网站数据，因此本次比较布局密度、卡片结构、视觉令牌和交互层级，不比较逐字内容。
+- 源页面与实现均在 1440×1000 px 视口截图，用于直接比较页面层级、筛选区、分区标题和卡片规格。
+- 手机实现的 CSS 视口为 390×844 px，页面没有横向溢出。
+- 桌面端共显示 20 个工具、4 个任务分区；首张卡片为 331×140 px。
+- 手机端为单列布局，卡片为 350×140 px；两行筛选项在各自行内横向滑动，不撑宽页面。
 
 ## Full-view comparison evidence
 
-参考图和最终实现已放入同一张 2880×1000 对照图中检查。最终实现采用参考图的浅灰蓝背景、白色圆角卡片、粗体分区标题、胶囊“更多”按钮和橙红色选中状态。根据最新反馈，桌面端采用更舒展的四列网格。原站导航、页面标题、搜索框和分类筛选被保留，用于站内导航与素材查找。
+最终实现沿用课件素材页的浅灰蓝背景、紧凑首屏、白色圆角卡片、粗体分区标题和橙红色选中状态。搜索框与页面标题保持左右对应，任务与条件筛选集中在同一条浮动筛选面板中，形成相同的目录浏览节奏。
 
 ## Focused region comparison evidence
 
-卡片区域另以相同宽度裁切到 `comparison-cards.png` 共同查看。最终版把 Logo、名称和说明统一左对齐；右上角箭头、官网域名、分类标签、底部“访问官网”和“查看官方许可”均已移除。
+卡片区域另以相同宽度裁切到 `comparison-cards.png` 共同查看。工具卡片只保留统一 Logo 底板、名称和两行以内的用途说明；已移除右上角箭头、费用标签、适用建议、核对日期和底部跳转文案，整张卡片仍可点击访问官网。
 
 ## Findings
 
 - 没有残留的 P0、P1 或 P2 问题。
-- 字体与排版：卡片只保留 Logo、名称和一句说明，长描述限制为两行。
-- 间距与布局：1440 px 显示四列、1000 px 显示三列、820 px 显示两列、390 px 显示一列。
-- 卡片高度：取消固定比例，使用 140 px 基础高度；1440 px 四列时约为 2.36:1，内容较长时可自然增高。
-- 颜色与视觉令牌：页面底色、白色卡片和橙红强调色与参考图同类；边框与阴影保持克制。
-- 图片质量：当前实际加载的 20 个网站均显示真实 Logo，失败回退数量为 0。
-- Logo 一致性：全部 Logo 使用 44×44 px 圆角方形底板、统一内边距与 30×30 px 图形区域；五个横版字标替换为网站官方 favicon。
-- 文案与内容：重复分类、官网域名及许可入口均已删去。
-- P3 / accepted：参考图没有主导航和搜索区，实现保留了两者，这是实际产品所需功能。
-
-## Comparison history
-
-### Iteration 1 — passed
-
-- 按参考图将大首屏和左侧固定目录改为全宽分区卡片墙。
-
-### Iteration 2 — passed
-
-- 根据使用反馈，把六列调整为四列，并增加三列、两列和单列响应式断点。
-- Logo、标题与说明改为明确左对齐，删除域名、卡片分类标签、底部操作文案及许可链接。
-- 四种视口均无横向溢出，卡片内容与交互保持完整。
-
-### Iteration 3 — passed
-
-- 将圆形、横版和不规则 Logo 统一放入 44×44 px 圆角方形底板。
-- StickPNG、趣作图、字由、100font 和字魂改用各网站官方方形 favicon，避免横版字标缩小后无法辨认。
-- 桌面与手机端均检查 20 个 Logo，尺寸一致且加载失败数量为 0。
-
-### Iteration 4 — passed
-
-- 所有资源卡片改为精确的 2:1 宽高比。
-- 删除重复出现的右上角跳转箭头，保留整张卡片的链接、悬停与键盘聚焦反馈。
-- 四列、三列、两列和手机单列状态均实测为 2.000，重新载入手机页面后无横向溢出。
-
-### Iteration 5 — passed
-
-- 根据实际内容量取消固定 2:1，改为 140 px 基础高度并允许内容自然撑开。
-- 卡片内边距缩小到 18 px，标题区与简介的距离缩小到 12 px，简介不再占满剩余空间。
-- 桌面与手机端均无内容溢出或页面横向溢出，底部空白明显减少。
+- 字体与排版：页面标题、筛选标签、分区标题和卡片文字层级与课件素材页一致。
+- 间距与布局：1440 px 显示四列、1180 px 以下三列、860 px 以下两列、760 px 以下单列。
+- 卡片高度：使用 140 px 基础高度，内容较长时可自然撑开，避免固定比例造成大块留白。
+- Logo 一致性：20 个工具都使用 44×44 px 圆角方形底板；11 个已有本地 Logo 均加载成功，其余 9 个使用同规格图标回退。
+- 交互：筛选按钮带有可读的选中状态，卡片保留悬停和键盘焦点反馈；取消全局滚动淡入，避免视口边缘卡片呈现半透明状态。
+- P3 / accepted：工具页保留“任务”和“条件”两套筛选以及安全提示，因为这些信息直接支持教师选择工具；课件素材页只需要单套分类筛选。
 
 ## Primary interactions and console check
 
-- 搜索输入可实时筛选；无结果状态正确出现，清除搜索后恢复全部资源。
-- 点击分区“更多”会切换到对应分类；点击“清除筛选”恢复全部分类。
-- 手机端分类标签可横向滑动，资源卡片变为单列。
-- 桌面实际显示 20 张卡片、5 个分区；全部 Logo 加载成功。
-- 卡片内分类标签、许可链接和底部操作栏数量均为 0。
-- 浏览器没有页面脚本异常。本地预览仅有 `/api/analytics` 返回 501 的既有统计警告，不影响资源页功能。
+- 任务筛选“图像·音视频·数字人”正确显示 7 个工具，并切换到单层网格。
+- 条件筛选“免费”正确显示 7 个工具、3 个分区。
+- 搜索“Gamma”正确显示唯一结果；无结果关键词会显示空状态；清空后恢复 20 个工具和 4 个分区。
+- 任务和条件按钮的 `aria-pressed` 会随当前筛选同步更新。
+- 11 个图片 Logo 全部加载成功，失败数量为 0；9 个回退图标与图片 Logo 使用相同底板尺寸。
+- 卡片内适用建议、标签、底部操作栏与跳转箭头数量均为 0。
+- 浏览器没有页面脚本异常。本地预览仅有 `/api/analytics` 返回 501 的既有统计警告，不影响工具页功能。
 
 ## Implementation Checklist
 
-- [x] 参考图式浅灰背景与白色卡片墙
+- [x] 与课件素材页一致的背景、首屏和白色卡片墙
 - [x] 桌面四列、中宽三列、平板两列、手机单列布局
-- [x] 分区标题与“更多”按钮
-- [x] 搜索、分类、清除筛选与空状态
-- [x] 高清真实 Logo 与失败回退检查
-- [x] 统一 Logo 底板、内边距与显示尺寸
+- [x] 任务与条件双重筛选、搜索、清除和空状态
+- [x] 统一 44×44 px Logo 底板及失败回退
 - [x] 左对齐卡片与精简信息层级
-- [x] 内容驱动的紧凑卡片高度与无箭头交互检查
+- [x] 无箭头、无重复标签、无底部说明栏
+- [x] 手机端筛选横向滑动且页面无横向溢出
 - [x] 同尺寸全页与卡片区域视觉对照
 
 final result: passed
