@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-resource-cards">
+    <link rel="stylesheet" href="css/style.css?v=20260924-unified-logo-tiles">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
 </head>
@@ -100,7 +100,8 @@ const RESOURCE_LOGOS = Object.freeze({
     'life of pix': '/assets/resource-logos/lifeofpix.png',
     burst: '/assets/resource-logos/burst.png',
     cleanpng: '/assets/resource-logos/cleanpng.png',
-    stickpng: '/assets/resource-logos/stickpng.png',
+    stickpng: '/assets/resource-logos/stickpng-icon.png',
+    'stickpng.com': '/assets/resource-logos/stickpng-icon.png',
     pngtree: '/assets/resource-logos/pngtree.png',
     pngimg: '/assets/resource-logos/pngimg.png',
     iconfinder: '/assets/resource-logos/iconfinder.png',
@@ -108,8 +109,9 @@ const RESOURCE_LOGOS = Object.freeze({
     iconfont: '/assets/resource-logos/iconfont.png',
     iconmonstr: '/assets/resource-logos/iconmonstr.png',
     bgsub: '/assets/resource-logos/bgsub.png',
-    趣作图: '/assets/resource-logos/quzuotu.png',
-    quzuotu: '/assets/resource-logos/quzuotu.png',
+    趣作图: '/assets/resource-logos/quzuotu-icon.png',
+    quzuotu: '/assets/resource-logos/quzuotu-icon.png',
+    'quzuotu.com': '/assets/resource-logos/quzuotu-icon.png',
     pixian: '/assets/resource-logos/pixian.png',
     ai好记: '/assets/resource-logos/aihaoji.png',
     aihaoji: '/assets/resource-logos/aihaoji.png',
@@ -132,20 +134,20 @@ const RESOURCE_LOGOS = Object.freeze({
     扣子: '/assets/resource-logos/coze.png',
     飞影数字人: '/assets/resource-logos/feiying.png',
     feiying: '/assets/resource-logos/feiying.png',
-    字由: '/assets/resource-logos/hellofont.png',
-    hellofont: '/assets/resource-logos/hellofont.png',
-    'hellofont.cn': '/assets/resource-logos/hellofont.png',
-    '100font': '/assets/resource-logos/100font.png',
-    '100font.com': '/assets/resource-logos/100font.png',
-    字魂: '/assets/resource-logos/izihun.svg',
-    izihun: '/assets/resource-logos/izihun.svg',
-    'izihun.com': '/assets/resource-logos/izihun.svg'
+    字由: '/assets/resource-logos/hellofont-icon.png',
+    hellofont: '/assets/resource-logos/hellofont-icon.png',
+    'hellofont.cn': '/assets/resource-logos/hellofont-icon.png',
+    '100font': '/assets/resource-logos/100font-icon.png',
+    '100font.com': '/assets/resource-logos/100font-icon.png',
+    字魂: '/assets/resource-logos/izihun-icon.png',
+    izihun: '/assets/resource-logos/izihun-icon.png',
+    'izihun.com': '/assets/resource-logos/izihun-icon.png'
 });
 
 function resourceLogoFor(item, domain) {
     const customLogo = typeof item.logo === 'string' && /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(item.logo) ? item.logo : '';
     const name = String(item.name || '').trim().toLowerCase();
-    return customLogo || RESOURCE_LOGOS[name] || RESOURCE_LOGOS[domain] || '';
+    return RESOURCE_LOGOS[name] || RESOURCE_LOGOS[domain] || customLogo || '';
 }
 
 function resourceInitials(name) {
@@ -159,10 +161,9 @@ function resourceLogoMarkup(item, logo) {
     if (normalized === 'pngimg') {
         return '<span class="resource-logo-frame resource-logo-wordmark" aria-hidden="true"><span><b>pngimg</b>.com</span></span>';
     }
-    const wideLogo = ['stickpng', '趣作图', '字由', '100font', '字魂'].includes(normalized);
     const fallback = `<span class="resource-logo-fallback" aria-hidden="true">${SafeRender.escape(resourceInitials(name))}</span>`;
     return logo
-        ? `<span class="resource-logo-frame${wideLogo ? ' is-wide' : ''}"><img src="${SafeRender.escape(logo)}" alt="" loading="lazy" decoding="async" data-resource-logo>${fallback}</span>`
+        ? `<span class="resource-logo-frame"><img src="${SafeRender.escape(logo)}" alt="" loading="lazy" decoding="async" data-resource-logo>${fallback}</span>`
         : `<span class="resource-logo-frame is-fallback">${fallback}</span>`;
 }
 
