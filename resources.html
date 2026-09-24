@@ -25,31 +25,51 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-local-email-direct">
+    <link rel="stylesheet" href="css/style.css?v=20260924-resource-atlas">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
-    <style>.resource-hero h1 .site-copy-accent{font-style:italic;color:var(--brand)}</style>
+    <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
 </head>
 <body>
 <div id="main-nav"></div>
 
 <main class="resource-page" id="main-content">
-    <section class="resource-hero">
-        <div>
-            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--brand);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500" data-site-copy="heroKicker">素材入口</div>
-            <h1 data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">课件<span style="font-style:italic;color:var(--brand)">素材</span></h1>
+    <section class="resource-hero resource-hero-atlas">
+        <div class="resource-hero-copy">
+            <div class="resource-kicker">
+                <span class="resource-kicker-mark" data-site-copy="heroKicker">素材入口</span>
+                <span class="resource-kicker-note">为课堂准备的开放网站地图</span>
+            </div>
+            <h1 data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">课件<span class="site-copy-accent">素材</span></h1>
             <p data-site-copy="heroIntro">搜索图片、图标、免抠素材与生成平台。</p>
+            <div class="resource-hero-stats" aria-label="素材库概况">
+                <span class="resource-stat"><strong id="resource-count">28</strong><small>个精选入口</small></span>
+                <span class="resource-stat"><strong id="resource-category-count">5</strong><small>类课堂用途</small></span>
+            </div>
         </div>
-        <div class="resource-search">
-            <i class="ph ph-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="搜索资源名称或描述…" data-site-copy-placeholder="searchPlaceholder">
+        <div class="resource-hero-tools">
+            <div class="resource-search-label">从网站名或用途开始</div>
+            <label class="resource-search">
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" id="searchInput" placeholder="搜索资源名称或描述…" aria-label="搜索课件素材" data-site-copy-placeholder="searchPlaceholder">
+            </label>
+            <div class="resource-search-hint"><i class="ph ph-sparkle" aria-hidden="true"></i><span>每张卡片都带有官网标志，打开前先看许可说明。</span></div>
+        </div>
+        <div class="resource-hero-stamp" aria-hidden="true"><span>TEACHER<br>RESOURCE<br>ATLAS</span><i class="ph ph-arrow-up-right"></i></div>
+    </section>
+
+    <section class="resource-browser" aria-label="素材分类浏览">
+        <div class="resource-browser-head">
+            <div class="resource-browser-summary"><span class="resource-browser-kicker">快速浏览</span><span id="resource-match-count">全部 28 个入口</span></div>
+            <div id="resource-category-pills" class="resource-category-pills" role="tablist" aria-label="按用途筛选"></div>
         </div>
     </section>
 
     <div id="content-area" class="resource-content"></div>
 
     <div id="no-results" class="resource-empty" hidden>
-        <i class="ph ph-magnifying-glass"></i>
+        <div class="resource-empty-mark"><i class="ph ph-compass" aria-hidden="true"></i></div>
         <p data-site-copy="emptyMessage">没有找到相关资源，换个关键词试试</p>
+        <span>可以试试网站名、用途或分类名称。</span>
     </div>
 </main>
 
@@ -72,43 +92,135 @@ SiteCopy.load('resources').then(copy => SiteCopy.applyToDocument('resources', co
 // Start with the in-code defaults so the page paints immediately,
 // then swap in whatever Firestore returns.
 let categories = JSON.parse(JSON.stringify(DEFAULT_RESOURCES));
+let activeCategory = 'all';
+
+const RESOURCE_LOGOS = Object.freeze({
+    unsplash: '/assets/resource-logos/unsplash.png',
+    pexels: '/assets/resource-logos/pexels.png',
+    pixabay: '/assets/resource-logos/pixabay.png',
+    picjumbo: '/assets/resource-logos/picjumbo.png',
+    lifeofpix: '/assets/resource-logos/lifeofpix.png',
+    burst: '/assets/resource-logos/burst.png',
+    cleanpng: '/assets/resource-logos/cleanpng.png',
+    stickpng: '/assets/resource-logos/stickpng.png',
+    pngtree: '/assets/resource-logos/pngtree.png',
+    pngimg: '/assets/resource-logos/pngimg.png',
+    iconfinder: '/assets/resource-logos/iconfinder.png',
+    iconpark: '/assets/resource-logos/iconpark.png',
+    iconfont: '/assets/resource-logos/iconfont.png',
+    iconmonstr: '/assets/resource-logos/iconmonstr.png',
+    bgsub: '/assets/resource-logos/bgsub.png',
+    趣作图: '/assets/resource-logos/quzuotu.png',
+    quzuotu: '/assets/resource-logos/quzuotu.png',
+    pixian: '/assets/resource-logos/pixian.png',
+    ai好记: '/assets/resource-logos/aihaoji.png',
+    aihaoji: '/assets/resource-logos/aihaoji.png',
+    快出题: '/assets/resource-logos/kuaichuti.png',
+    kuaichuti: '/assets/resource-logos/kuaichuti.png',
+    棒棒糖ai: '/assets/resource-logos/bangbangtang.png',
+    bangbangtang: '/assets/resource-logos/bangbangtang.png',
+    'nano banana': '/assets/resource-logos/gemini.png',
+    gemini: '/assets/resource-logos/gemini.png',
+    gamma: '/assets/resource-logos/gamma.png',
+    秘塔搜索: '/assets/resource-logos/metaso.png',
+    metaso: '/assets/resource-logos/metaso.png',
+    海绵音乐: '/assets/resource-logos/haimian.png',
+    haimian: '/assets/resource-logos/haimian.png',
+    飞象老师: '/assets/resource-logos/feixianglaoshi.png',
+    feixianglaoshi: '/assets/resource-logos/feixianglaoshi.png',
+    即梦ai: '/assets/resource-logos/jimeng.png',
+    jimeng: '/assets/resource-logos/jimeng.png',
+    coze: '/assets/resource-logos/coze.png',
+    扣子: '/assets/resource-logos/coze.png',
+    飞影数字人: '/assets/resource-logos/feiying.png',
+    feiying: '/assets/resource-logos/feiying.png'
+});
+
+function resourceLogoFor(item, domain) {
+    const customLogo = typeof item.logo === 'string' && /^\/assets\/resource-logos\/[a-z0-9-]+\.png$/i.test(item.logo) ? item.logo : '';
+    const name = String(item.name || '').trim().toLowerCase();
+    return customLogo || RESOURCE_LOGOS[name] || RESOURCE_LOGOS[domain] || '';
+}
+
+function resourceItemsCount() {
+    return categories.reduce((total, category) => total + (Array.isArray(category.items) ? category.items.length : 0), 0);
+}
+
+function renderCategoryPills() {
+    const pills = document.getElementById('resource-category-pills');
+    if (!pills) return;
+    const allCount = resourceItemsCount();
+    const entries = [{ id: 'all', title: '全部', count: allCount }, ...categories.map(category => ({
+        id: String(category.id || category.title || '').toLowerCase(),
+        title: String(category.title || '未分类'),
+        count: Array.isArray(category.items) ? category.items.length : 0
+    }))];
+    pills.innerHTML = entries.map(entry => `
+        <button type="button" class="resource-category-pill${activeCategory === entry.id ? ' is-active' : ''}" data-resource-category="${SafeRender.escape(entry.id)}" role="tab" aria-selected="${activeCategory === entry.id}">
+            <span>${SafeRender.escape(entry.title)}</span><small>${entry.count}</small>
+        </button>
+    `).join('');
+    document.getElementById('resource-category-count').textContent = categories.length;
+}
+
+function bindLogoFallbacks(container) {
+    container.querySelectorAll('[data-resource-logo]').forEach(image => {
+        image.addEventListener('error', () => {
+            const frame = image.closest('.resource-logo-frame');
+            if (frame) frame.classList.add('is-fallback');
+            image.remove();
+        }, { once: true });
+    });
+}
 
 function renderContent(filterText = '') {
     const container = document.getElementById('content-area');
     const noResults = document.getElementById('no-results');
-    const query = filterText.toLowerCase();
+    const query = String(filterText || '').trim().toLocaleLowerCase();
     let hasResults = false;
+    let matchCount = 0;
+    const totalCount = resourceItemsCount();
 
-    container.innerHTML = categories.map(category => {
-        const filteredItems = (category.items || []).filter(item =>
-            item.name.toLowerCase().includes(query) ||
-            item.desc.toLowerCase().includes(query) ||
-            category.title.toLowerCase().includes(query)
-        );
+    container.innerHTML = categories.map((category, categoryIndex) => {
+        const categoryId = String(category.id || category.title || '').toLowerCase();
+        if (activeCategory !== 'all' && categoryId !== activeCategory) return '';
+        const filteredItems = (category.items || []).filter(item => {
+            const haystack = [item.name, item.desc, category.title].map(value => String(value || '').toLocaleLowerCase()).join(' ');
+            return !query || haystack.includes(query);
+        });
         if (!filteredItems.length) return '';
         hasResults = true;
+        matchCount += filteredItems.length;
         return `
-            <section class="resource-section">
+            <section class="resource-section resource-section-${SafeRender.classNames(categoryId, 'resources')}" data-resource-section="${SafeRender.escape(categoryId)}">
                 <div class="resource-section-title">
-                    <span class="${SafeRender.classNames(category.bg)} ${SafeRender.classNames(category.color)}"><i class="ph-fill ${SafeRender.classNames(category.icon, 'ph-folder')}"></i></span>
-                    <h2>${SafeRender.escape(category.title)}</h2>
+                    <span class="resource-section-index">${String(categoryIndex + 1).padStart(2, '0')}</span>
+                    <span class="resource-section-icon ${SafeRender.classNames(category.bg)} ${SafeRender.classNames(category.color)}"><i class="ph-fill ${SafeRender.classNames(category.icon, 'ph-folder')}"></i></span>
+                    <div><h2>${SafeRender.escape(category.title || '未分类')}</h2><p>${filteredItems.length} 个入口</p></div>
                 </div>
                 <div class="resource-grid">
                     ${filteredItems.map(item => {
                         const safeItemUrl = SafeRender.safeUrl(item.url);
-                        const license = /unsplash\.com/.test(safeItemUrl) ? 'https://unsplash.com/license' : (/pixabay\.com/.test(safeItemUrl) ? 'https://pixabay.com/service/license-summary/' : '');
                         if (!safeItemUrl) return '';
-                        const domain = new URL(safeItemUrl, location.href).hostname.replace('www.', '');
+                        const license = /unsplash\.com/.test(safeItemUrl) ? 'https://unsplash.com/license' : (/pixabay\.com/.test(safeItemUrl) ? 'https://pixabay.com/service/license-summary/' : '');
+                        const domain = new URL(safeItemUrl, location.href).hostname.replace(/^www\./, '');
+                        const logo = resourceLogoFor(item, domain);
+                        const logoFrame = logo
+                            ? `<span class="resource-logo-frame"><img src="${SafeRender.escape(logo)}" alt="" loading="lazy" decoding="async" data-resource-logo><span class="resource-logo-fallback" aria-hidden="true"><i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i></span></span>`
+                            : `<span class="resource-logo-frame is-fallback"><span class="resource-logo-fallback" aria-hidden="true"><i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i></span></span>`;
                         return `
-                            <div class="resource-entry"><a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
-                                <div class="resource-card-top">
-                                    <i class="ph-bold ${SafeRender.classNames(item.itemIcon, 'ph-link')}"></i>
-                                    <h3>${SafeRender.escape(item.name)}</h3>
-                                    <span><i class="ph-bold ph-arrow-up-right"></i></span>
-                                </div>
-                                <p>${SafeRender.escape(reviewTeachingText(item.desc))}</p>
-                                <div class="resource-domain">${SafeRender.escape(domain)}</div>
-                            </a>${license ? `<a class="resource-license" href="${license}" target="_blank" rel="noopener noreferrer">查看官方许可 ↗</a>` : ''}</div>
+                            <div class="resource-entry">
+                                <a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
+                                    <div class="resource-card-top">
+                                        ${logoFrame}
+                                        <div class="resource-card-name"><h3>${SafeRender.escape(item.name || '未命名资源')}</h3><span>${SafeRender.escape(domain)}</span></div>
+                                        <span class="resource-open" aria-hidden="true"><i class="ph-bold ph-arrow-up-right"></i></span>
+                                    </div>
+                                    <p>${SafeRender.escape(reviewTeachingText(item.desc || '打开官网查看可用素材。'))}</p>
+                                    <div class="resource-card-footer"><span><i class="ph ph-globe-hemisphere-west" aria-hidden="true"></i> 官方网站</span><span>打开入口 <i class="ph ph-arrow-right" aria-hidden="true"></i></span></div>
+                                </a>
+                                ${license ? `<a class="resource-license" href="${license}" target="_blank" rel="noopener noreferrer">查看官方许可 ↗</a>` : ''}
+                            </div>
                         `;
                     }).join('')}
                 </div>
@@ -116,12 +228,23 @@ function renderContent(filterText = '') {
         `;
     }).join('');
 
+    document.getElementById('resource-count').textContent = totalCount;
+    document.getElementById('resource-match-count').textContent = query || activeCategory !== 'all' ? `显示 ${matchCount} 个入口` : `全部 ${totalCount} 个入口`;
     noResults.hidden = hasResults;
+    bindLogoFallbacks(container);
 }
 
+renderCategoryPills();
 renderContent();
 const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('input', event => renderContent(event.target.value.trim()));
+searchInput.addEventListener('input', event => renderContent(event.target.value));
+document.getElementById('resource-category-pills').addEventListener('click', event => {
+    const button = event.target.closest('[data-resource-category]');
+    if (!button) return;
+    activeCategory = button.dataset.resourceCategory || 'all';
+    renderCategoryPills();
+    renderContent(searchInput.value);
+});
 
 renderNav('resources');
 renderFooter();
@@ -130,7 +253,8 @@ onAuthReady(() => { renderNav('resources'); renderFooter(); });
 DB.getResources().then(data => {
     if (Array.isArray(data) && data.length) {
         categories = data;
-        renderContent(searchInput.value.trim());
+        renderCategoryPills();
+        renderContent(searchInput.value);
     }
 });
 </script>
