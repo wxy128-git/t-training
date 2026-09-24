@@ -11,7 +11,7 @@
 - Local SSH: `ssh tencent-teachailab` or `ssh 43.129.232.226`; `/Users/wangxingyu/.ssh/config` binds this host to `en0`, so SSH remains direct while ClashX Pro enhanced/TUN mode stays enabled.
 - Primary deployment: follow `deploy/tencent/README.md`; Nginx serves static files and `t-training-api` adapts the nine route modules under `functions/api/` to Node on `127.0.0.1:3001`.
 - Transitional deployment: push to `main` still updates Cloudflare Pages. The old URL currently redirects to Tencent via `_redirects`; reverting those rules restores the Pages site for rollback.
-- Backend services: production is in migration phase 1. Login sessions and site data use Tencent MariaDB; existing accounts without a local password are verified against Firebase once on their first post-cutover login, and new registration still mirrors to Firebase as a rollback bridge. Email verification and password reset use Tencent SES. Fully local registration remains disabled until the real inbox test is completed.
+- Backend services: production login sessions, site data, new registration, email verification, and password reset now use Tencent MariaDB + Tencent SES. Existing accounts that do not yet have a local password are verified against Firebase once on their first post-cutover login, then receive a local `scrypt` password hash; this compatibility bridge preserves existing passwords while new registrations no longer create Firebase accounts.
 
 ## Deployment Documentation Rule
 
@@ -36,7 +36,7 @@
 
 ## Local Changes Pending Deployment
 
-- Firebase migration phase 1 is online as of 2026-09-24: local authentication sessions and local data are active, Tencent SES email is active, and Firebase remains only as the temporary new-registration / first-login bridge. Two real SES messages were accepted for the authorized 163.com test inbox; verification and reset link clicks are still awaiting user confirmation before local-only registration is enabled.
+- Firebase migration core cutover is online as of 2026-09-24: local authentication sessions, local data, local-only registration, and Tencent SES email are active. The authorized 163.com inbox completed both the verification and password-reset links; the server confirmed both one-time tokens were consumed and a local password exists. Firebase remains only as the first-login compatibility bridge for existing accounts that have not yet established a local password.
 - 本站邮箱操作页 API、邮件链接粘贴入口、前端提示和缓存版本 `20260923-email-link-help` 已随提交 `cef2e2a` / `d938aac` 上线。Firebase 回调仍为原 `firebaseapp.com` 地址；管理 API 返回 `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`，未发生配置变更，因此国内网络打不开邮件按钮时应使用本站粘贴入口。
 - 本轮邮箱验证、体验优化及原管理员邮箱验证豁免均已于 2026-09-22 上线，详情见下方部署记录。
 - 19 个智能体的当前提示词已完成 42 次真实模型请求；出题、组卷、错题诊断和听评课的约束已于 2026-09-22 上线，组卷助手最终连续通过 50 分、60 分两套定向复测。详见 `reports/2026-09-22-teaching-retest/`。
@@ -46,12 +46,12 @@
 
 ## Deployment History
 
-- **2026-09-24（Firebase 迁移第一阶段 + 腾讯云 SES，已上线）**：
-  - 生产认证会话和站内数据已切到腾讯 MariaDB；旧账号第一次登录时由 Firebase 校验一次原密码，再保存本地 `scrypt` 哈希。新注册暂时继续同步创建 Firebase 账号，作为短期回滚桥接；本地独立注册尚未启用。
-  - 邮箱验证和密码重置已切到腾讯云 SES API，发件地址为 `no-reply@notify.teachailab.com`，模板 `61815` / `61816` 均审核通过。向用户授权的 `xingyuwang124@163.com` 正好发送两封真实测试邮件，腾讯云均返回发送编号；两枚一次性令牌各一枚有效，等待用户点击完成端到端验收。
+- **2026-09-24（Firebase 迁移核心切换 + 腾讯云 SES，已上线）**：
+  - 生产认证会话、站内数据和新注册已切到腾讯 MariaDB。新注册只在腾讯创建账号，不再创建 Firebase 账号；旧账号第一次登录时仍由 Firebase 校验一次原密码，再保存本地 `scrypt` 哈希，避免损坏已有用户密码和登录能力。
+  - 邮箱验证和密码重置已切到腾讯云 SES API，发件地址为 `no-reply@notify.teachailab.com`，模板 `61815` / `61816` 均审核通过。向用户授权的 `xingyuwang124@163.com` 正好发送两封真实测试邮件；用户完成验证和重置后，服务器确认两枚一次性令牌均已使用、验证状态为真且本地密码已经建立。
   - 切换前最终只读快照 `/home/ubuntu/t-training/backups/20260924-pre-cutover-final2` 包含 373 个 Auth 账号、11 个集合和 11,067 条 Firestore 文档，13 个文件 SHA-256 全部一致；腾讯库严格镜像后为 `auth_users=373`、`user_profiles=365`、`firestore_documents=11067`。Firebase 导出全程只读，没有删除或改写已有数据。
   - MariaDB 回滚备份为 `/home/ubuntu/t-training/backups/20260924-pre-reconcile-mariadb`，gzip 完整性通过。发布目录 `/home/ubuntu/t-training/releases/20260924-local-phase1-74a8666`，生产回滚备份 `/home/ubuntu/t-training/backups/20260924-pre-local-phase1-74a8666`；发布清单为 107 个静态文件、23 个 API 文件，提交 `74a8666`。
-  - 隔离候选通过 16 项注册桥接、本地会话、数据 CRUD、验证闸门和退出回归；正式公网检查通过 103 项。Nginx 已回到 3001，`t-training-api` 与 `edu-media` online，`pm2-ubuntu` enabled / active；候选进程、临时测试账号、脚本、目录和日志已清理，未调用模型。
+  - 隔离候选通过 16 项注册桥接、本地会话、数据 CRUD、验证闸门和退出回归；启用本地注册后又通过 12 项生产验证：测试账号仅写入腾讯库，Firebase Auth 账号数在测试前后均为 378，未新增 Firebase 账号、未发邮件，测试数据清理后为 0。正式公网检查再次通过 103 项。Nginx 配置正常，`t-training-api` 与 `edu-media` online，`pm2-ubuntu` enabled / active；候选进程、临时测试账号、脚本、目录和日志已清理，未调用模型。
 
 - **2026-09-23（邮箱链接国内网络备用入口，已上线）**：
   - 新增本站邮箱操作页的完整链接粘贴入口。老师不必连接 VPN，复制验证、换绑、恢复或密码重置邮件中按钮的完整链接，打开 `https://ai.teachailab.com/api/email-action` 粘贴后即可由本站完成一次性操作；验证弹窗和忘记密码页均提供入口与说明。页面只接受本项目 Firebase / 本站链接，使用后立即清理地址栏中的 `oobCode`，并通过 `no-store`、`no-referrer`、CSP 和 Nginx 关闭访问日志降低一次性链接泄露风险。
