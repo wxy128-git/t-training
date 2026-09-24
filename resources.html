@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-resource-directory">
+    <link rel="stylesheet" href="css/style.css?v=20260924-resource-cards">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
 </head>
@@ -170,6 +170,12 @@ function resourceItemsCount() {
     return categories.reduce((total, category) => total + (Array.isArray(category.items) ? category.items.length : 0), 0);
 }
 
+function compactResourceDescription(value) {
+    return reviewTeachingText(value)
+        .replace('摄影与插图素材；使用范围与限制请查阅官方许可', '免费高分辨率摄影与插图素材')
+        .replace('图片、视频与音频素材；使用前查阅官方许可及具体素材说明', '支持中文搜索的图片、视频与音频素材');
+}
+
 function renderCategoryPills() {
     const pills = document.getElementById('resource-category-pills');
     if (!pills) return;
@@ -230,7 +236,6 @@ function renderContent(filterText = '') {
                     ${filteredItems.map(item => {
                         const safeItemUrl = SafeRender.safeUrl(item.url);
                         if (!safeItemUrl) return '';
-                        const license = /unsplash\.com/.test(safeItemUrl) ? 'https://unsplash.com/license' : (/pixabay\.com/.test(safeItemUrl) ? 'https://pixabay.com/service/license-summary/' : '');
                         const domain = new URL(safeItemUrl, location.href).hostname.replace(/^www\./, '');
                         const logo = resourceLogoFor(item, domain);
                         return `
@@ -238,13 +243,11 @@ function renderContent(filterText = '') {
                                 <a href="${SafeRender.escape(safeItemUrl)}" target="_blank" rel="noopener noreferrer" class="resource-card">
                                     <div class="resource-card-top">
                                         ${resourceLogoMarkup(item, logo)}
-                                        <div class="resource-card-name"><h3>${SafeRender.escape(item.name || '未命名资源')}</h3><span>${SafeRender.escape(domain)}</span></div>
+                                        <div class="resource-card-name"><h3>${SafeRender.escape(item.name || '未命名资源')}</h3></div>
                                         <span class="resource-open" aria-hidden="true"><i class="ph-bold ph-arrow-up-right"></i></span>
                                     </div>
-                                    <p>${SafeRender.escape(reviewTeachingText(item.desc || '打开官网查看可用素材。'))}</p>
-                                    <div class="resource-card-footer"><span class="resource-card-category">${SafeRender.escape(category.title || '素材网站')}</span><span class="resource-card-action">访问官网 <i class="ph ph-arrow-right" aria-hidden="true"></i></span></div>
+                                    <p>${SafeRender.escape(compactResourceDescription(item.desc || '打开官网查看可用素材。'))}</p>
                                 </a>
-                                ${license ? `<a class="resource-license" href="${license}" target="_blank" rel="noopener noreferrer">查看官方许可 ↗</a>` : ''}
                             </div>
                         `;
                     }).join('')}
