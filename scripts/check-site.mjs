@@ -40,7 +40,7 @@ for (const file of publicPages) {
 for (const file of appPages) {
     const html = text(file);
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
-    const styleVersion = file === 'resources.html' ? '20260924-resource-cabinet' : '20260924-local-email-direct';
+    const styleVersion = file === 'resources.html' ? '20260924-resource-directory' : '20260924-local-email-direct';
     if (!new RegExp(`css/style\\.css\\?v=${styleVersion}`).test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260924-local-email-direct/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
     if (!/js\/auth\.js\?v=20260924-local-email-direct/.test(html)) fail(file, '认证脚本缓存版本未统一');

@@ -1,79 +1,63 @@
-# 数字成员个人工作台 Design QA
+# 课件素材目录页 Design QA
 
 ## 对照对象
 
-- source visual truth: `/Users/wangxingyu/.codex/generated_images/01a031c0-4991-71c2-8511-aa6ed915780c/exec-deb6313f-f485-4357-8486-5f75fc4a5806.png`
-- normalized source: `/Users/wangxingyu/C-C/t-training/design-qa-assets/agent-workspace-source-1440x1024.png`
-- implementation screenshot: `/Users/wangxingyu/C-C/t-training/design-qa-assets/agent-workspace-desktop-1440x1024.png`
-- responsive screenshot: `/Users/wangxingyu/C-C/t-training/design-qa-assets/agent-workspace-mobile-390x844.png`
-- before-fix screenshot: `/Users/wangxingyu/C-C/t-training/design-qa-assets/agent-workspace-desktop-before.png`
-- route: `http://127.0.0.1:8765/agents#lesson-design`
+- source visual truth: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/reference.png`
+- implementation screenshot: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/implementation-desktop.png`
+- responsive screenshot: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/implementation-mobile.png`
+- full comparison: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/comparison-desktop.png`
+- focused comparison: `/Users/wangxingyu/C-C/t-training/reports/2026-09-24-resources-redesign/comparison-cards.png`
+- route: `http://127.0.0.1:8765/resources`
 
 ## 尺寸、密度与状态
 
-- 原始参考稿为 1487×1058 px；按相同比例归一化为 1440×1024 px，与桌面实现逐像素尺寸一致。
-- 桌面实现 CSS viewport 为 1440×1024，`deviceScaleFactor=1`，截图为 1440×1024 px。
-- 手机实现 CSS viewport 为 390×844，`deviceScaleFactor=1`，截图为 390×844 px；`innerWidth=390`、`documentElement.scrollWidth=390`。
-- 桌面对照状态：教学设计助手、已填入与参考稿一致的语文一年级任务简报、参数折叠、交付区为空、处于“了解任务”阶段、未登录。
-- 手机响应式状态：教学设计助手、空白任务简报、参数折叠、处于“了解任务”阶段、未登录。
+- 原始参考图为 3392×1874 px；按相同比例归一化为 2048×1132 px，用于与实现截图对照。
+- 桌面实现的 CSS viewport 为 2048×1132，`deviceScaleFactor=1`，截图为 2048×1132 px。
+- 手机实现的 CSS viewport 为 390×844，`deviceScaleFactor=1`，截图为 390×844 px；页面滚动宽度为 382 px，没有横向页面溢出。
+- 对照状态均为浅色主题、资源目录默认状态。参考图与实现使用不同网站数据，因此本次比较布局密度、卡片结构、视觉令牌和交互层级，不比较逐字内容。
 
 ## Full-view comparison evidence
 
-参考稿和最终实现已在同一次视觉输入中以 1440×1024 原始分辨率共同打开对照。最终实现保持参考稿的核心构图：左侧任务简报、右侧成员交付、突出主任务输入、压缩学科/年级/课时、次要参数渐进展开、红色主操作和底部教师核验提示。
-
-项目原有“备课项目”条带、成员简介、三阶段工作状态与右下帮助入口被保留。这会让双栏主体相对参考稿下移约一个项目条带的高度，但属于有意保留的既有产品能力，并非实现遗漏；双栏比例、首屏操作可见性和任务层级仍成立。
+参考图和最终实现已放入同一张 4096×1132 对照图中打开检查。最终实现采用参考图的浅灰蓝页面背景、白色圆角卡片、六列宽屏网格、粗体分区标题、右侧胶囊“更多”按钮和橙红色选中状态。原站导航、页面标题、搜索框和分类筛选被保留，所以内容区相对参考图下移；这些元素承担站内导航与素材查找功能，属于有意保留的产品能力。
 
 ## Focused region comparison evidence
 
-未另做裁切。两张 1440×1024 原图中的头像、标题、任务提示、输入正文、背景参数、按钮文案、交付空状态与核验提示均可直接辨认；关键细节已在同一次原始分辨率对照中检查，额外裁切不会提供新的判断信息。
+卡片区域另以相同宽度裁切到 `comparison-cards.png` 共同查看。参考图与实现都使用“logo + 网站名 + 一段说明”的紧凑卡片结构；宽屏均为六列，卡片圆角、留白和纵向密度接近。实现额外保留官网域名、分类标签与“访问官网”提示，以减少用户误点和来源不明的问题。
 
 ## Findings
 
 - 没有残留的 P0、P1 或 P2 问题。
-- 字体与排版：沿用项目现有中文系统无衬线字体，标题、正文、小标签和按钮的粗细层级与参考稿一致；实现的小字号略紧凑，但仍在既有设计系统范围内，无截断核心信息。
-- 间距与布局节奏：双栏 45/55 比例、卡片边界、输入区高度、空状态垂直居中和按钮位置与参考稿一致。保留备课项目条带造成的整体下移属于已接受的产品约束。
-- 颜色与视觉令牌：沿用站点现有浅灰蓝背景、白色面板、青绿色成员状态和砖红主操作；语义和对比度与参考稿一致。
-- 图片质量与资产：使用现有高清数字成员肖像并通过容器内缩放调整为近景头像，没有使用占位图、CSS 绘图或伪造资源；桌面和手机裁切清晰。
-- 文案与内容：成员使用第一人称了解任务，交付区明确归属于“教学设计助手”，主操作为“任务已说清，开始起草”，并明确 AI 仅交付初稿、由教师核验，符合所选方向。
-- P3 / accepted: 实现保留站点现有备课项目条带、成员能力简介和帮助入口，因此比概念稿信息略多；这些元素有实际产品用途，不建议为了形式一致而删除。
+- 字体与排版：沿用网站现有中文系统无衬线字体；分区标题、卡片标题、说明和小标签的层级与参考图一致，长描述限制为两行，不挤压卡片底部操作。
+- 间距与布局节奏：2048 px 宽度下稳定显示六列；分区之间留出明显空隙，卡片高度统一。网站导航和搜索区带来额外纵向空间，但保留后不会影响首个分类及六张卡片在首屏出现。
+- 颜色与视觉令牌：页面底色、白色卡片、浅灰标签和橙红强调色与参考图同类；边框与阴影保持克制，没有回到上一版的大面积装饰首屏。
+- 图片质量与资产：当前实际加载的 20 个网站均显示真实 logo，失败回退数量为 0；横版 logo 使用独立宽框，未拉伸或裁切。
+- 文案与内容：保留教师素材场景的搜索提示、许可入口、分类名称和官网域名；参考图中的推荐内容没有照搬。
+- P3 / accepted：参考图没有主导航和搜索区，实现保留了两者，因此比参考图更像完整网站页面；这是功能需要，不建议为追求截图一致而删除。
 
 ## Comparison history
 
-### Iteration 1 — blocked
+### Iteration 1 — passed
 
-- P2：桌面主体高度为固定 760px，底部核验提示落到 1024px 视口之外。
-- P2：顶部信息区和备课项目条带占用过多纵向空间，双栏主体明显低于参考稿。
-- P2：成员头像使用全身比例，身份感弱于参考稿的近景头像。
-
-Fixes:
-
-- 将桌面双栏高度改为 `clamp(560px, calc(100vh - 352px), 720px)`，让底部核验提示回到首屏。
-- 压缩工作台头部、简介和项目条带的内外间距，并将桌面栏宽调整为约 45/55。
-- 在工作台头像容器内放大现有肖像并上移裁切中心，形成稳定近景身份锚点。
-
-### Iteration 2 — passed
-
-- 使用相同 1440×1024 视口重新截图，并将参考稿归一化到 1440×1024 后共同打开对照。
-- 前述底部不可见、纵向密度和头像尺度问题均已消除；未发现新的可执行 P0/P1/P2 问题。
-- 另以真实 390×844 手机指标验证：页面滚动宽度等于视口宽度，关闭状态的侧边导航位于屏外属于预期行为。
+- 按参考图将上一版的大首屏和左侧固定目录改为全宽分区卡片墙。
+- 在 2048×1132 同比例视口完成视觉对照；六列密度、背景、卡片结构和分区层级均达到目标。
+- 未发现需要继续修复的 P0、P1 或 P2 差异。
 
 ## Primary interactions and console check
 
-- “展开全部参数”可切换为打开状态，原 6 个教学设计字段均保留。
-- 编辑“教学任务描述”后，右侧“本次任务”摘要同步更新。
-- `brief → working → review` 三阶段可正确切换；前序阶段标记为 complete，当前阶段标记为 active。
-- 测试后已恢复空白任务内容、折叠参数和“了解任务”阶段。
-- 浏览器未捕获 JavaScript runtime exception。日志中出现两次本地预览 `/api/analytics` 返回 501，以及一次 PWA 安装横幅提示；前者是本地预览未实现统计写入的既有行为，后者为浏览器信息提示，均不影响工作台主流程。
+- 搜索输入可实时筛选；无结果状态正确出现，清除搜索后恢复全部资源。
+- 点击分区“更多”会切换到对应分类；点击“清除筛选”恢复全部分类。
+- 手机端分类标签可横向滑动，资源卡片变为单列，页面没有横向溢出。
+- 桌面实际显示 20 张卡片、5 个分区；全部 logo 加载成功。
+- 浏览器没有页面脚本异常。本地预览仅有 `/api/analytics` 返回 501 的既有统计警告，不影响资源页功能。
 
 ## Implementation Checklist
 
-- [x] 任务简报与成员身份
-- [x] 关键参数前置、次要参数折叠
-- [x] 成员归属的交付区与教师核验提示
-- [x] 三阶段工作状态
-- [x] 1440×1024 同状态视觉对照
-- [x] 390×844 响应式与横向溢出检查
-- [x] 参数、摘要与阶段交互检查
-- [x] 站点、函数与腾讯云适配自动检查
+- [x] 参考图式浅灰背景与白色卡片墙
+- [x] 2048 px 宽屏六列布局
+- [x] 分区标题与“更多”按钮
+- [x] 搜索、分类、清除筛选与空状态
+- [x] 高清真实 logo 与失败回退检查
+- [x] 390×844 手机响应式检查
+- [x] 同尺寸全页与卡片区域视觉对照
 
 final result: passed

@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-resource-cabinet">
+    <link rel="stylesheet" href="css/style.css?v=20260924-resource-directory">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
 </head>
@@ -33,7 +33,7 @@
 <div id="main-nav"></div>
 
 <main class="resource-page" id="main-content">
-    <section class="resource-hero resource-hero-cabinet">
+    <section class="resource-hero resource-hero-directory">
         <div class="resource-hero-copy">
             <div class="resource-kicker">
                 <span class="resource-kicker-mark" data-site-copy="heroKicker">素材入口</span>
@@ -53,17 +53,13 @@
         </div>
     </section>
 
-    <div class="resource-workbench">
-        <aside class="resource-catalog" aria-label="素材分类">
-            <div class="resource-catalog-head"><span>素材分类</span><small id="resource-category-count">5 类</small></div>
+    <div class="resource-workbench resource-directory">
+        <section class="resource-filter-bar" aria-label="筛选素材网站">
+            <div class="resource-filter-summary"><strong>快速筛选</strong><span id="resource-match-count">全部 28 个入口</span></div>
             <div id="resource-category-pills" class="resource-category-pills"></div>
-            <div class="resource-catalog-note"><i class="ph ph-book-open-text" aria-hidden="true"></i><p>下载和使用素材前，请查看对应网站的授权说明。</p></div>
-        </aside>
+            <button type="button" id="resource-reset" class="resource-reset" hidden><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>清除筛选</button>
+        </section>
         <section class="resource-shelf" aria-label="素材网站列表">
-            <div class="resource-shelf-head">
-                <div><span>网站目录</span><strong id="resource-match-count">全部 28 个入口</strong></div>
-                <button type="button" id="resource-reset" class="resource-reset" hidden><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>清除筛选</button>
-            </div>
             <div id="content-area" class="resource-content"></div>
             <div id="no-results" class="resource-empty" hidden>
                 <div class="resource-empty-mark"><i class="ph ph-compass" aria-hidden="true"></i></div>
@@ -191,7 +187,8 @@ function renderCategoryPills() {
             <i class="ph ph-caret-right resource-category-caret" aria-hidden="true"></i>
         </button>
     `).join('');
-    document.getElementById('resource-category-count').textContent = `${categories.length} 类`;
+    const categoryCount = document.getElementById('resource-category-count');
+    if (categoryCount) categoryCount.textContent = `${categories.length} 类`;
 }
 
 function bindLogoFallbacks(container) {
@@ -227,6 +224,7 @@ function renderContent(filterText = '') {
                 <div class="resource-section-title">
                     <span class="resource-section-icon ${SafeRender.classNames(category.bg)} ${SafeRender.classNames(category.color)}"><i class="ph-fill ${SafeRender.classNames(category.icon, 'ph-folder')}"></i></span>
                     <div><h2>${SafeRender.escape(category.title || '未分类')}</h2><p>${filteredItems.length} 个网站</p></div>
+                    ${activeCategory === 'all' && !query ? `<button type="button" class="resource-section-more" data-resource-view="${SafeRender.escape(categoryId)}">更多 <i class="ph ph-caret-right" aria-hidden="true"></i></button>` : ''}
                 </div>
                 <div class="resource-grid">
                     ${filteredItems.map(item => {
@@ -283,6 +281,14 @@ document.getElementById('resource-category-pills').addEventListener('click', eve
     activeCategory = button.dataset.resourceCategory || 'all';
     renderCategoryPills();
     renderContent(searchInput.value);
+});
+document.getElementById('content-area').addEventListener('click', event => {
+    const button = event.target.closest('[data-resource-view]');
+    if (!button) return;
+    activeCategory = button.dataset.resourceView || 'all';
+    renderCategoryPills();
+    renderContent(searchInput.value);
+    document.querySelector('.resource-filter-bar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 renderNav('resources');
