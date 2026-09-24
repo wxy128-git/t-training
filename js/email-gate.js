@@ -35,9 +35,8 @@
                 <div id="email-gate-password-row" hidden><label class="form-label" for="email-gate-password">再次输入当前登录密码</label><input class="form-input" id="email-gate-password" type="password" autocomplete="current-password" maxlength="128"><p class="auth-email-hint">登录时间较久，需要再次确认是您本人。</p></div>
                 <button class="btn-primary" type="submit" id="email-gate-send">发送验证邮件</button>
             </form>
-            <p class="email-gate-tip">收到邮件后可直接点击验证链接。链接打不开时无需连接 VPN：长按或右键复制邮件按钮的完整链接，再到本站处理。</p>
+            <p class="email-gate-tip">收到邮件后，请直接点击验证链接完成操作。</p>
             <p id="email-gate-message" class="email-gate-message" role="status" aria-live="polite"></p>
-            <a class="email-gate-check" href="/api/email-action" target="_blank" rel="noopener">邮件链接打不开？在本站粘贴处理</a>
             <button type="button" class="email-gate-check" id="email-gate-check">我已验证，继续使用</button>
             <button type="button" class="email-gate-logout" id="email-gate-logout">退出 / 换个账号登录</button>`;
         dialog.querySelector('#email-gate-address').value = rememberedEmail(user);
@@ -95,7 +94,7 @@
             if (result.alreadyVerified) { syncEmailGate(); return; }
             dialog.sentTo = result.sentTo; dialog.sentAt = Date.now() + (result.retryAfter || 60) * 1000;
             try { sessionStorage.setItem(pendingKey(user.uid), result.sentTo); } catch {}
-            message(`验证邮件已发送至 ${result.sentTo}。如果邮件按钮打不开，请复制按钮链接并使用下方“在本站粘贴处理”。`);
+            message(`验证邮件已发送至 ${result.sentTo}。请打开邮件并点击验证链接。`);
         } catch (error) {
             if (Auth.getCurrentUser()?.uid !== user.uid) return;
             if (error.retryAfter) dialog.sentAt = Date.now() + error.retryAfter * 1000;
