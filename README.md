@@ -61,11 +61,15 @@ npx --yes firebase-tools@latest deploy --only firestore:rules
 
 本次发布提交为 `cef2e2a`、`d938aac`，共享资源版本 `20260923-email-link-help`，Service Worker `20260923-v24`；本地检查、候选检查和公网 103 项检查均通过。临时配置工具已删除，但服务账号密钥还需要有权限的 Google Cloud / Firebase 管理员手动轮换。
 
+迁移到腾讯 SES 并完成真实邮件验收后，普通用户已经不再需要这个粘贴入口。2026-09-24 起，邮箱验证窗口和找回密码界面只提示直接点击本站邮件链接；后台兼容页暂时保留用于迁移回滚。
+
 ## 2026-09-24 Firebase 迁移核心切换（已上线）
 
 生产登录会话、站内数据和新注册已切到腾讯 MariaDB；新注册只在腾讯服务器创建账号，不再写入 Firebase。已有账号首次登录会由 Firebase 校验一次原密码并迁移为本地 `scrypt` 哈希，以保留原密码和现有用户数据。邮箱验证与密码重置使用腾讯云 SES，链接直接回到 `ai.teachailab.com`。
 
 最终只读快照包含 373 个账号和 11,067 条文档，哈希校验与严格镜像导入均通过。发布提交为 `74a8666`。两封经授权的真实测试邮件均完成操作，服务器确认验证状态、本地密码和两枚单次令牌状态正确；启用本地注册后的生产测试确认 Firebase Auth 数量保持 378 不变，临时腾讯账号已清理且未发送额外邮件。公网生产检查再次通过 103 项。
+
+邮箱界面简化提交 `6da300d` 已同步上线，共享资源缓存版本为 `20260924-local-email-direct`，Service Worker 为 `20260924-v25`。公网生产检查通过 107 项；本次没有发送邮件、创建账号或调用模型。
 
 ## 2026-09-22 邮箱必填与验证（已上线）
 
@@ -73,7 +77,7 @@ npx --yes firebase-tools@latest deploy --only firestore:rules
 
 如果 Firebase 邮件按钮在国内网络无法打开，老师可在验证弹窗或忘记密码页进入本站邮箱操作页，复制并粘贴邮件按钮的完整链接，由腾讯云服务器完成验证或密码重置，不需要连接 VPN。
 
-详见 [邮箱完善实施与验收记录](reports/2026-09-22-email-verification/README.md)。邮箱功能实现提交 `899bb48`，原管理员修复提交 `260dfff`；API、静态文件和数据库规则已同步发布。全局共享资源为 `20260923-email-link-help`，智能体数据脚本为 `20260922-teaching-quality`，Service Worker 为 `20260923-v24`。
+详见 [邮箱完善实施与验收记录](reports/2026-09-22-email-verification/README.md)。邮箱功能实现提交 `899bb48`，原管理员修复提交 `260dfff`；API、静态文件和数据库规则已同步发布。全局共享资源为 `20260924-local-email-direct`，智能体数据脚本为 `20260922-teaching-quality`，Service Worker 为 `20260924-v25`。
 
 智能体的新客户端使用 `streamProtocol: events-v1`，服务端按 NDJSON 发送 `delta / done / error`；只有明确完成才进入核验与保存。发布时先更新兼容旧客户端的 API，再更新静态文件；回滚时先退回静态文件，再回滚 API。
 

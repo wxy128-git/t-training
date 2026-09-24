@@ -37,7 +37,7 @@
 ## Local Changes Pending Deployment
 
 - Firebase migration core cutover is online as of 2026-09-24: local authentication sessions, local data, local-only registration, and Tencent SES email are active. The authorized 163.com inbox completed both the verification and password-reset links; the server confirmed both one-time tokens were consumed and a local password exists. Firebase remains only as the first-login compatibility bridge for existing accounts that have not yet established a local password.
-- 本站邮箱操作页 API、邮件链接粘贴入口、前端提示和缓存版本 `20260923-email-link-help` 已随提交 `cef2e2a` / `d938aac` 上线。Firebase 回调仍为原 `firebaseapp.com` 地址；管理 API 返回 `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`，未发生配置变更，因此国内网络打不开邮件按钮时应使用本站粘贴入口。
+- 腾讯 SES 本地邮件链接已经完成真实验收，验证窗口和找回密码界面不再显示旧 Firebase 链接粘贴入口；后台 `/api/email-action` 兼容页暂时保留用于迁移回滚。当前共享资源缓存版本为 `20260924-local-email-direct`，Service Worker 为 `20260924-v25`。
 - 本轮邮箱验证、体验优化及原管理员邮箱验证豁免均已于 2026-09-22 上线，详情见下方部署记录。
 - 19 个智能体的当前提示词已完成 42 次真实模型请求；出题、组卷、错题诊断和听评课的约束已于 2026-09-22 上线，组卷助手最终连续通过 50 分、60 分两套定向复测。详见 `reports/2026-09-22-teaching-retest/`。
 - 用户明确暂缓人工账号恢复，不要求站点负责人提供恢复收件邮箱；不能把管理员登录标识当作联系邮箱。
@@ -45,6 +45,11 @@
 - 教学质量后续重点：服务器当前没有配置智谱密钥，本轮未覆盖 GLM-5.2 与供应商回退；随机组卷仍需教师核验答案、条件和分值。
 
 ## Deployment History
+
+- **2026-09-24（邮箱验证界面简化，已上线）**：
+  - 腾讯 SES 验证和重置链接已经完成真实收件箱验收后，从邮箱验证窗口与找回密码界面移除“在本站粘贴处理”按钮、VPN 提示和旧 Firebase 说明；发送成功提示改为直接打开邮件并点击本站链接。后台 `/api/email-action` 及旧 Firebase 操作模式继续保留，不在普通用户界面展示，便于迁移观察期回滚。
+  - 共享资源缓存版本更新为 `20260924-local-email-direct`，Service Worker 更新为 `20260924-v25`。实现提交 `6da300d`；发布目录 `/home/ubuntu/t-training/releases/20260924-email-ui-6da300d`，回滚备份 `/home/ubuntu/t-training/backups/20260924-pre-email-ui-6da300d`。发布包 107 个静态文件、23 个 API 文件共 130 项 SHA-256 校验一致。
+  - 本地全量回归通过，3002 候选通过 9 项只读检查；发布后公网生产检查通过 107 项，部署目录与发布包逐文件一致。Nginx 已回到 3001，`t-training-api` 与 `edu-media` online，PM2 已保存；候选进程、旧静态目录和临时脚本已清理。验证过程未发送邮件、未创建账号、未调用模型。
 
 - **2026-09-24（Firebase 迁移核心切换 + 腾讯云 SES，已上线）**：
   - 生产认证会话、站内数据和新注册已切到腾讯 MariaDB。新注册只在腾讯创建账号，不再创建 Firebase 账号；旧账号第一次登录时仍由 Firebase 校验一次原密码，再保存本地 `scrypt` 哈希，避免损坏已有用户密码和登录能力。
