@@ -37,7 +37,7 @@
 
 ## Local Changes Pending Deployment
 
-- `tools` 与 `resources` 的紧凑目录卡片、统一 Logo 展示及后台资源 Logo 自动识别 / 上传流程已于 2026-09-25 上线；后续后台新增链接时会自动尝试保存网站图标，识别失败可手动上传，已保存图片由腾讯服务器共享目录跨发布保留。
+- `tools` 与 `resources` 的紧凑目录卡片、统一 Logo 展示及后台 Logo 自动识别 / 上传流程已于 2026-09-25 上线；工具和课件素材现在使用同一套新增 / 编辑体验，后续填写网址时会自动尝试保存网站图标，识别失败可手动上传，已保存图片由腾讯服务器共享目录跨发布保留。
 - Firebase migration core cutover is online as of 2026-09-24: local authentication sessions, local data, local-only registration, and Tencent SES email are active. The authorized 163.com inbox completed both the verification and password-reset links; the server confirmed both one-time tokens were consumed and a local password exists. Firebase remains only as the first-login compatibility bridge for existing accounts that have not yet established a local password.
 - 腾讯 SES 本地邮件链接已经完成真实验收，验证窗口和找回密码界面不再显示旧 Firebase 链接粘贴入口；后台 `/api/email-action` 兼容页暂时保留用于迁移回滚。当前共享资源缓存版本为 `20260924-local-email-direct`，Service Worker 为 `20260924-v25`。
 - 本轮邮箱验证、体验优化及原管理员邮箱验证豁免均已于 2026-09-22 上线，详情见下方部署记录。
@@ -47,6 +47,12 @@
 - 教学质量后续重点：服务器当前没有配置智谱密钥，本轮未覆盖 GLM-5.2 与供应商回退；随机组卷仍需教师核验答案、条件和分值。
 
 ## Deployment History
+
+- **2026-09-25（后台工具 / 课件素材空列表修复与工具 Logo 流程补齐，已上线）**：
+  - 修复管理后台内容读取适配层的返回格式：腾讯本地内容接口直接返回数组或单项，但后台原调用方仍按 `{items}` / `{item}` 读取，导致「工具管理」和「课件素材」显示为空。修复只调整前端适配，没有改写数据；上线前后均确认生产库仍有 21 个工具、5 个素材分类。
+  - 工具新增 / 编辑弹窗补齐与课件素材一致的 Logo 工作流：填写网址后自动识别、即时预览、重新获取、上传不超过 320KB 的常见图片格式、恢复默认；分类、标签和备用图标 / 颜色收进可选的高级设置。公开工具接口保留管理员保存的 `logo` / `logoSource`，前台优先显示该 Logo。
+  - 实现提交 `e7137e1`；后台 `data.js` 缓存版本为 `20260925-admin-content-logo`；发布目录 `/home/ubuntu/t-training/releases/20260925-admin-lists-e7137e1`，回滚备份 `/home/ubuntu/t-training/backups/20260925-pre-admin-lists-e7137e1`。发布包包含 152 个静态文件、24 个 API 文件，共 184 项。
+  - 本地站点、课程、函数、邮箱、生成、资源 Logo、后台内容和腾讯适配检查全部通过；3002 候选与正式 3001 均确认工具 21 项、素材分类 5 项、管理员鉴权和 Logo 路由正常，公网生产检查通过 108 项。教师站与教育媒体课程站均为 HTTP/2 200，旧 Cloudflare 地址保留路径和参数 302；正式 API 错误日志为空，`t-training-api` 与 `edu-media` online。候选进程、交换目录、临时文件和本地发布包均已清理；验证过程未发送邮件、未创建账号、未调用模型。
 
 - **2026-09-25（工具 / 课件素材目录与后台 Logo 管理，已上线）**：
   - `tools` 与 `resources` 改为紧凑、左对齐的统一目录卡片，使用清晰的官方 Logo、克制的分类与悬停反馈；课件素材页同步采用同一视觉语言。后台新增或编辑课件素材时，会在网址填写完成后自动识别公开网站 favicon / Apple Touch Icon，并提供即时预览、重新获取、上传图片和恢复默认操作；前台优先显示管理员保存的 Logo。
