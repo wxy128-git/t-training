@@ -56,8 +56,11 @@ sudo certbot --nginx -d ai.teachailab.com --redirect --non-interactive
 1. 用 `build-tencent-package.mjs` 生成白名单包并上传到新的 release 目录。
 2. 复制现有静态站与 API 到带日期的 backup 目录，保留一个明确回滚点。
 3. 先让候选 API 在 `127.0.0.1:3002` 启动并完成 `/healthz`、登录和接口回归。
-4. 将 Nginx 上游平滑切到候选端口，再原子更新 `/var/www/t-training` 和正式 API 目录。
-5. 在 `3001` 启动正式 PM2 进程，健康检查通过后将 Nginx 切回 `3001`，停止候选进程。
+4. 将 Nginx 上游平滑切到候选端口，再原子更新 `/var/www/t-training` 和正式 API 目录。服务器当前的
+   `sites-available/ai.teachailab.com` 与 `sites-enabled/ai.teachailab.com` 是两个普通文件，切换时必须同步修改；
+   不能假定 `sites-enabled` 是符号链接。每次 reload 后用 `nginx -T` 或直接检查生效文件确认实际上游端口。
+5. 在 `3001` 启动正式 PM2 进程，健康检查通过后将两个 Nginx 配置都切回 `3001`。从公网确认
+   `/api/auth-proxy`、`/api/tools` 和首页均已由 `3001` 正常响应后，才能停止并删除候选进程。
 6. 执行 `pm2 save`，确保 `edu-media` 与 `t-training-api` 都写入
    `/home/ubuntu/.pm2/dump.pm2`。
 
