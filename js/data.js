@@ -600,7 +600,11 @@ function shouldFallbackContentMutation(error) {
 
 async function adminContentRead(type, id = '') {
     const token = await Auth.getIdToken();
-    return callContentAPI(type, id, { scope: 'admin', idToken: token });
+    const value = await callContentAPI(type, id, { scope: 'admin', idToken: token });
+    // Admin callers predate the shared content client and consistently consume
+    // the original `{ items }` / `{ item }` response shape. Keep that contract
+    // here instead of making every manager understand the public client shape.
+    return id ? { item: value } : { items: value };
 }
 
 async function adminContentMutation(action, payload = {}) {

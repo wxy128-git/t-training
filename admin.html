@@ -451,7 +451,7 @@
         <div class="modal-body">
             <input type="hidden" id="tool-edit-id">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div class="form-group"><label class="form-label">工具名称 *</label><input type="text" id="tool-name" class="form-input" placeholder="例：快出题"></div>
+                <div class="form-group"><label class="form-label">工具名称 *</label><input type="text" id="tool-name" class="form-input" placeholder="例：快出题" oninput="refreshToolLogoInitials()"></div>
                 <div class="form-group"><label class="form-label">分类 *</label>
                     <select id="tool-cat" class="form-input">
                         <option value="teaching">教学辅助</option>
@@ -461,14 +461,39 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group"><label class="form-label">工具链接 *</label><input type="url" id="tool-url" class="form-input" placeholder="https://"></div>
-            <div class="form-group"><label class="form-label" for="tool-task-category">教师任务分类</label><select id="tool-task-category" class="form-input"><option value="">沿用默认分类</option><option value="plan">备课与资料</option><option value="make">课件制作</option><option value="media">图片、视频与音频</option><option value="platform">平台与工作流</option><option value="more">其他</option></select></div>
-            <div class="form-group"><label class="form-label" for="tool-tags">语言与费用标签（逗号分隔，核实后填写）</label><input id="tool-tags" class="form-input" maxlength="120" placeholder="例如：中文，部分免费"></div>
-            <div class="form-group"><label class="form-label" for="tool-fit">适用教学任务</label><input id="tool-fit" class="form-input" maxlength="240"></div>
-            <div class="form-group"><label class="form-label" for="tool-reviewed-at">最近核对日期</label><input id="tool-reviewed-at" class="form-input" type="date"></div>
+            <div class="form-group"><label class="form-label">工具链接 *</label><input type="url" id="tool-url" class="form-input" placeholder="https://example.com" onchange="maybeDetectToolLogo()"></div>
+            <input type="hidden" id="tool-logo">
+            <input type="hidden" id="tool-logo-source">
+            <div class="admin-logo-editor">
+                <div class="admin-logo-editor-main">
+                    <div class="admin-logo-preview" id="tool-logo-preview" aria-label="Logo 预览"><i class="ph ph-image"></i></div>
+                    <div class="admin-logo-info">
+                        <strong>网站 Logo</strong>
+                        <div class="admin-logo-status" id="tool-logo-status"><i class="ph ph-info"></i><span>填好网址后，系统会自动识别。</span></div>
+                        <div class="admin-logo-actions">
+                            <button type="button" class="admin-logo-action primary" id="tool-logo-detect" onclick="detectToolLogo(true)"><i class="ph ph-magic-wand"></i><span>自动识别</span></button>
+                            <button type="button" class="admin-logo-action" onclick="document.getElementById('tool-logo-file').click()"><i class="ph ph-upload-simple"></i>上传图片</button>
+                            <button type="button" class="admin-logo-action" id="tool-logo-reset" onclick="resetToolLogo()"><i class="ph ph-arrow-counter-clockwise"></i>恢复默认</button>
+                        </div>
+                        <input type="file" id="tool-logo-file" accept="image/png,image/jpeg,image/webp,image/gif,image/x-icon,.ico" hidden onchange="uploadToolLogo(this)">
+                    </div>
+                </div>
+                <p class="admin-logo-help">识别或上传后，Logo 会保存在本站服务器。建议使用清晰的正方形图片，文件不超过 320KB。</p>
+            </div>
             <div class="form-group"><label class="form-label">工具描述 *</label><input type="text" id="tool-desc" class="form-input" placeholder="简短描述工具的核心功能"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div class="form-group"><label class="form-label">图标</label>
+            <details style="margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--soft)">
+                <summary style="cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:700">分类与标签（可选）</summary>
+                <div style="margin-top:12px">
+                    <div class="form-group"><label class="form-label" for="tool-task-category">教师任务分类</label><select id="tool-task-category" class="form-input"><option value="">沿用默认分类</option><option value="plan">备课与资料</option><option value="make">课件制作</option><option value="media">图片、视频与音频</option><option value="platform">平台与工作流</option><option value="more">其他</option></select></div>
+                    <div class="form-group"><label class="form-label" for="tool-tags">语言与费用标签</label><input id="tool-tags" class="form-input" maxlength="120" placeholder="例如：中文，部分免费"></div>
+                    <div class="form-group"><label class="form-label" for="tool-fit">适用教学任务</label><input id="tool-fit" class="form-input" maxlength="240" placeholder="例如：制作课堂演示和教学配图"></div>
+                    <div class="form-group" style="margin-bottom:0"><label class="form-label" for="tool-reviewed-at">最近核对日期</label><input id="tool-reviewed-at" class="form-input" type="date"></div>
+                </div>
+            </details>
+            <details style="margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--soft)">
+                <summary style="cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:700">Logo 无法显示时的备用图标</summary>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">备用图标</label>
                     <div style="display:flex;align-items:center;gap:10px">
                         <select id="tool-icon" class="form-input" style="flex:1" onchange="updateIconPreview()">
                             <option value="ph-robot">机器人</option>
@@ -509,7 +534,7 @@
                         <span id="tool-icon-preview" style="width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:var(--r-sm);font-size:22px;color:var(--brand);background:var(--soft)"><i class="ph ph-robot"></i></span>
                     </div>
                 </div>
-                <div class="form-group"><label class="form-label">颜色</label>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">备用颜色</label>
                     <select id="tool-color" class="form-input">
                         <option value="text-blue-500 bg-blue-50">蓝色</option>
                         <option value="text-emerald-500 bg-emerald-50">绿色</option>
@@ -521,9 +546,10 @@
                         <option value="text-teal-500 bg-teal-50">青绿</option>
                     </select>
                 </div>
-            </div>
+                </div>
+            </details>
             <div style="margin-top:20px;display:flex;gap:8px">
-                <button class="btn-primary" onclick="saveTool()" style="flex:1">保存</button>
+                <button class="btn-primary" id="tool-save" onclick="saveTool()" style="flex:1">保存工具</button>
                 <button onclick="closeModal('tool-modal')" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;cursor:pointer;background:white;font-family:inherit">取消</button>
             </div>
         </div>
@@ -707,7 +733,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
-<script src="js/data.js?v=20260924-local-email-direct"></script>
+<script src="js/data.js?v=20260925-admin-content-logo"></script>
 <script src="js/site-copy.js?v=20260924-local-email-direct"></script>
 <script src="js/auth.js?v=20260924-local-email-direct"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
@@ -1376,7 +1402,15 @@ async function renderToolsTable() {
         const safeToolUrl = SafeRender.safeUrl(t.url);
         return `
         <tr>
-            <td style="font-weight:600">${escapeHTML(t.name)}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px;min-width:190px">
+                    <div class="admin-resource-thumb">${adminResourceLogoMarkup(t)}</div>
+                    <div>
+                        <div style="font-weight:700">${escapeHTML(t.name)}</div>
+                        ${safeResourceLogo(t.logo) ? '<span class="admin-resource-logo-badge">本站 Logo</span>' : '<span style="font-size:10px;color:var(--muted)">默认标识</span>'}
+                    </div>
+                </div>
+            </td>
             <td><span style="background:#fbe8e4;color:var(--brand);padding:2px 8px;border-radius:999px;font-size:11px">${escapeHTML({teaching:'教学辅助',creation:'内容创作',search:'搜索',dev:'开发'}[t.category]||t.category)}</span></td>
             <td style="color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHTML(t.desc)}</td>
             <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safeToolUrl ? `<a href="${escapeHTML(safeToolUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--brand);font-size:12px">${escapeHTML(t.url)}</a>` : '<span style="color:var(--danger);font-size:12px">链接无效</span>'}</td>
@@ -1414,10 +1448,128 @@ function setToolIcon(val) {
     updateIconPreview();
 }
 
+let _toolLogoBusy = false;
+let _lastAutoToolLogoUrl = '';
+
+function setToolLogoBusy(busy) {
+    _toolLogoBusy = busy;
+    document.querySelectorAll('#tool-modal .admin-logo-action').forEach(button => { button.disabled = busy; });
+    const saveButton = document.getElementById('tool-save');
+    if (saveButton) saveButton.disabled = busy;
+}
+
+function updateToolLogoPreview(message = '', state = '') {
+    const preview = document.getElementById('tool-logo-preview');
+    const status = document.getElementById('tool-logo-status');
+    const name = document.getElementById('tool-name').value.trim();
+    const logo = safeResourceLogo(document.getElementById('tool-logo').value);
+    if (logo) {
+        preview.innerHTML = `<img src="${htmlEscape(logo)}" alt="${htmlEscape(name || '网站')} Logo">`;
+        preview.querySelector('img')?.addEventListener('error', () => {
+            document.getElementById('tool-logo').value = '';
+            updateToolLogoPreview('Logo 暂时无法显示，请重新识别或上传。', 'error');
+        }, { once:true });
+    } else {
+        preview.textContent = resourceLogoInitials(name);
+    }
+    const icon = state === 'success' ? 'ph-check-circle' : state === 'error' ? 'ph-warning-circle' : _toolLogoBusy ? 'ph-spinner-gap' : 'ph-info';
+    status.className = `admin-logo-status${state ? ` is-${state}` : ''}`;
+    status.innerHTML = `<i class="ph ${icon}${_toolLogoBusy ? ' ph-spin' : ''}"></i><span>${htmlEscape(message || '填好网址后，系统会自动识别。')}</span>`;
+    document.getElementById('tool-logo-reset').disabled = _toolLogoBusy || !logo;
+}
+
+function refreshToolLogoInitials() {
+    if (safeResourceLogo(document.getElementById('tool-logo').value)) return;
+    document.getElementById('tool-logo-preview').textContent = resourceLogoInitials(document.getElementById('tool-name').value.trim());
+}
+
+async function maybeDetectToolLogo() {
+    const url = document.getElementById('tool-url').value.trim();
+    if (_toolLogoBusy || !validResourceWebsiteUrl(url) || _lastAutoToolLogoUrl === url) return;
+    _lastAutoToolLogoUrl = url;
+    await detectToolLogo(false);
+}
+
+async function detectToolLogo(showValidation = true) {
+    if (_toolLogoBusy) return;
+    const url = document.getElementById('tool-url').value.trim();
+    if (!validResourceWebsiteUrl(url)) {
+        if (showValidation) updateToolLogoPreview('请先填写完整的网站地址，例如 https://example.com', 'error');
+        return;
+    }
+    setToolLogoBusy(true);
+    updateToolLogoPreview('正在访问网站并寻找清晰 Logo…');
+    try {
+        const data = await callResourceLogoAPI('detect', { websiteUrl:url });
+        document.getElementById('tool-logo').value = data.logo || '';
+        document.getElementById('tool-logo-source').value = 'detected';
+        document.getElementById('tool-logo-detect').querySelector('span').textContent = '重新获取';
+        updateToolLogoPreview('识别成功，保存工具后会显示这个 Logo。', 'success');
+    } catch(error) {
+        updateToolLogoPreview(error.message || '没有找到 Logo，可以改用上传图片。', 'error');
+    } finally {
+        setToolLogoBusy(false);
+        document.getElementById('tool-logo-reset').disabled = !safeResourceLogo(document.getElementById('tool-logo').value);
+    }
+}
+
+async function uploadToolLogo(input) {
+    const file = input.files?.[0];
+    if (!file || _toolLogoBusy) return;
+    if (file.size > 320 * 1024) {
+        input.value = '';
+        updateToolLogoPreview('图片超过 320KB，请压缩后再上传。', 'error');
+        return;
+    }
+    if (!['image/png','image/jpeg','image/webp','image/gif','image/x-icon','image/vnd.microsoft.icon'].includes(file.type) && !/\.ico$/i.test(file.name)) {
+        input.value = '';
+        updateToolLogoPreview('请选择 PNG、JPG、WebP、GIF 或 ICO 图片。', 'error');
+        return;
+    }
+    setToolLogoBusy(true);
+    updateToolLogoPreview('正在上传并保存 Logo…');
+    try {
+        const dataUrl = await new Promise((resolveFile, rejectFile) => {
+            const reader = new FileReader();
+            reader.onload = () => resolveFile(String(reader.result || ''));
+            reader.onerror = () => rejectFile(new Error('读取图片失败，请重新选择'));
+            reader.readAsDataURL(file);
+        });
+        const data = await callResourceLogoAPI('upload', { dataUrl });
+        document.getElementById('tool-logo').value = data.logo || '';
+        document.getElementById('tool-logo-source').value = 'uploaded';
+        document.getElementById('tool-logo-detect').querySelector('span').textContent = '重新获取';
+        updateToolLogoPreview('上传成功，保存工具后会显示这个 Logo。', 'success');
+    } catch(error) {
+        updateToolLogoPreview(error.message || '上传失败，请稍后重试。', 'error');
+    } finally {
+        input.value = '';
+        setToolLogoBusy(false);
+        document.getElementById('tool-logo-reset').disabled = !safeResourceLogo(document.getElementById('tool-logo').value);
+    }
+}
+
+function resetToolLogo() {
+    if (_toolLogoBusy) return;
+    document.getElementById('tool-logo').value = '';
+    document.getElementById('tool-logo-source').value = 'default';
+    document.getElementById('tool-logo-detect').querySelector('span').textContent = '自动识别';
+    updateToolLogoPreview('已恢复默认；已收录工具使用内置 Logo，其他工具显示备用图标。');
+}
+
 function openToolModal() {
     document.getElementById('tool-modal-title').textContent = '添加工具';
     document.getElementById('tool-edit-id').value = '';
     ['tool-name','tool-url','tool-desc','tool-tags','tool-fit','tool-reviewed-at','tool-task-category'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('tool-cat').value = 'teaching';
+    document.getElementById('tool-color').value = 'text-blue-500 bg-blue-50';
+    document.getElementById('tool-logo').value = '';
+    document.getElementById('tool-logo-source').value = 'default';
+    document.getElementById('tool-logo-file').value = '';
+    document.getElementById('tool-logo-detect').querySelector('span').textContent = '自动识别';
+    _lastAutoToolLogoUrl = '';
+    setToolLogoBusy(false);
+    updateToolLogoPreview('填好网址后，系统会自动识别。');
     setToolIcon('ph-robot');
     openModal('tool-modal');
 }
@@ -1434,6 +1586,13 @@ function editTool(i) {
     document.getElementById('tool-tags').value = Array.isArray(t.tags) ? t.tags.join('，') : t.tags || '';
     document.getElementById('tool-fit').value = t.fit || '';
     document.getElementById('tool-reviewed-at').value = t.reviewedAt || '';
+    document.getElementById('tool-logo').value = safeResourceLogo(t.logo);
+    document.getElementById('tool-logo-source').value = t.logoSource || (safeResourceLogo(t.logo) ? 'saved' : 'default');
+    document.getElementById('tool-logo-file').value = '';
+    document.getElementById('tool-logo-detect').querySelector('span').textContent = safeResourceLogo(t.logo) ? '重新获取' : '自动识别';
+    _lastAutoToolLogoUrl = t.url || '';
+    setToolLogoBusy(false);
+    updateToolLogoPreview(safeResourceLogo(t.logo) ? 'Logo 已保存在本站服务器。' : '当前使用内置或备用标识，可以重新识别。', safeResourceLogo(t.logo) ? 'success' : '');
     setToolIcon(t.icon);
     openModal('tool-modal');
 }
@@ -1449,7 +1608,9 @@ async function saveTool() {
     const [color, bg] = colorVal.split(' ');
     const tools = [..._adminTools];
     const idx = document.getElementById('tool-edit-id').value;
-    const item = { name, url: safeUrl, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, id: idx !== '' ? tools[parseInt(idx)].id : ('t' + Date.now()) };
+    const previous = idx !== '' ? tools[parseInt(idx)] || {} : {};
+    const logo = safeResourceLogo(document.getElementById('tool-logo').value);
+    const item = { ...previous, name, url: safeUrl, desc, category: document.getElementById('tool-cat').value, icon: document.getElementById('tool-icon').value, color, bg, logo, logoSource: logo ? document.getElementById('tool-logo-source').value : '', id: idx !== '' ? previous.id : ('t' + Date.now()) };
     item.taskCategory = document.getElementById('tool-task-category').value;
     item.tags = document.getElementById('tool-tags').value.trim();
     item.fit = document.getElementById('tool-fit').value.trim();
@@ -1457,10 +1618,21 @@ async function saveTool() {
     const normalizedUrl = value => { try { const u = new URL(value); return u.hostname.toLowerCase() + u.pathname.replace(/\/+$/, ''); } catch { return value; } };
     if (tools.some((t, i) => String(i) !== idx && t.name.trim().toLowerCase() === name.toLowerCase() && normalizedUrl(t.url) === normalizedUrl(safeUrl))) { showToast('已存在同名、相同网址的工具，请编辑原条目'); return; }
     if (idx !== '') { tools[parseInt(idx)] = item; } else { tools.push(item); }
-    await DB.setTools(tools);
-    closeModal('tool-modal');
-    await renderToolsTable();
-    showToast('工具已保存');
+    const saveButton = document.getElementById('tool-save');
+    const previousLabel = saveButton.textContent;
+    saveButton.disabled = true;
+    saveButton.textContent = '正在保存…';
+    try {
+        await DB.setTools(tools);
+        closeModal('tool-modal');
+        await renderToolsTable();
+        showToast(logo ? '工具和 Logo 已保存' : '工具已保存');
+    } catch(error) {
+        showToast('保存失败：' + (error.message || '请稍后重试'));
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = previousLabel;
+    }
 }
 
 async function deleteTool(i) {
@@ -1584,7 +1756,7 @@ function inlineString(value) {
 
 function safeResourceLogo(value) {
     const logo = String(value || '').trim();
-    return /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(logo)
+    return /^\/assets\/(?:resource|tool)-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(logo)
         || /^\/api\/resource-logo\?file=[a-f0-9]{24}\.(?:png|jpg|webp|gif|ico)$/i.test(logo)
         ? logo : '';
 }

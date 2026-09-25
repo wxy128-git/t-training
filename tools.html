@@ -493,8 +493,11 @@ function setTag(key) {
 function toolLogoMarkup(tool) {
     const name = String(tool.name || '工具').trim();
     const key = name.toLowerCase();
-    const customLogo = typeof tool.logo === 'string' && /^\/assets\/(?:resource|tool)-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(tool.logo) ? tool.logo : '';
-    const logo = TOOL_LOGOS[key] || customLogo;
+    const customLogo = typeof tool.logo === 'string' && (
+        /^\/assets\/(?:resource|tool)-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(tool.logo)
+        || /^\/api\/resource-logo\?file=[a-f0-9]{24}\.(?:png|jpg|webp|gif|ico)$/i.test(tool.logo)
+    ) ? tool.logo : '';
+    const logo = customLogo || TOOL_LOGOS[key];
     const logoTone = key === '可灵ai' ? ' tt-tool-logo-dark' : '';
     const fallback = `<span class="tt-tool-logo-fallback ${SafeRender.classNames(tool.bg)} ${SafeRender.classNames(tool.color)}" aria-hidden="true"><i class="ph-fill ${SafeRender.classNames(tool.icon, 'ph-toolbox')}"></i></span>`;
     return logo

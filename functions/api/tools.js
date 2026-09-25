@@ -52,6 +52,8 @@ function documentToTool(document) {
         tags: cleanText(firestoreScalar(fields.tags), 120),
         fit: cleanText(firestoreScalar(fields.fit), 240),
         reviewedAt: cleanText(firestoreScalar(fields.reviewedAt), 10),
+        logo: cleanText(firestoreScalar(fields.logo), 240),
+        logoSource: cleanText(firestoreScalar(fields.logoSource), 30),
         order: Number(firestoreScalar(fields.order))
     };
     if (!tool.id || !tool.name || !/^https?:\/\//i.test(tool.url)) return null;

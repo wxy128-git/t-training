@@ -52,7 +52,8 @@ for (const file of appPages) {
 }
 
 for (const file of dataPages) {
-    if (!/js\/data\.js\?v=20260924-local-email-direct/.test(text(file))) fail(file, '数据脚本缓存版本未统一');
+    const dataVersion = file === 'admin.html' ? '20260925-admin-content-logo' : '20260924-local-email-direct';
+    if (!new RegExp(`js/data\\.js\\?v=${dataVersion}`).test(text(file))) fail(file, '数据脚本缓存版本未统一');
 }
 
 for (const file of [...dataPages, 'admin.html']) {
@@ -101,8 +102,16 @@ const multimodalHtml = text('multimodal.html');
 if (!/data-site-copy-headline="heroTitle"/.test(multimodalHtml) || !/SiteCopy\.load\('multimodal'\)/.test(multimodalHtml)) fail('multimodal.html', '多模态工作坊未接入后台文案');
 const adminHtml = text('admin.html');
 if (!/id="panel-page-copy"/.test(adminHtml) || !/savePageCopyPanel/.test(adminHtml)) fail('admin.html', '后台页面文案管理未接入');
+if (!/id="tool-logo-preview"/.test(adminHtml) || !/maybeDetectToolLogo/.test(adminHtml) || !/uploadToolLogo/.test(adminHtml)) {
+    fail('admin.html', '工具管理未接入自动 Logo、预览或上传流程');
+}
 const dataSource = text('js/data.js');
 if (!/PAGE_COPY_PREVIEW_PREFIX/.test(dataSource) || !/isLocalPreviewRuntime/.test(dataSource)) fail('js/data.js', '页面文案缺少本地安全预览存储');
+if (!/return id \? \{ item: value \} : \{ items: value \}/.test(dataSource)) fail('js/data.js', '后台内容客户端没有保持管理页所需的 items/item 返回结构');
+const toolsHtml = text('tools.html');
+if (!/resource-logo/.test(toolsHtml) || !/const logo = customLogo \|\| TOOL_LOGOS\[key\]/.test(toolsHtml)) {
+    fail('tools.html', '工具页未优先显示后台保存的本站 Logo');
+}
 const siteCopySource = text('js/site-copy.js');
 for (const pageId of ['home','multimodal','agents','classroom','tools','resources','news','paths','articles','article','prompts','workspace']) {
     if (!new RegExp(`\\b${pageId}: Object\\.freeze`).test(siteCopySource)) fail('js/site-copy.js', `缺少 ${pageId} 页面文案定义`);
