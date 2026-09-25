@@ -246,6 +246,7 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
         }
         .tt-tool-logo img { width: 30px; height: 30px; border-radius: 7px; object-fit: contain; }
+        .tt-tool-logo.tt-tool-logo-dark { border-color: #202328; background: #0c0d0f; }
         .tt-tool-logo-fallback { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 7px; font-size: 17px; }
         .tt-tool-logo img + .tt-tool-logo-fallback { display: none; }
         .tt-tool-logo.is-fallback img { display: none; }
@@ -397,17 +398,26 @@ const TOOL_META = {
 };
 const TAG_CLASS = { '免费':'tt-free', '部分免费':'tt-neutral', '付费':'tt-paid', '中文':'tt-cn', '海外':'tt-os' };
 const TOOL_LOGOS = Object.freeze({
+    'prompterhub': '/assets/tool-logos/prompterhub.png',
+    'prompt123': '/assets/tool-logos/prompt123.png',
     'ai好记': '/assets/resource-logos/aihaoji.png',
     '快出题': '/assets/resource-logos/kuaichuti.svg',
     '秘塔搜索': '/assets/resource-logos/metaso.png',
     'gamma': '/assets/resource-logos/gamma.png',
     '飞象老师': '/assets/resource-logos/feixianglaoshi.webp',
+    '讯飞智文': '/assets/tool-logos/zhiwen.png',
+    'anygen.io': '/assets/tool-logos/anygen.webp',
     'nano banana': '/assets/resource-logos/gemini.png',
     '即梦ai': '/assets/resource-logos/jimeng.png',
     '海绵音乐': '/assets/resource-logos/haimian.png',
+    '可灵ai': '/assets/tool-logos/kling.png',
     '飞影数字人': '/assets/resource-logos/feiying.png',
+    '蝉镜ai数字人': '/assets/tool-logos/chanjing.png',
     '棒棒糖ai听评课': '/assets/resource-logos/bangbangtang.png',
-    'coze': '/assets/resource-logos/coze.png'
+    'coze': '/assets/resource-logos/coze.png',
+    'flowin': '/assets/tool-logos/flowin.png',
+    'workbuddy': '/assets/tool-logos/workbuddy.svg',
+    'trae': '/assets/tool-logos/trae.png'
 });
 
 // 把工具的分类归一到新方案 + 附上标签（未登记的工具落入「更多工具」）
@@ -461,11 +471,12 @@ function setTag(key) {
 function toolLogoMarkup(tool) {
     const name = String(tool.name || '工具').trim();
     const key = name.toLowerCase();
-    const customLogo = typeof tool.logo === 'string' && /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(tool.logo) ? tool.logo : '';
+    const customLogo = typeof tool.logo === 'string' && /^\/assets\/(?:resource|tool)-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(tool.logo) ? tool.logo : '';
     const logo = TOOL_LOGOS[key] || customLogo;
+    const logoTone = key === '可灵ai' ? ' tt-tool-logo-dark' : '';
     const fallback = `<span class="tt-tool-logo-fallback ${SafeRender.classNames(tool.bg)} ${SafeRender.classNames(tool.color)}" aria-hidden="true"><i class="ph-fill ${SafeRender.classNames(tool.icon, 'ph-toolbox')}"></i></span>`;
     return logo
-        ? `<span class="tt-tool-logo"><img src="${esc(logo)}" alt="" loading="lazy" decoding="async" data-tool-logo>${fallback}</span>`
+        ? `<span class="tt-tool-logo${logoTone}"><img src="${esc(logo)}" alt="" loading="lazy" decoding="async" data-tool-logo>${fallback}</span>`
         : `<span class="tt-tool-logo is-fallback">${fallback}</span>`;
 }
 
