@@ -14,6 +14,7 @@ import * as emailAction from '../functions/api/email-action.js';
 import * as rssProxy from '../functions/api/rss-proxy.js';
 import * as toolsFirebase from '../functions/api/tools.js';
 import * as worksFirebase from '../functions/api/works.js';
+import * as resourceLogo from './resource-logo.mjs';
 
 const authProxy = process.env.T_TRAINING_AUTH_BACKEND === 'local'
     ? await import('./local-auth-proxy.mjs')
@@ -38,6 +39,7 @@ const ROUTES = new Map([
     ['/api/content', content],
     ['/api/email-action', emailAction],
     ['/api/rss-proxy', rssProxy],
+    ['/api/resource-logo', resourceLogo],
     ['/api/tools', tools],
     ['/api/works', works]
 ]);

@@ -33,6 +33,7 @@
   - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
   - `content.js` — 公开内容同源代理（2026-07-19；2026-08-23 加页面文案）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；`type=pageCopy&id=<pageId>` 只允许 12 个固定页面 id，并以 `no-store` 返回对应 `page_copy` 文档，不进入旧缓存。腾讯云单进程内对原有公开列表使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
 - Frontend always calls these via `/api/...` paths.
+- `resource-logo` — 管理员新增或编辑课件素材时，通过 `/api/resource-logo` 自动读取公开网站的 favicon / Apple Touch Icon，或上传不超过 320KB 的 PNG、JPG、WebP、GIF、ICO。服务端拒绝内网地址、特殊端口和未识别格式，把内容哈希命名的图片保存到腾讯服务器共享目录 `/home/ubuntu/t-training/shared/resource-logos`，再以长缓存的本站 URL 返回；共享目录不随 release 目录交换而删除。
 
 ## Local Changes Pending Deployment
 

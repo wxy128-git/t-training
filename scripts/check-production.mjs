@@ -177,6 +177,12 @@ if (blockedRss) {
     assert(blockedRss.status === 400 && body?.error === 'unsupported feed', 'RSS 代理仍可能访问任意地址');
 }
 
+const invalidResourceLogo = await request('/api/resource-logo?file=../../secret');
+if (invalidResourceLogo) {
+    const body = await invalidResourceLogo.json().catch(() => null);
+    assert(invalidResourceLogo.status === 400 && body?.ok === false, '资源 Logo 服务未上线或文件名校验异常');
+}
+
 const auth = await request('/api/auth-proxy', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

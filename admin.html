@@ -110,6 +110,29 @@
         .page-copy-defaults { border:1px solid var(--line); background:var(--paper); color:var(--ink); }
         .page-copy-save:disabled, .page-copy-defaults:disabled { opacity:.55; cursor:not-allowed; }
         .page-copy-note { max-width:420px; margin:0; color:var(--subtle); font-size:11.5px; line-height:1.55; text-align:right; }
+        .admin-resource-item { display:flex; align-items:center; gap:12px; padding:11px 12px; border:1px solid var(--line-soft); border-radius:var(--r-sm); background:var(--soft); }
+        .admin-resource-thumb { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; overflow:hidden; border:1px solid var(--line); border-radius:11px; background:var(--paper); color:var(--brand); font-size:17px; }
+        .admin-resource-thumb img { width:29px; height:29px; object-fit:contain; }
+        .admin-resource-copy { flex:1; min-width:0; }
+        .admin-resource-name { display:flex; align-items:center; gap:7px; color:var(--ink); font-size:13.5px; font-weight:700; }
+        .admin-resource-logo-badge { padding:2px 6px; border-radius:999px; background:#e8f3ee; color:#35705d; font-size:9.5px; font-weight:700; }
+        .admin-logo-editor { margin:4px 0 18px; padding:16px; border:1px solid var(--line); border-radius:14px; background:#fffaf2; }
+        .admin-logo-editor-main { display:flex; align-items:center; gap:14px; }
+        .admin-logo-preview { display:grid; width:66px; height:66px; flex:0 0 66px; place-items:center; overflow:hidden; border:1px solid #d8e1e5; border-radius:16px; background:var(--paper); box-shadow:0 9px 20px -18px rgba(26,22,18,.55); color:var(--brand); font-size:20px; font-weight:800; }
+        .admin-logo-preview img { width:44px; height:44px; object-fit:contain; }
+        .admin-logo-info { min-width:0; flex:1; }
+        .admin-logo-info strong { display:block; color:var(--ink); font-size:13.5px; }
+        .admin-logo-status { display:flex; align-items:center; gap:6px; min-height:20px; margin-top:4px; color:var(--muted); font-size:11.5px; line-height:1.45; }
+        .admin-logo-status.is-success { color:var(--success); }
+        .admin-logo-status.is-error { color:var(--brand); }
+        .admin-logo-status i { flex:none; }
+        .admin-logo-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:11px; }
+        .admin-logo-action { display:inline-flex; align-items:center; gap:5px; min-height:34px; padding:0 10px; border:1px solid var(--line); border-radius:9px; background:var(--paper); color:var(--ink); cursor:pointer; font:inherit; font-size:11.5px; font-weight:650; }
+        .admin-logo-action:hover { border-color:#a8b7bd; color:var(--brand); }
+        .admin-logo-action.primary { border-color:var(--ink); background:var(--ink); color:var(--soft); }
+        .admin-logo-action:disabled { opacity:.52; cursor:wait; }
+        .admin-logo-help { margin:12px 0 0; padding-top:11px; border-top:1px dashed var(--line); color:var(--subtle); font-size:11px; line-height:1.55; }
+        .admin-resource-save-row { display:flex; align-items:center; gap:8px; margin-top:14px; }
         @media(max-width:768px) {
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; padding: 14px; }
@@ -123,6 +146,9 @@
             .page-copy-fields { grid-template-columns:1fr; padding:20px 18px 22px 22px; }
             .page-copy-field.wide { grid-column:auto; }
             .page-copy-note { max-width:none; text-align:left; }
+            .admin-logo-editor-main { align-items:flex-start; }
+            .admin-logo-actions { gap:6px; }
+            .admin-resource-item { align-items:flex-start; }
         }
     </style>
 </head>
@@ -559,7 +585,7 @@
 
 <!-- Resource item modal -->
 <div class="modal-admin" id="resitem-modal">
-    <div class="modal-box" style="max-width:520px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <div class="modal-box" style="max-width:620px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:10">
             <h3 style="font-size:16px;font-weight:700" id="resitem-title">新增资源</h3>
             <button onclick="closeModal('resitem-modal')" style="background:none;border:none;font-size:22px;color:var(--subtle);cursor:pointer">×</button>
@@ -567,13 +593,31 @@
         <div style="padding:20px 24px">
             <input type="hidden" id="resitem-catid">
             <input type="hidden" id="resitem-idx">
-            <div class="form-group"><label class="form-label">资源名称 *</label><input id="resitem-name" class="form-input" placeholder="例：Pixabay"></div>
-            <div class="form-group"><label class="form-label">网址 *</label><input id="resitem-url" class="form-input" placeholder="https://..."></div>
+            <input type="hidden" id="resitem-logo">
+            <input type="hidden" id="resitem-logo-source">
+            <input type="hidden" id="resitem-icon">
+            <div class="form-group"><label class="form-label">资源名称 *</label><input id="resitem-name" class="form-input" placeholder="例：Pixabay" oninput="refreshResourceLogoInitials()"></div>
+            <div class="form-group"><label class="form-label">网站地址 *</label><input id="resitem-url" class="form-input" inputmode="url" autocomplete="url" placeholder="https://..." onchange="maybeDetectResourceLogo()"><p style="margin:6px 0 0;color:var(--subtle);font-size:11.5px">新增资源时，填完网址后会自动尝试识别网站 Logo。</p></div>
+            <div class="admin-logo-editor">
+                <div class="admin-logo-editor-main">
+                    <div class="admin-logo-preview" id="resitem-logo-preview" aria-label="Logo 预览"><i class="ph ph-image"></i></div>
+                    <div class="admin-logo-info">
+                        <strong>网站 Logo</strong>
+                        <div class="admin-logo-status" id="resitem-logo-status"><i class="ph ph-info"></i><span>先填写网址，系统会自动识别。</span></div>
+                        <div class="admin-logo-actions">
+                            <button type="button" class="admin-logo-action primary" id="resitem-logo-detect" onclick="detectResourceLogo(true)"><i class="ph ph-magic-wand"></i><span>自动识别</span></button>
+                            <button type="button" class="admin-logo-action" onclick="document.getElementById('resitem-logo-file').click()"><i class="ph ph-upload-simple"></i>上传图片</button>
+                            <button type="button" class="admin-logo-action" id="resitem-logo-reset" onclick="resetResourceLogo()"><i class="ph ph-arrow-counter-clockwise"></i>恢复默认</button>
+                        </div>
+                        <input type="file" id="resitem-logo-file" accept="image/png,image/jpeg,image/webp,image/gif,image/x-icon,.ico" hidden onchange="uploadResourceLogo(this)">
+                    </div>
+                </div>
+                <p class="admin-logo-help">自动识别或上传后，图片会保存在本站服务器。建议使用清晰的正方形图片，文件不超过 320KB。</p>
+            </div>
             <div class="form-group"><label class="form-label">说明 *</label><textarea id="resitem-desc" class="form-input" rows="3" style="resize:vertical" placeholder="一句话介绍这个资源的特色"></textarea></div>
-            <div class="form-group"><label class="form-label">条目图标（Phosphor 类名）</label><input id="resitem-icon" class="form-input" placeholder="ph-globe"></div>
             <div id="resitem-err" class="form-error" style="display:none"></div>
-            <div style="display:flex;gap:8px;margin-top:14px">
-                <button class="btn-primary" onclick="saveResourceItem()" style="flex:1">保存资源</button>
+            <div class="admin-resource-save-row">
+                <button class="btn-primary" id="resitem-save" onclick="saveResourceItem()" style="flex:1">保存资源</button>
                 <button onclick="closeModal('resitem-modal')" style="flex:0 0 auto;padding:12px 22px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-family:inherit;cursor:pointer">取消</button>
             </div>
         </div>
@@ -1538,6 +1582,24 @@ function inlineString(value) {
     return htmlEscape(JSON.stringify(String(value ?? '')).replace(/</g, '\\u003c').replace(/>/g, '\\u003e'));
 }
 
+function safeResourceLogo(value) {
+    const logo = String(value || '').trim();
+    return /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(logo)
+        || /^\/api\/resource-logo\?file=[a-f0-9]{24}\.(?:png|jpg|webp|gif|ico)$/i.test(logo)
+        ? logo : '';
+}
+
+function resourceLogoInitials(value) {
+    const compact = String(value || '网站').replace(/[^\p{L}\p{N}]/gu, '');
+    return compact.slice(0, 2).toUpperCase() || '网站';
+}
+
+function adminResourceLogoMarkup(item) {
+    const logo = safeResourceLogo(item?.logo);
+    if (!logo) return `<i class="ph ${htmlEscape(item?.itemIcon || 'ph-link')}"></i>`;
+    return `<img src="${htmlEscape(logo)}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><i class="ph ph-link" hidden></i>`;
+}
+
 async function renderResourcesList() {
     _adminResources = await DB.getResources();
     const list = document.getElementById('resources-list');
@@ -1562,10 +1624,10 @@ async function renderResourcesList() {
                 ${(cat.items || []).length === 0
                     ? '<div style="padding:18px;text-align:center;font-size:13px;color:var(--muted)">分类下还没有资源</div>'
                     : `<div style="display:flex;flex-direction:column;gap:8px">${(cat.items || []).map((it, ii) => `
-                        <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:var(--r-sm);background:var(--soft)">
-                            <i class="ph ${htmlEscape(it.itemIcon || 'ph-link')}" style="font-size:18px;color:var(--brand);flex-shrink:0"></i>
-                            <div style="flex:1;min-width:0">
-                                <div style="font-size:13.5px;font-weight:600;color:var(--ink)">${htmlEscape(it.name)}</div>
+                        <div class="admin-resource-item">
+                            <div class="admin-resource-thumb">${adminResourceLogoMarkup(it)}</div>
+                            <div class="admin-resource-copy">
+                                <div class="admin-resource-name">${htmlEscape(it.name)}${safeResourceLogo(it.logo) ? '<span class="admin-resource-logo-badge">本站 Logo</span>' : ''}</div>
                                 <div style="font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${htmlEscape(it.desc)}</div>
                                 ${SafeRender.safeUrl(it.url) ? `<a href="${htmlEscape(SafeRender.safeUrl(it.url))}" target="_blank" rel="noopener noreferrer" style="font-size:11.5px;color:var(--muted);font-family:var(--font-mono)" onclick="event.stopPropagation()">${htmlEscape(it.url)}</a>` : '<span style="font-size:11.5px;color:var(--danger)">链接无效</span>'}
                             </div>
@@ -1636,8 +1698,146 @@ function openItemModal(catId, idx) {
     document.getElementById('resitem-url').value = item ? item.url || '' : '';
     document.getElementById('resitem-desc').value = item ? item.desc || '' : '';
     document.getElementById('resitem-icon').value = item ? item.itemIcon || '' : '';
+    document.getElementById('resitem-logo').value = safeResourceLogo(item?.logo);
+    document.getElementById('resitem-logo-source').value = item?.logoSource || (safeResourceLogo(item?.logo) ? 'saved' : 'default');
+    document.getElementById('resitem-logo-file').value = '';
+    _lastAutoLogoUrl = item ? item.url || '' : '';
+    document.getElementById('resitem-logo-detect').querySelector('span').textContent = safeResourceLogo(item?.logo) ? '重新获取' : '自动识别';
+    setResourceLogoBusy(false);
+    updateResourceLogoPreview(item ? (safeResourceLogo(item.logo) ? 'Logo 已保存在本站服务器。' : '当前使用系统默认标识，可以重新识别。') : '先填写网址，系统会自动识别。', safeResourceLogo(item?.logo) ? 'success' : '');
     document.getElementById('resitem-err').style.display = 'none';
     openModal('resitem-modal');
+}
+
+let _resourceLogoBusy = false;
+let _lastAutoLogoUrl = '';
+
+function setResourceLogoBusy(busy) {
+    _resourceLogoBusy = busy;
+    document.querySelectorAll('#resitem-modal .admin-logo-action').forEach(button => { button.disabled = busy; });
+    const saveButton = document.getElementById('resitem-save');
+    if (saveButton) saveButton.disabled = busy;
+}
+
+function updateResourceLogoPreview(message = '', state = '') {
+    const preview = document.getElementById('resitem-logo-preview');
+    const status = document.getElementById('resitem-logo-status');
+    const name = document.getElementById('resitem-name').value.trim();
+    const logo = safeResourceLogo(document.getElementById('resitem-logo').value);
+    if (logo) {
+        preview.innerHTML = `<img src="${htmlEscape(logo)}" alt="${htmlEscape(name || '网站')} Logo">`;
+        preview.querySelector('img')?.addEventListener('error', () => {
+            document.getElementById('resitem-logo').value = '';
+            updateResourceLogoPreview('Logo 暂时无法显示，请重新识别或上传。', 'error');
+        }, { once:true });
+    } else {
+        preview.textContent = resourceLogoInitials(name);
+    }
+    const icon = state === 'success' ? 'ph-check-circle' : state === 'error' ? 'ph-warning-circle' : _resourceLogoBusy ? 'ph-spinner-gap' : 'ph-info';
+    status.className = `admin-logo-status${state ? ` is-${state}` : ''}`;
+    status.innerHTML = `<i class="ph ${icon}${_resourceLogoBusy ? ' ph-spin' : ''}"></i><span>${htmlEscape(message || '先填写网址，系统会自动识别。')}</span>`;
+    document.getElementById('resitem-logo-reset').disabled = _resourceLogoBusy || !logo;
+}
+
+function refreshResourceLogoInitials() {
+    if (safeResourceLogo(document.getElementById('resitem-logo').value)) return;
+    document.getElementById('resitem-logo-preview').textContent = resourceLogoInitials(document.getElementById('resitem-name').value.trim());
+}
+
+async function callResourceLogoAPI(action, payload = {}) {
+    const response = await fetch('/api/resource-logo', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ action, ...payload, idToken: await Auth.getIdToken() })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false) {
+        const error = new Error(data.msg || (response.status === 501 ? '本地预览未连接 Logo 服务' : `Logo 处理失败（${response.status}）`));
+        error.status = response.status;
+        throw error;
+    }
+    return data;
+}
+
+function validResourceWebsiteUrl(value) {
+    try {
+        const url = new URL(String(value || '').trim());
+        return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password;
+    } catch { return false; }
+}
+
+async function maybeDetectResourceLogo() {
+    const url = document.getElementById('resitem-url').value.trim();
+    if (_resourceLogoBusy || !validResourceWebsiteUrl(url) || _lastAutoLogoUrl === url) return;
+    _lastAutoLogoUrl = url;
+    await detectResourceLogo(false);
+}
+
+async function detectResourceLogo(showValidation = true) {
+    if (_resourceLogoBusy) return;
+    const url = document.getElementById('resitem-url').value.trim();
+    if (!validResourceWebsiteUrl(url)) {
+        if (showValidation) updateResourceLogoPreview('请先填写完整的网站地址，例如 https://example.com', 'error');
+        return;
+    }
+    setResourceLogoBusy(true);
+    updateResourceLogoPreview('正在访问网站并寻找清晰 Logo…');
+    try {
+        const data = await callResourceLogoAPI('detect', { websiteUrl:url });
+        document.getElementById('resitem-logo').value = data.logo || '';
+        document.getElementById('resitem-logo-source').value = 'detected';
+        document.getElementById('resitem-logo-detect').querySelector('span').textContent = '重新获取';
+        updateResourceLogoPreview('识别成功，保存资源后会显示这个 Logo。', 'success');
+    } catch(error) {
+        updateResourceLogoPreview(error.message || '没有找到 Logo，可以改用上传图片。', 'error');
+    } finally {
+        setResourceLogoBusy(false);
+        document.getElementById('resitem-logo-reset').disabled = !safeResourceLogo(document.getElementById('resitem-logo').value);
+    }
+}
+
+async function uploadResourceLogo(input) {
+    const file = input.files?.[0];
+    if (!file || _resourceLogoBusy) return;
+    if (file.size > 320 * 1024) {
+        input.value = '';
+        updateResourceLogoPreview('图片超过 320KB，请压缩后再上传。', 'error');
+        return;
+    }
+    if (!['image/png','image/jpeg','image/webp','image/gif','image/x-icon','image/vnd.microsoft.icon'].includes(file.type) && !/\.ico$/i.test(file.name)) {
+        input.value = '';
+        updateResourceLogoPreview('请选择 PNG、JPG、WebP、GIF 或 ICO 图片。', 'error');
+        return;
+    }
+    setResourceLogoBusy(true);
+    updateResourceLogoPreview('正在上传并保存 Logo…');
+    try {
+        const dataUrl = await new Promise((resolveFile, rejectFile) => {
+            const reader = new FileReader();
+            reader.onload = () => resolveFile(String(reader.result || ''));
+            reader.onerror = () => rejectFile(new Error('读取图片失败，请重新选择'));
+            reader.readAsDataURL(file);
+        });
+        const data = await callResourceLogoAPI('upload', { dataUrl });
+        document.getElementById('resitem-logo').value = data.logo || '';
+        document.getElementById('resitem-logo-source').value = 'uploaded';
+        document.getElementById('resitem-logo-detect').querySelector('span').textContent = '重新获取';
+        updateResourceLogoPreview('上传成功，保存资源后会显示这个 Logo。', 'success');
+    } catch(error) {
+        updateResourceLogoPreview(error.message || '上传失败，请稍后重试。', 'error');
+    } finally {
+        input.value = '';
+        setResourceLogoBusy(false);
+        document.getElementById('resitem-logo-reset').disabled = !safeResourceLogo(document.getElementById('resitem-logo').value);
+    }
+}
+
+function resetResourceLogo() {
+    if (_resourceLogoBusy) return;
+    document.getElementById('resitem-logo').value = '';
+    document.getElementById('resitem-logo-source').value = 'default';
+    document.getElementById('resitem-logo-detect').querySelector('span').textContent = '自动识别';
+    updateResourceLogoPreview('已恢复默认；已收录网站使用内置 Logo，其他网站显示名称缩写。');
 }
 
 async function saveResourceItem() {
@@ -1647,6 +1847,8 @@ async function saveResourceItem() {
     const url = document.getElementById('resitem-url').value.trim();
     const desc = document.getElementById('resitem-desc').value.trim();
     const itemIcon = document.getElementById('resitem-icon').value.trim() || 'ph-link';
+    const logo = safeResourceLogo(document.getElementById('resitem-logo').value);
+    const logoSource = logo ? document.getElementById('resitem-logo-source').value : '';
     const errEl = document.getElementById('resitem-err');
     if (!name) { errEl.textContent = '请填写资源名称'; errEl.style.display = ''; return; }
     if (!url || !/^https?:\/\//.test(url)) { errEl.textContent = '请填写有效网址（http:// 或 https://）'; errEl.style.display = ''; return; }
@@ -1654,13 +1856,26 @@ async function saveResourceItem() {
     const cat = _adminResources.find(c => c.id === catId);
     if (!cat) return;
     cat.items = cat.items || [];
-    const item = { name, desc, url, itemIcon };
+    const previous = idx >= 0 ? cat.items[idx] || {} : {};
+    const item = { ...previous, name, desc, url, itemIcon, logo, logoSource };
     if (idx >= 0) cat.items[idx] = item;
     else cat.items.push(item);
-    await DB.saveResourceCategory(cat);
-    closeModal('resitem-modal');
-    await renderResourcesList();
-    showToast('已保存');
+    const saveButton = document.getElementById('resitem-save');
+    const previousLabel = saveButton.textContent;
+    saveButton.disabled = true;
+    saveButton.textContent = '正在保存…';
+    try {
+        await DB.saveResourceCategory(cat);
+        closeModal('resitem-modal');
+        await renderResourcesList();
+        showToast(logo ? '资源和 Logo 已保存' : '资源已保存');
+    } catch(error) {
+        errEl.textContent = error.message || '保存失败，请稍后重试';
+        errEl.style.display = '';
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = previousLabel;
+    }
 }
 
 async function deleteResourceItem(catId, idx) {

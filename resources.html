@@ -145,9 +145,12 @@ const RESOURCE_LOGOS = Object.freeze({
 });
 
 function resourceLogoFor(item, domain) {
-    const customLogo = typeof item.logo === 'string' && /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(item.logo) ? item.logo : '';
+    const customLogo = typeof item.logo === 'string' && (
+        /^\/assets\/resource-logos\/[a-z0-9-]+\.(?:png|svg|webp)$/i.test(item.logo)
+        || /^\/api\/resource-logo\?file=[a-f0-9]{24}\.(?:png|jpg|webp|gif|ico)$/i.test(item.logo)
+    ) ? item.logo : '';
     const name = String(item.name || '').trim().toLowerCase();
-    return RESOURCE_LOGOS[name] || RESOURCE_LOGOS[domain] || customLogo || '';
+    return customLogo || RESOURCE_LOGOS[name] || RESOURCE_LOGOS[domain] || '';
 }
 
 function resourceInitials(name) {

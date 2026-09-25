@@ -33,6 +33,7 @@ node scripts/build-tencent-package.mjs /tmp/t-training-package
 - 静态发布目录：`/var/www/t-training`
 - 静态文件上传暂存：`/home/ubuntu/t-training/www`
 - API：`/home/ubuntu/t-training/app`
+- 后台自动识别或上传的资源 Logo：`/home/ubuntu/t-training/shared/resource-logos`（跨发布保留）
 - 私密环境文件：`/home/ubuntu/.config/t-training.env`（权限 `600`）
 - PM2 进程：`t-training-api`，单实例 fork 模式
 - 域名：`ai.teachailab.com`

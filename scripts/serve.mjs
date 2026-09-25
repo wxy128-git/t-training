@@ -30,6 +30,7 @@ const types = {
 const localApiModules = new Map([
     ['/api/auth-proxy', '../functions/api/auth-proxy.js'],
     ['/api/content', '../functions/api/content.js'],
+    ['/api/resource-logo', '../server/resource-logo.mjs'],
     ['/api/tools', '../functions/api/tools.js'],
     ['/api/rss-proxy', '../functions/api/rss-proxy.js']
 ]);
