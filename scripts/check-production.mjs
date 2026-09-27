@@ -93,7 +93,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260924-v25'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260928-v26'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -124,7 +124,8 @@ if (agents) {
     assert(!/agent-roster-list|HERO_ROSTER|renderHeroRoster/.test(body), '智能体默认页仍保留重复的人物在席墙');
     assert(body.includes('class="agent-member"') && body.includes('assets/agent-portraits/'), '数字教研团队人物化界面未上线');
     assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('教学任务描述') && body.includes('展开全部参数'), '数字成员任务简报或渐进参数未上线');
-    assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('任务已说清，开始起草'), '数字成员工作阶段或成员化操作未上线');
+    assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('生成${agentDeliverable(agent)}'), '数字成员工作阶段或交付物操作未上线');
+    assert(body.includes('id="ws-project-options"') && body.includes('aria-controls="ws-input-scroll"') && body.includes('.ws-task-first .ws-titles p'), '移动工作台精简或无障碍折叠未上线');
     assert(body.includes('${escapeHtml(a.name)}的交付') && body.includes('AI 交付的是初稿'), '数字成员交付归属或教师核验提示未上线');
     assert(body.includes('js/curriculum-guard.js?v=20260828-curriculum-gate') && body.includes('function curriculumContext'), '课程匹配守卫未上线');
     assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('showInputValidation(e.curriculum)'), '旧教材校验章未移除或服务端拦截反馈未上线');

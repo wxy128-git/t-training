@@ -141,7 +141,7 @@ if (/agent-roster-list|HERO_ROSTER|renderHeroRoster/.test(agentsHtml)) fail('age
 if (!/AGENT_BRIEF_PRIMARY_KEYS/.test(agentsHtml) || !/教学任务描述/.test(agentsHtml) || !/展开全部参数/.test(agentsHtml)) {
     fail('agents.html', '数字成员工作台未接入任务简报或渐进参数');
 }
-if (!/id="ws-presence"/.test(agentsHtml) || !/function setAgentWorkStage/.test(agentsHtml) || !/任务已说清，开始起草/.test(agentsHtml)) {
+if (!/id="ws-presence"/.test(agentsHtml) || !/function setAgentWorkStage/.test(agentsHtml) || !/生成\$\{agentDeliverable\(agent\)\}/.test(agentsHtml)) {
     fail('agents.html', '数字成员工作阶段或成员化操作未接入');
 }
 if (!/教学设计助手的交付/.test(agentsHtml) && !/\$\{escapeHtml\(a\.name\)\}的交付/.test(agentsHtml)) {
@@ -194,7 +194,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260924-v25/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20260928-v26/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }

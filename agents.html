@@ -215,6 +215,13 @@
         .ws-project-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
         .ws-project-action { min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--text); padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
         .ws-project-action:hover { color: #245b78; border-color: #8fb3c6; }
+        .ws-project-options { margin-bottom: 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
+        .ws-project-options > summary { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 10px 13px; color: #245b78; font-size: 13px; font-weight: 650; cursor: pointer; list-style: none; }
+        .ws-project-options > summary::-webkit-details-marker { display: none; }
+        .ws-project-options > summary span { min-width: 0; overflow-wrap: anywhere; }
+        .ws-project-options > summary .ph-caret-down { margin-left: auto; flex-shrink: 0; }
+        .ws-project-options[open] > summary .ph-caret-down { transform: rotate(180deg); }
+        .ws-project-options .ws-projectbar { margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0 0 9px 9px; }
         .ws-origin { display: none; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 10px; margin: -4px 0 18px; padding: 11px 13px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f2f7f9; }
         .ws-origin.active { display: grid; }
         .ws-origin > i { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: #e2edf2; color: #245b78; font-size: 17px; }
@@ -367,15 +374,9 @@
         .ws-brief-head { display: flex; align-items: center; gap: 9px; min-height: 52px; padding: 13px 18px; border-bottom: 1px solid var(--line-soft); background: var(--paper); }
         .ws-brief-head > i { color: #245b78; font-size: 17px; }
         .ws-brief-head strong { color: var(--ink); font-size: 13.5px; }
-        .ws-brief-head small { margin-left: auto; color: var(--subtle); font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; }
-        .ws-brief-head .ws-toggle-input { margin-left: 2px; }
+        .ws-brief-head .ws-toggle-input { margin-left: auto; min-width: 44px; min-height: 44px; }
         .ws-input-col .ws-input-summary { margin: 16px 18px 18px; border-radius: 8px; }
         .ws-input-col .ws-input-scroll { padding: 17px 18px 20px; }
-        .ws-colleague-prompt { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 11px; align-items: start; margin-bottom: 17px; }
-        .ws-colleague-avatar { width: 48px; height: 48px; overflow: hidden; display: block; border: 1px solid var(--line); border-radius: 50%; background: var(--soft); }
-        .ws-colleague-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 16%; filter: saturate(.86) contrast(.98); transform: scale(1.42); transform-origin: 50% 24%; }
-        .ws-colleague-copy { min-height: 48px; padding: 10px 12px; border: 1px solid #d8e4ea; border-radius: 8px; background: #f2f7f9; color: var(--text); font-size: 12.5px; line-height: 1.65; }
-        .ws-colleague-copy b { display: block; margin-bottom: 2px; color: var(--ink); font-size: 12.8px; }
         .ws-brief-primary .field.is-brief-primary textarea { min-height: 154px; }
         .ws-brief-primary .field.is-brief-primary input { min-height: 46px; }
         .ws-brief-primary .field:last-child { margin-bottom: 14px; }
@@ -404,7 +405,6 @@
         .ws-delivery-note { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 9px 15px; border-top: 1px solid var(--line-soft); background: #fbfcfd; color: var(--muted); font-size: 11.5px; }
         .ws-delivery-note i { color: #245b78; font-size: 14px; }
         .ws-input-col.is-collapsed .ws-brief-head { border-bottom: 0; }
-        .ws-input-col.is-collapsed .ws-colleague-prompt, .ws-input-col.is-collapsed .ws-brief-head small { display: none; }
         @media (max-width: 1100px) {
             .ws-form-layout { grid-template-columns: minmax(390px, .9fr) minmax(0, 1.1fr); }
             .ws-brief-context { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -420,10 +420,8 @@
             .ws-agent-stage { width: 100%; gap: 4px; }
             .ws-brief-head { padding-inline: 14px; }
             .ws-input-col .ws-input-scroll { padding: 15px 14px 17px; }
-            .ws-colleague-prompt { grid-template-columns: 42px minmax(0, 1fr); }
-            .ws-colleague-avatar { width: 42px; height: 42px; }
-            .ws-colleague-copy { padding: 9px 10px; }
-            .ws-brief-context { grid-template-columns: 1fr; }
+            .ws-brief-context { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-inline: 0; background: transparent; }
+            .ws-brief-context .field:last-child:nth-child(odd) { grid-column: 1 / -1; }
             .ws-brief-primary .field.is-brief-primary textarea { min-height: 132px; }
             .ws-task-summary { padding-inline: 14px; }
             .ws-task-summary p { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
@@ -548,6 +546,24 @@
             .ws-out-actions button { flex: 1 1 calc(50% - 8px); min-height: 44px; justify-content: center; }
             .ws-edit-area { min-height: 420px; font-size: 16px; }
             .ws-task-summary { font-size: 13px; }
+            .ws-task-first .ws-top { padding-top: 4px; gap: 10px; }
+            .ws-task-first .ws-titles p { display: none; }
+            .ws-task-first .ws-model-badge { display: none; }
+            .ws-task-first .ws-status { justify-self: end; }
+            .ws-task-first .ws-cat-tag { font-family: var(--font-sans); font-size: 12px; }
+            .ws-task-first .ws-agent-stage { font-size: 12px; }
+            .ws-task-first .ws-back { width: 44px; height: 44px; }
+            .ws-input-col .field input, .ws-input-col .field select, .ws-input-col .field textarea { font-size: 16px; min-height: 44px; }
+            .ws-input-col .field label, .ws-input-col .field .field-label { font-size: 14px; }
+            .ws-input-col .field .hint, .ws-input-col .field-error { font-size: 12px; color: var(--text); }
+            .ws-input-col .field-error { color: var(--danger); }
+            .ws-input-col .field .chip-opt { font-size: 14px; }
+            .ws-extra-params summary { font-size: 14px; }
+            .ws-draft-state { flex-wrap: wrap; font-size: 12px; }
+            .ws-draft-state button { min-height: 44px; padding-inline: 8px; font-size: 12px; }
+            .ws-project-action { min-height: 44px; font-size: 14px; }
+            .project-field input, .project-field select, .project-field textarea { font-size: 16px; }
+            .project-actions button { min-height: 44px; }
         }
     </style>
 </head>
@@ -611,15 +627,18 @@
                 <span class="ws-model-badge" id="ws-model-badge"><i class="ph ph-cpu"></i><span>模型服务：<strong id="ws-model-name">智能体路由</strong></span></span>
             </div>
         </div>
+        <details class="ws-project-options" id="ws-project-options">
+            <summary><i class="ph ph-folder-notch-open" aria-hidden="true"></i><span id="ws-project-summary">复用教学背景（可选）</span><i class="ph ph-caret-down" aria-hidden="true"></i></summary>
         <section class="ws-projectbar is-empty" id="ws-projectbar" aria-label="当前教学项目">
             <div class="ws-project-icon"><i class="ph ph-folder-notch-open"></i></div>
             <div class="ws-project-copy">
-                <span class="ws-project-label">TEACHING PROJECT</span>
+                <span class="ws-project-label">教学项目</span>
                 <b id="ws-project-title">尚未设置教学项目</b>
                 <small id="ws-project-meta">设置一次学科、年级、课题与学情，后续智能体会自动复用。</small>
             </div>
             <button type="button" class="ws-project-action" onclick="openProjectModal()"><i class="ph ph-pencil-simple"></i><span id="ws-project-action-label">新建项目</span></button>
         </section>
+        </details>
         <section class="ws-origin" id="ws-origin" aria-label="上一工作步骤">
             <i class="ph ph-arrow-u-up-left"></i>
             <div class="ws-origin-copy"><small>CONTINUED FROM</small><b id="ws-origin-title"></b></div>
@@ -1303,6 +1322,7 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
     const c = CAT_MAP[a.cat];
     document.getElementById('view-home').style.display = 'none';
     document.getElementById('view-workspace').style.display = '';
+    document.getElementById('view-workspace').classList.toggle('ws-task-first', a.type === 'form');
     const ico = document.getElementById('ws-ico');
     ico.style.background = c.soft; ico.style.color = c.color;
     ico.innerHTML = `<img src="${portraitSrc(a)}" alt="" width="900" height="900" decoding="async">`;
@@ -1414,15 +1434,8 @@ function briefFieldGroups(agent) {
     return { primary, context, extra };
 }
 
-function agentBriefPrompt(agent) {
-    if (agent.id === 'lesson-design') {
-        return '我们先把这节课说清楚。请告诉我：教什么、学生目前怎样、你最希望他们学会什么。';
-    }
-    return `我们先把这次任务说清楚。请填写最重要的信息，我会据此完成${agent.tagline || '初稿'}。`;
-}
-
 function agentRunLabel(agent) {
-    return agent.id === 'lesson-design' ? '任务已说清，开始起草' : `任务已说清，交给${agent.name}`;
+    return `生成${agentDeliverable(agent)}`;
 }
 
 function agentDeliverable(agent) {
@@ -1470,15 +1483,10 @@ function buildForm(a) {
             <div class="ws-brief-head">
                 <i class="ph ph-note-pencil"></i>
                 <strong>任务简报</strong>
-                <small>BRIEF</small>
-                <button type="button" class="ws-toggle-input" id="ws-input-toggle" onclick="toggleInputPanel()">收起</button>
+                <button type="button" class="ws-toggle-input" id="ws-input-toggle" aria-expanded="true" aria-controls="ws-input-scroll" onclick="toggleInputPanel()">收起</button>
             </div>
             <div class="ws-input-summary" id="ws-input-summary"></div>
             <div class="ws-input-scroll" id="ws-input-scroll">
-                <div class="ws-colleague-prompt">
-                    <span class="ws-colleague-avatar"><img src="${portraitSrc(a)}" alt="" width="900" height="900" decoding="async"></span>
-                    <div class="ws-colleague-copy"><b>${escapeHtml(a.name)}</b>${escapeHtml(agentBriefPrompt(a))}</div>
-                </div>
                 ${handwritingAssist}
                 <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
                     <div class="ws-brief-primary">${primaryHtml}</div>
@@ -1639,6 +1647,7 @@ function renderActiveProject() {
     const bar = document.getElementById('ws-projectbar');
     if (!bar) return;
     bar.classList.toggle('is-empty', !project);
+    document.getElementById('ws-project-summary').textContent = project ? `教学背景：${project.title}` : '复用教学背景（可选）';
     document.getElementById('ws-project-title').textContent = project?.title || '尚未设置教学项目';
     document.getElementById('ws-project-meta').textContent = project
         ? (projectSummary(project) || '已建立项目，可在不同智能体之间复用背景。')
@@ -2027,6 +2036,7 @@ function toggleInputPanel(forceOpen) {
     const collapsed = forceOpen === true ? false : forceOpen === false ? true : !panel.classList.contains('is-collapsed');
     panel.classList.toggle('is-collapsed', collapsed);
     btn.textContent = collapsed ? '展开' : '收起';
+    btn.setAttribute('aria-expanded', String(!collapsed));
 }
 
 const WORKFLOW_NEXT = {
