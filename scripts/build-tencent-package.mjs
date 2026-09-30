@@ -31,6 +31,8 @@ const isApi = file => (
     /^functions\/api\/[^/]+\.js$/.test(file)
     || file === 'js/curriculum-guard.js'
     || file === 'js/account-policy.js'
+    || file === 'js/analytics-policy.js'
+    || file === 'js/privacy-policy.js'
     || file === 'server/tencent-api.mjs'
     || /^server\/[^/]+\.mjs$/.test(file)
     || file === 'package.json'
@@ -53,6 +55,7 @@ if (!staticFiles.includes('index.html') || apiFiles.length < 10) {
 
 for (const file of staticFiles) copy(file, join(output, 'www'));
 for (const file of apiFiles) copy(file, join(output, 'app'));
+copy('migration/2026-09-29-privacy.sql', join(output, 'ops'), 'privacy-phase2.sql');
 for (const file of opsFiles) {
     copy(file, join(output, 'ops'), file.replace(/^deploy\/tencent\//, ''));
 }

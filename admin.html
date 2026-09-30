@@ -151,6 +151,7 @@
             .admin-resource-item { align-items:flex-start; }
         }
     </style>
+    <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -237,7 +238,7 @@
                     <div class="analytics-empty">切换到数据看板后加载统计数据。</div>
                 </div>
                 <div class="analytics-note">
-                    统计口径：访客用浏览器本地随机 ID 去重；登录用户以 Firebase uid 识别。本站只记录访问和功能动作，不记录智能体输入、生成正文、备课本内容或 IP 地址。
+                    使用事件采集已关闭，此处仅展示历史记录；数据停止增长不代表无人使用网站。关闭采集不会自动删除历史数据。
                 </div>
             </div>
 
@@ -735,7 +736,9 @@
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20260925-admin-content-logo"></script>
 <script src="js/site-copy.js?v=20260924-local-email-direct"></script>
-<script src="js/auth.js?v=20260924-local-email-direct"></script>
+<script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
+    <script src="js/auth.js?v=20260930-privacy-service"></script>
+    <script src="js/privacy-ui.js?v=20260930-privacy-service"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script>
 let _adminTools = [], _adminPrompts = [], _adminPaths = [], _adminUsers = [], _adminAnn = [];
@@ -1015,10 +1018,6 @@ function analyticsActionLabel(action) {
     }[action] || action || '—';
 }
 
-function analyticsUserLookup() {
-    return new Map((_adminUsers || []).map(u => [u.uid, u]));
-}
-
 function analyticsNewUsersByDay(days) {
     const set = new Set(days);
     const map = new Map(days.map(day => [day, 0]));
@@ -1139,16 +1138,7 @@ function renderAnalyticsRanks(title, subtitle, rows, emptyText) {
 }
 
 function renderAnalyticsUsers(summary) {
-    const byUid = analyticsUserLookup();
-    const rows = (summary.users || []).map(row => {
-        const user = byUid.get(row.uid) || {};
-        return {
-            ...row,
-            name: row.name || user.name || '未命名用户',
-            account: row.account || user.email || user.phone || '',
-            school: row.school || user.school || ''
-        };
-    });
+    const rows = summary.users || [];
     return `<div class="analytics-box" style="grid-column:1/-1">
         <div class="analytics-box-head">
             <h3>登录用户使用明细</h3>
@@ -1198,7 +1188,7 @@ function renderAnalyticsContent(summary) {
 
 function renderAnalyticsError(error) {
     const msg = error?.message || '统计数据加载失败';
-    document.getElementById('analytics-content').innerHTML = `<div class="analytics-box"><div class="analytics-error">${analyticsEscape(msg)}<br>如果是在本地静态预览，这是正常的：/api/analytics 需要 Cloudflare Pages Functions 环境。</div></div>`;
+    document.getElementById('analytics-content').innerHTML = `<div class="analytics-box"><div class="analytics-error">${analyticsEscape(msg)}<br>本地验收请使用隔离的统计测试服务；普通静态预览不提供统计数据库。</div></div>`;
 }
 
 async function renderAnalyticsPanel(force = false) {

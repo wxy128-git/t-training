@@ -1,3 +1,4 @@
+import '../js/privacy-policy.js';
 import assert from 'node:assert/strict';
 import { createAuthActionToken, getPool } from '../server/local-auth-store.mjs';
 
@@ -39,7 +40,7 @@ async function cleanup() {
 
 try {
     await cleanup();
-    let result = await post({ action: 'register', email, password, profile: { name: '本地注册候选测试', email, school: '测试学校' } });
+    let result = await post({ action: 'register', consent:{accepted:true,version:globalThis.PrivacyPolicy.VERSION,research:false}, email, password, profile: { name: '本地注册候选测试', email, school: '测试学校' } });
     assert.equal(result.response.status, 200); uid = result.body.user.uid; assert.ok(uid); assert.equal(result.body.user.emailVerified, false);
     const accessToken = result.body.idToken;
 

@@ -1,3 +1,6 @@
+import '../../js/privacy-policy.js';
+// Legacy Firebase data route; production uses server/local-analytics.mjs.
+import '../../js/analytics-policy.js';
 import '../../js/account-policy.js';
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
@@ -14,52 +17,12 @@ const CORS_HEADERS = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
-const EVENT_ACTIONS = new Set([
-    'page_view',
-    'agent_open',
-    'agent_run',
-    'generation_failed',
-    'draft_restored',
-    'project_saved',
-    'teacher_reviewed',
-    'result_feedback',
-    'workflow_continue',
-    'workbook_view',
-    'workbook_open',
-    'workbook_save',
-    'pwa_task_launcher_opened',
-    'pwa_task_started',
-    'pwa_install_dismissed',
-    'pwa_install_choice',
-    'pwa_install_help_opened',
-    'pwa_update_applied',
-    'pwa_update_deferred',
-    'pwa_installed',
-    'multimodal_case_open',
-    'multimodal_video_open',
-    'multimodal_audio_play'
-]);
-
-const EVENT_FEATURES = new Set([
-    'site',
-    'agents',
-    'workspace',
-    'multimodal',
-    'classroom',
-    'tools',
-    'prompts',
-    'paths',
-    'articles',
-    'resources',
-    'news'
-]);
-
 let cachedAccessToken = null;
 
 function jsonResponse(status, body) {
     return new Response(JSON.stringify(body), {
         status,
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        headers: { 'Content-Type': 'application/json', 'Cache-Control':'no-store', ...CORS_HEADERS }
     });
 }
 
@@ -229,23 +192,6 @@ function clampString(value, max = 160) {
     return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
-function normalizeId(value, max = 128) {
-    return String(value || '').trim().slice(0, max);
-}
-
-function safeMeta(meta) {
-    if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return {};
-    const out = {};
-    Object.entries(meta).slice(0, 12).forEach(([key, value]) => {
-        const k = clampString(key, 40);
-        if (!k) return;
-        if (typeof value === 'number' && Number.isFinite(value)) out[k] = value;
-        else if (typeof value === 'boolean') out[k] = value;
-        else out[k] = clampString(value, 180);
-    });
-    return out;
-}
-
 function chinaDay(date = new Date()) {
     return new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
@@ -309,24 +255,6 @@ function parseDocument(doc) {
     return out;
 }
 
-async function addDocument(accessToken, collection, data) {
-    const response = await fetch(`${FIRESTORE_ROOT}/${collection}`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ fields: firestoreFields(data) })
-    });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        const error = new Error(body?.error?.message || '统计数据写入失败');
-        error.statusCode = response.status;
-        throw error;
-    }
-    return body;
-}
-
 async function runQuery(accessToken, structuredQuery) {
     const response = await fetch(`${FIRESTORE_ROOT}:runQuery`, {
         method: 'POST',
@@ -345,38 +273,35 @@ async function runQuery(accessToken, structuredQuery) {
     return body.filter(row => row.document).map(row => parseDocument(row.document));
 }
 
-function normalizeEvent(raw = {}, verifiedUser, request) {
-    const action = EVENT_ACTIONS.has(raw.action) ? raw.action : '';
-    if (!action) {
-        const error = new Error('未知统计事件');
-        error.statusCode = 400;
-        throw error;
-    }
-
-    const feature = EVENT_FEATURES.has(raw.feature) ? raw.feature : 'site';
-    const profile = verifiedUser && raw.user && typeof raw.user === 'object' ? raw.user : {};
+export function normalizeEvent(raw = {}, verifiedUser) {
     const now = new Date();
-
-    return {
-        action,
-        feature,
-        ts: now,
-        day: chinaDay(now),
-        visitorId: normalizeId(raw.visitorId),
-        sessionId: normalizeId(raw.sessionId),
-        path: clampString(raw.path, 260),
-        pageTitle: clampString(raw.pageTitle, 120),
-        referrer: clampString(raw.referrer, 260),
-        targetId: normalizeId(raw.targetId),
-        targetName: clampString(raw.targetName, 120),
-        uid: verifiedUser?.localId || '',
-        userEmail: verifiedUser ? clampString(profile.email || verifiedUser.email || '', 120) : '',
-        userPhone: verifiedUser ? clampString(profile.phone || '', 40) : '',
-        userName: verifiedUser ? clampString(profile.name || verifiedUser.displayName || '', 80) : '',
-        userSchool: verifiedUser ? clampString(profile.school || '', 120) : '',
-        meta: safeMeta(raw.meta)
-    };
+    return { ...globalThis.AnalyticsPolicy.normalize(raw), ts:now, day:chinaDay(now), uid:verifiedUser?.localId || '' };
 }
+
+export async function loadAnalyticsProfiles(accessToken, uids) {
+    const profiles = new Map();
+    const unique = [...new Set(uids.filter(Boolean))];
+    for (let i = 0; i < unique.length; i += 100) {
+        const response = await fetch(`${FIRESTORE_ROOT}:batchGet`, {
+            method:'POST',
+            headers:{ Authorization:`Bearer ${accessToken}`, 'Content-Type':'application/json' },
+            body:JSON.stringify({
+                documents:unique.slice(i,i+100).map(uid => `${FIRESTORE_ROOT.replace('https://firestore.googleapis.com/v1/','')}/users/${encodeURIComponent(uid)}`),
+                mask:{fieldPaths:['name','email','phone','school']}
+            })
+        });
+        if (!response.ok) throw new Error('用户资料读取失败，请重试');
+        const rows = await response.json();
+        for (const row of rows) if (row.found) {
+            const user = parseDocument(row.found);
+            profiles.set(decodeURIComponent(row.found.name.split('/').pop()), {
+                name:user.name || '未命名用户', account:user.email || user.phone || '', school:user.school || ''
+            });
+        }
+    }
+    return profiles;
+}
+const missingProfile = {name:'资料已不可用', account:'', school:''};
 
 function emptyDaily(days) {
     const map = new Map();
@@ -403,7 +328,7 @@ function sortedTop(map, limit = 8) {
         .slice(0, limit);
 }
 
-function summarizeEvents(events, days) {
+export function summarizeEvents(events, days, profiles = new Map()) {
     const daily = emptyDaily(days);
     const users = new Map();
     const topAgents = new Map();
@@ -435,9 +360,7 @@ function summarizeEvents(events, days) {
         if (!users.has(e.uid)) {
             users.set(e.uid, {
                 uid: e.uid,
-                name: e.userName || '未命名用户',
-                account: e.userEmail || e.userPhone || '',
-                school: e.userSchool || '',
+                ...(profiles.get(e.uid) || missingProfile),
                 visits: 0,
                 agentRuns: 0,
                 workbookUses: 0,
@@ -470,9 +393,6 @@ function summarizeEvents(events, days) {
             if (!row.lastSeen || String(e.ts || '') > row.lastSeen) {
                 row.lastSeen = e.ts || '';
                 row.lastAction = e.action;
-                row.name = e.userName || row.name;
-                row.account = e.userEmail || e.userPhone || row.account;
-                row.school = e.userSchool || row.school;
             }
         }
 
@@ -556,8 +476,8 @@ function summarizeEvents(events, days) {
             action: e.action || '',
             feature: e.feature || '',
             targetName: e.targetName || '',
-            userName: e.userName || '未命名用户',
-            account: e.userEmail || e.userPhone || ''
+            userName: (profiles.get(e.uid) || missingProfile).name,
+            account: (profiles.get(e.uid) || missingProfile).account
         }));
 
     const openedSessions = funnelSets.opened.size;
@@ -638,24 +558,13 @@ async function handleSummary(payload, env) {
         limit: 6000
     });
 
+    const profiles = await loadAnalyticsProfiles(accessToken, events.map(e => e.uid));
     return {
         ok: true,
         range: { days: daysCount, startDay, endDay: addDays(endDay, -1) },
         truncated: events.length >= 6000,
-        ...summarizeEvents(events, days)
+        ...summarizeEvents(events, days, profiles)
     };
-}
-
-async function handleTrack(payload, request, env) {
-    const accessToken = await getGoogleAccessToken(env);
-    const rawEvent = payload.event || {};
-    let verifiedUser = null;
-    if (payload.idToken) {
-        try { verifiedUser = await lookupIdToken(payload.idToken); } catch {}
-    }
-    const event = normalizeEvent(rawEvent, verifiedUser, request);
-    await addDocument(accessToken, 'analytics_events', event);
-    return { ok: true };
 }
 
 export async function onRequestOptions() {
@@ -675,7 +584,7 @@ export async function onRequestPost({ request, env }) {
 
     try {
         if (payload.action === 'track') {
-            const result = await handleTrack(payload, request, env);
+            const result = {ok:true,recorded:false,reason:'research_paused'};
             return jsonResponse(200, result);
         }
         if (payload.action === 'summary') {

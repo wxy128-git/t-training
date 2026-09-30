@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import '../js/account-policy.js';
+import '../js/privacy-policy.js';
 import {
     callFirebaseAuth,
     firebaseRefresh,
@@ -104,7 +105,8 @@ function cleanProfile(profile) {
         phone: cleanText(value.phone, 20),
         school: cleanText(value.school, 120),
         isAdmin: false,
-        joinedAt: cleanText(value.joinedAt, 64) || new Date().toISOString()
+        joinedAt: cleanText(value.joinedAt, 64) || new Date().toISOString(),
+        ...(value.privacy ? {privacy:value.privacy} : {})
     };
 }
 
@@ -178,6 +180,7 @@ async function localRegister(env, email, password, profile) {
     const row = await upsertFirebaseAccount(env, { ...authData, email, emailVerified: false }, safeProfile);
     await setLocalPassword(env, row.uid, password);
     await upsertProfile(env, row.uid, safeProfile);
+    await getPool(env).execute('UPDATE user_profiles SET privacy_json=? WHERE uid=?',[JSON.stringify(safeProfile.privacy),row.uid]);
     const fresh = await findUserByUid(env, row.uid);
     return { ...(await issueLocalSession(env, row.uid)), user: publicUser(fresh), authBackend: 'local' };
 }
@@ -337,6 +340,9 @@ export async function onRequestPost({ request, env }) {
             const profile = cleanProfile(payload.profile);
             if (!email || typeof payload.password !== 'string' || payload.password.length < 6 || payload.password.length > 256) return jsonResponse(400, { ok: false, msg: '请填写有效邮箱和至少 6 位密码' });
             if (!profile.name) return jsonResponse(400, { ok: false, msg: '请填写姓名' });
+            try { globalThis.PrivacyPolicy.registration(payload.consent); }
+            catch(error) { return jsonResponse(400,{ok:false,msg:error.message,code:error.code}); }
+            profile.privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
             return jsonResponse(200, { ok: true, ...(await localRegister(env, email, payload.password, profile)) });
         }
         if (action === 'refresh') {

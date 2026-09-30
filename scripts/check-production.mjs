@@ -40,7 +40,7 @@ if (home) {
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
     assert(body.includes('css/style.css?v=20260924-local-email-direct'), '首页未加载当前全局样式版本');
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20260924-local-email-direct'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/auth.js?v=20260930-privacy-service'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
     assert(body.includes('js/data.js?v=20260924-local-email-direct') && body.includes('js/site-copy.js?v=20260924-local-email-direct'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20260924-local-email-direct'), '首页未加载当前网站向导脚本版本');
@@ -60,7 +60,7 @@ if (pwaScript) {
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
 }
 
-const authScript = await request('/js/auth.js?v=20260924-local-email-direct');
+const authScript = await request('/js/auth.js?v=20260930-privacy-service');
 if (authScript) {
     const body = await authScript.text();
     assert(authScript.status === 200 && authScript.headers.get('content-type')?.includes('javascript'), '当前认证脚本未上线');
@@ -93,9 +93,24 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20260928-v26'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20260930-v30'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
+
+const privacy = await request('/privacy');
+if (privacy) {
+    const body = await privacy.text();
+    assert(privacy.status === 200 && body.includes('2026-09-30.1'), '当前隐私政策未上线');
+    assert(!/尚未生效|审阅稿|待确认|待核实|研究参与|研究采集/.test(body), '隐私政策仍有冲突或过期文案');
+    assert(body.includes('data-contact-trigger') && body.includes('js/assistant.js'), '隐私申请入口不可用');
+}
+const paused = await request('/api/analytics', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'track',event:{action:'page_view'}})});
+if (paused) {
+    const body = await paused.json().catch(()=>null);
+    assert(paused.status === 200 && body?.recorded === false, '使用事件采集未关闭');
+}
+const privacyGuest = await request('/api/privacy', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'get'})});
+if (privacyGuest) assert(privacyGuest.status === 401, '隐私确认接口未限制登录身份');
 
 const health = await request('/healthz');
 if (health) {

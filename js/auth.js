@@ -241,7 +241,8 @@ const Auth = {
         }
     },
 
-    async register(name, identifier, school, password) {
+    async register(name, identifier, school, password, consent) {
+        try { PrivacyPolicy.registration(consent); } catch(error) {return {ok:false,msg:error.message};}
         if (!name || !identifier || !password) return { ok: false, msg: '请填写所有必填项' };
         const { authEmail, isPhone, phone } = parseIdentifier(identifier);
         if (!AccountPolicy.realEmail(identifier)) return { ok: false, msg: '注册必须填写能够接收邮件的真实邮箱' };
@@ -256,7 +257,7 @@ const Auth = {
         };
         if (shouldUseAuthProxyFirst('register')) {
             try {
-                const result = await callAuthProxy('register', { email: authEmail, password, profile: userData }, { persistent: true });
+                const result = await callAuthProxy('register', { email: authEmail, password, profile: userData, consent }, { persistent: true });
                 // 代理已经创建账号并写入会话；这里只在后台恢复 Firebase SDK 状态，不会重复注册。
                 if (result.authBackend !== 'local') syncFirebaseAuthAfterProxy(authEmail, password, true);
                 return result;
@@ -282,9 +283,10 @@ const Auth = {
             }
             rememberUserProfile(cred.user.uid, userData);
             try {
-                await db.collection('users').doc(cred.user.uid).set(userData, { merge: true });
+                const privacy = {...PrivacyPolicy.update(null,consent),acceptedAt:firebase.firestore.FieldValue.serverTimestamp(),researchUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+                await db.collection('users').doc(cred.user.uid).set({...userData,privacy}, { merge: true });
             } catch(e) {
-                console.warn('saveUserProfile:', e.message);
+                return {ok:false,msg:'账号可能已创建，但同意记录保存失败。请尝试登录；若隐私设置无法保存，请联系管理员。'};
             }
             _currentUser = { uid: cred.user.uid, ...userData, emailVerified: false };
             rememberLastAuthUser(_currentUser);
@@ -472,6 +474,7 @@ function renderNav(currentPage) {
                <div class="user-avatar">${safeAvatarLetter}</div>
                <span style="font-size:14px;color:#374151;font-weight:500" class="hm">${safeDisplayName}</span>
                ${user.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}
+               <button class="btn-login" type="button" onclick="PrivacyUI.open()">隐私设置</button>
                <button class="btn-login" onclick="Auth.logout()">退出</button>
            </div>`
         : `<button class="btn-login" onclick="showAuthModal('login')">登录</button>
@@ -675,6 +678,7 @@ function showAuthModal(tab) {
                 </div>
                 <div class="form-group"><label class="form-label" for="rg-email">邮箱 *</label><input type="email" id="rg-email" class="form-input" autocomplete="email" inputmode="email" maxlength="254" required aria-required="true" aria-describedby="rg-email-hint" placeholder="填写您能收到邮件的邮箱"><p id="rg-email-hint" class="auth-email-hint">注册后需要点击邮件中的验证链接，才能使用网站功能。邮箱也用于找回密码。</p></div>
                 <div class="form-group"><label class="form-label" for="rg-pwd">密码 *</label><input type="password" id="rg-pwd" class="form-input" autocomplete="new-password" minlength="6" maxlength="128" required aria-required="true" placeholder="至少 6 位"></div>
+                <label class="privacy-choice"><input id="rg-privacy" type="checkbox" required> <span>我已阅读并同意<a href="/privacy" target="_blank" rel="noopener">隐私政策（新窗口）</a></span></label>
                 <div id="rg-err" class="form-error" role="alert" aria-live="assertive" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="rg-btn" onclick="handleRegister()">创建账号</button></div>
                 <p class="modal-footer-text">已有账号？<button onclick="switchAuthTab('login')">立即登录</button></p>
@@ -840,7 +844,7 @@ async function handleRegister() {
     err.style.display = 'none';
     btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = '注册中…';
     try {
-        const result = await Auth.register(name, identifier, school, pwd);
+        const result = await Auth.register(name, identifier, school, pwd, {accepted:document.getElementById('rg-privacy').checked,version:PrivacyPolicy.VERSION});
         if (!result.ok) { err.textContent = result.msg; err.style.display = ''; return; }
         closeAuthModal();
         refreshAuthUI();
@@ -930,6 +934,8 @@ function renderFooter() {
                 <li><a href="/classroom-tools">课堂工具</a></li>
                 <li><a href="/workspace">我的备课本</a></li>
                 <li><a href="/tools">学习与资源</a></li>
+                <li><a href="/privacy">隐私政策</a></li>
+                <li><button type="button" class="footer-link-button" onclick="PrivacyUI.open()">隐私政策确认</button></li>
                 <li><button type="button" class="footer-link-button pwa-footer-install" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button></li>
                 <li><button type="button" class="footer-link-button" data-contact-trigger>联系我们</button></li>
             </ul></div>

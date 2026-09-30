@@ -43,7 +43,7 @@ for (const file of appPages) {
     const styleVersion = file === 'resources.html' ? '20260925-resource-cards-compact' : '20260924-local-email-direct';
     if (!new RegExp(`css/style\\.css\\?v=${styleVersion}`).test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260924-local-email-direct/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20260924-local-email-direct/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/auth\.js\?v=20260930-privacy-service/.test(html)) fail(file, '认证脚本缓存版本未统一');
     if (!/js\/assistant\.js\?v=20260924-local-email-direct/.test(html)) fail(file, '网站向导缓存版本未统一');
     if (!/js\/account-policy\.js\?v=20260924-local-email-direct/.test(html)
         || !/js\/email-gate\.js\?v=20260924-local-email-direct/.test(html)
@@ -194,7 +194,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20260928-v26/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20260930-v30/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }
@@ -211,7 +211,7 @@ if (!/['"]\/agents['"][\s\S]+['"]\/classroom-tools['"]/.test(text('sw.js'))) fai
 
 for (const file of readdirSync(root).filter(name => name.endsWith('.html'))) {
     const html = text(file);
-    const oldLinks = [...html.matchAll(/(?:href|action)\s*=\s*["'][^"']*\.html(?:[?#"'])/gi)];
+    const oldLinks = [...html.matchAll(/(?:href|action)\s*=\s*["'](?!https?:|\/\/)[^"']*\.html(?:[?#"'])/gi)];
     if (oldLinks.length) fail(file, `发现 ${oldLinks.length} 个站内 .html 链接`);
     const imageTags = [...html.matchAll(/<img\b[^>]*>/gi)];
     imageTags.forEach(tag => {

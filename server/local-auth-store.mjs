@@ -265,9 +265,9 @@ export async function createLocalAccount(env, email, password, profile = {}) {
             VALUES (?, ?, ?, 0, 0, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?)
         `, [uid, normalized, safeProfile.name, now, passwordRecord.hash, passwordRecord.salt, passwordRecord.scheme, JSON.stringify({ local: true, createdAt: now })]);
         await connection.execute(`
-            INSERT INTO user_profiles (uid, name, email, phone, school, is_admin, joined_at_iso, raw_json)
-            VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-        `, [uid, safeProfile.name, normalized, safeProfile.phone, safeProfile.school, safeProfile.joinedAt, JSON.stringify(safeProfile)]);
+            INSERT INTO user_profiles (uid, name, email, phone, school, is_admin, joined_at_iso, raw_json, privacy_json)
+            VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)
+        `, [uid, safeProfile.name, normalized, safeProfile.phone, safeProfile.school, safeProfile.joinedAt, JSON.stringify(safeProfile), JSON.stringify(profile.privacy || null)]);
         await connection.commit();
     } catch (error) {
         await connection.rollback();

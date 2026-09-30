@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `auth_users` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `user_profiles` (
+  `privacy_json` JSON DEFAULT NULL,
   `uid` varchar(128) NOT NULL,
   `name` varchar(200) NOT NULL DEFAULT '',
   `email` varchar(320) NOT NULL DEFAULT '',

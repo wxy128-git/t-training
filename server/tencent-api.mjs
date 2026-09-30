@@ -14,6 +14,7 @@ import * as emailAction from '../functions/api/email-action.js';
 import * as rssProxy from '../functions/api/rss-proxy.js';
 import * as toolsFirebase from '../functions/api/tools.js';
 import * as worksFirebase from '../functions/api/works.js';
+import * as privacyFirebase from '../functions/api/privacy.js';
 import * as resourceLogo from './resource-logo.mjs';
 
 const authProxy = process.env.T_TRAINING_AUTH_BACKEND === 'local'
@@ -24,6 +25,7 @@ const adminUsers = localData ? await import('./local-admin-users.mjs') : adminUs
 const analytics = localData ? await import('./local-analytics.mjs') : analyticsFirebase;
 const content = localData ? await import('./local-content.mjs') : contentFirebase;
 const tools = localData ? await import('./local-tools.mjs') : toolsFirebase;
+const privacy = localData ? await import('./local-privacy.mjs') : privacyFirebase;
 const works = localData ? await import('./local-works.mjs') : worksFirebase;
 
 const DEFAULT_HOST = '127.0.0.1';
@@ -35,6 +37,7 @@ const ROUTES = new Map([
     ['/api/admin-users', adminUsers],
     ['/api/agent', agent],
     ['/api/analytics', analytics],
+    ['/api/privacy', privacy],
     ['/api/auth-proxy', authProxy],
     ['/api/content', content],
     ['/api/email-action', emailAction],
@@ -189,6 +192,10 @@ export async function startApiServer(options = {}) {
         server.once('error', rejectListen);
         server.listen(port, host, resolveListen);
     });
+    if (env.T_TRAINING_DATA_BACKEND === 'local') {
+        const {startAnalyticsRetention}=await import('./analytics-retention.mjs');
+        startAnalyticsRetention(env,server);
+    }
     const address = server.address();
     console.log(`[t-training-api] listening on ${typeof address === 'object' ? `${address.address}:${address.port}` : address}`);
     return server;

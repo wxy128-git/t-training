@@ -1,4 +1,6 @@
 import '../../js/account-policy.js';
+import '../../js/privacy-policy.js';
+import {privacyFields} from './privacy.js';
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
 const FIREBASE_AUTH_BASE = 'https://identitytoolkit.googleapis.com/v1';
@@ -197,18 +199,25 @@ function firestoreFields(profile) {
 
 async function saveUserProfile(idToken, uid, profile) {
     if (!idToken || !uid || !profile) return;
-    try {
-        await fetchWithTimeout(`${FIRESTORE_USER_BASE}/${uid}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
-            },
-            body: JSON.stringify({ fields: firestoreFields(profile) })
+    const fields = firestoreFields(profile);
+    if (profile.privacy) {
+        fields.privacy = privacyFields(profile.privacy);
+        const response = await fetchWithTimeout(`${FIRESTORE_USER_BASE.replace(/\/users$/, '')}:commit`, {
+            method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${idToken}`},
+            body:JSON.stringify({writes:[{update:{name:`projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,fields},currentDocument:{exists:false},updateTransforms:[
+                {fieldPath:'privacy.acceptedAt',setToServerValue:'REQUEST_TIME'},
+                {fieldPath:'privacy.researchUpdatedAt',setToServerValue:'REQUEST_TIME'}
+            ]}]})
         });
-    } catch {
-        // A profile write failure should not block account creation.
+        if(!response.ok) throw Object.assign(new Error('账号可能已创建，但同意记录保存失败。请尝试登录；若隐私设置无法保存，请联系管理员。'),{statusCode:502});
+        return;
     }
+    // Routine profile sync must preserve consent fields written independently.
+    try {
+        await fetchWithTimeout(`${FIRESTORE_USER_BASE}/${uid}?${Object.keys(fields).map(key=>'updateMask.fieldPaths='+key).join('&')}`, {
+            method:'PATCH',headers:{'Content-Type':'application/json',Authorization:`Bearer ${idToken}`},body:JSON.stringify({fields})
+        });
+    } catch {}
 }
 
 async function readUserProfile(idToken, uid) {
@@ -426,6 +435,8 @@ export async function onRequestPost({ request }) {
                 joinedAt: new Date().toISOString()
             };
             if (!profile.name) return jsonResponse(400, { ok: false, msg: '请填写姓名' });
+            globalThis.PrivacyPolicy.registration(payload.consent);
+            const privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
             const authData = await callFirebaseAuth('accounts:signUp', {
                 email: normalizedEmail,
                 password,
@@ -442,7 +453,7 @@ export async function onRequestPost({ request }) {
                         returnSecureToken: false
                     }).catch(() => null)
                     : Promise.resolve(),
-                saveUserProfile(authData.idToken, authData.localId, user)
+                saveUserProfile(authData.idToken, authData.localId, {...user,privacy})
             ]);
             return jsonResponse(200, { ok: true, ...authData, user });
         }

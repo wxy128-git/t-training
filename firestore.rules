@@ -25,7 +25,7 @@ service cloud.firestore {
     function validUserProfile(uid) {
       return isSelf(uid)
         && request.resource.data.keys().hasAll(['name', 'email', 'phone', 'school', 'isAdmin', 'joinedAt'])
-        && request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'school', 'isAdmin', 'joinedAt'])
+        && request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'school', 'isAdmin', 'joinedAt', 'privacy'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 80
@@ -39,12 +39,32 @@ service cloud.firestore {
         && request.resource.data.joinedAt is string;
     }
 
+    function validPrivacyChange() {
+      let p = request.resource.data.get('privacy', null);
+      let old = resource.data.get('privacy', null);
+      return p == old || validPrivacy(p, old);
+    }
+    function validPrivacy(p, old) {
+      return p is map
+        && p.keys().hasAll(['version','acceptedAt','research','researchVersion','researchUpdatedAt'])
+        && p.keys().hasOnly(['version','acceptedAt','research','researchVersion','researchUpdatedAt'])
+        && p.research == false && p.researchVersion == '2026-09-30.1'
+        && p.researchUpdatedAt == request.time
+        && ((p.version == '2026-09-30.1' && p.acceptedAt == request.time)
+          || (old != null && p.version == old.version && p.acceptedAt == old.acceptedAt)
+          || (old == null && p.version == '' && p.acceptedAt == null && p.research == false))
+        && (!p.research || (p.version == '2026-09-30.1' && p.acceptedAt is timestamp));
+    }
+
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
       allow create: if validUserProfile(uid)
+        && validPrivacy(request.resource.data.get('privacy', null), null)
+        && request.resource.data.privacy.version == '2026-09-30.1'
         && request.resource.data.isAdmin == isAdmin();
       allow update: if isAdmin() || (
         validUserProfile(uid)
+        && validPrivacyChange()
         && request.resource.data.isAdmin == resource.data.isAdmin
         && (request.resource.data.email == resource.data.email || (
           signedIn() && request.resource.data.email == request.auth.token.email

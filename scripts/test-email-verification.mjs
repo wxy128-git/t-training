@@ -32,6 +32,7 @@ function reset(overrides = {}) {
         if (url.includes('accounts:resetPassword')) return oobError
             ? Response.json({ error: { message: oobError } }, { status: 400 })
             : Response.json({ email: 'teacher@example.invalid' });
+        if (url.endsWith('/documents:commit')) {profile=Object.fromEntries(Object.entries(body.writes[0].update.fields).map(([k,v])=>[k,v.stringValue??v.booleanValue]));return Response.json({writeResults:[{}]});}
         if (url.includes('/documents/users/')) {
             if (options.method === 'PATCH') profile = Object.fromEntries(Object.entries(body.fields).map(([k, v]) => [k, v.stringValue ?? v.booleanValue]));
             return Response.json({ fields: Object.fromEntries(Object.entries(profile).map(([k, v]) => [k, field(v)])) });
@@ -82,7 +83,7 @@ try {
         const result = await post(api, { action: 'register', email, password: 'test-password', profile: { name: '教师' } });
         check(result.status === 400 && calls.length === 0, '新注册不能使用手机号或占位邮箱');
     }
-    const signup = await post(api, { action: 'register', email: 'teacher@example.invalid', password: 'test-password', emailVerified: true, profile: { name: '新教师', emailVerified: true, isAdmin: true, email: 'admin@xylaoshi.com' } });
+    const signup = await post(api, { action: 'register', consent:{accepted:true,version:globalThis.PrivacyPolicy.VERSION,research:false}, email: 'teacher@example.invalid', password: 'test-password', emailVerified: true, profile: { name: '新教师', emailVerified: true, isAdmin: true, email: 'admin@xylaoshi.com' } });
     check(signup.status === 200 && signup.data.user.emailVerified === false && signup.data.user.isAdmin === false, '注册后的伪造权限不能生效');
     check(!('emailVerified' in calls.find(c => c.url.includes('accounts:signUp')).body), '注册不把客户端验证字段发送到 Firebase');
 
@@ -104,7 +105,7 @@ try {
     const after = await post(api, { action: 'email-status', idToken: 'fresh-token' });
     check(after.data.user.uid === 'original-uid' && after.data.user.emailVerified, '验证成功后仍为原账号');
     check(profile.email === 'teacher@example.invalid' && profile.phone === '13800138000' && profile.school === '原学校' && profile.joinedAt === '2025-01-01T00:00:00.000Z', '同步邮箱时保留手机号、学校和加入日期');
-    check(calls.filter(c => c.url.includes('/documents/')).every(c => c.url.endsWith('/users/original-uid')), '绑定只更新当前用户资料，不碰作品集合');
+    check(calls.filter(c => c.url.includes('/documents/')).every(c => new URL(c.url).pathname.endsWith('/users/original-uid')), '绑定只更新当前用户资料，不碰作品集合');
     const count = calls.filter(c => c.url.includes('accounts:sendOobCode')).length;
     const already = await post(api, verify({ email: 'other@example.invalid' }));
     check(already.data.alreadyVerified && calls.filter(c => c.url.includes('accounts:sendOobCode')).length === count, '已验证账号不能利用完善入口任意换邮箱');
