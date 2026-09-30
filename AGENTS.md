@@ -30,7 +30,7 @@
   - `admin-users.js` — admin-only full deletion of a user (both Authentication account and Firestore profile). Requires a Firebase service account configured via Cloudflare environment variables.
   - `rss-proxy.js` — news-page RSS fetcher with a fixed server-side source allowlist. The browser sends a source key, not an arbitrary URL; redirects are rejected, responses are capped at 1 MiB and validated as RSS / Atom. It keeps a 30-minute in-memory cache plus a 24-hour stale fallback. Do not restore browser fallbacks to public CORS / RSS conversion services or accept arbitrary upstream URLs, otherwise SSRF and domestic-network reliability regress.
   - `agent.js` — 智能体后端代理（2026-06-09；2026-07-09 加多模型路由；2026-08-28 加课程匹配硬闸门）：持 `DEEPSEEK_API_KEY` 转发到 DeepSeek（model `deepseek-v4-flash` + `thinking:{type:'disabled'}` 非思考模式；旧名 `deepseek-chat` 于 2026/07/24 停用，已于 2026-06-29 迁移），也可持 `ZHIPU_API_KEY` 转发到智谱 GLM-5.2（model `glm-5.2`）。用 `accounts:lookup` 校验 Firebase idToken 防盗刷，把上游 SSE 解析成纯文本增量流式回传。前端 `agents.html` 的 `callAgentAPI()` POST `{ messages, idToken, agentId, curriculum }` 调用它。`curriculum` 由前端从学科、年级和知识点字段整理，服务端使用共享 `js/curriculum-guard.js` 重做确定性判断；`conflict` 直接返回 422，`ambiguous / unknown` 先进行一次独立、非流式、低随机性的课程语义分类，只有高置信度 `aligned` 且带可验证学科与最低年级才进入内容生成。默认 DeepSeek；`DEFAULT_ZHIPU_AGENT_IDS` 内的高推理/结构化智能体在配置 `ZHIPU_API_KEY` 后优先走 GLM-5.2，GLM 失败且 DeepSeek 可用时自动回退。响应头 `X-Agent-Provider / X-Agent-Model / X-Agent-Fallback-From` 供前端显示实际模型，header 值必须保持 ASCII key。**限流 (2026-06-29)**：`checkRate(uid)` 软限流——同一登录用户 60 秒内最多 `RATE_MAX=12` 次，超出返回 429 `{ok:false,msg:"提问太频繁啦，请约 N 秒后再试～"}`（前端 `callAgentAPI` 的 `!res.ok` 分支已会显示该 msg，无需改前端）。实现是**单实例内存** `Map`（uid→时间戳数组，>5000 条时清理过期），零配置、不占额度，挡"手滑狂点/刷接口"；Cloudflare 多实例跨服务器非 100% 精确，要"每人每天硬封顶"再升级 KV/Durable Objects。调阈值改 `RATE_WINDOW_MS`/`RATE_MAX` 两常量即可。
-  - `analytics.js` — Firebase 旧统计路径；腾讯当前生产使用 `server/local-analytics.mjs`。**2026-09-28 阶段一修复仅本地完成、未部署**：两条路径均通过 `js/analytics-policy.js` 严格限制既有事件字段，新事件个人身份只存服务端确认的 uid，不再保存姓名/学校/邮箱/手机号；summary 沿用管理员校验，按 uid 临时关联当前用户资料。浏览器仍不得直接写 `analytics_events`，无需修改 Firestore Rules。禁止统计输入、生成或备课本正文、课题名、学生信息、IP、完整 userAgent、分辨率、用户时区、指纹及第三方统计；任何新增字段须先确认。历史四字段清理工具见阶段一报告，**尚未在生产执行**。
+  - `analytics.js` — Firebase 旧统计路径；腾讯当前生产使用 `server/local-analytics.mjs`。**2026-09-30 阶段一修复已上线，使用事件采集关闭**：两条路径均通过 `js/analytics-policy.js` 严格限制既有事件字段，新事件个人身份只存服务端确认的 uid，不再保存姓名/学校/邮箱/手机号；summary 沿用管理员校验，按 uid 临时关联当前用户资料。浏览器仍不得直接写 `analytics_events`，无需修改 Firestore Rules。禁止统计输入、生成或备课本正文、课题名、学生信息、IP、完整 userAgent、分辨率、用户时区、指纹及第三方统计；任何新增字段须先确认。历史四字段清理工具见阶段一报告，**尚未在生产执行**。
   - `works.js` — 我的备课本代理（2026-07-09）：`POST {action:'list'|'create'|'rename'|'delete', idToken, ...}`，先用 Firebase `accounts:lookup` 校验登录用户，再用 Firebase service account 访问 Firestore `works`，并强制只能读写当前 uid 的内容。前端 `DB.saveWork/getMyWorks/renameWork/deleteWork` 优先走 `/api/works`，失败时才退回浏览器 Firestore SDK；解决不连 VPN 时备课本能进页面但内容加载不出来的问题。
   - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
   - `content.js` — 公开内容同源代理（2026-07-19；2026-08-23 加页面文案）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；`type=pageCopy&id=<pageId>` 只允许 12 个固定页面 id，并以 `no-store` 返回对应 `page_copy` 文档，不进入旧缓存。腾讯云单进程内对原有公开列表使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
@@ -39,27 +39,11 @@
 
 ## Local Changes Pending Deployment
 
-- **2026-09-30 发布准备修订**：用户明确不开展研究收集、暂缓教师画像，并授权上线。政策改为现有网站服务说明，移除研究参与/暂停/恢复和草稿冲突文案；版本 `2026-09-30.1`，共享资源 `20260930-privacy-service`，SW `20260930-v30`。现有联系留言作为申请入口，明确无统一自动删除机制，未把未执行的清理写成承诺。服务器元数据只读确认主站位于 `ap-hongkong`。全量 `npm run check` 通过（隐私同意 63 项），实际部署结果另记。历史清理和自动到期删除不在发布范围；Firestore 规则只同步源文件，不发布旧库规则。
-
-- **2026-09-29 阶段二独立真实库补验完成**：使用临时 MariaDB 11.4.13、随机本机测试库及虚构账号，`npm run check:analytics-db` 通过 47 项检查：旧表迁移重复执行、旧用户同意保持 NULL、注册同时保存政策版本/服务器时间、并发确认保留原时间、禁止修改他人确认、拒绝开启研究、资料更新保留同意、注册写入故障整笔撤回，以及历史汇总/180 天边界/清理备份与失败撤回。完整 `npm run check` 同样通过后更新本记录。本次仅扩充测试和文档，未改认证/登录/管理员逻辑或运行代码。此结果替代下方“真实 MariaDB 待验证”的历史状态；旧 Firebase 规则引擎仍未重测、规则未发布。研究采集仍暂停；未部署、SSH、发邮件、调用模型或操作生产数据。
-
-- **2026-09-29 政策展示微调**：按用户要求移除 `privacy.html` 顶部/底部运营者名称与联系邮箱占位，权利申请段改为正式发布前明确受理方式，保留未生效审阅稿标识。仅静态文案，腾讯及 Firebase 服务路径均无改动。完整 `npm run check` 通过，本地 8767 响应确认占位已移除；未部署。正式发布仍需落实《个人信息保护法》第十七条要求的处理者身份与联系方式告知，不能将本次展示移除视为已完成此项要求。
-
-- **2026-09-29 阶段二验收修订，以此为准**：用户认可政策文案，并选择“去掉研究选项，同时停止研究采集”。注册/个人区域仅保留隐私政策确认；前端 `Analytics.track` 不再发送或生成统计标识；腾讯与旧 Firebase 的 track 入口直接返回 `recorded:false / research_paused`，不查询账号或写事件；历史数据和汇总权限保持不变。本次无历史删除、无生产操作。
-- 当前政策版本 `2026-09-29.2`、共享资源 `20260929-privacy-paused`、待发布 SW `20260929-v29`，线上仍 v26。新隐私记录只允许 research=false，兼容字段保留，不能默认替用户开启。Firestore 规则同步本地限制，未发布。后续阶段若涉及研究采集，必须基于“暂停”决定重新给方案，不自动恢复。
-- 修订后完整 `npm run check` 通过（隐私同意 60 项、统计隐私 31 项及既有检查）；390×844 浏览器验证只剩政策勾选、未勾选拒绝、政策确认成功、伪造事件仍不写入，事件数 0、无脚本错误/横向溢出。新增验证仍用模拟数据库，无真实库/规则引擎重测。临时浏览器输出已清理，8767 虚构预览保留供审阅。下方首轮阶段二记录中的“研究选项/同意后采集”已经被本修订替代。
-
-- **2026-09-29：隐私与知情同意第二阶段，仅本地完成、未部署**。新增 `privacy.html` 审阅稿（运营者/联系方式/存储地区及部分保存期限待填），共享注册表单政策必选、研究单独自愿选填且默认关闭；个人区域和统一页脚可管理/撤回选择。旧用户不补填同意、不改变登录和管理员认定。当前政策版本 `2026-09-29.1`，共享脚本 `20260929-privacy2`，Service Worker 待发布 `20260929-v28`，线上仍为 v26。
-- 腾讯通过 `/api/privacy` → `server/local-privacy.mjs` 写入现有 `user_profiles.privacy_json`；发布前须执行 `migration/2026-09-29-privacy.sql`。注册同意同事务写入，事件写入与撤回锁定同一资料行；浏览器与服务端均拒绝未同意、已撤回或旧版本研究采集。Firebase 旧路径同步 `functions/api/privacy.js` / `auth-proxy.js` / `analytics.js` 及 `firestore.rules`，用服务器时间和统计事务；规则未发布，权限身份判断未改。
-- `server/analytics-retention.mjs` 仅处理 MariaDB 超过 180 天的统计整行，须显式 `T_TRAINING_ANALYTICS_RETENTION_ENABLED=1` 后才在启动及每小时运行；默认关闭，生产未执行。旧 Firebase 库及备份未清理，恢复旧统计路径前必须补齐相同期限清理。`scripts/check-analytics-retention.mjs --dry-run` 仅支持显式本机测试库。
-- 阶段二完整 `npm run check` 通过，新增 56 项离线同意检查（模拟数据库/上游），桌面与手机实际点选通过；**本轮没有重跑真实 MariaDB 或 Firestore 规则引擎**，独立库用例已补充，发布前须另行验证，不能沿用阶段一结果声称验证完成。`npm run preview:privacy` 为 8767 独立虚构数据预览，无真实认证/邮件/模型。当前仅保留该预览供用户审阅。
-- 完整文件清单、验收步骤及待决事项见 [阶段二交付报告](reports/2026-09-29-privacy-phase2.md)；未来发布次序见 [隐私发布准备](deploy/tencent/privacy-phase2.md)。本轮不增加第三、四阶段采集项，不实施按天预聚合，不部署/SSH/发邮件/调用模型。
-
-
-- **2026-09-28：统计隐私阶段一，仅本地完成、未部署**。前端个人资料只上报 uid；腾讯与 Firebase 兼容路径同步删除事件中的 userEmail/userPhone/userName/userSchool，summary 从用户资料关联显示。腾讯事件信封读取与 createDocument 参数错误一并修复；新增前后端共用白名单，去除任意附加文字、页面标题、完整来源及网址参数；没有新增阶段四采集项，没有修改认证/登录/管理员判断。
-- 历史清理脚本 `scripts/clean-analytics-personal-fields.mjs` 只支持 MariaDB：显式 `--dry-run` 或 `--execute --backup-dir`，先备份并校验/落盘，再在事务中删除 `fields_json` 和 `raw_json.fields` 的四字段；失败撤回，重复执行安全。**腾讯生产、Firebase 旧库和既有备份均未清理**。不得因本地完成而直接部署、SSH、发邮件或调用模型。
-- 阶段一验证：完整 `npm run check` 通过，新增 32 项隐私检查；独立 MariaDB 11.4.13 通过 27 项测试（254 条虚构事件、253 条需清理，含中途失败撤回）；桌面 1440×1000 / 手机 390×844 隔离看板通过。`npm run preview:analytics` 可重新打开虚构验收页，`npm run check:analytics-db` 需显式配置独立本机数据库。统计脚本待发布版本 `20260928-privacy1`，Service Worker 待发布版本 `20260928-v27`；现有线上版本仍为 v26。
-- 按天预聚合仅评估，6000 条上限本轮保留；待第五阶段另行确认。每阶段必须先给方案获用户确认，检查全部通过后再更新项目说明。详情与完整文件清单见 [阶段一交付报告](reports/2026-09-28-analytics-privacy-phase1.md)。
+- **隐私阶段一、二已于 2026-09-30 上线**，见下方部署记录。当前政策 `2026-09-30.1`，共享资源 `20260930-privacy-service`，Service Worker `20260930-v30`。用户明确不开展研究收集，教师画像及第三至五阶段暂缓；不得自动恢复采集。
+- 仍未执行：历史事件四个人信息字段清理、180 天自动到期删除、Firebase 旧库及备份清理。工具仅完成本地验证，生产删除需另行授权；不得将“停止新增”表述成“历史已删除”。
+- 旧 Firebase 函数同步源代码并随发布包保留，但不是当前生产数据路径；Firestore 规则源文件已同步政策版本，未发布、未重跑规则引擎。恢复旧数据路径前需另行验证。
+- 政策仅说明实际处理与现有联系留言渠道，本次功能上线不等于完整法律合规审查。未核实模型服务约定、跨境安排及备份轮换；运营者姓名/邮箱按用户要求不展示，不得编造或声称相关义务均已完成。
+- 测试证据：阶段一独立 MariaDB 27 项，阶段二独立 MariaDB 47 项；当前全量 `npm run check` 通过，统计隐私 31 项、隐私同意 63 项。历史记录和文件清单见 `reports/2026-09-28-analytics-privacy-phase1.md` 与 `reports/2026-09-29-privacy-phase2.md`。
 
 - `tools` 与 `resources` 的紧凑目录卡片、统一 Logo 展示及后台 Logo 自动识别 / 上传流程已于 2026-09-25 上线；工具和课件素材现在使用同一套新增 / 编辑体验，后续填写网址时会自动尝试保存网站图标，识别失败可手动上传，已保存图片由腾讯服务器共享目录跨发布保留。
 - Firebase migration core cutover is online as of 2026-09-24: local authentication sessions, local data, local-only registration, and Tencent SES email are active. The authorized 163.com inbox completed both the verification and password-reset links; the server confirmed both one-time tokens were consumed and a local password exists. Firebase remains only as the first-login compatibility bridge for existing accounts that have not yet established a local password.
@@ -71,6 +55,13 @@
 - 教学质量后续重点：服务器当前没有配置智谱密钥，本轮未覆盖 GLM-5.2 与供应商回退；随机组卷仍需教师核验答案、条件和分值。
 
 ## Deployment History
+
+- **2026-09-30（关闭使用事件采集、统计隐私修复与政策确认，已上线）**：
+  - 前端不发送使用事件、不创建统计访问标识；腾讯和 Firebase 旧 track 入口均直接拒绝新增事件。历史 summary 按 UID 关联当前用户资料，不从事件读取姓名、学校、邮箱、手机号；原有登录及管理员判定保留。
+  - 政策改为现有网站服务说明，移除研究参与/暂停/未来恢复及“尚未生效”草稿冲突。注册、个人区域、页脚统一政策确认；版本 `2026-09-30.1`，资源 `20260930-privacy-service`，SW `20260930-v30`。实际联系留言入口可打开；服务器元数据确认腾讯云中国香港，未将未核实的服务商事项或未启用的自动清理写成承诺。
+  - 发布提交 `226fd57`；release `/home/ubuntu/t-training/releases/20260930-privacy-226fd57`；备份 `/home/ubuntu/t-training/backups/20260930-pre-privacy-226fd57`。静态、API、Nginx 和数据库备份已核验；迁移只给现有用户表增加可空 `privacy_json`，498 条资料数量不变，未替旧用户补填同意。
+  - 全量本地检查通过；浏览器验证未勾选拒绝、确认版本/时间、联系入口和注册单一勾选。候选 3002、正式 3001 和公网各 13 项接口检查通过；公网生产检查 114 项通过，157 个静态文件与 29 个 API 文件哈希一致。两个 Nginx 生效配置切回 3001；教师站、教育媒体课程站 200，旧域名保留路径和参数 302。
+  - 未发邮件、未创建真实测试账号、未调用模型；历史数据清理及自动到期删除均未执行。Firestore 规则未发布。正式发布包和回退备份保留，候选进程/切换副本/临时脚本和本地打包文件已清理；PM2 清单已保存，systemd active/enabled，MainPID 有效。用户要求的 8767 本地预览保留。
 
 - **2026-09-28（工作台视觉优化第一批，已上线）**：
   - `agents.html` 将可选教学背景收进原生折叠区，保留当前项目标题；去掉表单内重复的人物介绍与 BRIEF 标签，生成按钮直接标明交付物。手机表单使用 16px 输入字号、并排学科/年级与更大操作区域；仅表单助手精简手机顶部介绍，对话助手保留原结构。
@@ -435,7 +426,7 @@ match /agent_usage/{agentId} {
 - `js/site-copy.js` — 12 个页面的可编辑关键文案注册表。每个页面只接受显式字段，包含中文后台标签、长度上限和代码默认值；`load()` 生产优先读取 `/api/content?type=pageCopy&id=...`，本地预览读取隔离存储，失败时静默回退默认值。普通页面用 `applyToDocument()` 更新带 `data-site-copy*` 标记的文本；新增或改字段时必须同步这里、页面标记、后台表单和 `firestore.rules`。
 - `js/firebase-config.js` — initializes Firebase, exposes `auth` and `db`, defines `_currentUser`, `onAuthReady`, dispatches `authChanged` events.
 - `js/auth.js` — `Auth` object (login/register/logout, getIdToken, **`sendPasswordReset`**), `renderNav` / `renderFooter` (every page calls these), `requireLogin`, `showAuthModal`, `showWelcomeOverlay`, **hamburger drawer state** (`openNavDrawer` / `closeNavDrawer`). The auth modal has **three views** toggled by `switchAuthTab('login'|'register'|'forgot')`: login (`#form-li`, with a 「忘记密码？」link), register (`#form-rg`), and **forgot-password (`#form-fp`, added 2026-06-17)**. Forgot flow: `handleForgotPassword()` → `Auth.sendPasswordReset(identifier)` → Firebase `auth.sendPasswordResetEmail`. **Phone-number accounts are rejected client-side** (their `tel_…@xylaoshi.tel` address can't receive mail — they must contact admin). Result shows in `#fp-msg` styled `.form-success` (green) or `.form-error` (red). The Firebase project has **email-enumeration protection ON**, so a reset for an *unregistered* email also returns success (no account leak) — only real accounts actually receive mail. Reset link lands on Firebase's own hosted reset page (no custom page needed).
-- `js/analytics.js` — 前端统计入口，先加载 `js/analytics-policy.js` 过滤既有事件，个人资料仅发送 uid；创建本机随机访客/会话编号，等待 `onAuthReady` 后向 `/api/analytics` 发送 `{action:'track',event,idToken}`。不得恢复任意文本、完整来源或网址参数上报；统计失败不能影响页面功能。规则脚本必须同时进入腾讯前端与 API 打包白名单。阶段一改动仅本地待部署。
+- `js/analytics.js` — 已上线的无操作兼容入口：不发送事件、不创建访问标识，并移除旧统计标识；既有页面可继续调用 `Analytics.track` 而不产生记录。服务端两条 track 路径同样关闭；不得因政策确认恢复。
 - `js/teaching-projects.js` — local-first teaching context and recovery layer. Stores the active project, default subject/grade profile, and up to 8 project-scoped agent drafts per logged-in user in `localStorage`. It never sends prompt/output text to analytics; saved workbook items receive only project/review metadata inside `inputs`.
 - `js/assistant.js` — floating AI-assistant launcher + the contact-feedback modal that writes to `contact_messages`; also contains the Netlify legacy-domain migration notice gated to `xylaoshi.netlify.app`.
 
