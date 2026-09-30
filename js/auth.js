@@ -678,7 +678,7 @@ function showAuthModal(tab) {
                 </div>
                 <div class="form-group"><label class="form-label" for="rg-email">邮箱 *</label><input type="email" id="rg-email" class="form-input" autocomplete="email" inputmode="email" maxlength="254" required aria-required="true" aria-describedby="rg-email-hint" placeholder="填写您能收到邮件的邮箱"><p id="rg-email-hint" class="auth-email-hint">注册后需要点击邮件中的验证链接，才能使用网站功能。邮箱也用于找回密码。</p></div>
                 <div class="form-group"><label class="form-label" for="rg-pwd">密码 *</label><input type="password" id="rg-pwd" class="form-input" autocomplete="new-password" minlength="6" maxlength="128" required aria-required="true" placeholder="至少 6 位"></div>
-                <label class="privacy-choice"><input id="rg-privacy" type="checkbox" required> <span>我已阅读并同意<a href="/privacy" target="_blank" rel="noopener">隐私政策（新窗口）</a></span></label>
+                <label class="privacy-choice"><input id="rg-privacy" type="checkbox" required> <span>我已阅读并同意<a href="/privacy" target="_blank" rel="noopener">隐私政策</a></span></label>
                 <div id="rg-err" class="form-error" role="alert" aria-live="assertive" style="display:none"></div>
                 <div style="margin-top:20px"><button class="btn-primary" id="rg-btn" onclick="handleRegister()">创建账号</button></div>
                 <p class="modal-footer-text">已有账号？<button onclick="switchAuthTab('login')">立即登录</button></p>
