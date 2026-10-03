@@ -56,7 +56,7 @@ check((await get('messages', 'admin', f.teacherToken)).status === 403, '普通�
 check((await post({ action: 'updateAnnouncement', id: 'a', title: '越权' }, f.teacherToken)).status === 403, '普通用户不能修改');
 check((await get('tools', 'admin', 'invalid')).status === 401, '无效登录拒绝');
 check((await post({ action: 'listUsers' }, f.token, usersPost)).users.length === 2, '用户列表来自腾讯账号表');
-check((await post({ action: 'deleteUser', uid: 'teacher' }, f.token, usersPost)).status === 409, '删除账号仍未开放');
+check((await post({ action: 'deleteUser', uid: 'teacher' }, f.token, usersPost)).status === 409, '缺少预览确认不能删除账号');
 await f.setReadFailure('tools');
 check((await get('tools')).status === 503, '数据库错误不返回假空列表');
 await f.setReadFailure('');

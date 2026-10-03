@@ -194,11 +194,42 @@ export async function updateEmailState(env, uid, email, emailVerified) {
     `, [normalizeEmail(email), uid]);
 }
 
+export function deletedAccountKey(uid) {
+    return `deleted-account:${crypto.createHash('sha256').update(String(uid)).digest('hex')}`;
+}
+
+// Serialize deletion, legacy import and owned-content writes for the same UID.
+export async function withAccountTransaction(env, uid, work) {
+    const connection = await getPool(env).getConnection();
+    const lock = crypto.createHash('sha256').update(`${env.T_TRAINING_DB_NAME || 't_training_migration'}:account:${uid}`).digest('hex');
+    let locked = false;
+    try {
+        const [rows] = await connection.execute('SELECT GET_LOCK(?, 5) AS acquired', [lock]);
+        locked = Number(rows[0]?.acquired) === 1;
+        if (!locked) throw Object.assign(new Error('账号正在处理中，请稍后重试'), { statusCode: 409 });
+        await connection.beginTransaction();
+        const result = await work(connection);
+        await connection.commit();
+        return result;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        try { if (locked) await connection.execute('SELECT RELEASE_LOCK(?)', [lock]); }
+        finally { connection.release(); }
+    }
+}
+
 export async function upsertFirebaseAccount(env, authData, profile = {}) {
     const uid = cleanText(authData.localId || authData.user_id || '', 128);
     if (!uid) throw new Error('Firebase 账号缺少 UID');
     const email = normalizeEmail(authData.email || profile.email || '');
-    await getPool(env).execute(`
+    await withAccountTransaction(env, uid, async connection => {
+    const [deleted] = await connection.execute('SELECT meta_key FROM migration_meta WHERE meta_key = ?', [deletedAccountKey(uid)]);
+    if (deleted.length) throw Object.assign(new Error('账号已删除，请重新注册'), { statusCode: 401, code: 'ACCOUNT_DELETED' });
+    const [duplicates] = await connection.execute('SELECT uid FROM auth_users WHERE email = ? AND uid <> ? LIMIT 1', [email, uid]);
+    if (duplicates.length) throw Object.assign(new Error('账号或密码错误'), { statusCode: 400, code: 'INVALID_LOGIN_CREDENTIALS' });
+    await connection.execute(`
         INSERT INTO auth_users
           (uid, email, display_name, email_verified, disabled, phone_number,
            created_at_iso, last_login_at_iso, last_refresh_at_iso, password_updated_at_iso,
@@ -215,14 +246,15 @@ export async function upsertFirebaseAccount(env, authData, profile = {}) {
         cleanText(authData.passwordUpdatedAt || '', 64), cleanText(authData.validSince || '', 64), JSON.stringify(authData)
     ]);
     if (profile && (profile.name || profile.school || profile.phone || profile.email)) {
-        await upsertProfile(env, uid, { ...profile, email: email || profile.email || '' });
+        await upsertProfile(env, uid, { ...profile, email: email || profile.email || '' }, connection);
     }
+    });
     return findUserByUid(env, uid);
 }
 
-export async function upsertProfile(env, uid, profile) {
+export async function upsertProfile(env, uid, profile, connection = getPool(env)) {
     const user = profile || {};
-    await getPool(env).execute(`
+    await connection.execute(`
         INSERT INTO user_profiles (uid, name, email, phone, school, is_admin, joined_at_iso, raw_json)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE

@@ -400,9 +400,9 @@
                     <h2 style="font-size:1.3rem;font-weight:800">用户列表</h2>
                     <span style="font-size:13px;color:#94a3b8" id="user-count"></span>
                 </div>
-                <p style="color:#64748b;margin-bottom:16px">此处查看腾讯服务器上的注册用户，暂不提供账号删除。</p>
+                <p style="color:#64748b;margin-bottom:16px">注册出错且没有作品的账号，可删除后重新注册。已有备课本或投稿的账号会受到保护。</p>
                 <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
-                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -413,6 +413,22 @@
 </div>
 
 <!-- ===== MODALS ===== -->
+<div class="modal-admin" id="delete-user-modal" role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
+    <div class="modal-box" style="padding:24px">
+        <h3 id="delete-user-title" style="margin-bottom:16px">删除账号并允许重新注册</h3>
+        <div id="delete-user-details"></div>
+        <p id="delete-user-status" role="status" style="margin:12px 0"></p>
+        <div id="delete-user-confirm-fields" hidden>
+            <p style="margin:12px 0">此操作不可恢复，将删除账号和个人资料，使原登录及邮箱操作链接失效。历史留言和使用记录保留。</p>
+            <label class="form-label" for="delete-user-confirm">请输入上方显示的账号，确认删除</label>
+            <input class="form-input" id="delete-user-confirm" autocomplete="off" oninput="updateUserDeleteButton()">
+        </div>
+        <div style="display:flex;gap:12px;margin-top:20px">
+            <button class="reject-btn" id="delete-user-submit" onclick="confirmUserDeletion()" disabled>确认删除账号</button>
+            <button class="btn-secondary" onclick="closeModal('delete-user-modal')">取消</button>
+        </div>
+    </div>
+</div>
 <!-- Announcement modal -->
 <div class="modal-admin" id="ann-modal">
     <div class="modal-box" onclick="event.stopPropagation()">
@@ -2072,6 +2088,7 @@ async function renderUsersTable() {
             <td style="color:#64748b">${escapeHTML(u.email || (u.phone ? '手机:' + u.phone : '—'))}</td>
             <td style="color:#64748b">${escapeHTML(u.school) || '—'}</td>
             <td style="color:#94a3b8;font-size:12px">${new Date(u.joinedAt).toLocaleDateString('zh-CN')}</td>
+            <td>${u.isAdmin ? '管理员（不可删除）' : `<button class="reject-btn" onclick="previewUserDeletion(${i})">删除账号</button>`}</td>
         </tr>`).join('');
 }
 
@@ -2079,6 +2096,64 @@ async function getAdminUsers() {
     const data = await callAdminUsersFunction({ action: 'listUsers' });
     if (!Array.isArray(data.users)) throw new Error('用户列表返回格式不正确，请重试');
     return data.users;
+}
+
+let userDeletionPreview = null, userDeletionSequence = 0, userDeletionBusy = false;
+function updateUserDeleteButton() {
+    document.getElementById('delete-user-submit').disabled = userDeletionBusy || !userDeletionPreview || userDeletionPreview.blocked
+        || document.getElementById('delete-user-confirm').value !== userDeletionPreview.confirmation;
+}
+async function previewUserDeletion(index) {
+    if (userDeletionBusy) return;
+    const user = _adminUsers[index];
+    if (!user || user.isAdmin) return;
+    const sequence = ++userDeletionSequence;
+    userDeletionPreview = null;
+    document.getElementById('delete-user-confirm').value = '';
+    document.getElementById('delete-user-confirm-fields').hidden = true;
+    document.getElementById('delete-user-details').textContent = '';
+    document.getElementById('delete-user-status').textContent = '正在核对账号及关联内容…';
+    document.getElementById('delete-user-submit').textContent = '确认删除账号';
+    updateUserDeleteButton();
+    document.getElementById('delete-user-modal').classList.add('active');
+    try {
+        const result = await callAdminUsersFunction({ action: 'previewDeleteUser', uid: user.uid });
+        if (sequence !== userDeletionSequence) return;
+        if (result.user?.uid !== user.uid || !result.content || typeof result.confirmation !== 'string') throw new Error('账号核对结果异常，请刷新后重试');
+        userDeletionPreview = result;
+        document.getElementById('delete-user-details').innerHTML = `<p>姓名：${escapeHTML(result.user.name)}</p><p>账号：${escapeHTML(result.confirmation)}</p><p>单位：${escapeHTML(result.user.school || '—')}</p><p>备课本 ${Number(result.content.works)} 条 · 投稿 ${Number(result.content.posts)} 条 · 其他内容 ${Number(result.content.other)} 条</p>`;
+        document.getElementById('delete-user-status').textContent = result.blocked
+            ? '该账号已有内容，本次不能删除。请先核实需要保留或处理的作品。'
+            : '没有关联作品。删除后可使用原邮箱重新注册，手机账号重新注册仍需填写邮箱。';
+        document.getElementById('delete-user-confirm-fields').hidden = result.blocked;
+        if (!result.blocked) document.getElementById('delete-user-confirm').focus();
+        updateUserDeleteButton();
+    } catch (error) {
+        if (sequence === userDeletionSequence) document.getElementById('delete-user-status').textContent = '核对失败：' + error.message;
+    }
+}
+async function confirmUserDeletion() {
+    const preview = userDeletionPreview;
+    if (userDeletionBusy || !preview || preview.blocked || document.getElementById('delete-user-confirm').value !== preview.confirmation) return;
+    userDeletionBusy = true;
+    updateUserDeleteButton();
+    document.getElementById('delete-user-submit').textContent = '正在删除…';
+    document.getElementById('delete-user-status').textContent = '正在删除，请稍候…';
+    try {
+        const result = await callAdminUsersFunction({ action: 'deleteUser', uid: preview.user.uid, ticket: preview.ticket, confirmation: preview.confirmation });
+        if (result.deleted !== true || result.uid !== preview.user.uid) throw new Error('未确认删除结果，请刷新用户列表核对');
+        userDeletionPreview = null;
+        closeModal('delete-user-modal');
+        showToast('账号已删除，可重新注册');
+        await renderUsersTable();
+    } catch (error) {
+        document.getElementById('delete-user-status').textContent = '删除结果未确认：' + error.message + '。请关闭此窗口，刷新列表后重新核对。';
+        userDeletionPreview = null;
+    } finally {
+        userDeletionBusy = false;
+        document.getElementById('delete-user-submit').textContent = '确认删除账号';
+        updateUserDeleteButton();
+    }
 }
 
 async function callAdminUsersFunction(payload) {
@@ -2090,10 +2165,10 @@ async function callAdminUsersFunction(payload) {
         body: JSON.stringify({ adminIdToken, ...payload })
     });
     const data = await response.json().catch(() => ({}));
-    if (response.status === 404) {
+    if (response.status === 404 && !data.code) {
         throw new Error('用户管理接口不可用，请检查腾讯服务配置后重试');
     }
-    if (!response.ok || data.ok === false) {
+    if (!response.ok || data.ok !== true) {
         throw new Error(data.msg || '用户管理操作失败');
     }
     return data;

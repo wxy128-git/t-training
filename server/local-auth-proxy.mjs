@@ -70,6 +70,7 @@ function errorInfo(code) {
         INVALID_EMAIL: '邮箱格式不正确',
         WEAK_PASSWORD: '密码强度不足，请使用至少 6 位密码',
         USER_DISABLED: '该账号已被停用',
+        ACCOUNT_DELETED: '该账号已由管理员删除，请重新注册',
         TOO_MANY_ATTEMPTS_TRY_LATER: '请求过于频繁，请稍后重试',
         INVALID_ID_TOKEN: '登录状态已过期，请重新登录',
         TOKEN_EXPIRED: '登录状态已过期，请重新登录',
@@ -204,18 +205,28 @@ async function refreshLocalOrFirebase(env, refreshToken) {
 async function completeFirebaseEmailAction(env, mode, oobCode, newPassword) {
     if (mode === 'resetPassword') {
         const result = await callFirebaseAuth('accounts:resetPassword', newPassword ? { oobCode, newPassword } : { oobCode });
+        const row = result.email ? await legacyEmailTarget(env, result) : null;
         if (newPassword && result.email) {
-            const row = await findUserByEmail(env, result.email);
             if (row) await setLocalPassword(env, row.uid, newPassword);
         }
         return { email: result.email, msg: newPassword ? '密码已更新，请使用新密码登录' : '链接有效，请设置新密码', needsPassword: !newPassword };
     }
     const result = await callFirebaseAuth('accounts:update', { oobCode });
     if (result.email || result.localId) {
-        const row = result.localId ? await findUserByUid(env, result.localId) : await findUserByEmail(env, result.email);
+        const row = await legacyEmailTarget(env, result);
         if (row) await updateLocalRecovery(env, row.uid, result.email || row.email, true);
     }
     return { email: result.email, msg: mode === 'recoverEmail' ? '邮箱地址已恢复，请重新登录' : '邮箱验证成功，请返回网站登录或继续使用', needsPassword: false };
+}
+
+async function legacyEmailTarget(env, result) {
+    const row = result.localId ? await findUserByUid(env, result.localId) : await findUserByEmail(env, result.email);
+    let localAccount = false;
+    try { localAccount = JSON.parse(row?.raw_json || '{}').local === true; } catch {}
+    // A reused email must not let an old Firebase email link change the new
+    // Tencent account's password or verified state. New Tencent links are unaffected.
+    if (localAccount) throw Object.assign(new Error('旧邮箱链接已失效，请重新申请'), { statusCode: 400, code: 'INVALID_OOB_CODE' });
+    return row;
 }
 
 async function updateLocalRecovery(env, uid, email, verified) {

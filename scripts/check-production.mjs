@@ -58,6 +58,7 @@ if (adminPage) {
     assert(adminPage.status === 200 && body.includes('js/data.js?v=20261003-tencent-admin'), '腾讯后台当前版本未上线');
     assert(!body.includes('onclick="seedDatabase()"') && !body.includes('onclick="deleteUserByIdentifier()"'), '后台仍显示旧库初始化或认证清理入口');
     assert(body.includes('后台内容统一保存在腾讯服务器'), '后台数据路径提示未更新');
+    assert(body.includes('id="delete-user-modal"') && body.includes('previewUserDeletion') && body.includes('confirmUserDeletion'), '账号删除核对窗口未上线');
 }
 
 const pwaScript = await request('/js/pwa.js?v=20260924-local-email-direct');
@@ -101,7 +102,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261003-v33'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261003-v34'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 

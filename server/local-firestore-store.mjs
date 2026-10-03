@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { getPool, readLocalAccessToken, assertCanUseFeatures, publicUser } from './local-auth-store.mjs';
+import { getPool, readLocalAccessToken, assertCanUseFeatures, publicUser, withAccountTransaction } from './local-auth-store.mjs';
 
 // A dedicated connection makes each admin operation all-or-nothing. The database
 // lock serializes admin writers, including edits submitted from different tabs.
@@ -81,6 +81,14 @@ export async function getDocument(env, collectionName, documentId) {
 }
 
 export async function upsertDocument(env, collectionName, documentId, data, options = {}) {
+    const owner = collectionName === 'works' ? data.uid : collectionName === 'community_prompts' ? data.authorId : collectionName === 'contact_messages' ? data.userId : '';
+    if (owner && !options.skipOwnerCheck && !documentTransaction.getStore()) {
+        return withAccountTransaction(env, owner, async connection => {
+            const [users] = await connection.execute('SELECT uid FROM auth_users WHERE uid = ? FOR UPDATE', [owner]);
+            if (!users.length) throw Object.assign(new Error('账号已不存在，请重新登录'), { statusCode: 401, code: 'INVALID_ID_TOKEN' });
+            return documentTransaction.run(connection, () => upsertDocument(env, collectionName, documentId, data, { ...options, skipOwnerCheck: true }));
+        });
+    }
     const fields = options.typedFields ? data : encodeFields(data);
     const now = new Date().toISOString();
     const documentName = options.documentName || `projects/xylaoshi-28f6c/databases/(default)/documents/${collectionName}/${documentId}`;

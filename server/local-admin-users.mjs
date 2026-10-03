@@ -1,5 +1,6 @@
 import { localFeatureSession } from './local-firestore-store.mjs';
-import { getPool, findUserByUid, publicUser } from './local-auth-store.mjs';
+import { getPool, publicUser } from './local-auth-store.mjs';
+import { previewAccountDeletion, deleteEmptyAccount } from './local-account-deletion.mjs';
 
 const CORS_HEADERS = { 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 function response(status, body) { return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...CORS_HEADERS } }); }
@@ -7,7 +8,7 @@ function adminOnly(session) { if (!session.user.isAdmin) { const error = new Err
 export async function onRequestOptions() { return new Response(null, { status: 204, headers: CORS_HEADERS }); }
 export async function onRequestPost({ request, env }) {
     let payload; try { payload = await request.json(); } catch { return response(400, { ok: false, msg: '请求格式不正确' }); }
-    if (!['listUsers', 'deleteUser'].includes(payload.action)) return response(400, { ok: false, msg: '未知管理操作' });
+    if (!payload || !['listUsers', 'previewDeleteUser', 'deleteUser'].includes(payload.action)) return response(400, { ok: false, msg: '未知管理操作' });
     try {
         const session = await localFeatureSession(env, payload.adminIdToken);
         adminOnly(session);
@@ -26,8 +27,10 @@ export async function onRequestPost({ request, env }) {
         const targetUid = String(payload.uid || '').trim();
         if (!targetUid) return response(400, { ok: false, msg: '迁移后的管理接口需要用户 UID' });
         if (targetUid === session.user.uid) return response(400, { ok: false, msg: '不能删除当前管理员账号' });
-        if (!await findUserByUid(env, targetUid)) return response(404, { ok: false, msg: '没有找到这个账号' });
-        // Account deletion is deliberately unavailable until its full lifecycle is designed.
-        return response(409, { ok: false, code: 'MIGRATION_DELETE_PENDING', msg: '当前未开放账号删除，请保留账号；后台已撤下此入口。' });
+        if (targetUid.length > 128) return response(400, { ok: false, msg: '账号编号无效' });
+        const result = payload.action === 'previewDeleteUser'
+            ? await previewAccountDeletion(env, session.user.uid, targetUid)
+            : await deleteEmptyAccount(env, session.user.uid, { ...payload, uid: targetUid });
+        return response(200, { ok: true, ...result });
     } catch (error) { return response(error.statusCode || 500, { ok: false, msg: error.message || '用户管理服务暂时不可用', code: error.code }); }
 }

@@ -8,6 +8,8 @@ import { adminFixture } from './fixtures/admin-store.mjs';
 import * as content from '../server/local-content.mjs';
 import * as users from '../server/local-admin-users.mjs';
 const f = await adminFixture();
+f.users.push({uid:'teacher-with-work',name:'有作品的演示教师',email:'author@example.invalid',email_verified:1,school:'演示学校',joined_at_iso:'2026-10-01T00:00:00Z'});
+f.seed('works','protected-work',{uid:'teacher-with-work',title:'演示备课本',content:'此作品应受到保护'});
 const root = fileURLToPath(new URL('../', import.meta.url));
 for (const [collection, id, data] of [
     ['tools','demo-tool',{name:'演示工具',desc:'仅供本地验收',url:'https://example.invalid',order:0}],

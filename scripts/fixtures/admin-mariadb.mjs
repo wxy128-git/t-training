@@ -36,7 +36,12 @@ export async function adminFixture() {
         const token = (await issueLocalSession(env, adminUid)).idToken;
         const teacherToken = (await issueLocalSession(env, 'teacher')).idToken;
         return { env, token, teacherToken, realDatabase: true, cleanup,
-            seed: (collection,id,data) => upsertDocument(env,collection,id,data),
+            seedAction: async (id, uid) => pool.execute("INSERT INTO auth_action_tokens (token_hash,uid,action_type,target_email,expires_at,created_at,metadata_json) VALUES (?,?,'verify_email','teacher@example.invalid',DATE_ADD(NOW(),INTERVAL 1 HOUR),NOW(),'{}')", [id,uid]),
+            setDeleteFailure: async fail => {
+                await pool.query('DROP TRIGGER IF EXISTS qa_fail_delete');
+                if (fail) await pool.query("CREATE TRIGGER qa_fail_delete BEFORE DELETE ON auth_users FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='QA deletion failure'");
+            },
+            seed: (collection,id,data) => upsertDocument(env,collection,id,data,{skipOwnerCheck:true}),
             setWriteFailure: async id => {
                 await pool.query('DROP TRIGGER IF EXISTS qa_fail_write');
                 if (id) {

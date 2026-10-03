@@ -1,4 +1,6 @@
 // Legacy Firebase data route; Tencent production uses server/local-admin-users.mjs.
+// Tencent deletion preview/confirmation and deleted-UID guards are not supported here.
+// This retired data route must not be enabled as an automatic fallback.
 // Not an automatic fallback for the current admin UI; rollback requires separate validation.
 import '../../js/account-policy.js';
 const FIREBASE_API_KEY = 'AIzaSyBx7adowufG1syf9ryrsFhywcVMS-sWxWo';
