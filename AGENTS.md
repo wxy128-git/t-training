@@ -37,13 +37,13 @@
 - Frontend always calls these via `/api/...` paths.
 - `resource-logo` — 管理员新增或编辑课件素材时，通过 `/api/resource-logo` 自动读取公开网站的 favicon / Apple Touch Icon，或上传不超过 320KB 的 PNG、JPG、WebP、GIF、ICO。服务端拒绝内网地址、特殊端口和未识别格式，把内容哈希命名的图片保存到腾讯服务器共享目录 `/home/ubuntu/t-training/shared/resource-logos`，再以长缓存的本站 URL 返回；共享目录不随 release 目录交换而删除。
 
-## Local Changes Pending Deployment
+## Current Notes
 
-- **2026-10-03 腾讯管理后台适配，本地完成，未部署**：`admin.html` / `js/data.js` 管理读写统一同源腾讯接口，失败不得退回 Firebase、默认列表或假空列表；概览独立显示栏目错误，可重试。账号删除、旧认证清理、旧库初始化入口已撤下，管理员 UID 判定及登录未改。
+- **2026-10-03 腾讯管理后台适配已上线**：`admin.html` / `js/data.js` 管理读写统一同源腾讯接口，失败不得退回 Firebase、默认列表或假空列表；概览独立显示栏目错误，可重试。账号删除、旧认证清理、旧库初始化入口已撤下，管理员 UID 判定及登录未改。
 - `server/local-content.mjs` 的留言仅更新 handled，公告保留创建时间；工具/提示词/路径/素材整批保存必须提交读取时 revision，旧版本返回 409。整批操作不静默截断，最多 2000 条；`server/local-firestore-store.mjs` 使用独立连接、数据库命名锁及事务，失败回滚；嵌套数组不再截断为 100 项。资源分类保存/删除同样校验版本。私人列表禁止缓存，社区公开读取只返回审核通过内容。
 - 旧 `functions/api/content.js` / `admin-users.js` 已标注兼容路径，不实现腾讯专用事务，不可作为当前后台自动备用；回退旧环境需单独验证。历史架构中的“后台直接读 Firestore”不适用于本轮本地版本。
 - 本地最终 `npm run check` 全部通过，后台客户端 30 项、腾讯后台行为 29 项；浏览器完成留言、工具保存、故障与恢复、用户列表验收。已在腾讯服务器随机命名、专属账号的独立真实 MariaDB 测试库通过 29 项检查，包含事务回滚、并发冲突及跨连接命名锁；测试库、测试账号已自动清理。使用采集仍关闭、未新增研究功能、未修改生产数据。
-- 本地演示 `npm run preview:admin` → `http://127.0.0.1:8768/admin`，仅虚构数据，结束 Ctrl+C；本轮测试服务已停止。共享 data.js `20261003-tencent-admin`，Service Worker `20261003-v33`，均为待发布版本。详见 `reports/2026-10-03-tencent-admin.md`。
+- 本地演示 `npm run preview:admin` → `http://127.0.0.1:8768/admin`，仅虚构数据，结束 Ctrl+C；本轮测试服务已停止。共享 data.js `20261003-tencent-admin`，Service Worker `20261003-v33`，已随本次发布上线。详见 `reports/2026-10-03-tencent-admin.md`。
 
 
 
@@ -65,6 +65,12 @@
 - 教学质量后续重点：服务器当前没有配置智谱密钥，本轮未覆盖 GLM-5.2 与供应商回退；随机组卷仍需教师核验答案、条件和分值。
 
 ## Deployment History
+
+- **2026-10-03（腾讯管理后台适配，已上线）**：
+  - 发布提交 `a9d02b0`。后台内容读写统一走腾讯 MariaDB 适配层；留言状态更新、公告编辑、整批列表保存增加字段保留、版本冲突、事务回滚和跨连接命名锁；账号删除、旧认证清理和旧库初始化入口撤下。Firebase 旧函数只保留兼容说明，不作为当前后台自动备用。
+  - 真实 MariaDB 隔离测试库通过 29 项；本地 `npm run check` 全部通过；候选 API 3002 健康、工具和内容检查通过。正式目录 `/home/ubuntu/t-training/app`、`/var/www/t-training` 已更新；正式 API `t-training-api` 在 3001 重启后在线，Nginx 两份配置已切回 3001。
+  - 回滚备份 `/home/ubuntu/t-training/backups/20261003-admin-a9d02b0`；发布目录 `/home/ubuntu/t-training/releases/t-training-admin-release-20261003`。157 个静态文件、29 个 API 文件随部署包发布；候选进程和临时目录已清理，PM2 已保存，`pm2-ubuntu` active。
+  - 公网 `node scripts/check-production.mjs https://ai.teachailab.com/` 通过 117 项；首页、后台和工具接口 200，旧 Cloudflare 地址保留路径参数 302。未创建生产测试账号、未发邮件、未调用模型、未写业务数据。
 
 - **2026-10-01（老用户政策确认无响应修复，已上线）**：
   - 根因：弹窗读取与登录/可见性刷新共用请求序号，刷新能让弹窗响应失效且按钮持续禁用；保存时缺少进度，成功仅更新小字且弹窗不关闭。现分离请求生命周期，同账号刷新不打断弹窗，12 秒超时恢复重试；保存中明确反馈，成功关闭并提示“已确认隐私政策”，旧响应不影响新弹窗/其他账号。
@@ -439,7 +445,7 @@ match /agent_usage/{agentId} {
 | `news.html` | RSS-aggregated industry news. Nav display name **「AI 资讯」** (renamed 2026-06-16 from "全球资讯"; key stays `news`) |
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
-| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, **页面文案**, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users。「页面文案」以 `js/site-copy.js` 的固定字段呈现 12 个页面，支持预览、保存和恢复本地默认值；生产写入 `page_copy`，本地预览写入隔离的浏览器存储。数据看板从 `/api/analytics` 拉取汇总；阶段一待发布版本的姓名/学校/账号统一由 summary 按 uid 关联取得。新增用户继续使用管理员用户列表的 joinedAt 在前端按天聚合，腾讯生产列表来自本地用户表。 |
+| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, **页面文案**, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users。「页面文案」以 `js/site-copy.js` 的固定字段呈现 12 个页面，支持预览、保存和恢复本地默认值；生产写入 `page_copy`，本地预览写入隔离的浏览器存储。数据看板从 `/api/analytics` 拉取汇总；阶段一版本的姓名/学校/账号统一由 summary 按 uid 关联取得。新增用户继续使用管理员用户列表的 joinedAt 在前端按天聚合，腾讯生产列表来自本地用户表。 |
 | `workspace.html` | **「我的备课本」** — per-user saved agent outputs。Self-gated；logged-in desktop entry lives in the username area，mobile drawer has a separate「我的」group。2026-08-23 使用现代 A4 活页备课夹作为页面结构：藏蓝布纹书脊、金属环、打孔纸、页边和章节签形成真实装订关系；默认成果目录视图支持全部 / 文稿 / 对话 / 核验，原卡片视图保留为横线散页。搜索、教学项目 / 智能体筛选、排序和顶部统计保留；查看、复制、PDF、Word、Markdown、重命名、删除收在页侧菜单，查看成果以“抽出完整活页”的 modal 打开。项目标签与教师核验状态保存在 work 的 `inputs._project*`；reads `works` where `uid == current user`。旧泛化标题继续由 `displayWorkTitle()` / `inferredWorkTitle()` 从 `inputs` 或正文首个 Markdown 标题推断，并用于搜索与导出文件名。 |
 
 ## Key JS Files

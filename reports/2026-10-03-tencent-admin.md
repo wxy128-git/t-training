@@ -1,4 +1,4 @@
-# 腾讯管理后台适配（2026-10-03，本地完成，未部署）
+# 腾讯管理后台适配（2026-10-03，已上线）
 
 ## 完成内容
 
@@ -46,7 +46,7 @@ npm run preview:admin
 
 ## 后续与决策
 
-本轮无新增决策事项。真实 MariaDB 测试已通过，用户已授权发布，当前正在准备上线。以后发布时须配套更新腾讯服务与静态资源；旧页面缺少版本号会被拒绝保存，刷新后台即可。共享 data.js 版本 20261003-tencent-admin，Service Worker 20261003-v33。
+用户已授权发布。提交 `a9d02b0` 已发布到腾讯服务器：正式 API 继续监听 3001，Nginx 两份配置已恢复 3001；回滚备份为 `/home/ubuntu/t-training/backups/20261003-admin-a9d02b0`，发布目录为 `/home/ubuntu/t-training/releases/t-training-admin-release-20261003`。公网检查通过 117 项。候选进程、临时静态目录和隔离测试目录已清理，PM2 已保存。旧页面缺少版本号会被拒绝保存，刷新后台即可；共享 data.js 版本 `20261003-tencent-admin`、Service Worker `20261003-v33` 已上线。
 
 ## 文件清单
 
