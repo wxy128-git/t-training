@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import {
     localFeatureSession,
+    withDocumentTransaction,
     listDocuments,
     getDocument,
     upsertDocument,
@@ -38,7 +39,11 @@ function sortItems(type, items, includeDrafts = false) {
     return items;
 }
 async function adminSession(env, idToken) { const session = await localFeatureSession(env, idToken); assertAdmin(session); return session; }
-function publicCommunityItems(items, status) { return items.filter(item => status ? item.status === status : item.status === 'approved'); }
+function publicCommunityItems(items) { return items.filter(item => item.status === 'approved'); }
+function revision(items) { return crypto.createHash('sha256').update(JSON.stringify([...items].sort((a, b) => a.id.localeCompare(b.id)))).digest('hex'); }
+function assertRevision(expected, items) {
+    if (!expected || expected !== revision(items)) throw Object.assign(new Error('内容已变化或尚未完整加载，请重新打开此栏目后再保存；当前表单仍保留'), { statusCode: 409, code: 'CONTENT_CONFLICT' });
+}
 
 export async function onRequestOptions() { return new Response(null, { status: 204, headers: CORS_HEADERS }); }
 
@@ -55,24 +60,24 @@ export async function onRequestGet({ request, env }) {
         try { session = includeDrafts || ADMIN_TYPES.has(type) ? await adminSession(env, idToken) : await localFeatureSession(env, idToken); }
         catch (error) { return response(error.statusCode || 401, { ok: false, msg: error.message || '没有访问权限', code: error.code }); }
     }
-    if (type === 'communityPrompts' && !includeDrafts && scope !== 'mine') {
+    if (!id && type === 'communityPrompts' && !includeDrafts && scope !== 'mine') {
         const items = publicCommunityItems(await listDocuments(env, collection), url.searchParams.get('status') || 'approved');
         return response(200, { ok: true, type, count: items.length, items: sortItems(type, items) }, { 'Cache-Control': 'public, max-age=60', 'X-Cache': 'LOCAL' });
     }
     const key = `${type}:${id || 'list'}:${includeDrafts ? 'admin' : 'public'}`; const now = Date.now(); const cached = cache.get(key);
-    if (!id && cached && now - cached.savedAt < CACHE_TTL_MS) return response(200, cached.body, { ...headers, ...CORS_HEADERS, 'X-Cache': 'HIT', 'Cache-Control': 'public, max-age=120, s-maxage=600' });
+    if (!session && !id && cached && now - cached.savedAt < CACHE_TTL_MS) return response(200, cached.body, { ...headers, ...CORS_HEADERS, 'X-Cache': 'HIT', 'Cache-Control': 'public, max-age=120, s-maxage=600' });
     try {
         if (id) {
             const item = await getDocument(env, collection, id);
-            if (!item || (type === 'articles' && !includeDrafts && item.status !== 'published')) return response(type === 'pageCopy' ? 200 : 404, type === 'pageCopy' ? { ok: true, item: null } : { ok: false, msg: '内容不存在' }, { 'Cache-Control': 'no-store' });
-            return response(200, { ok: true, type, item }, type === 'pageCopy' ? { 'Cache-Control': 'no-store', 'X-Cache': 'BYPASS' } : { 'X-Cache': 'LOCAL' });
+            if (!item || (scope === 'mine' && item.authorId !== session.user.uid) || (type === 'communityPrompts' && !includeDrafts && scope !== 'mine' && item.status !== 'approved') || (type === 'articles' && !includeDrafts && item.status !== 'published')) return response(type === 'pageCopy' ? 200 : 404, type === 'pageCopy' ? { ok: true, item: null } : { ok: false, msg: '内容不存在' }, { 'Cache-Control': 'no-store' });
+            return response(200, { ok: true, type, item }, { 'Cache-Control': 'no-store', 'X-Cache': 'BYPASS' });
         }
         let items = await listDocuments(env, collection);
         if (scope === 'mine' && session) items = items.filter(item => item.authorId === session.user.uid);
         if (type === 'communityPrompts' && !includeDrafts && scope !== 'mine') items = publicCommunityItems(items, url.searchParams.get('status') || 'approved');
-        const body = { ok: true, type, count: items.length, items: sortItems(type, items, includeDrafts) };
-        if (!ADMIN_TYPES.has(type) && !includeDrafts) cache.set(key, { body, savedAt: now });
-        return response(200, body, { 'X-Cache': 'LOCAL', 'Cache-Control': includeDrafts ? 'no-store' : 'public, max-age=120, s-maxage=600' });
+        const body = { ok: true, type, count: items.length, ...(includeDrafts ? { revision: revision(items) } : {}), items: sortItems(type, items, includeDrafts) };
+        if (!session) cache.set(key, { body, savedAt: now });
+        return response(200, body, { 'X-Cache': 'LOCAL', 'Cache-Control': session ? 'no-store' : 'public, max-age=120, s-maxage=600' });
     } catch { return response(503, { ok: false, msg: '本地内容服务暂时不可用' }, { 'Cache-Control': 'no-store' }); }
 }
 
@@ -81,27 +86,48 @@ function cleanArticle(data, existing = {}) {
     const value = object(data);
     return { ...existing, ...value, title: text(value.title || existing.title, 200), excerpt: text(value.excerpt || existing.excerpt, 800), content: text(value.content || existing.content, 240000), status: ['draft', 'published'].includes(value.status || existing.status) ? (value.status || existing.status) : 'draft', updatedAt: new Date().toISOString() };
 }
-async function replaceCollection(env, type, items) {
-    const collection = collectionFor(type); const existing = await listDocuments(env, collection); const nextIds = new Set();
-    for (const [index, raw] of (Array.isArray(items) ? items : []).slice(0, 300).entries()) {
-        const value = object(raw); const id = text(value.id, 180) || crypto.randomUUID().replaceAll('-', ''); nextIds.add(id);
-        await upsertDocument(env, collection, id, { ...value, id, order: Number.isFinite(Number(value.order)) ? Number(value.order) : index });
-    }
-    for (const row of existing) if (!nextIds.has(row.id)) await deleteDocument(env, collection, row.id);
+async function replaceCollection(env, type, items, expectedRevision) {
+    if (!Array.isArray(items) || items.length > 2000) throw Object.assign(new Error('列表格式不正确或超过 2000 条，请分批整理，未保存任何内容'), { statusCode: 400 });
+    const nextIds = new Set();
+    const normalized = items.map((value, index) => {
+        if (!value || Array.isArray(value) || typeof value !== 'object' || !validId(value.id) || nextIds.has(String(value.id).toLowerCase())) {
+            throw Object.assign(new Error('列表编号缺失、重复或无效，未保存任何内容'), { statusCode: 400 });
+        }
+        const id = String(value.id); nextIds.add(id.toLowerCase());
+        return { ...value, id, order: Number.isFinite(Number(value.order)) ? Number(value.order) : index };
+    });
+    const collection = collectionFor(type); const existing = await listDocuments(env, collection);
+    assertRevision(expectedRevision, existing);
+    for (const value of normalized) await upsertDocument(env, collection, value.id, value);
+    for (const row of existing) if (!nextIds.has(row.id.toLowerCase())) await deleteDocument(env, collection, row.id);
     clearCache(type);
+    return { revision: revision(await listDocuments(env, collection)) };
+}
+
+async function existingDocument(env, collection, id) {
+    const item = await getDocument(env, collection, id);
+    if (!item) throw Object.assign(new Error('记录已不存在，请刷新列表'), { statusCode: 404 });
+    return item;
 }
 
 async function handleAdminMutation(env, payload) {
-    await adminSession(env, payload.idToken); const action = text(payload.action, 40); const type = text(payload.type, 40);
+    await adminSession(env, payload.idToken);
+    const result = await withDocumentTransaction(env, () => mutateAdminContent(env, payload));
+    cache.clear();
+    return result;
+}
+
+async function mutateAdminContent(env, payload) {
+    const action = text(payload.action, 40); const type = text(payload.type, 40);
     if (action === 'savePageCopy') {
         if (!PAGE_COPY_IDS.has(payload.id)) throw Object.assign(new Error('不支持的页面'), { statusCode: 400 });
         const item = await upsertDocument(env, 'page_copy', payload.id, { fields: cleanPageFields(payload.fields), updatedAt: new Date().toISOString() }); clearCache('pageCopy'); return { item };
     }
-    if (action === 'replaceCollection' && ['tools', 'prompts', 'paths', 'resources'].includes(type)) { await replaceCollection(env, type, payload.items); return {}; }
+    if (action === 'replaceCollection' && ['tools', 'prompts', 'paths', 'resources'].includes(type)) return replaceCollection(env, type, payload.items, payload.revision);
     if (action === 'addAnnouncement') { const id = await createDocument(env, 'announcements', { title: text(payload.title, 200), content: text(payload.content, 10000), createdAt: new Date().toISOString() }); clearCache('announcements'); return { id }; }
     if (['updateAnnouncement', 'deleteAnnouncement'].includes(action)) {
         if (!validId(payload.id)) throw Object.assign(new Error('公告编号无效'), { statusCode: 400 });
-        if (action === 'deleteAnnouncement') await deleteDocument(env, 'announcements', payload.id); else await upsertDocument(env, 'announcements', payload.id, { title: text(payload.title, 200), content: text(payload.content, 10000), updatedAt: new Date().toISOString() });
+        if (action === 'deleteAnnouncement') await deleteDocument(env, 'announcements', payload.id); else await upsertDocument(env, 'announcements', payload.id, { ...await existingDocument(env, 'announcements', payload.id), title: text(payload.title, 200), content: text(payload.content, 10000), updatedAt: new Date().toISOString() });
         clearCache('announcements'); return {};
     }
     if (['addArticle', 'updateArticle', 'deleteArticle'].includes(action)) {
@@ -111,9 +137,10 @@ async function handleAdminMutation(env, payload) {
         clearCache('articles'); return {};
     }
     if (['setResources', 'saveResourceCategory', 'deleteResourceCategory'].includes(action)) {
-        if (action === 'setResources') await replaceCollection(env, 'resources', payload.categories);
-        else { const id = payload.id || payload.category?.id; if (!validId(id)) throw Object.assign(new Error('资源分类编号无效'), { statusCode: 400 }); if (action === 'deleteResourceCategory') await deleteDocument(env, 'resource_categories', id); else { const { id: ignored, ...rest } = object(payload.category); await upsertDocument(env, 'resource_categories', id, rest); } clearCache('resources'); }
-        return {};
+        if (action === 'setResources') return replaceCollection(env, 'resources', payload.categories, payload.revision);
+        assertRevision(payload.revision, await listDocuments(env, 'resource_categories'));
+        { const id = payload.id || payload.category?.id; if (!validId(id)) throw Object.assign(new Error('资源分类编号无效'), { statusCode: 400 }); if (action === 'deleteResourceCategory') await deleteDocument(env, 'resource_categories', id); else { const { id: ignored, ...rest } = object(payload.category); await upsertDocument(env, 'resource_categories', id, rest); } clearCache('resources'); }
+        return { revision: revision(await listDocuments(env, 'resource_categories')) };
     }
     if (['approveCommunityPrompt', 'deleteCommunityPrompt'].includes(action)) {
         if (!validId(payload.id)) throw Object.assign(new Error('提示词编号无效'), { statusCode: 400 });
@@ -122,7 +149,10 @@ async function handleAdminMutation(env, payload) {
     }
     if (['deleteSubscriber', 'updateMessage', 'deleteMessage'].includes(action)) {
         if (!validId(payload.id)) throw Object.assign(new Error('记录编号无效'), { statusCode: 400 }); const collection = action === 'deleteSubscriber' ? 'subscribers' : 'contact_messages';
-        if (action.startsWith('delete')) await deleteDocument(env, collection, payload.id); else await upsertDocument(env, collection, payload.id, object(payload.data)); return {};
+        if (action.startsWith('delete')) await deleteDocument(env, collection, payload.id); else {
+            if (typeof payload.data?.handled !== 'boolean') throw Object.assign(new Error('处理状态无效'), { statusCode: 400 });
+            await upsertDocument(env, collection, payload.id, { ...await existingDocument(env, collection, payload.id), handled: payload.data.handled });
+        } return {};
     }
     throw Object.assign(new Error('未知管理操作'), { statusCode: 400 });
 }

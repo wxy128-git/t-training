@@ -1,4 +1,4 @@
-import { localFeatureSession, listDocuments } from './local-firestore-store.mjs';
+import { localFeatureSession } from './local-firestore-store.mjs';
 import { getPool, findUserByUid, publicUser } from './local-auth-store.mjs';
 
 const CORS_HEADERS = { 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
@@ -27,7 +27,7 @@ export async function onRequestPost({ request, env }) {
         if (!targetUid) return response(400, { ok: false, msg: '迁移后的管理接口需要用户 UID' });
         if (targetUid === session.user.uid) return response(400, { ok: false, msg: '不能删除当前管理员账号' });
         if (!await findUserByUid(env, targetUid)) return response(404, { ok: false, msg: '没有找到这个账号' });
-        // Firebase 仍处于回滚源阶段；删除动作必须等双写切换完成，避免只删一侧造成账号复现。
-        return response(409, { ok: false, code: 'MIGRATION_DELETE_PENDING', msg: '迁移并行阶段暂不执行删除，请完成正式切换后再操作。' });
+        // Account deletion is deliberately unavailable until its full lifecycle is designed.
+        return response(409, { ok: false, code: 'MIGRATION_DELETE_PENDING', msg: '当前未开放账号删除，请保留账号；后台已撤下此入口。' });
     } catch (error) { return response(error.statusCode || 500, { ok: false, msg: error.message || '用户管理服务暂时不可用', code: error.code }); }
 }

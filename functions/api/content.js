@@ -1,3 +1,5 @@
+// Legacy Firebase data route; Tencent production uses server/local-content.mjs.
+// Not an automatic fallback for the current admin UI; rollback requires separate validation.
 const FIREBASE_PROJECT_ID = 'xylaoshi-28f6c';
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
 const CONTENT_TYPES = {

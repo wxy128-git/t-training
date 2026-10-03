@@ -45,4 +45,35 @@ const normalizedTool = normalizeTool({ id:'tool-1', name:'测试工具', desc:'�
 assert(normalizedTool?.logo === logoPath, '腾讯工具接口丢失后台保存的 Logo');
 assert(normalizedTool?.logoSource === 'uploaded', '腾讯工具接口丢失 Logo 来源');
 
+// Admin API failures must never fall back to Firestore or default content.
+let firestoreCalls = 0;
+context.db = { collection() { firestoreCalls++; throw new Error('Forbidden fallback'); } };
+for (const status of [404, 500]) {
+    context.fetch = async () => ({ ok: false, status, json: async () => ({ msg: '模拟接口失败' }) });
+    for (const method of ['getTools', 'getPrompts', 'getPaths', 'getAnnouncements', 'getArticles', 'getResources', 'getCommunityPrompts', 'getSubscribers', 'getMessages']) {
+        let rejected = false;
+        try { await vm.runInContext(`DB.${method}()`, context); } catch { rejected = true; }
+        assert(rejected, `${method} 错误被误报为空列表`);
+    }
+    let rejected = false;
+    try { await vm.runInContext('DB.setTools([])', context); } catch { rejected = true; }
+    assert(rejected, '写入失败未上报');
+}
+assert(firestoreCalls === 0, '后台失败时仍连接旧 Firebase');
+let sent;
+context.fetch = async (url, options = {}) => {
+    if (options.method === 'POST') sent = JSON.parse(options.body);
+    return { ok: true, status: 200, json: async () => ({ ok: true, items: [], revision: options.method === 'POST' ? 'next' : 'baseline' }) };
+};
+await vm.runInContext('DB.getTools()', context);
+await vm.runInContext('DB.setTools([])', context);
+assert(sent.revision === 'baseline', '保存未带读取版本');
+await vm.runInContext('DB.setTools([])', context);
+assert(sent.revision === 'next', '保存后未更新版本');
+
+context.fetch = async () => ({ ok: true, status: 200, json: async () => ({}) });
+let malformedRejected = false;
+try { await vm.runInContext('DB.setTools([])', context); } catch { malformedRejected = true; }
+assert(malformedRejected, '异常成功响应不能显示保存成功');
+
 console.log(`后台内容客户端通过：${passed} 项断言。`);

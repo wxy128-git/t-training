@@ -209,10 +209,9 @@
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:20px">概览</h2>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:28px" id="dash-stats"></div>
                 <div style="background:var(--paper);border-radius:var(--r-md);padding:22px;border:1px solid var(--line)">
-                    <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">数据库管理</h3>
-                    <p style="font-size:13px;color:#64748b;margin-bottom:12px">数据已同步至 Firebase Firestore，所有注册用户均可看到最新内容。</p>
-                    <button onclick="seedDatabase()" style="padding:10px 20px;background:#10B981;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px"><i class="ph ph-database"></i>初始化数据库（写入默认工具和提示词）</button>
-                    <p style="font-size:12px;color:#94a3b8;margin-top:8px"><i class="ph ph-info"></i> 仅在 Firestore 为空时需要执行，已有数据将被覆盖</p>
+                    <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">内容管理</h3>
+                    <p style="font-size:13px;color:#64748b">后台内容统一保存在腾讯服务器。请通过左侧栏目管理；使用事件采集保持关闭。</p>
+                    <button class="btn-secondary" onclick="initAdmin()">刷新概览</button>
                 </div>
             </div>
 
@@ -401,18 +400,9 @@
                     <h2 style="font-size:1.3rem;font-weight:800">用户列表</h2>
                     <span style="font-size:13px;color:#94a3b8" id="user-count"></span>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px">
-                    <div>
-                        <div style="font-size:15px;font-weight:800;color:#0f172a">清理认证账号</div>
-                        <p style="font-size:12.5px;color:#64748b;margin-top:4px;line-height:1.6">如果用户资料已删，但重新注册仍提示账号存在，可输入邮箱或手机号清理 Firebase Authentication 账号。</p>
-                    </div>
-                    <div style="display:flex;gap:8px;align-items:center;min-width:360px">
-                        <input id="auth-delete-identifier" class="form-input" placeholder="邮箱或手机号" style="height:40px">
-                        <button id="auth-delete-btn" class="reject-btn" onclick="deleteUserByIdentifier()" style="height:40px;white-space:nowrap">清理账号</button>
-                    </div>
-                </div>
+                <p style="color:#64748b;margin-bottom:16px">此处查看腾讯服务器上的注册用户，暂不提供账号删除。</p>
                 <div style="background:var(--paper);border-radius:var(--r-md);border:1px solid var(--line);overflow:hidden">
-                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th><th>操作</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>账号</th><th>单位</th><th>注册时间</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
                 </div>
             </div>
 
@@ -734,7 +724,7 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
-<script src="js/data.js?v=20260925-admin-content-logo"></script>
+<script src="js/data.js?v=20261003-tencent-admin"></script>
 <script src="js/site-copy.js?v=20260924-local-email-direct"></script>
 <script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
     <script src="js/auth.js?v=20260930-privacy-label"></script>
@@ -890,10 +880,11 @@ async function renderPageCopyPanel(pageId = document.getElementById('page-copy-p
     } catch (error) {
         if (_adminPageCopyPage !== definition.id) return;
         _adminPageCopyRemote = null;
-        setPageCopyStatus('读取失败，已显示本地默认文案', false, 'ph-warning');
+        setPageCopyStatus('读取失败，请重新选择此页面重试，暂不能保存', false, 'ph-warning');
+        _adminPageCopyLoaded = false;
         showToast('页面文案读取失败：' + error.message);
     } finally {
-        if (_adminPageCopyPage === definition.id) save.disabled = false;
+        if (_adminPageCopyPage === definition.id) save.disabled = !_adminPageCopyLoaded;
     }
 }
 
@@ -913,6 +904,7 @@ function loadPageCopyDefaults() {
 }
 
 async function savePageCopyPanel() {
+    if (!_adminPageCopyLoaded) { showToast('请先重新读取页面文案'); return; }
     const save = document.getElementById('page-copy-save');
     const select = document.getElementById('page-copy-page');
     const pageId = _adminPageCopyPage;
@@ -945,15 +937,15 @@ async function savePageCopyPanel() {
 
 // ===== INIT =====
 async function initAdmin() {
-    const [tools, prompts, users, ann, cps, subs, articles, msgs] = await Promise.all([
-        DB.getTools(), DB.getPrompts(), DB.isLocalPreview() ? Promise.resolve([]) : getAdminUsers(), DB.getAnnouncements(),
+    const results = await Promise.allSettled([
+        DB.getTools(), DB.getPrompts(), getAdminUsers(), DB.getAnnouncements(),
         DB.getCommunityPrompts(), DB.getSubscribers(), DB.getArticles(),
         DB.getMessages()
     ]);
+    const [tools, prompts, users, ann, cps, subs, articles, msgs] = results.map(result => result.status === 'fulfilled' ? result.value : []);
+    if (results[2].status === 'fulfilled') _adminUsers = users;
     const pendingCPs = cps.filter(p => p.status === 'pending').length;
     const pendingMsgs = msgs.filter(m => !m.handled).length;
-    _adminTools = tools; _adminPrompts = prompts; _adminUsers = users; _adminAnn = ann;
-    _adminCPs = cps; _adminSubs = subs; _adminArticles = articles;
     document.getElementById('dash-stats').innerHTML = [
         { label:'注册用户', value: users.length, icon:'ph-users', color:'#574a3d' },
         { label:'AI 工具', value: tools.length, icon:'ph-wrench', color:'#2d6a4f' },
@@ -963,14 +955,17 @@ async function initAdmin() {
         { label:'邮件订阅', value: subs.length, icon:'ph-envelope-simple', color:'#3a5070' },
         { label:'已发文章', value: articles.filter(a => a.status === 'published').length, icon:'ph-article', color:'#2d4a3a' },
         { label:'待处理留言', value: pendingMsgs, icon:'ph-chat-circle-text', color:'#962b1f' }
-    ].map(s => `
+    ].map((s, i) => {
+        const result = results[[2, 0, 1, 3, 4, 5, 6, 7][i]];
+        if (result.status === 'rejected') s.value = '<span style="font-size:14px">加载失败</span><p style="font-size:12px;font-weight:400">' + escapeHTML(result.reason?.message || '请重试') + '</p><button onclick="initAdmin()">重试</button>';
+        return `
         <div class="stat-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
                 <span style="font-size:13px;color:#64748b">${s.label}</span>
                 <i class="ph ${s.icon}" style="color:${s.color};font-size:18px"></i>
             </div>
             <div style="font-size:2rem;font-weight:800;color:#0f172a">${s.value}</div>
-        </div>`).join('');
+        </div>`; }).join('');
 }
 
 // ===== ANALYTICS =====
@@ -2065,7 +2060,7 @@ async function renderUsersTable() {
     } catch(error) {
         console.error('renderUsersTable:', error);
         document.getElementById('user-count').textContent = '加载失败';
-        document.getElementById('users-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;color:#b42318;padding:32px">${escapeHTML(error.message || '用户列表加载失败，请稍后重试')}</td></tr>`;
+        document.getElementById('users-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;color:#b42318;padding:32px">${escapeHTML(error.message || '用户列表加载失败，请稍后重试')} <button onclick="renderUsersTable()">重试</button></td></tr>`;
         return;
     }
     document.getElementById('user-count').textContent = `共 ${_adminUsers.length} 位注册用户`;
@@ -2077,69 +2072,31 @@ async function renderUsersTable() {
             <td style="color:#64748b">${escapeHTML(u.email || (u.phone ? '手机:' + u.phone : '—'))}</td>
             <td style="color:#64748b">${escapeHTML(u.school) || '—'}</td>
             <td style="color:#94a3b8;font-size:12px">${new Date(u.joinedAt).toLocaleDateString('zh-CN')}</td>
-            <td><button class="reject-btn" onclick="deleteUser(${i})">删除</button></td>
         </tr>`).join('');
 }
 
 async function getAdminUsers() {
     const data = await callAdminUsersFunction({ action: 'listUsers' });
-    return Array.isArray(data.users) ? data.users : [];
+    if (!Array.isArray(data.users)) throw new Error('用户列表返回格式不正确，请重试');
+    return data.users;
 }
 
 async function callAdminUsersFunction(payload) {
     const adminIdToken = await Auth.getIdToken();
     const response = await fetch('/api/admin-users', {
+        signal: AbortSignal.timeout(12000),
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminIdToken, ...payload })
     });
     const data = await response.json().catch(() => ({}));
     if (response.status === 404) {
-        throw new Error('当前预览未启用用户管理接口，请在已部署站点操作');
+        throw new Error('用户管理接口不可用，请检查腾讯服务配置后重试');
     }
     if (!response.ok || data.ok === false) {
         throw new Error(data.msg || '用户管理操作失败');
     }
     return data;
-}
-
-async function deleteUser(i) {
-    const u = _adminUsers[i];
-    if (!u) return;
-    const account = u.email || (u.phone ? `手机号 ${u.phone}` : u.uid);
-    if (!confirm(`确定彻底删除 ${account}？\n\n此操作会同时删除 Firebase Authentication 账号和用户资料，删除后可用同一邮箱/手机号重新注册。`)) return;
-    try {
-        await callAdminUsersFunction({ action: 'deleteUser', uid: u.uid });
-        await renderUsersTable();
-        showToast('用户已彻底删除');
-    } catch(error) {
-        showToast(error.message || '用户删除失败');
-    }
-}
-
-async function deleteUserByIdentifier() {
-    const input = document.getElementById('auth-delete-identifier');
-    const btn = document.getElementById('auth-delete-btn');
-    const identifier = input.value.trim();
-    if (!identifier) {
-        showToast('请输入邮箱或手机号');
-        return;
-    }
-    if (!confirm(`确定清理 ${identifier} 的认证账号？\n\n清理后，这个邮箱或手机号可以重新注册。`)) return;
-
-    btn.disabled = true;
-    btn.textContent = '清理中...';
-    try {
-        await callAdminUsersFunction({ action: 'deleteUser', identifier });
-        input.value = '';
-        await renderUsersTable();
-        showToast('认证账号已清理，可重新注册');
-    } catch(error) {
-        showToast(error.message || '认证账号清理失败');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '清理账号';
-    }
 }
 
 // ===== ARTICLES =====
@@ -2265,15 +2222,37 @@ async function deleteArticleAdmin(id) {
     showToast('已删除');
 }
 
-// ===== SEED DATABASE =====
-async function seedDatabase() {
-    if (!confirm('确定初始化数据库？将用默认数据写入工具、提示词和学习路径（已有数据将被覆盖）。')) return;
-    try {
-        showToast('正在初始化，请稍候…');
-        await DB.seedDatabase();
-        showToast('数据库已初始化');
-        await initAdmin();
-    } catch(e) { showToast('初始化失败：' + e.message); }
+// Keep failures visible; never display a failed read as an empty successful list.
+const adminListTargets = {
+    renderAnnTable: 'ann-tbody', renderCPTable: 'cp-tbody', renderSubsTable: 'sub-tbody',
+    renderMessagesTable: 'msg-tbody', renderToolsTable: 'tools-tbody', renderPromptsTable: 'prompts-tbody',
+    renderPathsTable: 'paths-tbody', renderResourcesList: 'resources-list', renderArticlesTable: 'articles-tbody'
+};
+for (const [name, targetId] of Object.entries(adminListTargets)) {
+    const render = window[name];
+    window[name] = async function (...args) {
+        try { return await render(...args); }
+        catch (error) {
+            const target = document.getElementById(targetId);
+            const message = `加载失败：${escapeHTML(error.message)} <button onclick="${name}()">重试</button>`;
+            target.innerHTML = target.tagName === 'TBODY' ? `<tr><td colspan="8" role="alert">${message}</td></tr>` : `<p role="alert">${message}</p>`;
+            showToast('读取失败，请重试；未切换到旧数据库');
+        }
+    };
+}
+for (const name of ['deleteAnn', 'approveCommunityPrompt', 'deleteCommunityPrompt', 'deleteSub',
+    'toggleMessageHandled', 'deleteMessage', 'deleteTool', 'resetTools', 'savePrompt', 'deletePrompt',
+    'resetPrompts', 'deletePath', 'resetPaths', 'saveCategory', 'deleteCategory', 'deleteResourceItem',
+    'resetResources', 'deleteArticleAdmin']) {
+    const action = window[name];
+    let busy = false;
+    window[name] = async function (...args) {
+        if (busy) return;
+        busy = true;
+        try { return await action(...args); }
+        catch (error) { showToast('操作未完成：' + error.message); }
+        finally { busy = false; }
+    };
 }
 
 // Close modal on overlay click
@@ -2282,7 +2261,7 @@ document.querySelectorAll('.modal-admin').forEach(m => {
 });
 
 // 乐观渲染：已是管理员的会话首帧直接进后台外壳，避免「先闪登录页再自动进后台」。
-// 真正的数据加载（initAdmin）仍留在下方 onAuthReady 里执行，确保 Firestore 请求已带认证态。
+// 真正的数据加载（initAdmin）仍留在下方 onAuthReady 里执行，确保腾讯接口请求已带登录凭据。
 renderNav('admin');
 if (Auth.isAdmin()) {
     document.getElementById('login-gate').style.display = 'none';

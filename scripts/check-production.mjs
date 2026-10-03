@@ -42,7 +42,7 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20260930-privacy-label'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20260924-local-email-direct') && body.includes('js/site-copy.js?v=20260924-local-email-direct'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261003-tencent-admin') && body.includes('js/site-copy.js?v=20260924-local-email-direct'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20260924-local-email-direct'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20260924-local-email-direct'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
@@ -50,6 +50,14 @@ if (home) {
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
     assert(body.includes('id="th-mobile-more"') && body.includes('th-mobile-secondary'), '首页移动端渐进展开入口未上线');
     assert(body.includes('<meta name="mobile-web-app-capable" content="yes">'), '首页缺少标准移动 Web App 声明');
+}
+
+const adminPage = await request('/admin');
+if (adminPage) {
+    const body = await adminPage.text();
+    assert(adminPage.status === 200 && body.includes('js/data.js?v=20261003-tencent-admin'), '腾讯后台当前版本未上线');
+    assert(!body.includes('onclick="seedDatabase()"') && !body.includes('onclick="deleteUserByIdentifier()"'), '后台仍显示旧库初始化或认证清理入口');
+    assert(body.includes('后台内容统一保存在腾讯服务器'), '后台数据路径提示未更新');
 }
 
 const pwaScript = await request('/js/pwa.js?v=20260924-local-email-direct');
@@ -93,7 +101,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261001-v32'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261003-v33'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 

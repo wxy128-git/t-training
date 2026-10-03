@@ -1,5 +1,31 @@
 import crypto from 'node:crypto';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { getPool, readLocalAccessToken, assertCanUseFeatures, publicUser } from './local-auth-store.mjs';
+
+// A dedicated connection makes each admin operation all-or-nothing. The database
+// lock serializes admin writers, including edits submitted from different tabs.
+const documentTransaction = new AsyncLocalStorage();
+function executor(env) { return documentTransaction.getStore() || getPool(env); }
+export async function withDocumentTransaction(env, work) {
+    const connection = await getPool(env).getConnection();
+    const lock = `admin-content:${env.T_TRAINING_DB_NAME || 't_training_migration'}`.slice(0, 64);
+    let locked = false;
+    try {
+        const [rows] = await connection.execute('SELECT GET_LOCK(?, 5) AS acquired', [lock]);
+        locked = Number(rows[0]?.acquired) === 1;
+        if (!locked) throw Object.assign(new Error('其他保存正在进行，请稍后重试'), { statusCode: 409 });
+        await connection.beginTransaction();
+        const result = await documentTransaction.run(connection, work);
+        await connection.commit();
+        return result;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        try { if (locked) await connection.execute('SELECT RELEASE_LOCK(?)', [lock]); }
+        finally { connection.release(); }
+    }
+}
 
 function decodeValue(value) {
     if (!value || typeof value !== 'object') return null;
@@ -29,8 +55,8 @@ function encodeValue(value) {
     if (value instanceof Date) return { timestampValue: value.toISOString() };
     if (typeof value === 'boolean') return { booleanValue: value };
     if (typeof value === 'number') return Number.isInteger(value) ? { integerValue: String(value) } : { doubleValue: value };
-    if (Array.isArray(value)) return { arrayValue: { values: value.slice(0, 100).map(encodeValue) } };
-    if (typeof value === 'object') return { mapValue: { fields: Object.fromEntries(Object.entries(value).slice(0, 100).map(([key, item]) => [key, encodeValue(item)])) } };
+    if (Array.isArray(value)) return { arrayValue: { values: value.map(encodeValue) } };
+    if (typeof value === 'object') return { mapValue: { fields: Object.fromEntries(Object.entries(value).map(([key, item]) => [key, encodeValue(item)])) } };
     return { stringValue: String(value) };
 }
 
@@ -39,7 +65,7 @@ export function encodeFields(fields) {
 }
 
 export async function listDocuments(env, collectionName) {
-    const [rows] = await getPool(env).execute(`
+    const [rows] = await executor(env).execute(`
         SELECT collection_name, document_id, document_name, fields_json, create_time_iso, update_time_iso, raw_json
         FROM firestore_documents WHERE collection_name = ? ORDER BY document_id ASC
     `, [collectionName]);
@@ -47,7 +73,7 @@ export async function listDocuments(env, collectionName) {
 }
 
 export async function getDocument(env, collectionName, documentId) {
-    const [rows] = await getPool(env).execute(`
+    const [rows] = await executor(env).execute(`
         SELECT collection_name, document_id, document_name, fields_json, create_time_iso, update_time_iso, raw_json
         FROM firestore_documents WHERE collection_name = ? AND document_id = ? LIMIT 1
     `, [collectionName, documentId]);
@@ -59,7 +85,7 @@ export async function upsertDocument(env, collectionName, documentId, data, opti
     const now = new Date().toISOString();
     const documentName = options.documentName || `projects/xylaoshi-28f6c/databases/(default)/documents/${collectionName}/${documentId}`;
     const raw = options.raw || { name: documentName, fields };
-    await getPool(env).execute(`
+    await executor(env).execute(`
         INSERT INTO firestore_documents
           (collection_name, document_id, document_name, fields_json, create_time_iso, update_time_iso, raw_json)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -77,7 +103,7 @@ export async function createDocument(env, collectionName, data, options = {}) {
 }
 
 export async function deleteDocument(env, collectionName, documentId) {
-    await getPool(env).execute('DELETE FROM firestore_documents WHERE collection_name = ? AND document_id = ?', [collectionName, documentId]);
+    await executor(env).execute('DELETE FROM firestore_documents WHERE collection_name = ? AND document_id = ?', [collectionName, documentId]);
 }
 
 export async function localFeatureSession(env, idToken) {

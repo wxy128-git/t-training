@@ -540,6 +540,8 @@ function getLocalPageCopy(pageId) {
     }
 }
 
+const adminContentRevisions = new Map();
+
 async function callContentAPI(type, id = '', options = {}) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
@@ -563,6 +565,7 @@ async function callContentAPI(type, id = '', options = {}) {
         }
         if (id) return data.item || null;
         if (!Array.isArray(data.items)) throw new Error('内容接口返回格式不正确');
+        if (options.scope === 'admin') adminContentRevisions.set(type, data.revision || '');
         return data.items;
     } finally {
         clearTimeout(timer);
@@ -570,28 +573,31 @@ async function callContentAPI(type, id = '', options = {}) {
 }
 
 async function callContentMutation(action, payload = {}) {
-    let response;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
     try {
-        response = await fetch('/api/content', {
+        const response = await fetch('/api/content', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action, ...payload })
+            body: JSON.stringify({ action, ...payload }),
+            signal: controller.signal
         });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.ok !== true) {
+            const error = new Error(data.msg || `内容写入接口未确认成功（${response.status}），请重新读取后核对`);
+            error.status = response.status;
+            error.code = data.code;
+            throw error;
+        }
+        return data;
     } catch (error) {
-        error.status = 0;
+        if (error.name === 'AbortError') throw new Error('保存请求超时，结果尚未确认，请先重新打开栏目核对；当前表单仍保留');
         throw error;
-    }
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || data.ok === false) {
-        const error = new Error(data.msg || `内容写入接口请求失败（${response.status}）`);
-        error.status = response.status;
-        error.code = data.code;
-        throw error;
-    }
-    return data;
+    } finally { clearTimeout(timer); }
 }
 
 function shouldFallbackContentMutation(error) {
+    if (isAdminRuntimePage()) return false;
     const status = Number(error?.status || 0);
     // 5xx 代表已启用的本地数据服务自身出错，不能把写入悄悄送回
     // Firebase 造成双写分叉；只有旧环境明确返回 404/405/501 才回退。
@@ -608,7 +614,10 @@ async function adminContentRead(type, id = '') {
 }
 
 async function adminContentMutation(action, payload = {}) {
-    return callContentMutation(action, { ...payload, idToken: await Auth.getIdToken() });
+    const type = action === 'replaceCollection' ? payload.type : ['setResources', 'saveResourceCategory', 'deleteResourceCategory'].includes(action) ? 'resources' : '';
+    const result = await callContentMutation(action, { ...payload, ...(type ? { revision: adminContentRevisions.get(type) || '' } : {}), idToken: await Auth.getIdToken() });
+    if (type && result.revision) adminContentRevisions.set(type, result.revision);
+    return result;
 }
 
 /* ===== Firestore 数据访问（异步） ===== */
@@ -621,6 +630,7 @@ const DB = {
             return isAdminRuntimePage() ? (result?.item || null) : result;
         }
         catch(e) {
+            if (isAdminRuntimePage()) throw e;
             if (Number(e?.status) !== 404) console.warn('getPageCopy proxy:', e.message);
         }
         try {
@@ -656,7 +666,7 @@ const DB = {
         try {
             const tools = isAdminRuntimePage() ? await adminContentRead('tools') : await callToolsAPI();
             if (tools.length || isAdminRuntimePage()) return isAdminRuntimePage() ? tools.items : tools;
-        } catch(e) { console.warn('getTools proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getTools proxy:', e.message); }
         try {
             const snap = await db.collection('tools').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -677,7 +687,7 @@ const DB = {
         try {
             const result = isAdminRuntimePage() ? await adminContentRead('prompts') : { items: await callContentAPI('prompts') };
             if (result.items?.length || isAdminRuntimePage()) return result.items || [];
-        } catch(e) { console.warn('getPrompts proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getPrompts proxy:', e.message); }
         try {
             const snap = await db.collection('prompts').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -698,7 +708,7 @@ const DB = {
         try {
             const result = isAdminRuntimePage() ? await adminContentRead('paths') : { items: await callContentAPI('paths') };
             if (result.items?.length || isAdminRuntimePage()) return reviewLearningPaths(result.items || []);
-        } catch(e) { console.warn('getPaths proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getPaths proxy:', e.message); }
         try {
             const snap = await db.collection('paths').orderBy('order').get();
             if (!snap.empty) return reviewLearningPaths(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -717,7 +727,7 @@ const DB = {
 
     async getAnnouncements() {
         try { return (await (isAdminRuntimePage() ? adminContentRead('announcements') : { items: await callContentAPI('announcements') })).items; }
-        catch(e) { console.warn('getAnnouncements proxy:', e.message); }
+        catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getAnnouncements proxy:', e.message); }
         try {
             const snap = await db.collection('announcements').orderBy('createdAt', 'desc').get();
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -739,25 +749,10 @@ const DB = {
         await db.collection('announcements').doc(id).delete();
     },
 
-    async getUsers() {
-        try {
-            const snap = await db.collection('users').orderBy('joinedAt', 'desc').get();
-            return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
-        } catch(e) { console.warn('getUsers:', e.message); return []; }
-    },
-    async deleteUser(uid) {
-        await db.collection('users').doc(uid).delete();
-    },
-
-    async seedDatabase() {
-        const batch = db.batch();
-        DEFAULT_TOOLS.forEach((item, i) => batch.set(db.collection('tools').doc(item.id), { ...item, order: i }));
-        DEFAULT_PROMPTS.forEach((item, i) => batch.set(db.collection('prompts').doc(item.id), { ...item, order: i }));
-        DEFAULT_PATHS.forEach((item, i) => batch.set(db.collection('paths').doc(item.id), { ...item, order: i }));
-        DEFAULT_ARTICLES.forEach((item, i) => batch.set(db.collection('articles').doc(item.id), { ...item, order: i }));
-        DEFAULT_RESOURCES.forEach((cat, i) => batch.set(db.collection('resource_categories').doc(cat.id), { ...cat, order: i }));
-        await batch.commit();
-    },
+    // Retired Firebase-only admin operations. Current user listing lives at /api/admin-users.
+    async getUsers() { throw new Error('请使用腾讯后台的用户列表'); },
+    async deleteUser() { throw new Error('当前未开放账号删除'); },
+    async seedDatabase() { throw new Error('旧数据库初始化已停用'); },
 
     /* ===== 社区提示词 ===== */
     async getCommunityPrompts(status = null) {
@@ -765,10 +760,10 @@ const DB = {
             const result = isAdminRuntimePage()
                 ? await adminContentRead('communityPrompts')
                 : await callContentAPI('communityPrompts', '', { status: status || 'approved' });
-            const items = result.items || [];
+            const items = isAdminRuntimePage() ? result.items : result;
             return (status ? items.filter(item => item.status === status) : items)
                 .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        } catch(e) { console.warn('getCommunityPrompts proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getCommunityPrompts proxy:', e.message); }
         try {
             let q = db.collection('community_prompts');
             if (status) q = q.where('status', '==', status);
@@ -784,7 +779,7 @@ const DB = {
         try {
             const items = await callContentAPI('communityPrompts', '', { scope: 'mine', idToken: await Auth.getIdToken() });
             return items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        } catch(e) { console.warn('getMyCommunityPrompts proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getMyCommunityPrompts proxy:', e.message); }
         try {
             const snap = await db.collection('community_prompts').where('authorId', '==', userId).get();
             return snap.docs
@@ -831,7 +826,7 @@ const DB = {
             const result = await callContentAPI('ratings');
             const mapped = {}; (result || []).forEach(item => { mapped[item.id] = item; });
             return mapped;
-        } catch(e) { console.warn('getToolRatings proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getToolRatings proxy:', e.message); }
         try {
             const snap = await db.collection('tool_ratings').get();
             const result = {};
@@ -876,7 +871,7 @@ const DB = {
             return [...items, ...fallbackItems]
                 .filter(item => !status || item.status === status)
                 .sort((a, b) => new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0));
-        } catch(e) { console.warn('getArticles proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getArticles proxy:', e.message); }
         try {
             let q = db.collection('articles');
             if (status) q = q.where('status', '==', status);
@@ -901,6 +896,7 @@ const DB = {
             return isAdminRuntimePage() ? (result?.item || null) : result;
         }
         catch(e) {
+            if (isAdminRuntimePage()) throw e;
             if (Number(e?.status) === 404) return JSON.parse(JSON.stringify(DEFAULT_ARTICLES.find(a => a.id === id) || null));
             console.warn('getArticle proxy:', e.message);
         }
@@ -979,7 +975,7 @@ const DB = {
         try {
             const result = isAdminRuntimePage() ? await adminContentRead('resources') : { items: await callContentAPI('resources') };
             if (result.items?.length || isAdminRuntimePage()) return result.items || [];
-        } catch(e) { console.warn('getResources proxy:', e.message); }
+        } catch(e) { if (isAdminRuntimePage()) throw e; console.warn('getResources proxy:', e.message); }
         try {
             const snap = await db.collection('resource_categories').orderBy('order').get();
             if (!snap.empty) return snap.docs.map(d => ({ id: d.id, ...d.data() }));
