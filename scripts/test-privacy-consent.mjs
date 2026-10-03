@@ -18,7 +18,8 @@ const policy=globalThis.PrivacyPolicy;
 const yes={accepted:true,version:policy.VERSION};
 let passed=0;
 function check(condition,message){assert.ok(condition,message);passed++;}
-for(const value of [undefined,{}, {...yes,accepted:'true'},{...yes,version:'old'},{...yes,research:'yes'},{...yes,research:true}]) {assert.throws(()=>policy.registration(value));passed++;}
+check(policy.registration(undefined)===null,'当前范围允许未绑定定稿政策的注册');
+for(const value of [{}, {...yes,accepted:'true'},{...yes,version:'old'},{...yes,research:'yes'},{...yes,research:true}]) {assert.throws(()=>policy.registration(value));passed++;}
 let consent=policy.update(null,{...yes,research:false},'2026-09-29T01:00:00.000Z');
 check(!policy.allows(consent),'只同意政策不代表同意研究');
 const acceptedAt=consent.acceptedAt;
@@ -55,7 +56,8 @@ try {
  globalThis.fetch=async()=>{throw new Error('External request forbidden');};
  for(const mod of [localAuth,legacyAuth]) {
     const r=await post(mod,{action:'register',email:'fixture@example.invalid',password:'fixture-password',profile:{name:'虚构教师'}});
-    check(r.status===400,'两条注册路径都拒绝缺失同意，且不连接外部');
+    const body=await r.json();
+    check(body.code!=='PRIVACY_CONSENT_REQUIRED','两条注册路径不再因缺失定稿政策而拒绝注册，且不连接外部');
  }
  check((await readPrivacy(env,'teacher'))===null,'数据库旧用户无同意记录');
  check(!await storeConsentedEvent(env,'teacher',{ts:new Date().toISOString()}),'服务端拒绝无同意的事件');

@@ -435,8 +435,11 @@ export async function onRequestPost({ request }) {
                 joinedAt: new Date().toISOString()
             };
             if (!profile.name) return jsonResponse(400, { ok: false, msg: '请填写姓名' });
-            globalThis.PrivacyPolicy.registration(payload.consent);
-            const privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
+            let privacy;
+            if (payload.consent !== undefined) {
+                globalThis.PrivacyPolicy.registration(payload.consent);
+                privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
+            }
             const authData = await callFirebaseAuth('accounts:signUp', {
                 email: normalizedEmail,
                 password,
@@ -453,7 +456,7 @@ export async function onRequestPost({ request }) {
                         returnSecureToken: false
                     }).catch(() => null)
                     : Promise.resolve(),
-                saveUserProfile(authData.idToken, authData.localId, {...user,privacy})
+                saveUserProfile(authData.idToken, authData.localId, privacy ? {...user,privacy} : user)
             ]);
             return jsonResponse(200, { ok: true, ...authData, user });
         }

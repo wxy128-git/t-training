@@ -3,6 +3,8 @@
     const VERSION = '2026-09-30.1';
     const RETENTION_DAYS = 180;
     function registration(value) {
+        // 当前发布范围暂不把尚未定稿的政策作为注册前置条件。
+        if (value === undefined || value === null) return null;
         if (value?.accepted !== true || value?.version !== VERSION || (value?.research !== undefined && value?.research !== false)) {
             throw Object.assign(new Error('请阅读并同意当前版本隐私政策'), { statusCode:400, code:'PRIVACY_CONSENT_REQUIRED' });
         }

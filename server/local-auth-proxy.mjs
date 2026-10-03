@@ -351,9 +351,11 @@ export async function onRequestPost({ request, env }) {
             const profile = cleanProfile(payload.profile);
             if (!email || typeof payload.password !== 'string' || payload.password.length < 6 || payload.password.length > 256) return jsonResponse(400, { ok: false, msg: '请填写有效邮箱和至少 6 位密码' });
             if (!profile.name) return jsonResponse(400, { ok: false, msg: '请填写姓名' });
-            try { globalThis.PrivacyPolicy.registration(payload.consent); }
-            catch(error) { return jsonResponse(400,{ok:false,msg:error.message,code:error.code}); }
-            profile.privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
+            if (payload.consent !== undefined) {
+                try { globalThis.PrivacyPolicy.registration(payload.consent); }
+                catch(error) { return jsonResponse(400,{ok:false,msg:error.message,code:error.code}); }
+                profile.privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
+            }
             return jsonResponse(200, { ok: true, ...(await localRegister(env, email, payload.password, profile)) });
         }
         if (action === 'refresh') {
