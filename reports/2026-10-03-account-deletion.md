@@ -1,4 +1,10 @@
-# 注册异常账号删除（本地完成，尚未上线）
+# 注册异常账号删除（2026-10-03 已上线）
+
+发布提交 `9f8230a`，缓存版本 `20261003-v34`。公网检查 118 项全部通过，157 个静态文件和 30 个 API 文件与发布清单哈希一致。腾讯正式服务在 3001，两份 Nginx 配置已恢复正式目录和端口。未登录删除请求被拒绝，旧 Cloudflare 跳转保留路径参数，教育媒体站返回 200。
+
+发布包：`/home/ubuntu/t-training/releases/20261003-account-delete-9f8230a`。上线前文件、配置及完整数据库备份：`/home/ubuntu/t-training/backups/20261003-pre-account-delete-9f8230a`。备份目录权限 700、数据库备份权限 600。实际删除用户后不能直接恢复忽略删除标记的旧服务。
+
+候选进程、隔离测试目录和临时发布脚本已清理，正式发布包和备份保留。PM2 已保存，两个正式应用在线，系统服务 enabled / active。
 
 ## 用户可见行为
 
@@ -43,7 +49,7 @@
 - `functions/api/admin-users.js`：旧数据路径说明。
 - 新增 `scripts/test-account-deletion.mjs`；`scripts/fixtures/admin-store.mjs`、`scripts/fixtures/admin-mariadb.mjs`、`scripts/test-tencent-admin.mjs`：模拟及真实隔离测试支持。
 - `scripts/preview-tencent-admin.mjs`：无作品和有作品的演示账号。
-- `package.json`、`scripts/check-site.mjs`、`scripts/check-production.mjs`、`sw.js`：检查命令及待发布缓存版本 `20261003-v34`。
-- `README.md`、`AGENTS.md`、本记录：本地状态和验收说明。
+- `package.json`、`scripts/check-site.mjs`、`scripts/check-production.mjs`、`sw.js`：检查命令及已发布缓存版本 `20261003-v34`。
+- `README.md`、`AGENTS.md`、本记录：上线状态和验收说明。
 
 本轮没有新增决策事项，用户已授权上线。

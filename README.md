@@ -24,7 +24,7 @@ node scripts/serve.mjs
 
 ## 质量检查
 
-注册异常账号删除功能已完成本地实现，尚未上线。通过 `npm run preview:admin` 的虚构账号可点验“核对账号 → 输入邮箱确认 → 删除”，有作品的账号会被阻止删除。见 [账号删除验收记录](reports/2026-10-03-account-deletion.md)。
+注册异常账号删除功能已于 2026-10-03 上线（`9f8230a`）。后台用户列表可“核对账号 → 输入邮箱确认 → 删除”，有作品的账号会被阻止删除。真实隔离数据库通过删除 51 项及后台 29 项检查，公网 118 项通过。也可用 `npm run preview:admin` 的虚构账号点验。见 [账号删除验收记录](reports/2026-10-03-account-deletion.md)。
 
 ```bash
 npm run check
