@@ -78,5 +78,14 @@
   "worksChecks": [
     "两类条目保存、读取结构化卡片通过",
     "作品删除与回查 0 通过"
-  ]
+  ],
+  "costEstimate": {
+    "officialPricing": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+    "inputUtf8Bytes": 210312,
+    "outputUtf8Bytes": 30238,
+    "method": "Conservative byte-as-token estimate with final longer system prompts, JSON wrapper and no cache discount; not actual billed usage.",
+    "offPeakYuanEstimate": 0.34,
+    "peakYuanEstimate": 0.67,
+    "actualBillReturned": false
+  }
 }
