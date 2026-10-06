@@ -3154,3 +3154,11 @@ textarea:focus-visible,
     .resource-card:hover,
     .resource-card:hover .resource-logo-frame { transform: none; }
 }
+
+/* 2026-10-06 · 科研入口的窄桌面导航适配，保留现有 1160px 抽屉断点。 */
+@media (min-width:1161px) and (max-width:1360px) {
+    .site-nav .nav-link { padding-left:8px; padding-right:8px; }
+    .nav-pwa-install-button { padding-left:12px; padding-right:12px; }
+    .nav-pwa-install-button > span, .nav-user-area > .hm, .nav-user-area > .admin-badge { display:none; }
+}
+.nav-user-area > .hm { max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

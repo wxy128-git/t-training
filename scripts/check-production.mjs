@@ -22,7 +22,7 @@ async function request(path, options = {}) {
     }
 }
 
-const routes = ['/', '/agents', '/multimodal', '/classroom-tools', '/tools', '/resources', '/news', '/paths', '/articles', '/prompts', '/workspace'];
+const routes = ['/', '/agents', '/multimodal', '/research', '/classroom-tools', '/tools', '/resources', '/news', '/paths', '/articles', '/prompts', '/workspace'];
 for (const route of routes) {
     const response = await request(route);
     if (!response) continue;
@@ -30,6 +30,7 @@ for (const route of routes) {
     assert(response.status === 200, `${route} 返回 ${response.status}`);
     assert(response.headers.get('content-type')?.includes('text/html'), `${route} Content-Type 不是 HTML`);
     assert(body.includes('<title>') && body.includes('id="main-content"'), `${route} 缺少标题或主内容锚点`);
+    if (route === '/research') assert(body.includes('research-core.js') && body.includes('research-data.js'), '科研写作模块未上线');
 }
 
 const home = await request('/');
@@ -38,13 +39,13 @@ if (home) {
     assert(home.headers.get('x-content-type-options') === 'nosniff', '缺少 nosniff 响应头');
     assert(home.headers.get('content-security-policy')?.includes("object-src 'none'"), '缺少基础 CSP');
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
-    assert(body.includes('css/style.css?v=20260924-local-email-direct'), '首页未加载当前全局样式版本');
+    assert(body.includes('css/style.css?v=20261006-research-nav'), '首页未加载当前全局样式版本');
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20260930-privacy-label'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/auth.js?v=20261006-research-nav'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
     assert(body.includes('js/data.js?v=20261003-tencent-admin') && body.includes('js/site-copy.js?v=20260924-local-email-direct'), '首页未加载当前页面文案模块');
-    assert(body.includes('js/assistant.js?v=20260924-local-email-direct'), '首页未加载当前网站向导脚本版本');
-    assert(body.includes('js/pwa.js?v=20260924-local-email-direct'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('js/assistant.js?v=20261006-research'), '首页未加载当前网站向导脚本版本');
+    assert(body.includes('js/pwa.js?v=20261006-research'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
@@ -61,7 +62,7 @@ if (adminPage) {
     assert(body.includes('id="delete-user-modal"') && body.includes('previewUserDeletion') && body.includes('confirmUserDeletion'), '账号删除核对窗口未上线');
 }
 
-const pwaScript = await request('/js/pwa.js?v=20260924-local-email-direct');
+const pwaScript = await request('/js/pwa.js?v=20261006-research');
 if (pwaScript) {
     const body = await pwaScript.text();
     assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
@@ -69,7 +70,7 @@ if (pwaScript) {
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
 }
 
-const authScript = await request('/js/auth.js?v=20260930-privacy-label');
+const authScript = await request('/js/auth.js?v=20261006-research-nav');
 if (authScript) {
     const body = await authScript.text();
     assert(authScript.status === 200 && authScript.headers.get('content-type')?.includes('javascript'), '当前认证脚本未上线');
@@ -102,7 +103,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261003-v34'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261006-v35'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 

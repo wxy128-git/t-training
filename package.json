@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node scripts/check-site.mjs && node scripts/test-curriculum-guard.mjs && node scripts/test-functions.mjs && node scripts/test-email-verification.mjs && node scripts/test-local-mailer.mjs && node scripts/test-generation-reliability.mjs && node scripts/test-resource-logo.mjs && node scripts/test-admin-content-client.mjs && node scripts/test-tencent-server.mjs && node scripts/test-analytics-privacy.mjs && node scripts/test-privacy-consent.mjs && node scripts/test-privacy-ui.mjs && node scripts/test-tencent-admin.mjs && node scripts/test-account-deletion.mjs",
+    "check": "node scripts/check-site.mjs && node scripts/test-curriculum-guard.mjs && node scripts/test-functions.mjs && node scripts/test-email-verification.mjs && node scripts/test-local-mailer.mjs && node scripts/test-generation-reliability.mjs && node scripts/test-resource-logo.mjs && node scripts/test-admin-content-client.mjs && node scripts/test-tencent-server.mjs && node scripts/test-analytics-privacy.mjs && node scripts/test-privacy-consent.mjs && node scripts/test-privacy-ui.mjs && node scripts/test-tencent-admin.mjs && node scripts/test-account-deletion.mjs && node scripts/test-research.mjs",
     "start:tencent": "node server/tencent-api.mjs",
     "check:analytics-db": "node scripts/test-analytics-mariadb.mjs",
     "preview:analytics": "node scripts/preview-analytics-privacy.mjs",

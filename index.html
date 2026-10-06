@@ -25,7 +25,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AI 教研">
-    <link rel="stylesheet" href="css/style.css?v=20260924-local-email-direct">
+    <link rel="stylesheet" href="css/style.css?v=20261006-research-nav">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <script type="application/ld+json">
     {
@@ -375,6 +375,9 @@
         @media (prefers-reduced-motion: reduce) {
             .th-root *, .th-root *::before, .th-root *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
         }
+    .th-callout{display:flex;align-items:center;gap:18px;padding:22px 24px;margin-top:20px;background:white;border:1px solid var(--th-line-strong);border-radius:10px;color:var(--th-ink)}
+        .th-callout:hover{background:#f9fbfc}.th-callout-icon{font-size:26px;color:#245b78}.th-callout-copy{flex:1;display:flex;flex-direction:column;gap:8px}.th-callout-copy b{font-size:16px}.th-callout-copy>span{font-size:13px;line-height:1.8;color:var(--text)}
+        @media(max-width:560px){.th-callout{padding:18px;align-items:flex-start}.th-callout-copy>span{font-size:13px}}
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
 </head>
@@ -408,6 +411,11 @@
                     <div><h2 data-site-copy="taskHeading">今天要完成什么？</h2></div>
                 </div>
                 <div class="th-task-grid" id="th-task-grid"></div>
+            <a class="th-callout" href="/research">
+                <span class="th-callout-icon"><i class="ph ph-flask" aria-hidden="true"></i></span>
+                <span class="th-callout-copy"><b>新板块 · 科研写作</b><span>把教学困扰聚焦成研究问题，用精读卡读文献。AI 追问与整理，判断由你来做。</span></span>
+                <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </a>
                 <details class="th-task-closure th-mobile-secondary">
                     <summary>
                         <span class="th-closure-label"><i class="ph ph-shield-check"></i><span data-site-copy="checklistHeading">使用前核验</span></span>
@@ -459,13 +467,13 @@
 <script src="js/data.js?v=20261003-tencent-admin"></script>
 <script src="js/site-copy.js?v=20260924-local-email-direct"></script>
 <script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
-    <script src="js/auth.js?v=20260930-privacy-label"></script>
+    <script src="js/auth.js?v=20261006-research-nav"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
-<script src="js/pwa.js?v=20260924-local-email-direct"></script>
-<script src="js/assistant.js?v=20260924-local-email-direct"></script>
+<script src="js/pwa.js?v=20261006-research"></script>
+<script src="js/assistant.js?v=20261006-research"></script>
 <script src="js/agents-data.js?v=20260922-teaching-quality"></script>
 <script src="js/teaching-projects.js?v=20260924-local-email-direct"></script>
 <script>

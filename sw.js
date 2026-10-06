@@ -1,11 +1,12 @@
 'use strict';
 
-const VERSION = '20261003-v34';
+const VERSION = '20261006-v35';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 const CORE_ASSETS = [
+    '/research', '/js/research-core.js', '/js/research-data.js',
     OFFLINE_URL,
     '/',
     '/agents',

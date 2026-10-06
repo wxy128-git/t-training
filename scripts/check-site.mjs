@@ -8,14 +8,14 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
 const notices = [];
 const publicPages = [
-    'index.html', 'agents.html', 'multimodal.html', 'classroom-tools.html',
+    'index.html', 'agents.html', 'multimodal.html', 'research.html', 'classroom-tools.html',
     'tools.html', 'resources.html', 'news.html', 'paths.html',
     'articles.html', 'article.html', 'prompts.html'
 ];
 const appPages = [...publicPages, 'workspace.html', 'admin.html'];
 const pwaPages = [...publicPages, 'workspace.html'];
 const dataPages = [
-    'index.html', 'agents.html', 'multimodal.html', 'classroom-tools.html', 'tools.html', 'resources.html',
+    'index.html', 'agents.html', 'multimodal.html', 'research.html', 'classroom-tools.html', 'tools.html', 'resources.html',
     'news.html', 'paths.html', 'articles.html', 'article.html', 'prompts.html',
     'workspace.html', 'admin.html'
 ];
@@ -40,11 +40,11 @@ for (const file of publicPages) {
 for (const file of appPages) {
     const html = text(file);
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
-    const styleVersion = file === 'resources.html' ? '20260925-resource-cards-compact' : '20260924-local-email-direct';
+    const styleVersion = '20261006-research-nav';
     if (!new RegExp(`css/style\\.css\\?v=${styleVersion}`).test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260924-local-email-direct/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20260930-privacy-label/.test(html)) fail(file, '认证脚本缓存版本未统一');
-    if (!/js\/assistant\.js\?v=20260924-local-email-direct/.test(html)) fail(file, '网站向导缓存版本未统一');
+    if (!/js\/auth\.js\?v=20261006-research-nav/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/assistant\.js\?v=20261006-research/.test(html)) fail(file, '网站向导缓存版本未统一');
     if (!/js\/account-policy\.js\?v=20260924-local-email-direct/.test(html)
         || !/js\/email-gate\.js\?v=20260924-local-email-direct/.test(html)
         || html.indexOf('js/account-policy.js') > html.indexOf('js/firebase-config.js')
@@ -83,7 +83,7 @@ for (const file of pwaPages) {
     if (!/display-mode:\s*standalone/.test(html)) fail(file, '缺少安装态首帧识别');
     if (!/<meta\s+name="mobile-web-app-capable"\s+content="yes">/i.test(html)) fail(file, '缺少标准移动 Web App 声明');
     if (!/css\/pwa\.css\?v=20260924-local-email-direct/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
-    if (!/js\/pwa\.js\?v=20260924-local-email-direct/.test(html)) fail(file, 'PWA 脚本缓存版本未统一');
+    if (!/js\/pwa\.js\?v=20261006-research/.test(html)) fail(file, 'PWA 脚本缓存版本未统一');
 }
 
 const pwaSource = text('js/pwa.js');
@@ -176,6 +176,23 @@ if (!/curriculum-guard\.js/.test(agentApiSource) || !/enforceCurriculumGate/.tes
     fail('functions/api/agent.js', '服务端课程硬闸门或独立语义分类未接入');
 }
 const workspaceHtml = text('workspace.html');
+const researchHtml = text('research.html');
+for (const [name, version] of [['research-core','20261006-research'], ['research-data','20261006-research'], ['agent-stream','20260924-local-email-direct']]) {
+    if (!researchHtml.includes(`js/${name}.js?v=${version}`)) fail('research.html', `${name} 当前版本缺失`);
+}
+for (const name of ['research-core', 'research-data']) {
+    if (!text('sw.js').includes(`/js/${name}.js`)) fail('sw.js', `${name} 预缓存缺失`);
+}
+if (!text('sw.js').includes("'/research'") || /pdfjs|research-pdf/.test(text('sw.js'))) fail('sw.js', '科研页面预缓存或 PDF 懒加载边界错误');
+const researchData = text('js/research-data.js');
+if (!['## 研究问题聚焦结果', '## 五种结构的标题', 'isCore', 'unclear'].every(value => researchData.includes(value))) fail('js/research-data.js', '科研提示词标记不完整');
+for (const asset of ['pdf.min.mjs','pdf.worker.min.mjs','LICENSE']) {
+    if (!existsSync(join(root, 'vendor/pdfjs/6.4.299', asset))) fail('vendor/pdfjs', `${asset} 缺失`);
+}
+if (!text('vendor/README.md').includes('pdfjs')) fail('vendor/README.md', 'PDF.js 来源与许可证缺失');
+if (!researchHtml.includes('id="main-content"') || !researchHtml.includes("renderNav('research')") || researchHtml.includes('Analytics.track(')) fail('research.html', '科研页面结构或采集边界错误');
+if (!text('js/auth.js').includes("href:'/research'") || !workspaceHtml.includes('/research?work=')) fail('research.html', '科研导航或备课本续接缺失');
+if (!agentApiSource.includes("'research-funnel'") || !agentApiSource.includes("'research-reading-card'")) fail('functions/api/agent.js', '科研 GLM 优先名单缺失');
 if (!/class="wb-desk-scene wb-workbook-light"/.test(workspaceHtml) || !/class="wb-binder-spine"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
     fail('workspace.html', '轻量备课本或装订线索结构未接入');
 }
@@ -190,11 +207,11 @@ if (!/localApiModules/.test(previewServerSource) || !/\/api\/auth-proxy/.test(pr
 const pathsHtml = text('paths.html');
 if (!/PATH_PROGRESS_PREFIX/.test(pathsHtml) || !/step-complete-btn/.test(pathsHtml) || !/path-continue/.test(pathsHtml)) fail('paths.html', '学习路径续学或完成进度功能不完整');
 const offlineHtml = text('offline.html');
-if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20260924-local-email-direct/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
+if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20261006-research/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261003-v34/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261006-v35/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }
@@ -225,7 +242,7 @@ for (const file of readdirSync(root).filter(name => name.endsWith('.html'))) {
     }
 }
 
-for (const file of ['agents.html', 'workspace.html', 'article.html']) {
+for (const file of ['research.html', 'agents.html', 'workspace.html', 'article.html']) {
     const html = text(file);
     const directMarked = [...html.matchAll(/\bmarked\.parse\s*\(/g)];
     if (directMarked.length) fail(file, '业务页不得直接使用 marked.parse，必须经 SafeRender.markdown');

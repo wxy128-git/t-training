@@ -7,3 +7,5 @@ These exact versions are served from the Tencent origin so the critical page pat
 - Phosphor Icons Web 2.1.2 (`unpkg.com/@phosphor-icons/web@2.1.2/`), MIT
 
 Only the regular, fill, bold and light Phosphor font families used by this project are included. Keep versions in directory names and update every HTML reference, `css/style.css`, `sw.js`, and `scripts/check-site.mjs` together when upgrading.
+
+- pdfjs-dist 6.4.299, [Mozilla PDF.js release](https://github.com/mozilla/pdf.js/releases/tag/v6.4.299), Apache-2.0. `vendor/pdfjs/6.4.299/` contains the legacy build `pdf.min.mjs`, `pdf.worker.min.mjs` and LICENSE from the official npm tarball. Only the reading-card file picker loads it; PDF.js and `research-pdf.js` are excluded from Service Worker precache. Legacy includes compatibility polyfills; it still requires a browser that supports ES modules.

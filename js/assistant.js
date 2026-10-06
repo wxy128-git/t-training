@@ -362,6 +362,11 @@
         const clean = normalize(query);
         const scenarios = [
             {
+                keys: ['论文', '课题', '文献', '选题', '综述', '开题', '申报书'],
+                title: '科研写作从问题与文献开始',
+                body: `用「<a href="/research#funnel">研究问题漏斗</a>」把教学困扰聚焦成能研究的问题，再用「<a href="/research#reading-card">文献精读卡</a>」整理你提供的论文。AI 追问与填卡，选题和判断由你来做。`
+            },
+            {
                 keys: ['备课', '教案', '导入', '教学设计'],
                 title: '备课可以用“三步走”',
                 body: `<strong>首选：</strong>用「<a href="/agents#lesson-design">教学设计助手</a>」智能体，填课题与学情直接生成教案。想自己一步步来：<br>1. 先让 AI 梳理知识点、易错点和教学目标。<br>2. 再让 AI 生成 2-3 个课堂导入或活动方案，你挑最贴近学生的一版。<br>3. 最后请 AI 检查教案中的知识准确性和课堂时间分配。<br><br>推荐工具：${toolLinks(findToolsByNames(['AI好记', 'PrompterHub', 'Prompt123']))}`,

@@ -418,6 +418,7 @@ function renderNav(currentPage) {
         { key:'index',     href:'/',    label:'首页' },
         { key:'agents',    href:'/agents',   label:'智能体空间' },
         { key:'multimodal', href:'/multimodal', label:'多模态工作坊', icon:'ph ph-images-square' },
+        { key:'research', href:'/research', label:'科研', icon:'ph ph-flask' },
         { key:'classroom', href:'/classroom-tools', label:'课堂工具' }
     ];
     const resourcePages = [
@@ -457,7 +458,7 @@ function renderNav(currentPage) {
     const drawerPrimary = primaryLinks;
     const drawerResources = resourcePages.map(p => navAnchor(p)).join('');
     const contactLink = `<button type="button" class="nav-link nav-button" data-contact-trigger>联系我们</button>`;
-    const pwaInstallButton = `<button type="button" class="nav-pwa-install-button" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i><span>安装应用</span></button>`;
+    const pwaInstallButton = `<button type="button" class="nav-pwa-install-button" aria-label="安装应用" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i><span>安装应用</span></button>`;
     const pwaDrawerInstall = `<button type="button" class="nav-link nav-button nav-pwa-install-link" data-pwa-install hidden><i class="ph ph-download-simple" aria-hidden="true"></i>安装到设备</button>`;
     const adminLink = user?.isAdmin ? `<a href="/admin" class="nav-link admin-link"><i class="ph ph-shield-check"></i> 管理后台</a>` : '';
     const displayName = String(user?.name || user?.email || user?.phone || '教师用户');

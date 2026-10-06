@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
+    <title>科研写作 · AI 教师培训中心</title>
+    <meta name="description" content="把教学困扰聚焦成研究问题，用五读法填写文献精读卡。AI 追问与整理，选题、判断和结论由教师来做。">
+    <meta property="og:title" content="科研写作 · AI 教师培训中心">
+    <meta property="og:description" content="研究问题漏斗与文献精读卡，面向中小学教师的论文与课题写作支持。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai.teachailab.com/research">
+    <meta property="og:image" content="https://ai.teachailab.com/assets/og/agents.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://ai.teachailab.com/assets/og/agents.jpg">
+    <link rel="canonical" href="https://ai.teachailab.com/research">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon.png">
+    <meta name="theme-color" content="#17212b">
+    <meta name="application-name" content="AI 教师培训中心">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AI 教研">
+    <link rel="stylesheet" href="css/style.css?v=20261006-research-nav">
+    <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
+    <style>
+        .rs-wrap{max-width:1240px;margin:auto;padding:48px 24px 88px;color:var(--text)}
+        .rs-wrap [hidden]{display:none!important}.rs-kicker{font:11px var(--font-mono);letter-spacing:.12em;color:#245b78;margin:0 0 18px}
+        .rs-hero{padding:20px 0 34px;border-bottom:1px solid var(--line)}.rs-hero h1{font-size:clamp(32px,4.4vw,54px);line-height:1.25;color:var(--ink);letter-spacing:-.03em;margin:0 0 22px}.rs-hero h1:focus,.rs-heading h2:focus{outline:none}.rs-sub{max-width:740px;line-height:1.85}
+        .rs-principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin:30px 0}.rs-principles h2{font-size:16px;color:var(--ink);margin:0 0 10px}.rs-principles i{color:#245b78;margin-right:8px}.rs-principles p,.rs-note{font-size:13px;line-height:1.8;color:var(--muted);margin:8px 0}
+        .rs-tools{display:grid;grid-template-columns:1fr 1fr;gap:20px}.rs-tool{padding:28px;text-align:left;border:1px solid var(--line);border-radius:12px;background:white;color:var(--text);cursor:pointer}.rs-tool:hover{transform:translateY(-1px);border-color:#245b78}.rs-tool h2{margin:16px 0 12px;font-size:24px;color:var(--ink)}.rs-tool>i{font-size:28px;color:#245b78}.rs-tool p{line-height:1.8;margin:0 0 18px}.rs-tool small{color:#245b78}.rs-home-library{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 0;border-bottom:1px solid var(--line)}
+        .rs-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.rs-heading h2{font-size:28px;margin:12px 0 0;color:var(--ink)}.rs-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);font:600 14px var(--font-sans);cursor:pointer;text-decoration:none}.rs-btn:hover{border-color:#245b78;background:var(--soft)}.rs-btn:disabled{opacity:.55;cursor:wait}.rs-primary{background:var(--brand);border-color:var(--brand);color:white}.rs-primary:hover{background:var(--brand);color:white}.rs-btn:focus-visible,.rs-tool:focus-visible,.rs-wrap input:focus-visible,.rs-wrap textarea:focus-visible{outline:3px solid #245b78;outline-offset:3px}
+        .rs-workspace{display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px}.rs-panel{background:white;border:1px solid var(--line);border-radius:12px;padding:24px;min-width:0}.rs-controls{align-self:start}.rs-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.rs-actions.rs-column{flex-direction:column;align-items:stretch}.rs-steps{list-style:none;padding:0;margin:0 0 24px}.rs-steps li{display:flex;align-items:center;gap:12px;padding:12px;border-left:2px solid var(--line);font-size:14px}.rs-steps li[aria-current=step]{border-color:#245b78;background:var(--soft);color:#245b78;font-weight:700}.rs-steps span{font:12px var(--font-mono)}
+        .rs-label{display:block;font-weight:600;font-size:14px;color:var(--ink);margin:20px 0 8px}.rs-input{display:block;width:100%;border:1px solid var(--line);border-radius:7px;padding:10px 12px;font:14px var(--font-sans);color:var(--ink);background:white;min-height:44px;resize:vertical;box-sizing:border-box}.rs-tabs{display:flex;gap:8px}.rs-tabs .rs-btn[aria-selected=true]{background:var(--soft);border-color:#245b78;color:#245b78}.rs-drop{border:1px dashed #245b78;padding:20px 12px;border-radius:8px;margin-top:16px;text-align:center;background:var(--soft)}.rs-drop label{display:block;margin-bottom:12px;cursor:pointer}.rs-drop input{max-width:100%;font:13px var(--font-sans)}.rs-error{color:#a76f18;font-size:14px;line-height:1.8;overflow-wrap:anywhere}.rs-model{color:#245b78;font:12px var(--font-mono);min-height:20px;margin-bottom:12px;overflow-wrap:anywhere}
+        .rs-chat-stream{height:min(66vh,600px);overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto;padding:8px 4px}.rs-chat-bubble{padding:16px 18px;margin-bottom:16px;background:var(--soft);border-radius:9px;overflow-wrap:anywhere;line-height:1.85;font-size:14px}.rs-chat-bubble[data-role=user]{margin-left:28px;background:white;border:1px solid var(--line)}.rs-chat-bubble b.rs-speaker{display:block;font-size:12px;color:#245b78;margin-bottom:8px}.rs-chat-bubble table{display:block;overflow-x:auto;max-width:100%}.rs-chat-bubble th,.rs-chat-bubble td{padding:8px;border:1px solid var(--line)}.rs-chat-compose{border-top:1px solid var(--line);padding-top:16px}.rs-starters{display:flex;flex-direction:column;gap:8px;margin:12px 0}.rs-starters button{text-align:left;justify-content:flex-start;font-weight:400;font-size:13px}
+        .rs-table-wrap{overflow-x:auto}.rs-table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.8}.rs-table th,.rs-table td{padding:14px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}.rs-table th{font-weight:600;color:var(--ink);background:var(--soft)}.rs-table td:first-child{width:115px;color:var(--ink);font-weight:600}.rs-table td:last-child{width:140px;font-size:12px;color:var(--muted)}.rs-unclear{color:var(--muted)}.rs-table textarea{min-height:85px;margin:4px 0 12px}.rs-citation{font-size:17px;line-height:1.65;color:var(--ink);margin:0 0 10px}.rs-citation-edit{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.rs-citation-edit label{font-size:13px}.rs-raw{max-height:240px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px var(--font-mono);background:var(--soft);padding:16px}.rs-details{margin-top:24px}.rs-details summary{cursor:pointer;min-height:44px;font-size:14px;color:#245b78}.rs-library-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:14px;padding:22px 0;border-bottom:1px solid var(--line)}.rs-library-row h3{font-size:17px;color:var(--ink);margin:0 0 6px;overflow-wrap:anywhere}.rs-library-row p{font-size:13px;margin:6px 0;overflow-wrap:anywhere}.rs-library-row small{color:var(--muted)}.rs-empty{padding:40px 16px;text-align:center;color:var(--muted)}.rs-dialog{width:min(850px,calc(100% - 32px));max-height:85vh;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:24px;background:white;color:var(--text)}.rs-dialog::backdrop{background:rgba(23,33,43,.45)}.rs-dialog h2{color:var(--ink);margin:0 0 16px}.rs-save-dialog{max-width:480px}.rs-legacy{overflow-wrap:anywhere;line-height:1.85}.rs-help-table td:last-child{width:auto}
+        @media(max-width:1080px){.rs-workspace{grid-template-columns:1fr}.rs-steps{display:grid;grid-template-columns:repeat(4,1fr)}.rs-steps li{padding:10px 6px;gap:6px;font-size:12px}.rs-controls .rs-column{flex-direction:row}.rs-chat-stream{height:min(66vh,600px)}}
+        @media(max-width:560px){.rs-wrap{padding:28px 16px 64px}.rs-hero{padding-top:12px}.rs-principles,.rs-tools{grid-template-columns:1fr;gap:16px}.rs-tool{padding:22px}.rs-principles p{margin-bottom:0}.rs-panel{padding:16px}.rs-input{font-size:16px}.rs-heading{align-items:flex-start}.rs-heading h2{font-size:24px}.rs-home-library{align-items:flex-start;flex-direction:column}.rs-table th,.rs-table td{padding:10px 6px}.rs-table td:first-child{width:68px;font-size:12px}.rs-table td:last-child{width:65px;font-size:11px}.rs-library-row{grid-template-columns:24px minmax(0,1fr)}.rs-library-row>.rs-actions{grid-column:2}.rs-dialog{padding:16px}.rs-steps span{display:none}}
+        @media(prefers-reduced-motion:reduce){.rs-tool:hover{transform:none}}
+    </style>
+</head>
+<body>
+<div id="main-nav"></div>
+<main id="main-content" class="rs-wrap">
+    <section id="rs-home" class="rs-view">
+        <div class="rs-hero"><p class="rs-kicker">科研写作 · RESEARCH WRITING</p><h1 tabindex="-1">把教学困扰，变成能研究的问题</h1><p class="rs-sub">面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、整理；选题、判断和结论由你来做。</p></div>
+        <div class="rs-principles">
+            <div><h2><i class="ph ph-books" aria-hidden="true"></i>AI 不替你找文献</h2><p>文献必须来自知网、国家哲学社会科学文献中心等数据库，模型只负责读和整理。</p></div>
+            <div><h2><i class="ph ph-pencil" aria-hidden="true"></i>AI 不替你下判断</h2><p>精读卡的“与我的研究的关系”和最终评价由你亲自写。</p></div>
+            <div><h2><i class="ph ph-shield-check" aria-hidden="true"></i>不上传学生个人信息</h2><p>描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。</p></div>
+        </div>
+        <div class="rs-tools">
+            <button type="button" class="rs-tool" data-route="funnel"><i class="ph ph-funnel" aria-hidden="true"></i><h2>研究问题漏斗</h2><p>只追问，不给答案，六轮之内把困扰聚焦成研究问题</p><small>聚焦结果 + 五种结构的标题 →</small></button>
+            <button type="button" class="rs-tool" data-route="reading-card"><i class="ph ph-note" aria-hidden="true"></i><h2>文献精读卡</h2><p>上传一篇 PDF，按五读法填一张可核对的精读卡</p><small>十栏精读卡 + 卡片夹 CSV →</small></button>
+        </div>
+        <div class="rs-home-library" id="rs-home-library">登录后可保存精读卡并导出表格</div>
+        <p class="rs-note">更多工具陆续推出：主题综合、评审专家、技术路线图。</p>
+    </section>
+    <section id="rs-funnel" class="rs-view" hidden>
+        <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="">← 科研写作</a><h2 tabindex="-1">研究问题漏斗</h2></div><a class="rs-btn" href="/workspace">我的备课本</a></div>
+        <div class="rs-workspace">
+            <aside class="rs-panel rs-controls"><ol class="rs-steps" id="rs-phases"></ol><div class="rs-actions rs-column" id="rs-funnel-actions"></div><p class="rs-note">描述学生时请用“某生”“A 同学”，不要出现真实姓名。</p><button type="button" class="rs-btn" id="rs-clear">清空重来</button><p class="rs-note">刷新页面会丢失未保存的对话</p></aside>
+            <div class="rs-panel"><div class="rs-model" id="rs-funnel-model"></div><div id="rs-chat" class="rs-chat-stream" aria-live="polite"></div><div id="rs-starters" class="rs-starters"></div><form id="rs-chat-form" class="rs-chat-compose"><label for="rs-message" class="rs-label">说说你的困扰，或回答刚才的问题</label><textarea class="rs-input" id="rs-message" rows="3" placeholder="Enter 发送，Shift+Enter 换行"></textarea><div class="rs-actions"><button type="submit" class="rs-btn rs-primary" id="rs-send">发送</button><button type="button" class="rs-btn" id="rs-stop" hidden>停止生成</button></div><p id="rs-chat-error" class="rs-error" role="alert"></p></form></div>
+        </div>
+    </section>
+    <section id="rs-reading-card" class="rs-view" hidden>
+        <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="">← 科研写作</a><h2 tabindex="-1">文献精读卡</h2></div><a href="#library" data-route="library" class="rs-btn">文献卡片夹</a></div>
+        <div class="rs-workspace">
+            <form class="rs-panel rs-controls" id="rs-reading-form">
+                <div class="rs-tabs" role="tablist" aria-label="文献来源"><button type="button" class="rs-btn" id="rs-pdf-tab" role="tab" aria-controls="rs-pdf-panel" aria-selected="true">上传 PDF</button><button type="button" class="rs-btn" id="rs-text-tab" role="tab" aria-controls="rs-text-panel" aria-selected="false" tabindex="-1">粘贴文本</button></div>
+                <div id="rs-pdf-panel" role="tabpanel" aria-labelledby="rs-pdf-tab"><div class="rs-drop" id="rs-drop"><label for="rs-file">拖放 PDF 到这里，或选择文件</label><input type="file" id="rs-file" accept=".pdf,application/pdf"></div><p id="rs-pdf-status" class="rs-note" role="status"></p></div>
+                <div id="rs-text-panel" role="tabpanel" aria-labelledby="rs-text-tab" hidden><label class="rs-label" for="rs-text">论文文本</label><textarea class="rs-input" id="rs-text" rows="9"></textarea><p class="rs-note" id="rs-text-count" role="status">0 / 60,000 字</p></div>
+                <p class="rs-note">知网默认下载的 .caj 格式无法读取，请在知网下载页选择 PDF。扫描版 PDF 没有文字层，请先用 WPS 或知网的 OCR 转成文字再粘贴。</p>
+                <label class="rs-label" for="rs-question">我的研究问题（必填，≤ 300 字）</label><textarea class="rs-input" id="rs-question" rows="3" maxlength="300" required placeholder="例如：分层作业如何影响学生的参与？"></textarea>
+                <label class="rs-label" for="rs-meta">文献信息（可选）</label><input class="rs-input" id="rs-meta" maxlength="600" placeholder="作者，年份，题目；留空则从文本识别">
+                <div class="rs-actions"><button type="submit" class="rs-btn rs-primary" id="rs-generate">生成精读卡</button></div><p class="rs-note">一篇文献生成一次即可；需要重做请先修改研究问题或文本</p><p id="rs-reading-error" class="rs-error" role="alert"></p>
+                <p class="rs-note">PDF 只在你的浏览器里提取文字，文件本身不会上传。提取出的文字会发送给模型服务商用于生成，本站不保存全文，只保存生成的卡片。请勿上传含学生姓名等个人信息的材料。</p>
+                <details class="rs-details"><summary>精读卡栏目说明</summary><div class="rs-table-wrap"><table class="rs-table rs-help-table"><thead><tr><th>栏目</th><th>对应五读</th><th>填什么</th></tr></thead><tbody id="rs-help-rows"></tbody></table></div></details>
+            </form>
+            <div class="rs-panel"><div class="rs-model" id="rs-reading-model"></div><div id="rs-reading-output" aria-live="polite"><p class="rs-empty">选择一篇文献，填好研究问题，开始阅读。</p></div></div>
+        </div>
+    </section>
+    <section id="rs-library" class="rs-view" hidden>
+        <div class="rs-heading"><div><a href="/research" data-route="" class="rs-btn">← 科研写作</a><h2 tabindex="-1">我的文献卡片夹</h2></div><a href="#reading-card" data-route="reading-card" class="rs-btn rs-primary">新建精读卡</a></div>
+        <div class="rs-panel"><label for="rs-filter" class="rs-label">研究问题筛选</label><select class="rs-input" id="rs-filter"><option value="">全部研究问题</option></select><div class="rs-actions"><button type="button" class="rs-btn" id="rs-export-csv">导出 CSV</button><button type="button" class="rs-btn" id="rs-export-md">导出 Markdown 汇总</button><button type="button" class="rs-btn" id="rs-library-reload">刷新卡片夹</button></div><p class="rs-note">CSV 可用 Excel / WPS 直接打开；导出当前筛选下的卡片。</p><p class="rs-error" id="rs-library-error" role="alert"></p><div id="rs-library-list" aria-live="polite"></div></div>
+    </section>
+</main>
+<div id="site-footer"></div>
+<dialog class="rs-dialog rs-save-dialog" id="rs-save-dialog" aria-labelledby="rs-save-heading"><form id="rs-save-form"><h2 id="rs-save-heading">确认保存标题</h2><label class="rs-label" for="rs-save-title">标题</label><input class="rs-input" id="rs-save-title" maxlength="160" required><div class="rs-actions"><button class="rs-btn rs-primary" id="rs-save-submit" type="submit">保存</button><button class="rs-btn" type="button" id="rs-save-cancel">取消</button></div><p class="rs-error" id="rs-save-error" role="alert"></p></form></dialog>
+<dialog class="rs-dialog" id="rs-card-dialog" aria-labelledby="rs-card-heading"><div class="rs-heading"><h2 id="rs-card-heading">已保存的精读卡</h2><button type="button" class="rs-btn" id="rs-card-close">关闭</button></div><div id="rs-card-detail"></div><button type="button" class="rs-btn" id="rs-card-copy">复制 Markdown</button></dialog>
+<!-- 固定版本与加载顺序遵循站点通用栈。 -->
+<script src="/vendor/marked/9.1.6/marked.min.js"></script>
+<script src="js/safe-render.js?v=20260719-security"></script>
+<script src="/vendor/firebase/10.12.0/firebase-app-compat.js"></script>
+<script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
+<script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/account-policy.js?v=20260924-local-email-direct"></script>
+<script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
+<script src="js/data.js?v=20261003-tencent-admin"></script>
+<script src="js/site-copy.js?v=20260924-local-email-direct"></script>
+<script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
+<script src="js/auth.js?v=20261006-research-nav"></script>
+<script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
+<script src="js/email-gate.js?v=20260924-local-email-direct"></script>
+<script src="js/analytics-policy.js?v=20260928-privacy1"></script>
+<script src="js/analytics.js?v=20260930-privacy-service"></script>
+<script src="js/agent-stream.js?v=20260924-local-email-direct"></script>
+<script src="js/research-core.js?v=20261006-research"></script>
+<script src="js/research-data.js?v=20261006-research"></script>
+<script>
+(function () {
+    const $ = id => document.getElementById(id), C = ResearchCore, [funnel, reading] = RESEARCH_AGENTS;
+    const esc = value => SafeRender.escape(String(value ?? ''));
+    const login = () => requireLogin(null, '请先登录后使用科研写作工具');
+    let uid = Auth.getCurrentUser()?.uid || '', epoch = 0, view = '', history = [], generation = null, extracting = null;
+    let sourceType = 'pdf', pdf = null, textTruncated = false, card = null, cardContext = null, raw = '', readOnly = false;
+    let works = [], libraryRequest = 0, pendingWork = null, detailWork = null, loadedWork = '';
+    const same = (userId, version) => uid === userId && epoch === version;
+    const btn = (label, action) => `<button type="button" class="rs-btn" data-funnel-action="${action}">${label}</button>`;
+    function modelLabel(response, id) {
+        const provider = response.headers.get('X-Agent-Provider'), model = response.headers.get('X-Agent-Model'), fallback = response.headers.get('X-Agent-Fallback-From');
+        $(id).textContent = `${({deepseek:'DeepSeek',zhipu:'智谱 GLM-5.2'})[provider] || provider || '模型'} · ${model || ''}${fallback ? `（从 ${fallback} 回退）` : ''}`;
+    }
+    function updatePhase() {
+        const {phase, round} = C.detectFunnelPhase(history), active = ['start','probing','focused','titles'].indexOf(phase);
+        $('rs-phases').innerHTML = ['描述困扰',`逐步追问（第 ${round}/6 轮）`,'聚焦结果','标题方案'].map((label,i) => `<li${i===active?' aria-current="step"':''}><span>${i+1}</span>${label}</li>`).join('');
+        let html = '';
+        if (phase === 'probing') { html += btn('请继续追问，不要给建议','continueProbing'); if(round >= 1) html += btn('跳过追问，直接总结','summarize'); }
+        if (phase === 'focused') html += btn('生成五种结构的标题','titles');
+        if (phase === 'titles') html += btn('换一组标题','retitle');
+        if (['focused','titles'].includes(phase)) html += btn('保存到备课本（完整对话）','saveChat')+btn('仅保存聚焦结果与标题','saveResult')+btn('复制结果','copy');
+        $('rs-funnel-actions').innerHTML = html;
+        $('rs-funnel-actions').querySelectorAll('button').forEach(b => {b.disabled=!!generation;});
+        $('rs-send').disabled = !!generation;
+        $('rs-stop').hidden = generation?.kind !== 'funnel';
+        $('rs-starters').hidden = history.length > 0;
+    }
+    function bubble(role, text) {
+        const node = document.createElement('div'); node.className='rs-chat-bubble'; node.dataset.role=role;
+        node.innerHTML=`<b class="rs-speaker">${role==='user'?'我':'漏斗'}</b><div>${SafeRender.markdown(text)}</div>`;
+        $('rs-chat').append(node); return node;
+    }
+    function renderChat() {
+        $('rs-chat').replaceChildren(); bubble('assistant',funnel.greeting);
+        history.forEach(h => bubble(h.role,h.content)); updatePhase();
+    }
+    function stopGeneration() { generation?.controller.abort(new Error('已停止生成')); }
+    async function send(text = $('rs-message').value.trim()) {
+        if(generation || !text.trim()) return;
+        if(text.length>funnel.maxUserChars) { $('rs-chat-error').textContent='单条输入不能超过 2,000 字，请缩短后发送'; return; }
+        const user=login(); if(!user) return;
+        const version=epoch, userId=user.uid;
+        const run={kind:'funnel',controller:new AbortController()}; generation=run;
+        history.push({role:'user',content:text}); bubble('user',text); const target=bubble('assistant','正在追问…');
+        $('rs-message').value=''; $('rs-chat-error').textContent=''; updatePhase();
+        const paint = output => { target.lastElementChild.innerHTML=SafeRender.markdown(output); $('rs-chat').scrollTop=$('rs-chat').scrollHeight; };
+        try {
+            const idToken=await Auth.getIdToken(); if(!same(userId,version)) return; if(run.controller.signal.aborted) throw new Error('已停止生成');
+            const full=await AgentStream.request({payload:{messages:C.buildFunnelMessages(funnel.requestSystem,history),idToken,agentId:funnel.id,curriculum:null},signal:run.controller.signal,
+                onToken:full=>{if(same(userId,version)&&generation===run) paint(full);},onResponse:r=>{if(same(userId,version)) modelLabel(r,'rs-funnel-model');}});
+            if(!same(userId,version)||generation!==run) return;
+            history.push({role:'assistant',content:full}); paint(full);
+        } catch(e) {
+            if(!same(userId,version)||generation!==run) return;
+            history.pop(); paint(e.partial || '');
+            const note=document.createElement('p'); note.className='rs-error'; note.setAttribute('role','alert'); note.textContent=`本次内容未完成：${e.message}`; target.append(note);
+            $('rs-message').value=text; $('rs-chat-error').textContent=e.message;
+        } finally { if(generation===run) {generation=null;updatePhase();} }
+    }
+    function setSource(type) {
+        sourceType=type;
+        ['pdf','text'].forEach(t=>{ $('rs-'+t+'-panel').hidden=t!==type; $('rs-'+t+'-tab').setAttribute('aria-selected',String(t===type));$('rs-'+t+'-tab').tabIndex=t===type?0:-1; });
+    }
+    async function extractFile(file) {
+        if(!file || generation) return;
+        extracting?.abort(); const controller=new AbortController(); extracting=controller;
+        const version=epoch; pdf=null; $('rs-reading-error').textContent='';$('rs-pdf-status').textContent='正在浏览器内提取文字…';$('rs-generate').disabled=true;
+        try {
+            await import('./js/research-pdf.js?v=20261006-research');
+            const result=await ResearchPdf.extract(file,{signal:controller.signal,onProgress:p=>{if(epoch===version&&extracting===controller)$('rs-pdf-status').textContent=`正在提取 ${p.pagesRead} / ${p.pageCount} 页…`;}});
+            if(epoch!==version||extracting!==controller) return;
+            if(result.scanned) { $('rs-pdf-status').textContent='扫描版 PDF 没有足够文字层，请先用 WPS 或知网 OCR 转成文字再粘贴。';setSource('text');$('rs-reading-error').textContent=$('rs-pdf-status').textContent;return; }
+            pdf={...result,fileName:file.name};setSource('pdf');
+            $('rs-pdf-status').textContent=`已提取 ${result.pagesRead} / ${result.pageCount} 页、约 ${result.charCount.toLocaleString()} 字${result.truncated?'；已截断至 60,000 字或前 60 页，建议只保留正文部分重新上传或改为粘贴':''}`;
+        } catch(e) { if(epoch===version&&extracting===controller){$('rs-pdf-status').textContent=e.message;$('rs-reading-error').textContent=e.message;} }
+        finally {if(extracting===controller){extracting=null;$('rs-generate').disabled=false;}}
+    }
+    function renderCard(target, value, question, editable=false, context='') {
+        const rows=C.cardRows(value), relationLabels=['可借鉴','可质疑','留下的空白'];
+        let html=`<p class="rs-citation">${esc(C.citationText(value.citation))}</p><p class="rs-note">我的研究问题：${esc(question)}</p>`;
+        if(editable) html+=`<p class="rs-note">这两栏请用你自己的话改写后再保存</p><details class="rs-details"><summary>修正文献信息</summary><div class="rs-citation-edit">${['authors','year','title','journal'].map((key,i)=>`<label for="rs-citation-${key}">${['作者','年份','题目','期刊'][i]}<input id="rs-citation-${key}" class="rs-input" data-citation="${key}" maxlength="600" value="${esc(value.citation[key])}"></label>`).join('')}<label for="rs-citation-core">核心期刊<select id="rs-citation-core" class="rs-input" data-citation="isCore">${['是','否','未知'].map(v=>`<option${v===value.citation.isCore?' selected':''}>${v}</option>`).join('')}</select></label></div></details>`;
+        html+=`<div class="rs-table-wrap"><table class="rs-table"><thead><tr><th>栏目</th><th>内容</th><th>依据位置</th></tr></thead><tbody>${rows.map(r=>{
+            let content=esc(r.value);
+            if(editable&&r.key==='relevance') content=['borrow','challenge','gap'].map((k,i)=>`<label for="rs-edit-${k}">${relationLabels[i]}</label><textarea id="rs-edit-${k}" class="rs-input" data-relation="${k}" maxlength="7200">${esc(value.relevance[k].join('\n'))}</textarea>`).join('');
+            if(editable&&r.key==='verdict') content=`<label class="sr-only" for="rs-edit-verdict">一句话评价</label><textarea id="rs-edit-verdict" class="rs-input" data-verdict maxlength="600">${esc(value.verdict)}</textarea>`;
+            return `<tr><td>${r.label}</td><td${r.value.includes('原文未明确')?' class="rs-unclear"':''}>${r.value.includes('原文未明确')?'ⓘ ':''}${content}</td><td>${esc(r.source)}</td></tr>`;
+        }).join('')}</tbody></table></div>`;
+        if(context) html+=`<p class="rs-note">${esc(context)}</p>`;
+        target.innerHTML=html;
+        
+    }
+    function editCard() {
+        if(!card || readOnly) return;
+        $('rs-reading-output').querySelectorAll('[data-citation]').forEach(el=>card.citation[el.dataset.citation]=el.value.trim() || '原文未明确');
+        $('rs-reading-output').querySelectorAll('[data-relation]').forEach(el=>card.relevance[el.dataset.relation]=el.value.split('\n').map(s=>s.trim().slice(0,600)).filter(Boolean).slice(0,12));
+        const verdict=$('rs-edit-verdict');if(verdict) card.verdict=verdict.value.trim()||'原文未明确';
+        const citation=$('rs-reading-output').querySelector('.rs-citation');if(citation)citation.textContent=C.citationText(card.citation);
+        const citationCell=$('rs-reading-output').querySelector('tbody tr:first-child td:nth-child(2)');if(citationCell)citationCell.textContent=C.citationText(card.citation);
+    }
+    function showReadingCard(warnings=[]) {
+        renderCard($('rs-reading-output'),card,cardContext?.question||'',!readOnly,warnings.length?`以下项模型未给出：${warnings.join('、')}`:'');
+        $('rs-reading-output').insertAdjacentHTML('beforeend',`<div class="rs-actions">${readOnly?'':`<button class="rs-btn rs-primary" type="button" data-reading-action="save">保存到卡片夹</button>`}<button class="rs-btn" type="button" data-reading-action="md">复制 Markdown</button><button class="rs-btn" type="button" data-reading-action="tsv">复制为表格行（TSV）</button>${readOnly?'<a class="rs-btn" href="#reading-card" id="rs-new-card">新建精读卡</a>':'<button class="rs-btn" type="button" data-reading-action="retry">重新生成</button>'}</div>`);
+    }
+    async function generateCard() {
+        if(generation){stopGeneration();return;}
+        const user=login();if(!user||extracting)return;
+        const question=$('rs-question').value.trim(), text=sourceType==='pdf'?pdf?.text:$('rs-text').value.trim();
+        if(!question||question.length>300||!text){$('rs-reading-error').textContent='请填写研究问题，并提供含文字的 PDF 或论文文本';return;}
+        const version=epoch,userId=user.uid,run={kind:'reading',controller:new AbortController()};generation=run;card=null;raw='';readOnly=false;
+        cardContext={question,sourceType,fileName:sourceType==='pdf'?pdf.fileName:'',pageCount:sourceType==='pdf'?pdf.pageCount:0,charCount:text.length,truncated:sourceType==='pdf'?pdf.truncated:textTruncated};
+        $('rs-generate').textContent='停止';$('rs-reading-error').textContent='';
+        $('rs-reading-output').innerHTML='<p id="rs-reading-progress" role="status">正在阅读并填卡…已接收 0 字</p><details class="rs-details"><summary>原始输出</summary><pre class="rs-raw" id="rs-reading-raw"></pre></details>';
+        $('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=true);
+        try {
+            const idToken=await Auth.getIdToken();if(!same(userId,version))return; if(run.controller.signal.aborted)throw new Error('已停止生成');
+            const full=await AgentStream.request({payload:{idToken,agentId:reading.id,curriculum:null,messages:[{role:'system',content:reading.requestSystem},{role:'user',content:reading.buildUserMessage({...cardContext,meta:$('rs-meta').value.trim(),text})}]},signal:run.controller.signal,
+                onToken:value=>{if(same(userId,version)&&generation===run){raw=value;$('rs-reading-progress').textContent=`正在阅读并填卡…已接收 ${value.length.toLocaleString()} 字`;$('rs-reading-raw').textContent=value;$('rs-reading-raw').scrollTop=$('rs-reading-raw').scrollHeight;}},onResponse:r=>{if(same(userId,version))modelLabel(r,'rs-reading-model');}});
+            if(!same(userId,version)||generation!==run)return;raw=full;const parsed=C.parseReadingCard(full);
+            if(parsed){card=parsed.card;showReadingCard(parsed.warnings);}else renderRaw('模型没有按表格格式返回，可点重新生成');
+        }catch(e){if(same(userId,version)&&generation===run){raw=e.partial||raw;renderRaw(`本次内容未完成：${e.message}`);$('rs-reading-error').textContent=e.message;}}
+        finally{if(generation===run){generation=null;$('rs-generate').textContent='生成精读卡';$('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=false);}}
+    }
+    function renderRaw(message){card=null;$('rs-reading-output').innerHTML=`<p class="rs-error" role="alert">${esc(message)}</p><div class="rs-legacy">${SafeRender.markdown(raw)}</div><div class="rs-actions"><button type="button" class="rs-btn" data-reading-action="retry">重新生成</button><button type="button" class="rs-btn" data-reading-action="raw">复制原文</button></div>`;}
+    async function copy(text){try{await navigator.clipboard.writeText(text);showToast('已复制');}catch{showToast('复制失败，请选择文字后手动复制');}}
+    function transcript(){return '# 研究问题漏斗 · 对话记录\n\n'+history.map(h=>`**${h.role==='user'?'我':'漏斗'}：**\n\n${h.content}`).join('\n\n');}
+    function prepareSave(kind){
+        const user=login();if(!user||generation)return;
+        if(kind==='card'){
+            if(!card||readOnly)return;editCard();
+            pendingWork={uid:user.uid,agentId:reading.id,agentName:reading.name,agentType:'form',workType:'draft',title:`${card.citation.authors}（${card.citation.year}）${card.citation.title}`.slice(0,160),content:C.cardToMarkdown(card,{question:cardContext.question}),inputs:{_module:'research',_card:JSON.parse(JSON.stringify(card)),_researchQuestion:cardContext.question,_sourceType:cardContext.sourceType,_fileName:cardContext.fileName,_pageCount:cardContext.pageCount,_charCount:cardContext.charCount,_truncated:cardContext.truncated}};
+        }else{
+            const result=C.extractFunnelResult(history),state=C.detectFunnelPhase(history);if(!result.focus&&!result.titles)return;
+            const inputs={_module:'research',_phase:state.phase,_researchQuestion:result.question};const titles=C.extractTitles(result.titles);if(kind==='result'&&titles)inputs._titles=titles;
+            pendingWork={uid:user.uid,agentId:funnel.id,agentName:funnel.name,agentType:'chat',workType:kind==='chat'?'chat':'draft',title:(result.question||history.find(h=>h.role==='user')?.content.slice(0,40)||'研究问题漏斗').slice(0,160),content:kind==='chat'?transcript():[result.focus,result.titles].filter(Boolean).join('\n\n'),inputs};
+        }
+        $('rs-save-title').value=pendingWork.title;$('rs-save-error').textContent='';$('rs-save-dialog').showModal();$('rs-save-title').focus();
+    }
+    async function savePending(event){
+        event.preventDefault();if($('rs-save-submit').disabled)return;const user=login(),work=pendingWork,version=epoch;if(!user||!work||work.uid!==user.uid)return;
+        const title=$('rs-save-title').value.trim();if(!title)return;
+        if(new TextEncoder().encode(JSON.stringify({...work,title})).length>285000){$('rs-save-error').textContent='内容过长，请仅保存聚焦结果与标题，或缩短正文后重试';return;}
+        $('rs-save-submit').disabled=true;
+        try{await DB.saveWork({...work,title});if(same(user.uid,version)){pendingWork=null;$('rs-save-dialog').close();showToast(work.agentId===reading.id?'已保存到文献卡片夹和「我的备课本」':'已保存到「我的备课本」');await loadLibrary(false);}}
+        catch(e){if(same(user.uid,version))$('rs-save-error').textContent=`保存失败：${e.message}，可重试`;}
+        finally{$('rs-save-submit').disabled=false;}
+    }
+    const selectedWorks=()=>works.filter(w=>!$('rs-filter').value||w.inputs?._researchQuestion===$('rs-filter').value);
+    function updateLibraryLink(){const target=$('rs-home-library');target.innerHTML=uid?`<a href="#library" data-route="library" class="rs-btn">我的文献卡片夹（${works.length} 张）</a><span class="rs-note">精读卡保存在「我的备课本」中</span>`:'登录后可保存精读卡并导出表格';}
+    function renderLibrary(){
+        const list=selectedWorks();$('rs-export-csv').disabled=!list.length;$('rs-export-md').disabled=!list.length;
+        $('rs-library-list').innerHTML=list.length?list.map((w,i)=>{
+            const parsed=w.inputs?._card&&C.parseReadingCard(JSON.stringify(w.inputs._card)),v=parsed?.card;
+            return `<article class="rs-library-row"><span>${i+1}</span><div><h3>${esc(v?.citation.title||w.title)}</h3><p>${esc(v?`${v.citation.authors}（${v.citation.year}）`:'结构化数据缺失')}</p><p>方法：${esc((v?.method||'原文未明确').slice(0,40))}</p><p>评价：${esc((v?.verdict||'结构化数据缺失').slice(0,60))}</p><small>保存日期：${esc(C.savedDate(w.createdAt).slice(0,10))}</small></div><div class="rs-actions"><button class="rs-btn" type="button" data-view-card="${esc(w.id)}">查看</button><button class="rs-btn" type="button" data-delete-card="${esc(w.id)}">删除</button></div></article>`;
+        }).join(''):'<p class="rs-empty">还没有符合条件的精读卡。<br><a href="#reading-card" data-route="reading-card" class="rs-btn">新建精读卡</a></p>';
+    }
+    async function loadLibrary(showErrors=true){
+        const user=showErrors?login():Auth.getCurrentUser();if(!user)return;
+        const userId=user.uid,version=epoch,request=++libraryRequest;if(showErrors)$('rs-library-list').textContent='正在加载精读卡…';
+        try{const all=await DB.getMyWorks(userId);if(!same(userId,version)||request!==libraryRequest)return;
+            works=all.filter(w=>w.agentId===reading.id);const selected=$('rs-filter').value;
+            $('rs-filter').innerHTML='<option value="">全部研究问题</option>'+[...new Set(works.map(w=>w.inputs?._researchQuestion).filter(Boolean))].map(q=>`<option value="${esc(q)}">${esc(q)}</option>`).join('');
+            if([...$('rs-filter').options].some(o=>o.value===selected))$('rs-filter').value=selected;
+            $('rs-library-error').textContent='';renderLibrary();updateLibraryLink();
+        }catch(e){if(same(userId,version)&&request===libraryRequest){$('rs-library-error').textContent=`卡片夹加载失败：${e.message}，请点刷新重试`;if(showErrors)$('rs-library-list').replaceChildren();}}
+    }
+    function openCard(work){detailWork=work;const parsed=work.inputs?._card&&C.parseReadingCard(JSON.stringify(work.inputs._card));if(parsed)renderCard($('rs-card-detail'),parsed.card,work.inputs?._researchQuestion||'');else $('rs-card-detail').innerHTML=SafeRender.markdown(work.content||'');$('rs-card-dialog').showModal();}
+    async function deleteCard(id,button){const user=login();if(!user||!confirm('确定删除这张精读卡？它也会从我的备课本中删除。'))return;const version=epoch;button.disabled=true;try{await DB.deleteWork(id);if(same(user.uid,version)){showToast('已删除精读卡');await loadLibrary();}}catch(e){if(same(user.uid,version))$('rs-library-error').textContent=`删除失败：${e.message}，可重试`;}finally{button.disabled=false;}}
+    function download(body,ext,name){const url=URL.createObjectURL(new Blob([body],{type:ext==='csv'?'text/csv;charset=utf-8':'text/markdown;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`${name}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.${ext}`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    function normalizedView(){return ({'research-funnel':'funnel','research-reading-card':'reading-card'})[location.hash.slice(1)]||location.hash.slice(1);}
+    function clearWorkQuery(){const url=new URL(location.href);url.searchParams.delete('work');window.history.replaceState(null,'',url.pathname+url.search+url.hash);loadedWork='';}
+    async function loadSavedWork(){
+        const id=new URLSearchParams(location.search).get('work');if(!id||!uid||loadedWork===`${uid}:${id}`)return;
+        const user=login();if(!user)return;const version=epoch;loadedWork=`${uid}:${id}`;
+        try{const all=await DB.getMyWorks(user.uid);if(!same(user.uid,version))return;const w=all.find(item=>item.id===id);if(!w||!/^research-/.test(w.agentId))throw new Error('科研条目不存在或无权查看');
+            if(w.agentId===funnel.id){history=[{role:'user',content:`请基于以下已有记录继续：\n${w.content}`}];renderChat();showView('funnel');}
+            else{showView('reading-card');const parsed=w.inputs?._card&&C.parseReadingCard(JSON.stringify(w.inputs._card));readOnly=true;cardContext={question:w.inputs?._researchQuestion||''};if(parsed){card=parsed.card;showReadingCard(parsed.warnings);}else{card=null;$('rs-reading-output').innerHTML=SafeRender.markdown(w.content||'');} }
+        }catch(e){if(same(user.uid,version)){loadedWork='';showToast(e.message);}}
+    }
+    function showView(next){view=['funnel','reading-card','library'].includes(next)?next:'';document.querySelectorAll('.rs-view').forEach(el=>el.hidden=el.id!==`rs-${view||'home'}`);$(`rs-${view||'home'}`).querySelector('h1,h2')?.focus({preventScroll:true});}
+    function route(){
+        const next=normalizedView();if(next!==view&&generation){if(!confirm('生成仍在进行，离开会停止生成。确定继续？')){window.history.replaceState(null,'',location.pathname+location.search+(view?'#'+view:''));return;}stopGeneration();}
+        if(next==='library'&&!login()){window.history.replaceState(null,'',location.pathname+location.search);showView('');return;}
+        showView(next);if(view==='library')void loadLibrary();void loadSavedWork();
+    }
+    function resetReading(){card=null;cardContext=null;raw='';pdf=null;readOnly=false;textTruncated=false;['rs-text','rs-meta','rs-file','rs-question'].forEach(id=>$(id).value='');['rs-reading-error','rs-pdf-status','rs-reading-model'].forEach(id=>$(id).textContent='');$('rs-text-count').textContent='0 / 60,000 字';$('rs-reading-output').innerHTML='<p class="rs-empty">选择一篇文献，填好研究问题，开始阅读。</p>';setSource('pdf');}
+    function restoreQuestion(){try{$('rs-question').value=uid?(localStorage.getItem('rsReadingQuestion:'+uid)||'').slice(0,300):'';}catch{$('rs-question').value='';}}
+    function syncAuth(){
+        const next=Auth.getCurrentUser()?.uid||'';
+        if(next!==uid){epoch++;stopGeneration();generation=null;extracting?.abort();extracting=null;uid=next;history=[];works=[];pendingWork=null;detailWork=null;loadedWork='';$('rs-save-dialog').close();$('rs-card-dialog').close();$('rs-card-detail').replaceChildren();resetReading();renderChat();['rs-message','rs-chat-error','rs-funnel-model','rs-library-error'].forEach(id=>$(id).value!==undefined?$(id).value='':$(id).textContent='');$('rs-filter').innerHTML='<option value="">全部研究问题</option>';renderLibrary();$('rs-generate').textContent='生成精读卡';$('rs-generate').disabled=false;$('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=false);restoreQuestion();if(view==='library'&&!uid)showView('');}
+        renderNav('research');renderFooter();updateLibraryLink();if(uid){void loadLibrary(false);void loadSavedWork();}
+    }
+    $('rs-chat-form').addEventListener('submit',e=>{e.preventDefault();void send();});
+    $('rs-message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();void send();}});
+    $('rs-stop').addEventListener('click',stopGeneration);
+    $('rs-clear').addEventListener('click',()=>{if((history.length||generation)&&!confirm('清空未保存的对话并重新开始？'))return;epoch++;stopGeneration();generation=null;history=[];clearWorkQuery();$('rs-message').value='';$('rs-chat-error').textContent='';$('rs-funnel-model').textContent='';renderChat();});
+    $('rs-starters').innerHTML=funnel.starters.map(text=>`<button type="button" class="rs-btn">${esc(text)}</button>`).join('');
+    $('rs-starters').addEventListener('click',e=>{if(e.target.closest('button')){$('rs-message').value=e.target.textContent;$('rs-message').focus();}});
+    $('rs-funnel-actions').addEventListener('click',e=>{const action=e.target.closest('button')?.dataset.funnelAction;if(!action)return;if(action==='saveChat')prepareSave('chat');else if(action==='saveResult')prepareSave('result');else if(action==='copy'){const r=C.extractFunnelResult(history);void copy([r.focus,r.titles].join('\n\n'));}else void send(funnel.commands[action]);});
+    ['pdf','text'].forEach(type=>$('rs-'+type+'-tab').addEventListener('click',()=>setSource(type)));
+    document.querySelector('.rs-tabs').addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const type=e.key==='Home'?'pdf':e.key==='End'?'text':sourceType==='pdf'?'text':'pdf';setSource(type);$('rs-'+type+'-tab').focus();}});
+    $('rs-file').addEventListener('change',()=>void extractFile($('rs-file').files[0]));
+    $('rs-drop').addEventListener('dragover',e=>e.preventDefault());$('rs-drop').addEventListener('drop',e=>{e.preventDefault();void extractFile(e.dataTransfer.files[0]);});
+    $('rs-text').addEventListener('input',()=>{const t=C.truncateText($('rs-text').value,60000);$('rs-text').value=t.text;textTruncated=t.truncated;$('rs-text-count').textContent=`${t.text.length.toLocaleString()} / 60,000 字${t.truncated?'；已截断至 60,000 字，建议只保留正文':''}`;});
+    $('rs-question').addEventListener('input',()=>{if(uid)try{localStorage.setItem('rsReadingQuestion:'+uid,$('rs-question').value);}catch{}});
+    $('rs-reading-form').addEventListener('submit',e=>{e.preventDefault();void generateCard();});
+    $('rs-generate').addEventListener('click',e=>{if(generation){e.preventDefault();stopGeneration();}});
+    $('rs-reading-output').addEventListener('input',editCard);
+    $('rs-reading-output').addEventListener('click',e=>{if(e.target.id==='rs-new-card'){e.preventDefault();clearWorkQuery();resetReading();restoreQuestion();return;}const action=e.target.closest('button')?.dataset.readingAction;if(action==='save')prepareSave('card');else if(action==='md'){editCard();void copy(C.cardToMarkdown(card,{question:cardContext.question}));}else if(action==='tsv'){editCard();void copy(C.cardToTsv(card,cardContext.question));}else if(action==='raw')void copy(raw);else if(action==='retry')void generateCard();});
+    $('rs-save-form').addEventListener('submit',savePending);$('rs-save-cancel').addEventListener('click',()=>{$('rs-save-dialog').close();pendingWork=null;});
+    $('rs-filter').addEventListener('change',renderLibrary);$('rs-library-reload').addEventListener('click',()=>void loadLibrary());
+    $('rs-library-list').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.viewCard){const w=works.find(w=>w.id===b.dataset.viewCard);if(w)openCard(w);}if(b.dataset.deleteCard)void deleteCard(b.dataset.deleteCard,b);});
+    $('rs-card-close').addEventListener('click',()=>$('rs-card-dialog').close());$('rs-card-copy').addEventListener('click',()=>{if(detailWork)void copy(detailWork.content||'');});
+    $('rs-export-csv').addEventListener('click',()=>{if(login()&&selectedWorks().length)download(C.cardsToCsv(selectedWorks()),'csv','文献精读卡');});
+    $('rs-export-md').addEventListener('click',()=>{if(login()&&selectedWorks().length)download(selectedWorks().map(w=>w.content||'').join('\n\n---\n\n'),'md','文献精读卡汇总');});
+    document.addEventListener('click',e=>{const routeLink=e.target.closest('[data-route]');if(routeLink){e.preventDefault();clearWorkQuery();const next=routeLink.dataset.route;if(view!==next)location.hash=next;}});
+    const help=[['文献信息','—','作者、年份、题目、期刊、是否核心'],['研究问题','读摘要','作者要回答什么，一句话'],['对象与情境','读摘要','谁、哪里、多少人、什么学段'],['研究方法','读方法','方法、工具、怎么收数据、怎么分析'],['核心观点','读观点','作者的主张或理论立场'],['主要结论','读结论','数据支持的发现，与观点区分'],['关键引用','读引用','文中反复引用的文献及其作用'],['局限','读结论','作者自认的 + 你看出的'],['与我的研究的关系','综合','可借鉴、可质疑、留下的空白（你来改）'],['一句话评价','综合','值不值得在综述里引，为什么']];
+    $('rs-help-rows').innerHTML=help.map(row=>`<tr>${row.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
+    window.addEventListener('hashchange',route);document.addEventListener('authChanged',syncAuth);document.addEventListener('authRefresh',syncAuth);
+    window.addEventListener('beforeunload',e=>{if(generation){e.preventDefault();e.returnValue='';}});
+    renderNav('research');renderFooter();renderChat();restoreQuestion();route();onAuthReady(syncAuth);
+})();
+</script>
+<script src="js/pwa.js?v=20261006-research"></script>
+<script src="js/assistant.js?v=20261006-research"></script>
+</body>
+</html>

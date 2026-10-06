@@ -61,6 +61,7 @@
     }
 
     const APP_ICONS = {
+        flask: '<path d="M9 3h6M10 3v7l-6 9a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2l-6-9V3M7 16h10"/>',
         home: '<path d="M3.5 11.3 12 4l8.5 7.3v8.2a1.5 1.5 0 0 1-1.5 1.5h-4.5v-6h-5v6H5a1.5 1.5 0 0 1-1.5-1.5z"/>',
         sparkle: '<path d="M12 2.8c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6Z"/><path d="M18.3 15.2c.3 1.8 1.2 2.7 3 3-1.8.3-2.7 1.2-3 3-.3-1.8-1.2-2.7-3-3 1.8-.3 2.7-1.2 3-3Z"/>',
         book: '<path d="M5 4.5h9.5A2.5 2.5 0 0 1 17 7v13H6.5A2.5 2.5 0 0 1 4 17.5v-12A1 1 0 0 1 5 4.5Z"/><path d="M7 8h7M7 11h7M6.5 20A2.5 2.5 0 0 1 9 17.5h8"/>',
@@ -120,6 +121,7 @@
             '/workspace': '我的备课本',
             '/classroom-tools': '课堂工具',
             '/multimodal': '多模态工作坊',
+            '/research': '科研写作',
             '/tools': 'AI 资源精选',
             '/resources': '课件素材',
             '/news': 'AI 资讯',
@@ -262,6 +264,7 @@
                 <div class="pwa-app-quick-grid">
                     <a href="/classroom-tools"><span>${appIcon('classroom')}</span><b>课堂工具</b><small>计时、分组与互动</small></a>
                     <a href="/multimodal"><span>${appIcon('image')}</span><b>多模态工作坊</b><small>图像、音视频案例</small></a>
+                    <a href="/research"><span>${appIcon('flask')}</span><b>科研写作</b><small>选题与文献工具</small></a>
                     <a href="/tools"><span>${appIcon('toolbox')}</span><b>AI 资源精选</b><small>按任务选择工具</small></a>
                     <a href="/resources"><span>${appIcon('folder')}</span><b>课件素材</b><small>常用素材入口</small></a>
                 </div>
@@ -331,6 +334,7 @@
             '/agents': 'sparkle',
             '/workspace': 'book',
             '/multimodal': 'image',
+            '/research': 'flask',
             '/classroom-tools': 'classroom',
             '/tools': 'toolbox',
             '/resources': 'folder',

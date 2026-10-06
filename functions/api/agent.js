@@ -43,7 +43,9 @@ const DEFAULT_ZHIPU_AGENT_IDS = [
     'concept-explainer',
     'quiz-gen',
     'exam-paper',
-    'error-diagnosis'
+    'error-diagnosis',
+    'research-funnel',
+    'research-reading-card'
 ];
 
 const PROVIDERS = {
