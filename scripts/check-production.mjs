@@ -197,6 +197,14 @@ for (const file of [
     assert(response.headers.get('cache-control')?.includes('max-age=31536000'), `${file} 未启用长期缓存`);
 }
 
+for (const file of ['/vendor/pdfjs/6.4.299/pdf.min.mjs', '/vendor/pdfjs/6.4.299/pdf.worker.min.mjs']) {
+    const response = await request(file, { method: 'HEAD' });
+    if (!response) continue;
+    assert(response.status === 200, `${file} 未正确上线`);
+    assert(response.headers.get('content-type')?.includes('javascript'), `${file} MIME 阻止浏览器加载 ESM`);
+    assert(response.headers.get('cache-control')?.includes('max-age=31536000'), `${file} 未启用长期缓存`);
+}
+
 const blockedRss = await request('/api/rss-proxy?url=http://127.0.0.1:3001/healthz');
 if (blockedRss) {
     const body = await blockedRss.json().catch(() => null);
