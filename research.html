@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
     <style>
         .rs-wrap{max-width:1240px;margin:auto;padding:48px 24px 88px;color:var(--text)}
-        .rs-wrap [hidden]{display:none!important}.rs-kicker{font:11px var(--font-mono);letter-spacing:.12em;color:#245b78;margin:0 0 18px}
+        .rs-wrap [hidden]{display:none!important}.rs-wrap [data-site-copy]{overflow-wrap:anywhere}.rs-kicker{font:11px var(--font-mono);letter-spacing:.12em;color:#245b78;margin:0 0 18px}
         .rs-hero{padding:20px 0 34px;border-bottom:1px solid var(--line)}.rs-hero h1{font-size:clamp(32px,4.4vw,54px);line-height:1.25;color:var(--ink);letter-spacing:-.03em;margin:0 0 22px}.rs-hero h1:focus,.rs-heading h2:focus{outline:none}.rs-sub{max-width:740px;line-height:1.85}
         .rs-principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin:30px 0}.rs-principles h2{font-size:16px;color:var(--ink);margin:0 0 10px}.rs-principles i{color:#245b78;margin-right:8px}.rs-principles p,.rs-note{font-size:13px;line-height:1.8;color:var(--muted);margin:8px 0}
         .rs-tools{display:grid;grid-template-columns:1fr 1fr;gap:20px}.rs-tool{display:grid;grid-template-columns:150px minmax(0,1fr);padding:0;text-align:left;border:1px solid var(--line);border-radius:12px;background:white;color:var(--text);cursor:pointer;overflow:hidden}.rs-tool:hover{transform:translateY(-1px);border-color:#245b78}.rs-tool-portrait{display:block;position:relative;min-height:254px;background:#edf2f5;overflow:hidden}.rs-tool-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 18%;filter:saturate(.88) contrast(.98)}.rs-tool-copy{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:24px}.rs-role-label{display:block;font-size:11px;line-height:1.6;letter-spacing:.04em;color:#245b78;margin:0}.rs-tool h2{margin:10px 0 6px;font-size:22px;color:var(--ink)}.rs-tool-purpose{font-size:13px;color:var(--muted);margin-bottom:14px}.rs-tool p{font-size:14px;line-height:1.85;margin:0 0 18px}.rs-tool small{color:#245b78;font-size:12px;line-height:1.8;margin-top:auto}.rs-home-library{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 0;border-bottom:1px solid var(--line)}
@@ -49,46 +49,46 @@
 <div id="main-nav"></div>
 <main id="main-content" class="rs-wrap">
     <section id="rs-home" class="rs-view">
-        <div class="rs-hero"><p class="rs-kicker">科研写作 · RESEARCH WRITING</p><h1 tabindex="-1">把教学困扰，变成能研究的问题</h1><p class="rs-sub">面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、整理；选题、判断和结论由你来做。</p></div>
+        <div class="rs-hero"><p class="rs-kicker" data-site-copy="heroKicker">科研写作 · RESEARCH WRITING</p><h1 tabindex="-1" data-site-copy="heroTitle">把教学困扰，变成能研究的问题</h1><p class="rs-sub" data-site-copy="heroIntro">面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、整理；选题、判断和结论由你来做。</p></div>
         <div class="rs-principles">
-            <div><h2><i class="ph ph-books" aria-hidden="true"></i>AI 不替你找文献</h2><p>文献必须来自知网、国家哲学社会科学文献中心等数据库，模型只负责读和整理。</p></div>
-            <div><h2><i class="ph ph-pencil" aria-hidden="true"></i>AI 不替你下判断</h2><p>精读卡的“与我的研究的关系”和最终评价由你亲自写。</p></div>
-            <div><h2><i class="ph ph-shield-check" aria-hidden="true"></i>不上传学生个人信息</h2><p>描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。</p></div>
+            <div><h2><i class="ph ph-books" aria-hidden="true"></i><span data-site-copy="literatureTitle">AI 不替你找文献</span></h2><p data-site-copy="literatureIntro">文献必须来自知网、国家哲学社会科学文献中心等数据库，模型只负责读和整理。</p></div>
+            <div><h2><i class="ph ph-pencil" aria-hidden="true"></i><span data-site-copy="judgmentTitle">AI 不替你下判断</span></h2><p data-site-copy="judgmentIntro">精读卡的“与我的研究的关系”和最终评价由你亲自写。</p></div>
+            <div><h2><i class="ph ph-shield-check" aria-hidden="true"></i><span data-site-copy="privacyTitle">不上传学生个人信息</span></h2><p data-site-copy="privacyIntro">描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。</p></div>
         </div>
         <div class="rs-tools">
-            <button type="button" class="rs-tool" data-route="funnel"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label">AI 科研伙伴 · 问题聚焦</span><h2>研究问题教练</h2><span class="rs-tool-purpose">研究问题漏斗</span><p>我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。</p><small>聚焦结果 + 五种结构的标题 →</small></span></button>
-            <button type="button" class="rs-tool" data-route="reading-card"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-reading-card.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label">AI 科研伙伴 · 文献研读</span><h2>文献研读伙伴</h2><span class="rs-tool-purpose">文献精读卡</span><p>我陪你按五读法梳理论文的依据和方法；与你研究的关系，由你核对、改写。</p><small>十栏精读卡 + 卡片夹 CSV →</small></span></button>
+            <button type="button" class="rs-tool" data-route="funnel"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="funnelEyebrow">AI 科研伙伴 · 问题聚焦</span><h2 data-site-copy="funnelRole">研究问题教练</h2><span class="rs-tool-purpose" data-site-copy="funnelTitle">研究问题漏斗</span><p data-site-copy="funnelIntro">我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。</p><small data-site-copy="funnelAction">聚焦结果 + 五种结构的标题 →</small></span></button>
+            <button type="button" class="rs-tool" data-route="reading-card"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-reading-card.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="readingEyebrow">AI 科研伙伴 · 文献研读</span><h2 data-site-copy="readingRole">文献研读伙伴</h2><span class="rs-tool-purpose" data-site-copy="readingTitle">文献精读卡</span><p data-site-copy="readingIntro">我陪你按五读法梳理论文的依据和方法；与你研究的关系，由你核对、改写。</p><small data-site-copy="readingAction">十栏精读卡 + 卡片夹 CSV →</small></span></button>
         </div>
         <div class="rs-home-library" id="rs-home-library">登录后可保存精读卡并导出表格</div>
-        <p class="rs-note">更多工具陆续推出：主题综合、评审专家、技术路线图。</p>
+        <p class="rs-note" data-site-copy="moreTools">更多工具陆续推出：主题综合、评审专家、技术路线图。</p>
     </section>
     <section id="rs-funnel" class="rs-view" hidden>
-        <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="">← 科研写作</a><div class="rs-colleague"><span class="rs-avatar"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" decoding="async"></span><div><p class="rs-role-label">AI 研究问题教练</p><h2 tabindex="-1">研究问题漏斗</h2></div></div></div><a class="rs-btn" href="/workspace">我的备课本</a></div>
+        <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="">← 科研写作</a><div class="rs-colleague"><span class="rs-avatar"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" decoding="async"></span><div><p class="rs-role-label">AI <span data-site-copy="funnelRole">研究问题教练</span></p><h2 tabindex="-1" data-site-copy="funnelTitle">研究问题漏斗</h2></div></div></div><a class="rs-btn" href="/workspace">我的备课本</a></div>
         <div class="rs-workspace">
-            <aside class="rs-panel rs-controls"><ol class="rs-steps" id="rs-phases"></ol><div class="rs-actions rs-column" id="rs-funnel-actions"></div><p class="rs-note">描述学生时请用“某生”“A 同学”，不要出现真实姓名。</p><button type="button" class="rs-btn" id="rs-clear">清空重来</button><p class="rs-note">刷新页面会丢失未保存的对话</p></aside>
-            <div class="rs-panel"><div class="rs-model" id="rs-funnel-model"></div><div id="rs-chat" class="rs-chat-stream" aria-live="polite"></div><div id="rs-starters" class="rs-starters"></div><form id="rs-chat-form" class="rs-chat-compose"><label for="rs-message" class="rs-label">说说你的困扰，或回答刚才的问题</label><textarea class="rs-input" id="rs-message" rows="3" placeholder="Enter 发送，Shift+Enter 换行"></textarea><div class="rs-actions"><button type="submit" class="rs-btn rs-primary" id="rs-send">发送</button><button type="button" class="rs-btn" id="rs-stop" hidden>停止生成</button></div><p id="rs-chat-error" class="rs-error" role="alert"></p></form></div>
+            <aside class="rs-panel rs-controls"><ol class="rs-steps" id="rs-phases"></ol><div class="rs-actions rs-column" id="rs-funnel-actions"></div><p class="rs-note" data-site-copy="funnelPrivacy">描述学生时请用“某生”“A 同学”，不要出现真实姓名。</p><button type="button" class="rs-btn" id="rs-clear">清空重来</button><p class="rs-note" data-site-copy="funnelUnsaved">刷新页面会丢失未保存的对话</p></aside>
+            <div class="rs-panel"><div class="rs-model" id="rs-funnel-model"></div><div id="rs-chat" class="rs-chat-stream" aria-live="polite"></div><div id="rs-starters" class="rs-starters"></div><form id="rs-chat-form" class="rs-chat-compose"><label for="rs-message" class="rs-label" data-site-copy="composeLabel">说说你的困扰，或回答刚才的问题</label><textarea class="rs-input" id="rs-message" rows="3" data-site-copy-placeholder="composePlaceholder" placeholder="Enter 发送，Shift+Enter 换行"></textarea><div class="rs-actions"><button type="submit" class="rs-btn rs-primary" id="rs-send">发送</button><button type="button" class="rs-btn" id="rs-stop" hidden>停止生成</button></div><p id="rs-chat-error" class="rs-error" role="alert"></p></form></div>
         </div>
     </section>
     <section id="rs-reading-card" class="rs-view" hidden>
-        <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="">← 科研写作</a><div class="rs-colleague"><span class="rs-avatar"><img src="/assets/agent-portraits/research-reading-card.jpg" alt="" width="900" height="900" decoding="async"></span><div><p class="rs-role-label">AI 文献研读伙伴</p><h2 tabindex="-1">文献精读卡</h2></div></div></div><a href="#library" data-route="library" class="rs-btn">文献卡片夹</a></div>
+        <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="">← 科研写作</a><div class="rs-colleague"><span class="rs-avatar"><img src="/assets/agent-portraits/research-reading-card.jpg" alt="" width="900" height="900" decoding="async"></span><div><p class="rs-role-label">AI <span data-site-copy="readingRole">文献研读伙伴</span></p><h2 tabindex="-1" data-site-copy="readingTitle">文献精读卡</h2></div></div></div><a href="#library" data-route="library" class="rs-btn">文献卡片夹</a></div>
         <div class="rs-workspace">
             <form class="rs-panel rs-controls" id="rs-reading-form">
                 <div class="rs-tabs" role="tablist" aria-label="文献来源"><button type="button" class="rs-btn" id="rs-pdf-tab" role="tab" aria-controls="rs-pdf-panel" aria-selected="true">上传 PDF</button><button type="button" class="rs-btn" id="rs-text-tab" role="tab" aria-controls="rs-text-panel" aria-selected="false" tabindex="-1">粘贴文本</button></div>
                 <div id="rs-pdf-panel" role="tabpanel" aria-labelledby="rs-pdf-tab"><div class="rs-drop" id="rs-drop"><label for="rs-file">拖放 PDF 到这里，或选择文件</label><input type="file" id="rs-file" accept=".pdf,application/pdf"></div><p id="rs-pdf-status" class="rs-note" role="status"></p></div>
                 <div id="rs-text-panel" role="tabpanel" aria-labelledby="rs-text-tab" hidden><label class="rs-label" for="rs-text">论文文本</label><textarea class="rs-input" id="rs-text" rows="9"></textarea><p class="rs-note" id="rs-text-count" role="status">0 / 60,000 字</p></div>
-                <p class="rs-note">知网默认下载的 .caj 格式无法读取，请在知网下载页选择 PDF。扫描版 PDF 没有文字层，请先用 WPS 或知网的 OCR 转成文字再粘贴。</p>
-                <label class="rs-label" for="rs-question">我的研究问题（必填，≤ 300 字）</label><textarea class="rs-input" id="rs-question" rows="3" maxlength="300" required placeholder="例如：分层作业如何影响学生的参与？"></textarea>
-                <label class="rs-label" for="rs-meta">文献信息（可选）</label><input class="rs-input" id="rs-meta" maxlength="600" placeholder="作者，年份，题目；留空则从文本识别">
-                <div class="rs-actions"><button type="submit" class="rs-btn rs-primary" id="rs-generate">生成精读卡</button></div><p class="rs-note">一篇文献生成一次即可；需要重做请先修改研究问题或文本</p><p id="rs-reading-error" class="rs-error" role="alert"></p>
-                <p class="rs-note">PDF 只在你的浏览器里提取文字，文件本身不会上传。提取出的文字会发送给模型服务商用于生成，本站不保存全文，只保存生成的卡片。请勿上传含学生姓名等个人信息的材料。</p>
+                <p class="rs-note" data-site-copy="sourceHint">知网默认下载的 .caj 格式无法读取，请在知网下载页选择 PDF。扫描版 PDF 没有文字层，请先用 WPS 或知网的 OCR 转成文字再粘贴。</p>
+                <label class="rs-label" for="rs-question" data-site-copy="questionLabel">我的研究问题（必填，≤ 300 字）</label><textarea class="rs-input" id="rs-question" rows="3" maxlength="300" required data-site-copy-placeholder="questionPlaceholder" placeholder="例如：分层作业如何影响学生的参与？"></textarea>
+                <label class="rs-label" for="rs-meta" data-site-copy="metaLabel">文献信息（可选）</label><input class="rs-input" id="rs-meta" maxlength="600" data-site-copy-placeholder="metaPlaceholder" placeholder="作者，年份，题目；留空则从文本识别">
+                <div class="rs-actions"><button type="submit" class="rs-btn rs-primary" id="rs-generate">生成精读卡</button></div><p class="rs-note" data-site-copy="repeatHint">一篇文献生成一次即可；需要重做请先修改研究问题或文本</p><p id="rs-reading-error" class="rs-error" role="alert"></p>
+                <p class="rs-note" data-site-copy="readingPrivacy">PDF 只在你的浏览器里提取文字，文件本身不会上传。提取出的文字会发送给模型服务商用于生成，本站不保存全文，只保存生成的卡片。请勿上传含学生姓名等个人信息的材料。</p>
                 <details class="rs-details"><summary>精读卡栏目说明</summary><div class="rs-table-wrap"><table class="rs-table rs-help-table"><thead><tr><th>栏目</th><th>对应五读</th><th>填什么</th></tr></thead><tbody id="rs-help-rows"></tbody></table></div></details>
             </form>
-            <div class="rs-panel"><div class="rs-model" id="rs-reading-model"></div><div id="rs-reading-output" aria-live="polite"><p class="rs-empty">选择一篇文献，填好研究问题，开始阅读。</p></div></div>
+            <div class="rs-panel"><div class="rs-model" id="rs-reading-model"></div><div id="rs-reading-output" aria-live="polite"><p class="rs-empty" data-research-empty="reading">选择一篇文献，填好研究问题，开始阅读。</p></div></div>
         </div>
     </section>
     <section id="rs-library" class="rs-view" hidden>
-        <div class="rs-heading"><div><a href="/research" data-route="" class="rs-btn">← 科研写作</a><h2 tabindex="-1">我的文献卡片夹</h2></div><a href="#reading-card" data-route="reading-card" class="rs-btn rs-primary">新建精读卡</a></div>
-        <div class="rs-panel"><label for="rs-filter" class="rs-label">研究问题筛选</label><select class="rs-input" id="rs-filter"><option value="">全部研究问题</option></select><div class="rs-actions"><button type="button" class="rs-btn" id="rs-export-csv">导出 CSV</button><button type="button" class="rs-btn" id="rs-export-md">导出 Markdown 汇总</button><button type="button" class="rs-btn" id="rs-library-reload">刷新卡片夹</button></div><p class="rs-note">CSV 可用 Excel / WPS 直接打开；导出当前筛选下的卡片。</p><p class="rs-error" id="rs-library-error" role="alert"></p><div id="rs-library-list" aria-live="polite"></div></div>
+        <div class="rs-heading"><div><a href="/research" data-route="" class="rs-btn">← 科研写作</a><h2 tabindex="-1" data-site-copy="libraryTitle">我的文献卡片夹</h2></div><a href="#reading-card" data-route="reading-card" class="rs-btn rs-primary">新建精读卡</a></div>
+        <div class="rs-panel"><label for="rs-filter" class="rs-label">研究问题筛选</label><select class="rs-input" id="rs-filter"><option value="">全部研究问题</option></select><div class="rs-actions"><button type="button" class="rs-btn" id="rs-export-csv">导出 CSV</button><button type="button" class="rs-btn" id="rs-export-md">导出 Markdown 汇总</button><button type="button" class="rs-btn" id="rs-library-reload">刷新卡片夹</button></div><p class="rs-note" data-site-copy="libraryExportHint">CSV 可用 Excel / WPS 直接打开；导出当前筛选下的卡片。</p><p class="rs-error" id="rs-library-error" role="alert"></p><div id="rs-library-list" aria-live="polite"></div></div>
     </section>
 </main>
 <div id="site-footer"></div>
@@ -102,8 +102,8 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
-<script src="js/data.js?v=20261003-tencent-admin"></script>
-<script src="js/site-copy.js?v=20260924-local-email-direct"></script>
+<script src="js/data.js?v=20261007-research-copy"></script>
+<script src="js/site-copy.js?v=20261007-research-copy"></script>
 <script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
 <script src="js/auth.js?v=20261006-research-nav"></script>
 <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
@@ -117,6 +117,7 @@
 (function () {
     const $ = id => document.getElementById(id), C = ResearchCore, [funnel, reading] = RESEARCH_AGENTS;
     const esc = value => SafeRender.escape(String(value ?? ''));
+    let researchCopy = SiteCopy.defaults('research');
     const login = () => requireLogin(null, '请先登录后使用科研写作工具');
     let uid = Auth.getCurrentUser()?.uid || '', epoch = 0, view = '', history = [], generation = null, extracting = null;
     let sourceType = 'pdf', pdf = null, textTruncated = false, card = null, cardContext = null, raw = '', readOnly = false;
@@ -143,11 +144,14 @@
     }
     function bubble(role, text) {
         const node = document.createElement('div'); node.className='rs-chat-bubble'; node.dataset.role=role;
-        node.innerHTML=`<b class="rs-speaker">${role==='user'?'我':esc(funnel.roleName)}</b><div>${SafeRender.markdown(text)}</div>`;
+        node.innerHTML=`<b class="rs-speaker">${role==='user'?'我':esc(researchCopy.funnelRole)}</b><div>${SafeRender.markdown(text)}</div>`;
         $('rs-chat').append(node); return node;
     }
     function renderChat() {
-        $('rs-chat').replaceChildren(); bubble('assistant',funnel.greeting);
+        $('rs-chat').replaceChildren();
+        const greeting = bubble('assistant',''); greeting.dataset.copyGreeting = 'true';
+        greeting.lastElementChild.textContent = researchCopy.funnelGreeting;
+        greeting.lastElementChild.style.whiteSpace = 'pre-line';
         history.forEach(h => bubble(h.role,h.content)); updatePhase();
     }
     function stopGeneration() { generation?.controller.abort(new Error('已停止生成')); }
@@ -234,7 +238,7 @@
             if(!same(userId,version)||generation!==run)return;raw=full;const parsed=C.parseReadingCard(full);
             if(parsed){card=parsed.card;showReadingCard(parsed.warnings);}else renderRaw('模型没有按表格格式返回，可点重新生成');
         }catch(e){if(same(userId,version)&&generation===run){raw=e.partial||raw;renderRaw(`本次内容未完成：${e.message}`);$('rs-reading-error').textContent=e.message;}}
-        finally{if(generation===run){generation=null;$('rs-generate').textContent='生成精读卡';$('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=false);}}
+        finally{if(generation===run){generation=null;$('rs-generate').textContent=researchCopy.generateAction;$('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=false);}}
     }
     function renderRaw(message){card=null;$('rs-reading-output').innerHTML=`<p class="rs-error" role="alert">${esc(message)}</p><div class="rs-legacy">${SafeRender.markdown(raw)}</div><div class="rs-actions"><button type="button" class="rs-btn" data-reading-action="retry">重新生成</button><button type="button" class="rs-btn" data-reading-action="raw">复制原文</button></div>`;}
     async function copy(text){try{await navigator.clipboard.writeText(text);showToast('已复制');}catch{showToast('复制失败，请选择文字后手动复制');}}
@@ -261,13 +265,13 @@
         finally{$('rs-save-submit').disabled=false;}
     }
     const selectedWorks=()=>works.filter(w=>!$('rs-filter').value||w.inputs?._researchQuestion===$('rs-filter').value);
-    function updateLibraryLink(){const target=$('rs-home-library');target.innerHTML=uid?`<a href="#library" data-route="library" class="rs-btn">我的文献卡片夹（${works.length} 张）</a><span class="rs-note">精读卡保存在「我的备课本」中</span>`:'登录后可保存精读卡并导出表格';}
+    function updateLibraryLink(){const target=$('rs-home-library');if(uid)target.innerHTML=`<a href="#library" data-route="library" class="rs-btn">${esc(researchCopy.libraryMember)}（${works.length} 张）</a><span class="rs-note">${esc(researchCopy.libraryIntro)}</span>`;else target.textContent=researchCopy.libraryGuest;}
     function renderLibrary(){
         const list=selectedWorks();$('rs-export-csv').disabled=!list.length;$('rs-export-md').disabled=!list.length;
         $('rs-library-list').innerHTML=list.length?list.map((w,i)=>{
             const parsed=w.inputs?._card&&C.parseReadingCard(JSON.stringify(w.inputs._card)),v=parsed?.card;
             return `<article class="rs-library-row"><span>${i+1}</span><div><h3>${esc(v?.citation.title||w.title)}</h3><p>${esc(v?`${v.citation.authors}（${v.citation.year}）`:'结构化数据缺失')}</p><p>方法：${esc((v?.method||'原文未明确').slice(0,40))}</p><p>评价：${esc((v?.verdict||'结构化数据缺失').slice(0,60))}</p><small>保存日期：${esc(C.savedDate(w.createdAt).slice(0,10))}</small></div><div class="rs-actions"><button class="rs-btn" type="button" data-view-card="${esc(w.id)}">查看</button><button class="rs-btn" type="button" data-delete-card="${esc(w.id)}">删除</button></div></article>`;
-        }).join(''):'<p class="rs-empty">还没有符合条件的精读卡。<br><a href="#reading-card" data-route="reading-card" class="rs-btn">新建精读卡</a></p>';
+        }).join(''):`<p class="rs-empty"><span data-research-empty="library">${esc(researchCopy.libraryEmpty)}</span><br><a href="#reading-card" data-route="reading-card" class="rs-btn">新建精读卡</a></p>`;
     }
     async function loadLibrary(showErrors=true){
         const user=showErrors?login():Auth.getCurrentUser();if(!user)return;
@@ -298,11 +302,23 @@
         if(next==='library'&&!login()){window.history.replaceState(null,'',location.pathname+location.search);showView('');return;}
         showView(next);if(view==='library')void loadLibrary();void loadSavedWork();
     }
-    function resetReading(){card=null;cardContext=null;raw='';pdf=null;readOnly=false;textTruncated=false;['rs-text','rs-meta','rs-file','rs-question'].forEach(id=>$(id).value='');['rs-reading-error','rs-pdf-status','rs-reading-model'].forEach(id=>$(id).textContent='');$('rs-text-count').textContent='0 / 60,000 字';$('rs-reading-output').innerHTML='<p class="rs-empty">选择一篇文献，填好研究问题，开始阅读。</p>';setSource('pdf');}
+    function resetReading(){card=null;cardContext=null;raw='';pdf=null;readOnly=false;textTruncated=false;['rs-text','rs-meta','rs-file','rs-question'].forEach(id=>$(id).value='');['rs-reading-error','rs-pdf-status','rs-reading-model'].forEach(id=>$(id).textContent='');$('rs-text-count').textContent='0 / 60,000 字';$('rs-reading-output').innerHTML=`<p class="rs-empty" data-research-empty="reading">${esc(researchCopy.readingEmpty)}</p>`;setSource('pdf');}
+    // Apply only editorial text. Do not re-render chats, cards, forms or library rows on a late response.
+    function applyResearchCopy(values) {
+        researchCopy = SiteCopy.applyToDocument('research', values);
+        document.querySelectorAll('#rs-chat [data-role="assistant"] .rs-speaker').forEach(el => el.textContent = researchCopy.funnelRole);
+        const greeting = document.querySelector('#rs-chat [data-copy-greeting] > div');
+        if (greeting) greeting.textContent = researchCopy.funnelGreeting;
+        document.querySelectorAll('[data-research-empty]').forEach(el => {
+            el.textContent = el.dataset.researchEmpty === 'reading' ? researchCopy.readingEmpty : researchCopy.libraryEmpty;
+        });
+        if (generation?.kind !== 'reading') $('rs-generate').textContent = researchCopy.generateAction;
+        updateLibraryLink();
+    }
     function restoreQuestion(){try{$('rs-question').value=uid?(localStorage.getItem('rsReadingQuestion:'+uid)||'').slice(0,300):'';}catch{$('rs-question').value='';}}
     function syncAuth(){
         const next=Auth.getCurrentUser()?.uid||'';
-        if(next!==uid){epoch++;stopGeneration();generation=null;extracting?.abort();extracting=null;uid=next;history=[];works=[];pendingWork=null;detailWork=null;loadedWork='';$('rs-save-dialog').close();$('rs-card-dialog').close();$('rs-card-detail').replaceChildren();resetReading();renderChat();['rs-message','rs-chat-error','rs-funnel-model','rs-library-error'].forEach(id=>$(id).value!==undefined?$(id).value='':$(id).textContent='');$('rs-filter').innerHTML='<option value="">全部研究问题</option>';renderLibrary();$('rs-generate').textContent='生成精读卡';$('rs-generate').disabled=false;$('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=false);restoreQuestion();if(view==='library'&&!uid)showView('');}
+        if(next!==uid){epoch++;stopGeneration();generation=null;extracting?.abort();extracting=null;uid=next;history=[];works=[];pendingWork=null;detailWork=null;loadedWork='';$('rs-save-dialog').close();$('rs-card-dialog').close();$('rs-card-detail').replaceChildren();resetReading();renderChat();['rs-message','rs-chat-error','rs-funnel-model','rs-library-error'].forEach(id=>$(id).value!==undefined?$(id).value='':$(id).textContent='');$('rs-filter').innerHTML='<option value="">全部研究问题</option>';renderLibrary();$('rs-generate').textContent=researchCopy.generateAction;$('rs-generate').disabled=false;$('rs-reading-form').querySelectorAll('input,textarea,[role=tab]').forEach(el=>el.disabled=false);restoreQuestion();if(view==='library'&&!uid)showView('');}
         renderNav('research');renderFooter();updateLibraryLink();if(uid){void loadLibrary(false);void loadSavedWork();}
     }
     $('rs-chat-form').addEventListener('submit',e=>{e.preventDefault();void send();});
@@ -334,6 +350,8 @@
     window.addEventListener('hashchange',route);document.addEventListener('authChanged',syncAuth);document.addEventListener('authRefresh',syncAuth);
     window.addEventListener('beforeunload',e=>{if(generation){e.preventDefault();e.returnValue='';}});
     renderNav('research');renderFooter();renderChat();restoreQuestion();route();onAuthReady(syncAuth);
+    applyResearchCopy(researchCopy);
+    void SiteCopy.load('research').then(applyResearchCopy);
 })();
 </script>
 <script src="js/pwa.js?v=20261006-research"></script>

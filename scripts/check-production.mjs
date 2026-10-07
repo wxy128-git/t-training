@@ -34,6 +34,7 @@ for (const route of routes) {
         assert(body.includes('research-core.js') && body.includes('research-data.js'), '科研写作模块未上线');
         assert(body.includes('研究问题教练') && body.includes('文献研读伙伴') && body.includes('rs-colleague'), '科研伙伴角色入口或工作台未上线');
         assert(body.includes('research-data.js?v=20261007-research-partners'), '科研伙伴脚本缓存版本未更新');
+        assert(body.includes("SiteCopy.load('research')") && body.includes('data-site-copy="funnelRole"'), '科研文案未接入后台');
     }
 }
 
@@ -47,7 +48,7 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261006-research-nav'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261003-tencent-admin') && body.includes('js/site-copy.js?v=20260924-local-email-direct'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261007-research-copy'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261006-research'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261006-research'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
@@ -60,7 +61,7 @@ if (home) {
 const adminPage = await request('/admin');
 if (adminPage) {
     const body = await adminPage.text();
-    assert(adminPage.status === 200 && body.includes('js/data.js?v=20261003-tencent-admin'), '腾讯后台当前版本未上线');
+    assert(adminPage.status === 200 && body.includes('js/data.js?v=20261007-research-copy'), '腾讯后台当前版本未上线');
     assert(!body.includes('onclick="seedDatabase()"') && !body.includes('onclick="deleteUserByIdentifier()"'), '后台仍显示旧库初始化或认证清理入口');
     assert(body.includes('后台内容统一保存在腾讯服务器'), '后台数据路径提示未更新');
     assert(body.includes('id="delete-user-modal"') && body.includes('previewUserDeletion') && body.includes('confirmUserDeletion'), '账号删除核对窗口未上线');
@@ -107,7 +108,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261007-v36'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261007-v37'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -208,6 +209,15 @@ for (const file of ['/vendor/pdfjs/6.4.299/pdf.min.mjs', '/vendor/pdfjs/6.4.299/
     assert(response.headers.get('content-type')?.includes('javascript'), `${file} MIME 阻止浏览器加载 ESM`);
     assert(response.headers.get('cache-control')?.includes('max-age=31536000'), `${file} 未启用长期缓存`);
 }
+
+const researchCopy = await request('/api/content?type=pageCopy&id=research');
+if (researchCopy) {
+    const copy = await researchCopy.json();
+    assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
+    assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
+}
+const researchRegistry = await request('/js/site-copy.js?v=20261007-research-copy');
+if (researchRegistry) assert((await researchRegistry.text()).includes("id: 'research'"), '科研文案注册表未发布');
 
 for (const file of ['/assets/agent-portraits/research-funnel.jpg', '/assets/agent-portraits/research-reading-card.jpg']) {
     const response = await request(file);

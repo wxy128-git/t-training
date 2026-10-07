@@ -33,17 +33,19 @@
   - `analytics.js` — Firebase 旧统计路径；腾讯当前生产使用 `server/local-analytics.mjs`。**2026-09-30 阶段一修复已上线，使用事件采集关闭**：两条路径均通过 `js/analytics-policy.js` 严格限制既有事件字段，新事件个人身份只存服务端确认的 uid，不再保存姓名/学校/邮箱/手机号；summary 沿用管理员校验，按 uid 临时关联当前用户资料。浏览器仍不得直接写 `analytics_events`，无需修改 Firestore Rules。禁止统计输入、生成或备课本正文、课题名、学生信息、IP、完整 userAgent、分辨率、用户时区、指纹及第三方统计；任何新增字段须先确认。历史四字段清理工具见阶段一报告，**尚未在生产执行**。
   - `works.js` — 我的备课本代理（2026-07-09）：`POST {action:'list'|'create'|'rename'|'delete', idToken, ...}`，先用 Firebase `accounts:lookup` 校验登录用户，再用 Firebase service account 访问 Firestore `works`，并强制只能读写当前 uid 的内容。前端 `DB.saveWork/getMyWorks/renameWork/deleteWork` 优先走 `/api/works`，失败时才退回浏览器 Firestore SDK；解决不连 VPN 时备课本能进页面但内容加载不出来的问题。
   - `tools.js` — 公开工具清单同源代理（2026-07-16）：`GET /api/tools` 由服务端读取 Firestore `tools`，只返回卡片所需字段并按 `order` 排序；腾讯云单进程内使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。前端 `DB.getTools()` 在普通页面按“同源代理 → 浏览器 Firestore → 本地 19 项”回退；管理后台仍直接读 Firestore，避免编辑后命中公开接口缓存。
-  - `content.js` — 公开内容同源代理（2026-07-19；2026-08-23 加页面文案）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；`type=pageCopy&id=<pageId>` 只允许 12 个固定页面 id，并以 `no-store` 返回对应 `page_copy` 文档，不进入旧缓存。腾讯云单进程内对原有公开列表使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
+  - `content.js` — 公开内容同源代理（2026-07-19；2026-08-23 加页面文案）：`GET /api/content?type=announcements|articles|paths|prompts|resources` 由服务端读取公开 Firestore 内容；`type=pageCopy&id=<pageId>` 只允许 13 个固定页面 id，并以 `no-store` 返回对应 `page_copy` 文档，不进入旧缓存。腾讯云单进程内对原有公开列表使用 5 分钟内存缓存，刷新失败时最多回退 1 小时旧缓存。普通页面优先使用它，解决国内网络下浏览器 Firestore 不稳定的问题。文章列表使用带 `status == published` 条件的结构化查询，与 Firestore Rules 的“公开只读已发布文章”约束一致；文章详情支持 `id`，草稿统一返回 404。管理后台仍直接连接 Firestore。
 - Frontend always calls these via `/api/...` paths.
 - `resource-logo` — 管理员新增或编辑课件素材时，通过 `/api/resource-logo` 自动读取公开网站的 favicon / Apple Touch Icon，或上传不超过 320KB 的 PNG、JPG、WebP、GIF、ICO。服务端拒绝内网地址、特殊端口和未识别格式，把内容哈希命名的图片保存到腾讯服务器共享目录 `/home/ubuntu/t-training/shared/resource-logos`，再以长缓存的本站 URL 返回；共享目录不随 release 目录交换而删除。
 
 ## Current Notes
 
+- **2026-10-07 科研模块后台文案，本地完成待上线**：按用户后续要求将科研写作纳入后台页面文案，13 页注册表、40 项科研字段，公开读取禁缓存；开场白只用于展示。沿用现有腾讯管理权限与 page_copy，无新表/路由，模型提示、works、认证及采集关闭不改。共享 data.js / site-copy.js `20261007-research-copy`，SW `20261007-v37`。验收见 `reports/2026-10-07-research-copy.md`。
+
 - **2026-10-07 科研伙伴人物形象，已上线**：研究问题教练与文献研读伙伴使用独立虚构肖像，入口展示角色名与原功能名，工作台保持小头像；漏斗署名与开场白同步。模型提示、ID、works、认证及采集关闭边界不改。科研数据缓存 `20261007-research-partners`，SW `20261007-v36`。详见 `reports/2026-10-07-research-partners.md`。
 
 - **2026-10-06 科研写作，已上线**：独立 `/research` 提供研究问题漏斗、文献精读卡与卡片夹；仅复用 `/api/agent` 和 `works`，不新增路由、表、集合或统计事件。文献全文不落库，PDF 不上传；只在浏览器提取文字并发给模型，保存结构化卡片与教师改写。研究采集继续关闭，认证、邮箱门槛、管理员及隐私政策不变。
 - 两个 `research-*` 智能体加入 GLM 优先名单；当前服务器没有智谱密钥时使用 DeepSeek。漏斗不保存本机草稿；阅读问题以 `rsReadingQuestion:<uid>` 按账号记在本机，退出/切号清空可见内容并中止生成。CSV / TSV 对公式前缀做转义。
-- 科研资源 `20261006-research`，导航 `20261006-research-nav`，SW `20261006-v35`；PDF.js legacy `6.4.299` 仅在选择文件时懒加载，不进预缓存。页面文案仍为固定 12 页，科研页不注册 SiteCopy。验收见 `reports/2026-10-06-research-module.md`。
+- 科研资源 `20261006-research`，导航 `20261006-research-nav`，SW `20261006-v35`；PDF.js legacy `6.4.299` 仅在选择文件时懒加载，不进预缓存。初版文案为固定 12 页；用户 2026-10-07 后续授权将科研页接入 SiteCopy，注册表现为 13 页。验收见 `reports/2026-10-06-research-module.md`。
 
 - **2026-10-03 注册异常账号删除，已上线**：后台新增 `previewDeleteUser` / `deleteUser` 两步操作，输入账号确认；固定管理员 UID 不可删，有备课本/投稿/其他关联内容时只显示数量并拒绝删除。无作品账号事务删除腾讯账号、资料、会话、邮件操作令牌及迁移资料副本，历史留言/统计保留。
 - `server/local-account-deletion.mjs` 用现有 `migration_meta` 保存旧 UID 摘要与删除时间，Firebase 迁入检查该标记；旧 Firebase 邮箱链接不能修改同邮箱新建腾讯账号。未调用 Firebase 删除；旧 `functions/api/admin-users.js` 不作为备用，Firestore Rules 不变。回退旧服务必须保留删除标记检查。正常登录方式、固定管理员规则和采集关闭状态不变。
@@ -438,7 +440,7 @@ To verify full SDK auth is healthy when network allows: in DevTools console, `fi
 | `announcements` | site announcements | admin only |
 | `articles` | featured articles | admin only |
 | `resource_categories` | design resource categories with embedded items array (added 2026-06-01) | admin only |
-| `page_copy` | 12 个固定页面的关键文案；字段、默认值与长度限制由 `js/site-copy.js` 定义 | public read；admin only create/update/delete |
+| `page_copy` | 13 个固定页面的关键文案；字段、默认值与长度限制由 `js/site-copy.js` 定义 | public read；admin only create/update/delete |
 | `community_prompts` | user-submitted prompts | logged-in users (create), author or admin (update) |
 | `showcases` | **(retired 2026-06-15)** teacher case studies — all frontend/admin UI removed; collection + existing docs kept, no longer read or written | — |
 | `tool_ratings` | per-tool 5-star ratings (not currently shown in UI) | logged-in users |
@@ -483,7 +485,7 @@ match /agent_usage/{agentId} {
 | `news.html` | RSS-aggregated industry news. Nav display name **「AI 资讯」** (renamed 2026-06-16 from "全球资讯"; key stays `news`) |
 | `articles.html` + `article.html` | Featured article list + detail |
 | `resources.html` | Curated **external** free-asset sites (images/PNG/icons/AIGC), Firestore-backed, falls back to `DEFAULT_RESOURCES`. Nav display name **「课件素材」** (renamed 2026-06-16 from "设计资源" to avoid "资源" clash with AI资源精选; key stays `resources`) |
-| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, **页面文案**, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users。「页面文案」以 `js/site-copy.js` 的固定字段呈现 12 个页面，支持预览、保存和恢复本地默认值；生产写入 `page_copy`，本地预览写入隔离的浏览器存储。数据看板从 `/api/analytics` 拉取汇总；阶段一版本的姓名/学校/账号统一由 summary 按 uid 关联取得。新增用户继续使用管理员用户列表的 joinedAt 在前端按天聚合，腾讯生产列表来自本地用户表。 |
+| `admin.html` | Admin dashboard: dashboard, **数据看板**, announcements, **页面文案**, community prompts, subscribers, **联系留言**, articles, tools, prompts, paths, **设计资源**, users。「页面文案」以 `js/site-copy.js` 的固定字段呈现 13 个页面，支持预览、保存和恢复本地默认值；生产写入 `page_copy`，本地预览写入隔离的浏览器存储。数据看板从 `/api/analytics` 拉取汇总；阶段一版本的姓名/学校/账号统一由 summary 按 uid 关联取得。新增用户继续使用管理员用户列表的 joinedAt 在前端按天聚合，腾讯生产列表来自本地用户表。 |
 | `workspace.html` | **「我的备课本」** — per-user saved agent outputs。Self-gated；logged-in desktop entry lives in the username area，mobile drawer has a separate「我的」group。2026-08-23 使用现代 A4 活页备课夹作为页面结构：藏蓝布纹书脊、金属环、打孔纸、页边和章节签形成真实装订关系；默认成果目录视图支持全部 / 文稿 / 对话 / 核验，原卡片视图保留为横线散页。搜索、教学项目 / 智能体筛选、排序和顶部统计保留；查看、复制、PDF、Word、Markdown、重命名、删除收在页侧菜单，查看成果以“抽出完整活页”的 modal 打开。项目标签与教师核验状态保存在 work 的 `inputs._project*`；reads `works` where `uid == current user`。旧泛化标题继续由 `displayWorkTitle()` / `inferredWorkTitle()` 从 `inputs` 或正文首个 Markdown 标题推断，并用于搜索与导出文件名。 |
 
 ## Key JS Files
@@ -493,7 +495,7 @@ match /agent_usage/{agentId} {
 - `js/research-pdf.js` — 懒加载固定 PDF.js legacy 主文件和 worker，最多 20 MB / 60 页 / 60,000 字；拒绝 CAJ、无效头，扫描件转粘贴提示，结束销毁 worker。
 
 - `js/data.js` — `DEFAULT_TOOLS / DEFAULT_PROMPTS / DEFAULT_PATHS / DEFAULT_ARTICLES / DEFAULT_RESOURCES` are used as fallbacks/seeds; `DB` object wraps Firestore reads/writes. `getTools` prefers `/api/tools` on user pages, then browser Firestore, then the complete 19-item static list; admin stays on direct Firestore. Work-book methods (`saveWork/getMyWorks/renameWork/deleteWork`) prefer `/api/works` and fall back to direct Firestore only for local/dev or temporary API failure.
-- `js/site-copy.js` — 12 个页面的可编辑关键文案注册表。每个页面只接受显式字段，包含中文后台标签、长度上限和代码默认值；`load()` 生产优先读取 `/api/content?type=pageCopy&id=...`，本地预览读取隔离存储，失败时静默回退默认值。普通页面用 `applyToDocument()` 更新带 `data-site-copy*` 标记的文本；新增或改字段时必须同步这里、页面标记、后台表单和 `firestore.rules`。
+- `js/site-copy.js` — 13 个页面的可编辑关键文案注册表。每个页面只接受显式字段，包含中文后台标签、长度上限和代码默认值；`load()` 生产优先读取 `/api/content?type=pageCopy&id=...`，本地预览读取隔离存储，失败时静默回退默认值。普通页面用 `applyToDocument()` 更新带 `data-site-copy*` 标记的文本；新增或改字段时必须同步这里、页面标记、后台表单和 `firestore.rules`。
 - `js/firebase-config.js` — initializes Firebase, exposes `auth` and `db`, defines `_currentUser`, `onAuthReady`, dispatches `authChanged` events.
 - `js/auth.js` — `Auth` object (login/register/logout, getIdToken, **`sendPasswordReset`**), `renderNav` / `renderFooter` (every page calls these), `requireLogin`, `showAuthModal`, `showWelcomeOverlay`, **hamburger drawer state** (`openNavDrawer` / `closeNavDrawer`). The auth modal has **three views** toggled by `switchAuthTab('login'|'register'|'forgot')`: login (`#form-li`, with a 「忘记密码？」link), register (`#form-rg`), and **forgot-password (`#form-fp`, added 2026-06-17)**. Forgot flow: `handleForgotPassword()` → `Auth.sendPasswordReset(identifier)` → Firebase `auth.sendPasswordResetEmail`. **Phone-number accounts are rejected client-side** (their `tel_…@xylaoshi.tel` address can't receive mail — they must contact admin). Result shows in `#fp-msg` styled `.form-success` (green) or `.form-error` (red). The Firebase project has **email-enumeration protection ON**, so a reset for an *unregistered* email also returns success (no account leak) — only real accounts actually receive mail. Reset link lands on Firebase's own hosted reset page (no custom page needed).
 - `js/analytics.js` — 已上线的无操作兼容入口：不发送事件、不创建访问标识，并移除旧统计标识；既有页面可继续调用 `Analytics.track` 而不产生记录。服务端两条 track 路径同样关闭；不得因政策确认恢复。

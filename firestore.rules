@@ -155,6 +155,74 @@ service cloud.firestore {
           && validText(request.resource.data.fields.featureAction, 40);
       }
 
+      function validResearchCopy() {
+        return request.resource.data.fields.keys().hasAll([
+            'heroKicker', 'heroTitle', 'heroIntro', 'literatureTitle',
+            'literatureIntro', 'judgmentTitle', 'judgmentIntro', 'privacyTitle',
+            'privacyIntro', 'funnelEyebrow', 'funnelRole', 'funnelTitle',
+            'funnelIntro', 'funnelAction', 'funnelGreeting', 'readingEyebrow',
+            'readingRole', 'readingTitle', 'readingIntro', 'readingAction',
+            'libraryGuest', 'libraryMember', 'libraryIntro', 'moreTools',
+            'funnelPrivacy', 'funnelUnsaved', 'composeLabel', 'composePlaceholder',
+            'sourceHint', 'questionLabel', 'questionPlaceholder', 'metaLabel',
+            'metaPlaceholder', 'repeatHint', 'readingPrivacy', 'readingEmpty',
+            'libraryTitle', 'libraryExportHint', 'libraryEmpty', 'generateAction'
+          ])
+          && request.resource.data.fields.keys().hasOnly([
+            'heroKicker', 'heroTitle', 'heroIntro', 'literatureTitle',
+            'literatureIntro', 'judgmentTitle', 'judgmentIntro', 'privacyTitle',
+            'privacyIntro', 'funnelEyebrow', 'funnelRole', 'funnelTitle',
+            'funnelIntro', 'funnelAction', 'funnelGreeting', 'readingEyebrow',
+            'readingRole', 'readingTitle', 'readingIntro', 'readingAction',
+            'libraryGuest', 'libraryMember', 'libraryIntro', 'moreTools',
+            'funnelPrivacy', 'funnelUnsaved', 'composeLabel', 'composePlaceholder',
+            'sourceHint', 'questionLabel', 'questionPlaceholder', 'metaLabel',
+            'metaPlaceholder', 'repeatHint', 'readingPrivacy', 'readingEmpty',
+            'libraryTitle', 'libraryExportHint', 'libraryEmpty', 'generateAction'
+          ])
+          && validText(request.resource.data.fields.heroKicker, 40)
+          && validText(request.resource.data.fields.heroTitle, 50)
+          && validText(request.resource.data.fields.heroIntro, 180)
+          && validText(request.resource.data.fields.literatureTitle, 30)
+          && validText(request.resource.data.fields.literatureIntro, 180)
+          && validText(request.resource.data.fields.judgmentTitle, 30)
+          && validText(request.resource.data.fields.judgmentIntro, 180)
+          && validText(request.resource.data.fields.privacyTitle, 30)
+          && validText(request.resource.data.fields.privacyIntro, 180)
+          && validText(request.resource.data.fields.funnelEyebrow, 40)
+          && validText(request.resource.data.fields.funnelRole, 20)
+          && validText(request.resource.data.fields.funnelTitle, 30)
+          && validText(request.resource.data.fields.funnelIntro, 180)
+          && validText(request.resource.data.fields.funnelAction, 50)
+          && validText(request.resource.data.fields.funnelGreeting, 600)
+          && validText(request.resource.data.fields.readingEyebrow, 40)
+          && validText(request.resource.data.fields.readingRole, 20)
+          && validText(request.resource.data.fields.readingTitle, 30)
+          && validText(request.resource.data.fields.readingIntro, 180)
+          && validText(request.resource.data.fields.readingAction, 50)
+          && validText(request.resource.data.fields.libraryGuest, 80)
+          && validText(request.resource.data.fields.libraryMember, 30)
+          && validText(request.resource.data.fields.libraryIntro, 100)
+          && validText(request.resource.data.fields.moreTools, 140)
+          && validText(request.resource.data.fields.funnelPrivacy, 180)
+          && validText(request.resource.data.fields.funnelUnsaved, 100)
+          && validText(request.resource.data.fields.composeLabel, 60)
+          && validText(request.resource.data.fields.composePlaceholder, 100)
+          && validText(request.resource.data.fields.sourceHint, 300)
+          && validText(request.resource.data.fields.questionLabel, 60)
+          && validText(request.resource.data.fields.questionPlaceholder, 140)
+          && validText(request.resource.data.fields.metaLabel, 60)
+          && validText(request.resource.data.fields.metaPlaceholder, 140)
+          && validText(request.resource.data.fields.repeatHint, 160)
+          && validText(request.resource.data.fields.readingPrivacy, 500)
+          && validText(request.resource.data.fields.readingEmpty, 140)
+          && validText(request.resource.data.fields.libraryTitle, 40)
+          && validText(request.resource.data.fields.libraryExportHint, 180)
+          && validText(request.resource.data.fields.libraryEmpty, 140)
+          && validText(request.resource.data.fields.generateAction, 30)
+          ;
+      }
+
       function validExtendedPageCopy() {
         return pageId in [
             'agents', 'classroom', 'tools', 'resources', 'news', 'paths',
@@ -166,7 +234,7 @@ service cloud.firestore {
 
       allow read: if pageId in [
           'home', 'multimodal', 'agents', 'classroom', 'tools', 'resources',
-          'news', 'paths', 'articles', 'article', 'prompts', 'workspace'
+          'news', 'paths', 'articles', 'article', 'prompts', 'workspace', 'research'
         ];
       allow create, update: if isAdmin()
         && request.resource.data.keys().hasAll(['fields', 'updatedAt'])
@@ -176,6 +244,7 @@ service cloud.firestore {
         && (
           (pageId == 'home' && validHomeCopy())
           || (pageId == 'multimodal' && validMultimodalCopy())
+          || (pageId == 'research' && validResearchCopy())
           || validExtendedPageCopy()
         );
       allow delete: if isAdmin();

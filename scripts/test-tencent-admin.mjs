@@ -5,6 +5,9 @@ import { onRequestGet, onRequestPost } from '../server/local-content.mjs';
 import { onRequestPost as usersPost } from '../server/local-admin-users.mjs';
 import { getDocument, listDocuments } from '../server/local-firestore-store.mjs';
 const f = await adminFixture();
+globalThis.window = globalThis;
+await import('../js/site-copy.js');
+const researchDefaults = SiteCopy.defaults('research');
 globalThis.fetch = async () => { throw new Error('禁止外部请求'); };
 let checks = 0;
 function check(value, message) { assert.ok(value, message); checks++; }
@@ -17,6 +20,20 @@ const post = async (body, token = f.token, handler = onRequestPost) => {
     return { status: response.status, ...await response.json() };
 };
 try {
+const researchCopy = async () => {
+    const response = await onRequestGet({ env: f.env, request: new Request('http://localhost/api/content?type=pageCopy&id=research') });
+    return { status: response.status, headers: response.headers, ...await response.json() };
+};
+check((await researchCopy()).item === null, '科研文案尚未初始化可读取默认状态');
+check((await post({ action: 'savePageCopy', id: 'research', fields: { heroTitle: '虚构科研标题' } }, f.teacherToken)).status === 403, '普通教师不能修改科研文案');
+check((await post({ action: 'savePageCopy', id: 'research', fields: {} }, 'invalid')).status === 401, '未登录不能修改科研文案');
+check((await post({ action: 'savePageCopy', id: 'unknown', fields: {} })).status === 400, '未知页面编号不能保存');
+check((await post({ action: 'savePageCopy', id: 'research', fields: { ...researchDefaults, heroTitle: '虚构科研标题', funnelRole: '问题伙伴' } })).ok, '管理员可保存科研文案');
+let copy = await researchCopy();
+check(copy.status === 200 && copy.item.fields.heroTitle === '虚构科研标题' && copy.item.fields.funnelRole === '问题伙伴', '保存后的科研文案可公开读取');
+check(Object.keys(copy.item.fields).length === 40 && copy.item.fields.generateAction === researchDefaults.generateAction, '科研 40 项字段完整保存，没有截断');
+check(copy.headers.get('cache-control') === 'no-store', '科研文案禁止旧缓存');
+check((await post({ action: 'savePageCopy', id: 'research', fields: { heroTitle: '修改后的虚构标题' } })).ok && (await researchCopy()).item.fields.heroTitle === '修改后的虚构标题', '再次保存后立即读取最新文案');
 await f.seed('contact_messages', 'm', { message: '虚构留言原文', contact: 'fixture@example.invalid', name: '演示', createdAt: '2026-01-01', handled: false });
 await f.seed('announcements', 'a', { title: '旧公告', content: '内容', createdAt: '2026-01-01' });
 check((await post({ action: 'updateMessage', id: 'm', data: { handled: true, message: '不应写入' } })).ok, '可以标记留言');

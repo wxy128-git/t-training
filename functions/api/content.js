@@ -12,7 +12,7 @@ const CONTENT_TYPES = {
 };
 const PAGE_COPY_IDS = new Set([
     'home', 'multimodal', 'agents', 'classroom', 'tools', 'resources',
-    'news', 'paths', 'articles', 'article', 'prompts', 'workspace'
+    'news', 'paths', 'articles', 'article', 'prompts', 'workspace', 'research'
 ]);
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CACHE_STALE_MS = 60 * 60 * 1000;

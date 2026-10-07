@@ -15,7 +15,7 @@ const CONTENT_TYPES = {
     subscribers: 'subscribers', messages: 'contact_messages', communityPrompts: 'community_prompts',
     ratings: 'tool_ratings', agentUsage: 'agent_usage'
 };
-const PAGE_COPY_IDS = new Set(['home', 'multimodal', 'agents', 'classroom', 'tools', 'resources', 'news', 'paths', 'articles', 'article', 'prompts', 'workspace']);
+const PAGE_COPY_IDS = new Set(['home', 'multimodal', 'agents', 'classroom', 'tools', 'resources', 'news', 'paths', 'articles', 'article', 'prompts', 'workspace', 'research']);
 const PUBLIC_TYPES = new Set(['announcements', 'articles', 'paths', 'prompts', 'resources', 'pageCopy', 'tools', 'communityPrompts', 'ratings', 'agentUsage']);
 const ADMIN_TYPES = new Set(['subscribers', 'messages']);
 const cache = new Map();

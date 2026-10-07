@@ -522,7 +522,7 @@ function isAdminRuntimePage() {
 
 const PAGE_COPY_IDS = new Set([
     'home', 'multimodal', 'agents', 'classroom', 'tools', 'resources',
-    'news', 'paths', 'articles', 'article', 'prompts', 'workspace'
+    'news', 'paths', 'articles', 'article', 'prompts', 'workspace', 'research'
 ]);
 const PAGE_COPY_PREVIEW_PREFIX = 'xy_page_copy_preview_';
 

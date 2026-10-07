@@ -52,12 +52,12 @@ for (const file of appPages) {
 }
 
 for (const file of dataPages) {
-    const dataVersion = '20261003-tencent-admin';
+    const dataVersion = '20261007-research-copy';
     if (!new RegExp(`js/data\\.js\\?v=${dataVersion}`).test(text(file))) fail(file, '数据脚本缓存版本未统一');
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!/js\/site-copy\.js\?v=20260924-local-email-direct/.test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!/js\/site-copy\.js\?v=20261007-research-copy/.test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -113,7 +113,7 @@ if (!/resource-logo/.test(toolsHtml) || !/const logo = customLogo \|\| TOOL_LOGO
     fail('tools.html', '工具页未优先显示后台保存的本站 Logo');
 }
 const siteCopySource = text('js/site-copy.js');
-for (const pageId of ['home','multimodal','agents','classroom','tools','resources','news','paths','articles','article','prompts','workspace']) {
+for (const pageId of ['home','multimodal','agents','classroom','tools','resources','news','paths','articles','article','prompts','workspace','research']) {
     if (!new RegExp(`\\b${pageId}: Object\\.freeze`).test(siteCopySource)) fail('js/site-copy.js', `缺少 ${pageId} 页面文案定义`);
     if (!new RegExp(`SiteCopy\\.load\\('${pageId}'\\)`).test(text(pageId === 'home' ? 'index.html' : pageId === 'classroom' ? 'classroom-tools.html' : `${pageId}.html`))) {
         fail(pageId, '页面未读取后台文案');
@@ -211,7 +211,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261007-v36/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261007-v37/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }

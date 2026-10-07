@@ -29,7 +29,7 @@ try {
     await importSource('js/site-copy.js');
     const homeDefaults = globalThis.SiteCopy.defaults('home');
     assert(homeDefaults.heroAccent === 'AI' && homeDefaults.taskHeading === '今天要完成什么？', '首页默认文案不完整');
-    assert(Object.keys(globalThis.SiteCopy.definitions).length === 12 && globalThis.SiteCopy.defaults('classroom').routineName === '课堂活动模板', '全站页面文案定义不完整');
+    assert(Object.keys(globalThis.SiteCopy.definitions).length === 13 && globalThis.SiteCopy.defaults('classroom').routineName === '课堂活动模板', '全站页面文案定义不完整');
     const pageFiles = { home:'index.html', classroom:'classroom-tools.html' };
     for (const [pageId, definition] of Object.entries(globalThis.SiteCopy.definitions)) {
         assert(globalThis.SiteCopy.validate(pageId, globalThis.SiteCopy.defaults(pageId)).ok, `${pageId} 默认文案未通过校验`);
@@ -39,6 +39,18 @@ try {
     }
     assert(globalThis.SiteCopy.normalize('home', { fields: { heroTitle: '' } }).heroTitle === homeDefaults.heroTitle, '无效后台文案未回退到本地默认值');
     assert(globalThis.SiteCopy.validate('home', { ...homeDefaults, heroAccent: '课堂外' }).ok === false, '标题强调词校验未生效');
+    const researchDefaults = globalThis.SiteCopy.defaults('research');
+    assert(globalThis.SiteCopy.definitions.research.fields.length <= 40, '科研文案超过现有保存字段上限');
+    assert(globalThis.SiteCopy.normalize('research', { fields: { heroTitle: '', funnelRole: 'x'.repeat(21), extra: 'ignored' } }).funnelRole === researchDefaults.funnelRole, '科研缺失或超长文案未回退');
+    assert(!('extra' in globalThis.SiteCopy.normalize('research', { extra: 'ignored' })), '科研未知字段未过滤');
+    assert(!globalThis.SiteCopy.validate('research', { ...researchDefaults, readingPrivacy: '' }).ok, '科研空文案允许保存');
+    assert(!globalThis.SiteCopy.validate('research', { ...researchDefaults, funnelGreeting: 'x'.repeat(601) }).ok, '科研超长开场白允许保存');
+    const originalDB = globalThis.DB;
+    try {
+        globalThis.DB = { getPageCopy: async () => { throw new Error('fixture failure'); } };
+        assert((await globalThis.SiteCopy.load('research')).heroTitle === researchDefaults.heroTitle, '科研文案读取失败未回退默认值');
+    } finally { globalThis.DB = originalDB; }
+
 
     const content = await importSource('functions/api/content.js');
     let contentRequest = null;
@@ -81,6 +93,9 @@ try {
     const pageCopy = await pageCopyResponse.json();
     assert(pageCopyResponse.status === 200 && pageCopy.item?.fields?.heroTitle === '让 AI 真正走进你的课堂', '页面文案代理未正确解码响应');
     assert(pageCopyResponse.headers.get('Cache-Control') === 'no-store' && pageCopyResponse.headers.get('X-Cache') === 'BYPASS', '页面文案代理不应返回旧缓存');
+
+    const researchResponse = await content.onRequestGet({ request: new Request('https://site.test/api/content?type=pageCopy&id=research') });
+    assert(researchResponse.status === 200 && researchResponse.headers.get('Cache-Control') === 'no-store', '兼容科研文案公开读取或禁用缓存失败');
 
     let pageCopyFetchCount = 0;
     globalThis.fetch = async () => { pageCopyFetchCount += 1; return new Response('{}', { status: 500 }); };
