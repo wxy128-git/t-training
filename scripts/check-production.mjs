@@ -30,7 +30,11 @@ for (const route of routes) {
     assert(response.status === 200, `${route} 返回 ${response.status}`);
     assert(response.headers.get('content-type')?.includes('text/html'), `${route} Content-Type 不是 HTML`);
     assert(body.includes('<title>') && body.includes('id="main-content"'), `${route} 缺少标题或主内容锚点`);
-    if (route === '/research') assert(body.includes('research-core.js') && body.includes('research-data.js'), '科研写作模块未上线');
+    if (route === '/research') {
+        assert(body.includes('research-core.js') && body.includes('research-data.js'), '科研写作模块未上线');
+        assert(body.includes('研究问题教练') && body.includes('文献研读伙伴') && body.includes('rs-colleague'), '科研伙伴角色入口或工作台未上线');
+        assert(body.includes('research-data.js?v=20261007-research-partners'), '科研伙伴脚本缓存版本未更新');
+    }
 }
 
 const home = await request('/');
@@ -103,7 +107,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261006-v35'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261007-v36'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -203,6 +207,15 @@ for (const file of ['/vendor/pdfjs/6.4.299/pdf.min.mjs', '/vendor/pdfjs/6.4.299/
     assert(response.status === 200, `${file} 未正确上线`);
     assert(response.headers.get('content-type')?.includes('javascript'), `${file} MIME 阻止浏览器加载 ESM`);
     assert(response.headers.get('cache-control')?.includes('max-age=31536000'), `${file} 未启用长期缓存`);
+}
+
+for (const file of ['/assets/agent-portraits/research-funnel.jpg', '/assets/agent-portraits/research-reading-card.jpg']) {
+    const response = await request(file);
+    if (!response) continue;
+    const bytes = await response.arrayBuffer();
+    assert(response.status === 200 && response.headers.get('content-type')?.includes('image/jpeg'), `${file} 肖像未正确上线`);
+    assert(bytes.byteLength > 1024 && bytes.byteLength < 240 * 1024, `${file} 肖像体积异常`);
+    assert(response.headers.get('cache-control')?.includes('max-age=2592000'), `${file} 静态缓存未启用`);
 }
 
 const blockedRss = await request('/api/rss-proxy?url=http://127.0.0.1:3001/healthz');
