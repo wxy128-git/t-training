@@ -37,6 +37,16 @@
 
 已完成腾讯无中断发布，提交 `2ce9924`。release `/home/ubuntu/t-training/releases/20261008-coach-2ce9924`；backup `/home/ubuntu/t-training/backups/20261008-pre-coach-2ce9924`。备份静态、API、两份 Nginx 与数据库，目录权限 700、数据库 600；166 静态 + 30 API 共 196 文件哈希一致。候选 3002、正式 3001、公网各 18 项接口检查通过；两个 Nginx 配置一致且生效端口切回 3001，首页 200。
 
-科研 core / data、共享 site-copy 为 `20261008-coach`，SW `20261008-v38`；共享消费者已同步缓存版本。Firestore 规则仅更新兼容源文件，未向旧 Firebase 项目发布。公网综合检查、生产浏览器和清理状态继续补充。
+初次发布科研 core / data、共享 site-copy 为 `20261008-coach`，SW `20261008-v38`；最终 site-copy 为 `20261008-coach2`，SW `20261008-v39`，core / data 仍为 `20261008-coach`；共享消费者同步缓存版本。Firestore 规则仅更新兼容源文件，未向旧 Firebase 项目发布。最终公网综合检查 142 项、生产浏览器 14 项通过。
 
 生产浏览器首轮发现后台自定义开场白含旧“尽量在六轮对话内”承诺；按精确片段升级显示与编辑值，数据库原始记录未写入，其余管理员自定义内容保留。补充缓存 site-copy `20261008-coach2`、SW `20261008-v39` 后再次验收。
+
+补发 `0ed14d2` 已完成同一无中断流程，候选/正式/公网各 18 项再次通过，196 文件哈希一致。最终 release `/home/ubuntu/t-training/releases/20261008-coach2-0ed14d2`，私密 backup `/home/ubuntu/t-training/backups/20261008-pre-coach2-0ed14d2`。
+
+生产浏览器在 1440/768/390/375/320px 验证角色名、无功能名、无六轮承诺、输入可见、无横向溢出、游客登录门槛、文献入口及普通页面布局恢复，无脚本错误，未发送真实模型请求。
+
+候选进程已删除；正式 API PID `4016732`、edu-media PID `3380240` 均 online，PM2 保存仅这两应用。`pm2-ubuntu` active/enabled，MainPID `1091830`；教师站、教育媒体课程站 200。旧 Cloudflare `/research?qa=20261008` 保留路径参数 302；脚本 HTTP/2 + gzip、30 天缓存以及 PDF worker 的 JavaScript MIME / 年缓存均已确认。
+
+## 收尾
+
+本地临时发布包、QA 脚本、合成结果、截图已删除；本地 8765/8768 预览和隔离 Chrome 已停止，无任务监听端口。服务器暂存目录、模型冒烟脚本和结果、两轮切换副本已清理；正式 release 与私密回退备份保留，权限已复核。未删除源码、人物资产、原有预览或用户工作文件。AGENTS.md、README.md 与本报告同步最终部署事实，文档提交随源代码推送到 GitHub。
