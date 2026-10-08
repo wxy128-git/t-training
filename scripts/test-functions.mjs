@@ -33,17 +33,18 @@ try {
     const pageFiles = { home:'index.html', classroom:'classroom-tools.html' };
     for (const [pageId, definition] of Object.entries(globalThis.SiteCopy.definitions)) {
         assert(globalThis.SiteCopy.validate(pageId, globalThis.SiteCopy.defaults(pageId)).ok, `${pageId} 默认文案未通过校验`);
-        const pageSource = readFileSync(join(root, pageFiles[pageId] || `${pageId}.html`), 'utf8');
-        const missingKeys = definition.fields.map(field => field.key).filter(key => !pageSource.includes(key));
+        const pageSource = readFileSync(join(root, pageFiles[pageId] || `${pageId}.html`), 'utf8') + (pageId === 'research' ? readFileSync(join(root,'js/research-presentation.js'),'utf8') : '');
+        const dynamicResearchKeys = pageId === 'research' ? ['citationAuthors','citationYear','citationTitle','citationJournal','relationBorrow','relationChallenge','relationGap','starterOne','starterTwo','starterThree'] : [];
+        const missingKeys = definition.fields.map(field => field.key).filter(key => !pageSource.includes(key) && !dynamicResearchKeys.includes(key));
         assert(missingKeys.length === 0, `${pageId} 页面未使用文案字段：${missingKeys.join(', ')}`);
     }
     assert(globalThis.SiteCopy.normalize('home', { fields: { heroTitle: '' } }).heroTitle === homeDefaults.heroTitle, '无效后台文案未回退到本地默认值');
     assert(globalThis.SiteCopy.validate('home', { ...homeDefaults, heroAccent: '课堂外' }).ok === false, '标题强调词校验未生效');
     const researchDefaults = globalThis.SiteCopy.defaults('research');
-    assert(globalThis.SiteCopy.definitions.research.fields.length <= 40, '科研文案超过现有保存字段上限');
+    assert(globalThis.SiteCopy.definitions.research.fields.length <= 160, '科研文案超过科研保存字段上限');
     assert(globalThis.SiteCopy.normalize('research', { fields: { heroTitle: '', funnelRole: 'x'.repeat(21), extra: 'ignored' } }).funnelRole === researchDefaults.funnelRole, '科研缺失或超长文案未回退');
     assert(!('extra' in globalThis.SiteCopy.normalize('research', { extra: 'ignored' })), '科研未知字段未过滤');
-    assert(globalThis.SiteCopy.definitions.research.fields.length===38 && !('funnelTitle' in researchDefaults) && !('readingTitle' in researchDefaults), '退役功能名仍出现在后台字段');
+    assert(globalThis.SiteCopy.definitions.research.fields.length===153 && !('funnelTitle' in researchDefaults) && !('readingTitle' in researchDefaults), '退役功能名仍出现在后台字段');
     const oldIntro='我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。';
     assert(globalThis.SiteCopy.normalize('research',{funnelIntro:oldIntro}).funnelIntro===researchDefaults.funnelIntro, '已保存的六轮默认介绍未升级');
     assert(globalThis.SiteCopy.normalize('research',{funnelIntro:'管理员自定义介绍'}).funnelIntro==='管理员自定义介绍', '自定义科研文案被覆盖');

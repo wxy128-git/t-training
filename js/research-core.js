@@ -90,8 +90,14 @@
         return LABELS.map((label,i) => ({ label, key: keys[i], value: values[i], source: card.unclear.includes(keys[i]) ? '未给出' : card.sources[keys[i]] || '教师核对 / 改写' }));
     }
     const md = v => String(v).replace(/\|/g, '\\|').replace(/[\r\n]+/g, ' ');
-    function cardToMarkdown(card, { question = '' } = {}) {
-        return `# 精读卡：${md(card.citation.authors)}（${md(card.citation.year)}）${md(card.citation.title)}\n\n我的研究问题：${md(question)}\n\n| 栏目 | 内容 | 依据位置 |\n| --- | --- | --- |\n${cardRows(card).map(r => `| ${r.label} | ${md(r.value)} | ${md(r.source)} |`).join('\n')}`;
+    function cardToMarkdown(card, { question = '', copy = {} } = {}) {
+        const prose = value => Array.isArray(value) ? (value.length ? value : [MISSING]).map(v => `- ${md(v)}`).join('\n') : String(value || MISSING).split(/[；;]/).map(v => v.trim()).filter(Boolean).map((v,i,a) => `${a.length>1?'- ':''}${md(v)}`).join('\n');
+        const names = ['cardCitation','cardQuestion','cardSample','cardMethod','cardViewpoints','cardFindings','cardReferences','cardLimitations','cardRelevance','cardVerdict'];
+        const relationNames = ['relationBorrow','relationChallenge','relationGap'];
+        return `# ${md(card.citation.title)}\n\n**${copy.cardCitation || LABELS[0]}**：${md(citationText(card.citation))}\n\n**${copy.myQuestion || '我的研究问题'}**：${md(question)}\n\n` + cardRows(card).slice(1).map((row,i) => {
+            const body = row.key === 'relevance' ? ['borrow','challenge','gap'].map((k,j) => `**${copy[relationNames[j]] || ['可借鉴','可质疑','留下的空白'][j]}**\n\n${prose(card.relevance[k])}`).join('\n\n') : prose(card[row.key]);
+            return `## ${copy[names[i+1]] || row.label}\n\n${body}${card.sources[row.key] ? `\n\n**${copy.sourceLabel || '依据位置'}**：${md(card.sources[row.key])}` : ''}`;
+        }).join('\n\n');
     }
     const CSV_HEADERS = ['序号','作者','年份','题目','期刊','核心期刊','研究问题','对象与情境','研究方法','核心观点','主要结论','关键引用','局限','可借鉴','可质疑','留下的空白','一句话评价','我的研究问题','保存时间'];
     function savedDate(value) {

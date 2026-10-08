@@ -81,7 +81,13 @@ export async function onRequestGet({ request, env }) {
     } catch { return response(503, { ok: false, msg: '本地内容服务暂时不可用' }, { 'Cache-Control': 'no-store' }); }
 }
 
-function cleanPageFields(fields) { return Object.fromEntries(Object.entries(object(fields)).slice(0, 40).map(([key, value]) => [text(key, 80), text(value, 4000)]).filter(([key]) => key)); }
+function cleanPageFields(fields, pageId) {
+    const entries = Object.entries(object(fields)), limit = pageId === 'research' ? 160 : 40;
+    if (entries.length > limit || entries.some(([key, value]) => !key.trim() || key.length > 80 || typeof value !== 'string' || value.length > 4000)) {
+        throw Object.assign(new Error('页面文案字段过多或格式不正确，未保存任何内容'), { statusCode: 400 });
+    }
+    return Object.fromEntries(entries.map(([key, value]) => [key, value.trim()]));
+}
 function cleanArticle(data, existing = {}) {
     const value = object(data);
     return { ...existing, ...value, title: text(value.title || existing.title, 200), excerpt: text(value.excerpt || existing.excerpt, 800), content: text(value.content || existing.content, 240000), status: ['draft', 'published'].includes(value.status || existing.status) ? (value.status || existing.status) : 'draft', updatedAt: new Date().toISOString() };
@@ -121,7 +127,7 @@ async function mutateAdminContent(env, payload) {
     const action = text(payload.action, 40); const type = text(payload.type, 40);
     if (action === 'savePageCopy') {
         if (!PAGE_COPY_IDS.has(payload.id)) throw Object.assign(new Error('不支持的页面'), { statusCode: 400 });
-        const item = await upsertDocument(env, 'page_copy', payload.id, { fields: cleanPageFields(payload.fields), updatedAt: new Date().toISOString() }); clearCache('pageCopy'); return { item };
+        const item = await upsertDocument(env, 'page_copy', payload.id, { fields: cleanPageFields(payload.fields, payload.id), updatedAt: new Date().toISOString() }); clearCache('pageCopy'); return { item };
     }
     if (action === 'replaceCollection' && ['tools', 'prompts', 'paths', 'resources'].includes(type)) return replaceCollection(env, type, payload.items, payload.revision);
     if (action === 'addAnnouncement') { const id = await createDocument(env, 'announcements', { title: text(payload.title, 200), content: text(payload.content, 10000), createdAt: new Date().toISOString() }); clearCache('announcements'); return { id }; }
