@@ -47,6 +47,9 @@ try {
     const oldIntro='我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。';
     assert(globalThis.SiteCopy.normalize('research',{funnelIntro:oldIntro}).funnelIntro===researchDefaults.funnelIntro, '已保存的六轮默认介绍未升级');
     assert(globalThis.SiteCopy.normalize('research',{funnelIntro:'管理员自定义介绍'}).funnelIntro==='管理员自定义介绍', '自定义科研文案被覆盖');
+    const customGreeting='我是研究问题Agent。\n我会一个问题一个问题地问，尽量在六轮对话内帮你把它聚焦成明确的研究问题。';
+    const upgradedGreeting=globalThis.SiteCopy.normalize('research',{funnelGreeting:customGreeting}).funnelGreeting;
+    assert(upgradedGreeting.startsWith('我是研究问题Agent。\n') && upgradedGreeting.includes('信息足够时') && !upgradedGreeting.includes('六轮'), '自定义开场白旧六轮片段未升级或其他文字被覆盖');
     assert(!globalThis.SiteCopy.validate('research', { ...researchDefaults, readingPrivacy: '' }).ok, '科研空文案允许保存');
     assert(!globalThis.SiteCopy.validate('research', { ...researchDefaults, funnelGreeting: 'x'.repeat(601) }).ok, '科研超长开场白允许保存');
     const originalDB = globalThis.DB;

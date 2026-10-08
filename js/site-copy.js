@@ -299,6 +299,7 @@
             // Migrate only untouched legacy defaults; keep the administrator's own wording.
             if (pageId === 'research' && field.key === 'funnelIntro' && candidate === '我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。') candidate = field.defaultValue;
             if (pageId === 'research' && field.key === 'funnelGreeting' && ['我是你的 AI 研究问题教练。','我是研究问题漏斗。'].some(prefix => candidate === prefix+'你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。在那之前我不会给任何建议。')) candidate = field.defaultValue;
+            if (pageId === 'research' && field.key === 'funnelGreeting') candidate = candidate.replace('尽量在六轮对话内帮你把它聚焦成明确的研究问题。','根据你的困扰逐步澄清，信息足够时就一起把它聚焦成明确的研究问题。');
             const value = candidate && candidate.length <= field.maxLength ? candidate : field.defaultValue;
             return [field.key, value];
         }));

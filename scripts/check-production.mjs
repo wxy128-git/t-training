@@ -49,7 +49,7 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261006-research-nav'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261008-coach'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261008-coach2'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261006-research'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261006-research'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
@@ -109,7 +109,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261008-v38'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261008-v39'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -217,7 +217,7 @@ if (researchCopy) {
     assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
     assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
 }
-const researchRegistry = await request('/js/site-copy.js?v=20261008-coach');
+const researchRegistry = await request('/js/site-copy.js?v=20261008-coach2');
 if (researchRegistry) {
     const registry=await researchRegistry.text();
     assert(registry.includes("id: 'research'"), '科研文案注册表未发布');
