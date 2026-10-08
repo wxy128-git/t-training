@@ -57,7 +57,7 @@ for (const file of dataPages) {
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!/js\/site-copy\.js\?v=20261007-research-copy/.test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!/js\/site-copy\.js\?v=20261008-coach/.test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -177,7 +177,7 @@ if (!/curriculum-guard\.js/.test(agentApiSource) || !/enforceCurriculumGate/.tes
 }
 const workspaceHtml = text('workspace.html');
 const researchHtml = text('research.html');
-for (const [name, version] of [['research-core','20261006-research'], ['research-data','20261007-research-partners'], ['agent-stream','20260924-local-email-direct']]) {
+for (const [name, version] of [['research-core','20261008-coach'], ['research-data','20261008-coach'], ['agent-stream','20260924-local-email-direct']]) {
     if (!researchHtml.includes(`js/${name}.js?v=${version}`)) fail('research.html', `${name} 当前版本缺失`);
 }
 for (const name of ['research-core', 'research-data']) {
@@ -211,7 +211,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261007-v37/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261008-v38/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }

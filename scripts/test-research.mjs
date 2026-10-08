@@ -18,7 +18,10 @@ try {
     assert(f.system.includes('## 研究问题聚焦结果')&&f.system.includes('## 五种结构的标题')&&f.system.includes('每次只问一个问题')&&f.system.includes('不得以'),'漏斗约束缺失');
     for(const key of r.schemaKeys) assert(r.system.includes('"'+key+'"'),`精读卡 schema 缺 ${key}`);
     const specification=readFileSync(resolve(root,'docs/2026-10-06-research-writing-module-spec.md'),'utf8');
-    assert(f.system === specification.split('### 5.4')[1].split('```')[1].trim(),'漏斗系统提示未逐字保留');
+    const coachSpec=readFileSync(resolve(root,'docs/2026-10-08-research-coach-update.md'),'utf8');
+    assert(f.system === coachSpec.split('## 教练系统提示')[1].split('```')[1].trim(),'教练系统提示与已确认更新方案不一致');
+    assert(f.name==='研究问题教练' && r.name==='文献研读伙伴','角色名称仍显示功能名');
+    assert(!f.greeting.includes('六轮')&&f.system.includes('不设固定追问轮数')&&f.system.includes('待核实'),'自适应轮次或信息不足规则缺失');
     assert(r.system === specification.split('系统提示词（全文，逐字写入）：')[1].split('```')[1].trim(),'精读卡系统提示未逐字保留');
     assert(f.requestSystem.startsWith(f.system) && f.requestSystem.includes('恰好一个问号'), '漏斗请求补充约束缺失');
     assert(r.requestSystem.startsWith(r.system) && r.requestSystem.includes('正文未明确说明时必须为“未知”'), '核心属性请求补充约束缺失');
@@ -30,7 +33,10 @@ try {
     const both='## 研究问题聚焦结果\n- **研究问题（疑问句）**：怎样提升参与？\n\n## 五种结构的标题\n标题表格';
     assert(C.detectFunnelPhase([{role:'assistant',content:'## 研究问题聚焦结果'}]).phase==='focused','聚焦阶段错误');
     assert(C.detectFunnelPhase([{role:'assistant',content:both}]).phase==='titles','标题阶段错误');
+    assert(C.detectFunnelPhase(Array.from({length:9},()=>({role:'assistant',content:'最关键的缺口是什么？'}))).round===9,'追问次数仍被六轮封顶');
+    assert(C.detectFunnelPhase([{role:'assistant',content:both},{role:'user',content:f.commands.reopen},{role:'assistant',content:'你想理解哪个协作环节？'}]).phase==='probing','标题之后无法重新澄清');
     const parts=C.extractFunnelResult([{role:'assistant',content:both}]);
+    assert(C.extractFunnelResult([{role:'assistant',content:both},{role:'assistant',content:'## 研究问题聚焦结果\n新的研究问题'}]).titles==='', '重新聚焦后旧标题仍与新结果混合');
     assert(parts.question==='怎样提升参与？'&&parts.focus.startsWith('## 研究问题聚焦结果')&&!parts.focus.includes('## 五种结构的标题')&&parts.titles.startsWith('## 五种结构的标题'),'结果提取未切开两个块');
     const fixture={citation:{authors:'张三',year:'2021',title:'课堂参与',journal:'教育研究',isCore:'未知'},question:'原文未明确',sample:'七年级',method:'观察',viewpoints:['观点1','观点2'],findings:['结论'],keyReferences:[],limitations:['材料有限'],relevance:{borrow:['任务设计'],challenge:[],gap:[]},verdict:'值得核对',sources:{question:'摘要',sample:'摘要',method:'研究设计',viewpoints:'引言',findings:'结论',keyReferences:'正文',limitations:'结论'},unclear:[]};
     const json=JSON.stringify(fixture),parsed=C.parseReadingCard(json);
@@ -58,9 +64,19 @@ try {
     assert(truncated.truncated&&truncated.text.length===59999&&!/[\uD800-\uDBFF]$/.test(truncated.text),'截断切开 emoji');
     assert(!C.truncateText('正好',2).truncated,'等长文本误标截断');
     const messages=C.buildFunnelMessages('系统',Array.from({length:40},(_,i)=>({role:'user',content:String(i)})));
-    assert(messages.length===30&&messages[0].role==='system'&&messages[1].content==='11','消息截断未保留 system 和最后 29 条');
+    assert(messages.length<=30&&messages[0].role==='system'&&messages[1].content==='0'&&messages.at(-1).content==='39','长对话未保留系统、最初困扰与近期对话');
+    const anchored=Array.from({length:60},(_,i)=>({role:i%2?'assistant':'user',content:String(i)}));anchored[9].content='## 研究问题聚焦结果\n教师协作';
+    const retained=C.buildFunnelMessages('系统',anchored);
+    assert(retained.length<=30&&retained[1].content==='0'&&retained.some(m=>m.content===anchored[9].content)&&retained.at(-1).content==='59','长对话丢失最近聚焦结果');
     const table=['问题式','关系式','机制式','路径式','对比式'].map((v,i)=>`| ${v} | 标题${i} | 说明 |`).join('\n');
     assert(C.extractTitles(table)?.length===5 && C.extractTitles('无表格')===null,'标题数组提取错误');
+    assert(!C.checkFunnelTitles(table).valid,'无研究后缀的标题未提示核对');
+    const validTitles=table.replace(/标题(\d)/g,'教师协作过程$1研究');
+    assert(C.checkFunnelTitles(validTitles).valid,'自然研究后缀的五种结构被拒绝');
+    assert(!C.checkFunnelTitles(validTitles.replace('教师协作过程0研究','a'.repeat(31)+'研究')).valid,'过长题名未提示核对');
+    assert(!C.checkFunnelTitles(validTitles.replace('关系式','问题式')).valid,'重复结构未提示核对');
+    assert(!C.checkFunnelTitles(validTitles.replace('教师协作过程0研究','基于教师协作的过程研究')).valid,'基于开头题名未提示核对');
+    assert(!C.checkFunnelTitles('无表格').valid,'缺少标题表格未提示核对');
     for(const [name,size,data,error] of [['doc.caj',2,'%PDF','知网'],['large.pdf',21*1024*1024,'%PDF','20 MB'],['bad.pdf',2,'html','不是有效']]) {
         let caught='';try{await ResearchPdf.extract({name,size,arrayBuffer:async()=>new TextEncoder().encode(data).buffer});}catch(e){caught=e.message;}
         assert(caught.includes(error),'PDF 文件前置校验错误');

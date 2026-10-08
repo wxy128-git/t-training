@@ -159,9 +159,9 @@ service cloud.firestore {
         return request.resource.data.fields.keys().hasAll([
             'heroKicker', 'heroTitle', 'heroIntro', 'literatureTitle',
             'literatureIntro', 'judgmentTitle', 'judgmentIntro', 'privacyTitle',
-            'privacyIntro', 'funnelEyebrow', 'funnelRole', 'funnelTitle',
+            'privacyIntro', 'funnelEyebrow', 'funnelRole',
             'funnelIntro', 'funnelAction', 'funnelGreeting', 'readingEyebrow',
-            'readingRole', 'readingTitle', 'readingIntro', 'readingAction',
+            'readingRole', 'readingIntro', 'readingAction',
             'libraryGuest', 'libraryMember', 'libraryIntro', 'moreTools',
             'funnelPrivacy', 'funnelUnsaved', 'composeLabel', 'composePlaceholder',
             'sourceHint', 'questionLabel', 'questionPlaceholder', 'metaLabel',
@@ -171,9 +171,9 @@ service cloud.firestore {
           && request.resource.data.fields.keys().hasOnly([
             'heroKicker', 'heroTitle', 'heroIntro', 'literatureTitle',
             'literatureIntro', 'judgmentTitle', 'judgmentIntro', 'privacyTitle',
-            'privacyIntro', 'funnelEyebrow', 'funnelRole', 'funnelTitle',
+            'privacyIntro', 'funnelEyebrow', 'funnelRole',
             'funnelIntro', 'funnelAction', 'funnelGreeting', 'readingEyebrow',
-            'readingRole', 'readingTitle', 'readingIntro', 'readingAction',
+            'readingRole', 'readingIntro', 'readingAction',
             'libraryGuest', 'libraryMember', 'libraryIntro', 'moreTools',
             'funnelPrivacy', 'funnelUnsaved', 'composeLabel', 'composePlaceholder',
             'sourceHint', 'questionLabel', 'questionPlaceholder', 'metaLabel',
@@ -191,13 +191,11 @@ service cloud.firestore {
           && validText(request.resource.data.fields.privacyIntro, 180)
           && validText(request.resource.data.fields.funnelEyebrow, 40)
           && validText(request.resource.data.fields.funnelRole, 20)
-          && validText(request.resource.data.fields.funnelTitle, 30)
           && validText(request.resource.data.fields.funnelIntro, 180)
           && validText(request.resource.data.fields.funnelAction, 50)
           && validText(request.resource.data.fields.funnelGreeting, 600)
           && validText(request.resource.data.fields.readingEyebrow, 40)
           && validText(request.resource.data.fields.readingRole, 20)
-          && validText(request.resource.data.fields.readingTitle, 30)
           && validText(request.resource.data.fields.readingIntro, 180)
           && validText(request.resource.data.fields.readingAction, 50)
           && validText(request.resource.data.fields.libraryGuest, 80)

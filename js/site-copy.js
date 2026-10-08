@@ -53,13 +53,11 @@
                 {"key": "privacyIntro", "label": "个人信息说明", "maxLength": 180, "defaultValue": "描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。", "rows": 3},
                 {"key": "funnelEyebrow", "label": "问题教练身份说明", "maxLength": 40, "defaultValue": "AI 科研伙伴 · 问题聚焦"},
                 {"key": "funnelRole", "label": "问题教练角色名", "maxLength": 20, "defaultValue": "研究问题教练"},
-                {"key": "funnelTitle", "label": "问题漏斗功能名", "maxLength": 30, "defaultValue": "研究问题漏斗"},
-                {"key": "funnelIntro", "label": "问题教练介绍", "maxLength": 180, "defaultValue": "我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。", "rows": 3},
+                {"key": "funnelIntro", "label": "问题教练介绍", "maxLength": 180, "defaultValue": "我会根据你的困扰，一次问一个关键问题，陪你把它聚焦成能研究的问题。", "rows": 3},
                 {"key": "funnelAction", "label": "问题教练入口提示", "maxLength": 50, "defaultValue": "聚焦结果 + 五种结构的标题 →"},
-                {"key": "funnelGreeting", "label": "问题教练开场白（仅展示）", "maxLength": 600, "defaultValue": "我是你的 AI 研究问题教练。你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。在那之前我不会给任何建议。", "rows": 5},
+                {"key": "funnelGreeting", "label": "问题教练开场白（仅展示）", "maxLength": 600, "defaultValue": "我是你的 AI 研究问题教练。你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会根据你的困扰，一次问一个关键问题；信息足够时，就一起把它聚焦成能研究的问题。在那之前我不会给任何建议。", "rows": 5},
                 {"key": "readingEyebrow", "label": "文献伙伴身份说明", "maxLength": 40, "defaultValue": "AI 科研伙伴 · 文献研读"},
                 {"key": "readingRole", "label": "文献伙伴角色名", "maxLength": 20, "defaultValue": "文献研读伙伴"},
-                {"key": "readingTitle", "label": "文献精读功能名", "maxLength": 30, "defaultValue": "文献精读卡"},
                 {"key": "readingIntro", "label": "文献伙伴介绍", "maxLength": 180, "defaultValue": "我陪你按五读法梳理论文的依据和方法；与你研究的关系，由你核对、改写。", "rows": 3},
                 {"key": "readingAction", "label": "文献伙伴入口提示", "maxLength": 50, "defaultValue": "十栏精读卡 + 卡片夹 CSV →"},
                 {"key": "libraryGuest", "label": "卡片夹入口（未登录）", "maxLength": 80, "defaultValue": "登录后可保存精读卡并导出表格"},
@@ -298,6 +296,9 @@
         return Object.fromEntries(definition.fields.map(field => {
             let candidate = typeof raw[field.key] === 'string' ? raw[field.key].trim() : '';
             if (pageId === 'tools' && field.key === 'reviewNote' && candidate === '信息核对于 2026 年 8 月，请以官网为准。不要上传学生姓名、联系方式或成绩明细。') candidate = field.defaultValue;
+            // Migrate only untouched legacy defaults; keep the administrator's own wording.
+            if (pageId === 'research' && field.key === 'funnelIntro' && candidate === '我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。') candidate = field.defaultValue;
+            if (pageId === 'research' && field.key === 'funnelGreeting' && ['我是你的 AI 研究问题教练。','我是研究问题漏斗。'].some(prefix => candidate === prefix+'你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。在那之前我不会给任何建议。')) candidate = field.defaultValue;
             const value = candidate && candidate.length <= field.maxLength ? candidate : field.defaultValue;
             return [field.key, value];
         }));

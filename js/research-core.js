@@ -16,9 +16,10 @@
     const object = v => v && typeof v === 'object' && !Array.isArray(v);
     function detectFunnelPhase(history = []) {
         const assistants = history.filter(h => h.role === 'assistant');
-        const round = Math.min(6, assistants.length);
-        const phase = assistants.some(h => h.content.includes(TITLES)) ? 'titles'
-            : assistants.some(h => h.content.includes(FOCUS)) ? 'focused'
+        const round = assistants.filter(h => !h.content.includes(FOCUS) && !h.content.includes(TITLES)).length;
+        const latest = assistants.at(-1)?.content || '';
+        const phase = latest.includes(TITLES) ? 'titles'
+            : latest.includes(FOCUS) ? 'focused'
             : history.some(h => h.role === 'user') ? 'probing' : 'start';
         return { phase, round };
     }
@@ -26,14 +27,24 @@
         let focus = '', titles = '';
         for (const h of history.filter(h => h.role === 'assistant')) {
             const f = h.content.indexOf(FOCUS), t = h.content.indexOf(TITLES);
-            if (f >= 0) focus = h.content.slice(f, t > f ? t : undefined).trim();
+            if (f >= 0) { focus = h.content.slice(f, t > f ? t : undefined).trim(); titles = ''; }
             if (t >= 0) titles = h.content.slice(t).trim();
         }
         const question = focus.match(/研究问题[（(]疑问句[）)][*]*[：:][*]*\s*(.+)/)?.[1]?.replace(/\*\*/g, '').trim() || '';
         return { focus, titles, question };
     }
     function buildFunnelMessages(system, history) {
-        return [{ role: 'system', content: system }, ...history.slice(-29).map(({role, content}) => ({ role, content }))];
+        let selected = history;
+        if (history.length > 29) {
+            // Reserve anchors for the original concern and latest focus, plus recent exchanges.
+            const indices = new Set(Array.from({length:27}, (_, i) => history.length - 27 + i));
+            const first = history.findIndex(h => h.role === 'user');
+            const focus = history.findLastIndex(h => h.role === 'assistant' && h.content.includes(FOCUS));
+            if (first >= 0) indices.add(first);
+            if (focus >= 0) indices.add(focus);
+            selected = [...indices].sort((a,b) => a-b).map(i => history[i]);
+        }
+        return [{ role: 'system', content: system }, ...selected.map(({role, content}) => ({ role, content }))];
     }
     function parseReadingCard(raw) {
         let data;
@@ -115,5 +126,17 @@
         const values = text.split('\n').filter(l => /^\s*\|\s*(问题式|关系式|机制式|路径式|对比式)\s*\|/.test(l)).map(l => l.split('|')[2]?.trim());
         return values.length === 5 && values.every(Boolean) ? values : null;
     }
-    root.ResearchCore = { detectFunnelPhase, extractFunnelResult, buildFunnelMessages, parseReadingCard, cardRows, cardToMarkdown, cardsToCsv, cardToTsv, truncateText, extractTitles, citationText, savedDate, CSV_HEADERS };
+    function checkFunnelTitles(text) {
+        const titles = extractTitles(text), issues = [];
+        const structures = text.split('\n').filter(l => /^\s*\|\s*(问题式|关系式|机制式|路径式|对比式)\s*\|/.test(l)).map(l => l.split('|')[1].trim());
+        if (!titles || structures.join(',') !== '问题式,关系式,机制式,路径式,对比式') issues.push('请核对五种结构是否齐全且顺序正确');
+        if (titles) titles.forEach((title, i) => {
+            const plain = title.replace(/\*\*|`/g,'').trim();
+            if (!plain.endsWith('研究')) issues.push(`第 ${i+1} 个题名应以“研究”结尾`);
+            if ([...plain].length > 30) issues.push(`第 ${i+1} 个题名超过 30 字`);
+            if (/^基于/.test(plain)) issues.push(`第 ${i+1} 个题名需改为更具体的表达`);
+        });
+        return { valid: issues.length === 0, titles, issues };
+    }
+    root.ResearchCore = { detectFunnelPhase, extractFunnelResult, buildFunnelMessages, checkFunnelTitles, parseReadingCard, cardRows, cardToMarkdown, cardsToCsv, cardToTsv, truncateText, extractTitles, citationText, savedDate, CSV_HEADERS };
 })(globalThis);
