@@ -264,7 +264,7 @@
                 <div class="pwa-app-quick-grid">
                     <a href="/classroom-tools"><span>${appIcon('classroom')}</span><b>课堂工具</b><small>计时、分组与互动</small></a>
                     <a href="/multimodal"><span>${appIcon('image')}</span><b>多模态工作坊</b><small>图像、音视频案例</small></a>
-                    <a href="/research"><span>${appIcon('flask')}</span><b>科研写作</b><small>选题与文献工具</small></a>
+                    <a href="/research"><span>${appIcon('flask')}</span><b>科研写作</b><small>选题、文献与方法工具</small></a>
                     <a href="/tools"><span>${appIcon('toolbox')}</span><b>AI 资源精选</b><small>按任务选择工具</small></a>
                     <a href="/resources"><span>${appIcon('folder')}</span><b>课件素材</b><small>常用素材入口</small></a>
                 </div>

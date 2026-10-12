@@ -362,9 +362,9 @@
         const clean = normalize(query);
         const scenarios = [
             {
-                keys: ['论文', '课题', '文献', '选题', '综述', '开题', '申报书'],
-                title: '科研写作从问题与文献开始',
-                body: `用「<a href="/research#funnel">研究问题漏斗</a>」把教学困扰聚焦成能研究的问题，再用「<a href="/research#reading-card">文献精读卡</a>」整理你提供的论文。AI 追问与填卡，选题和判断由你来做。`
+                keys: ['论文', '课题', '文献', '选题', '综述', '开题', '申报书', '研究方法', '研究设计', '问卷', '访谈提纲', '观察记录'],
+                title: '科研写作从问题到工具',
+                body: `用「<a href="/research#funnel">研究问题教练</a>」把教学困扰聚焦成能研究的问题，用「<a href="/research#reading-card">文献研读伙伴</a>」整理你提供的论文，再请「<a href="/research#design">研究设计顾问</a>」选方法、「<a href="/research#instrument">研究工具工坊</a>」做问卷、访谈提纲和观察记录表。AI 追问与整理，选题、方法和判断由你来做。`
             },
             {
                 keys: ['备课', '教案', '导入', '教学设计'],

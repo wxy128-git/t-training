@@ -82,7 +82,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 function cleanPageFields(fields, pageId) {
-    const entries = Object.entries(object(fields)), limit = pageId === 'research' ? 160 : 40;
+    const entries = Object.entries(object(fields)), limit = pageId === 'research' ? 300 : 40;
     if (entries.length > limit || entries.some(([key, value]) => !key.trim() || key.length > 80 || typeof value !== 'string' || value.length > 4000)) {
         throw Object.assign(new Error('页面文案字段过多或格式不正确，未保存任何内容'), { statusCode: 400 });
     }

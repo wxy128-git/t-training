@@ -30,12 +30,14 @@ for (const route of routes) {
     assert(response.status === 200, `${route} 返回 ${response.status}`);
     assert(response.headers.get('content-type')?.includes('text/html'), `${route} Content-Type 不是 HTML`);
     assert(body.includes('<title>') && body.includes('id="main-content"'), `${route} 缺少标题或主内容锚点`);
+    if (route === '/') assert(body.includes('读文献、定方法、做工具'), '首页科研横幅未更新');
     if (route === '/research') {
-        assert(body.includes('research-core.js?v=20261008-reading-ui') && body.includes('research-data.js'), '科研写作模块未上线');
+        assert(['rs-design','rs-instrument','rs-print'].every(id=>body.includes(`id="${id}"`)), '第二批工作台未上线');
+        assert(body.includes('research-core.js?v=20261012-methods') && body.includes('research-data.js'), '科研写作模块未上线');
         assert(body.includes('research-presentation.js?v=20261008-reading-ui') && body.includes('research-reading.css?v=20261008-reading-ui') && body.includes('id="rs-preview-dialog"'), '科研阅读稿与预览未上线');
         assert(body.includes('data-research-note="readingPrivacy"') && !body.includes('id="rs-help-rows"'), '科研说明未改为备注');
         assert(body.includes('研究问题教练') && body.includes('文献研读伙伴') && body.includes('rs-colleague'), '科研伙伴角色入口或工作台未上线');
-        assert(body.includes('research-data.js?v=20261008-coach'), '科研伙伴脚本缓存版本未更新');
+        assert(body.includes('research-data.js?v=20261012-methods'), '科研伙伴脚本缓存版本未更新');
         assert(body.includes("SiteCopy.load('research')") && body.includes('data-site-copy="funnelRole"'), '科研文案未接入后台');
         assert(body.includes('id="rs-chat-panel"') && body.includes('id="rs-chat-latest"') && !body.includes('class="rs-tool-purpose"'), '科研聊天工作台或功能名精简未上线');
     }
@@ -51,9 +53,9 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261006-research-nav'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261008-reading-ui'), '首页未加载当前页面文案模块');
-    assert(body.includes('js/assistant.js?v=20261006-research'), '首页未加载当前网站向导脚本版本');
-    assert(body.includes('js/pwa.js?v=20261006-research'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261012-methods'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/assistant.js?v=20261012-methods'), '首页未加载当前网站向导脚本版本');
+    assert(body.includes('js/pwa.js?v=20261012-methods'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
@@ -70,7 +72,7 @@ if (adminPage) {
     assert(body.includes('id="delete-user-modal"') && body.includes('previewUserDeletion') && body.includes('confirmUserDeletion'), '账号删除核对窗口未上线');
 }
 
-const pwaScript = await request('/js/pwa.js?v=20261006-research');
+const pwaScript = await request('/js/pwa.js?v=20261012-methods');
 if (pwaScript) {
     const body = await pwaScript.text();
     assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
@@ -111,7 +113,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261008-v40'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261012-v41'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -219,22 +221,23 @@ if (researchCopy) {
     assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
     assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
 }
-const researchRegistry = await request('/js/site-copy.js?v=20261008-reading-ui');
+const researchRegistry = await request('/js/site-copy.js?v=20261012-methods');
 if (researchRegistry) {
     const registry=await researchRegistry.text();
+    assert(['designRole','instrumentRole','designGuide','instrumentGuide','reviewAction'].every(k=>registry.includes(k)), '第二批科研文案字段未发布');
     assert(registry.includes("id: 'research'"), '科研文案注册表未发布');
     assert(registry.includes('"key": "helpVerdict"') && registry.includes('"key": "previewAction"') && registry.includes('"key": "titleFormatHint"'), '科研扩展文案未发布');
     assert(!registry.includes('"key": "funnelTitle"') && !registry.includes('"key": "readingTitle"'), '科研后台仍包含退役功能名字段');
 }
 
-for(const file of ['/js/research-presentation.js?v=20261008-reading-ui','/css/research-reading.css?v=20261008-reading-ui']) {const response=await request(file);if(response){assert(response.status===200 && response.headers.get('cache-control')?.includes('max-age=2592000'), `${file} 资源或缓存异常`);}}
+for(const file of ['/js/research-presentation.js?v=20261008-reading-ui','/css/research-reading.css?v=20261008-reading-ui','/js/research-methods.js?v=20261012-methods','/css/research-methods.css?v=20261012-methods']) {const response=await request(file);if(response){assert(response.status===200 && response.headers.get('cache-control')?.includes('max-age=2592000'), `${file} 资源或缓存异常`);}}
 
-for (const file of ['/assets/agent-portraits/research-funnel.jpg', '/assets/agent-portraits/research-reading-card.jpg']) {
+for (const file of ['/assets/agent-portraits/research-funnel.jpg', '/assets/agent-portraits/research-reading-card.jpg', '/assets/agent-portraits/research-design.jpg', '/assets/agent-portraits/research-instrument.jpg']) {
     const response = await request(file);
     if (!response) continue;
     const bytes = await response.arrayBuffer();
     assert(response.status === 200 && response.headers.get('content-type')?.includes('image/jpeg'), `${file} 肖像未正确上线`);
-    assert(bytes.byteLength > 1024 && bytes.byteLength < 240 * 1024, `${file} 肖像体积异常`);
+    assert(bytes.byteLength > 1024 && bytes.byteLength < 200 * 1024, `${file} 肖像体积异常`);
     assert(response.headers.get('cache-control')?.includes('max-age=2592000'), `${file} 静态缓存未启用`);
 }
 

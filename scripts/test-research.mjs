@@ -12,9 +12,9 @@ try {
     await importSource('js/research-data.js');
     await importSource('js/research-core.js');
     await importSource('js/research-pdf.js');
-    const [f,r] = RESEARCH_AGENTS, C = ResearchCore;
-    assert(RESEARCH_AGENTS.length===2 && f.id==='research-funnel' && r.id==='research-reading-card','两个科研智能体定义不正确');
-    for (const a of RESEARCH_AGENTS) assert(a.name && a.system, '智能体缺少名称或系统提示');
+    const [f,r,d,w] = RESEARCH_AGENTS, C = ResearchCore;
+    assert(RESEARCH_AGENTS.length===4 && f.id==='research-funnel' && r.id==='research-reading-card','两个科研智能体定义不正确');
+    for (const a of RESEARCH_AGENTS) assert(a.name && (a.system || a.systems), '智能体缺少名称或系统提示');
     assert(f.system.includes('## 研究问题聚焦结果')&&f.system.includes('## 五种结构的标题')&&f.system.includes('每次只问一个问题')&&f.system.includes('不得以'),'漏斗约束缺失');
     for(const key of r.schemaKeys) assert(r.system.includes('"'+key+'"'),`精读卡 schema 缺 ${key}`);
     const specification=readFileSync(resolve(root,'docs/2026-10-06-research-writing-module-spec.md'),'utf8');
@@ -93,7 +93,7 @@ try {
         assert(caught.includes(error),'PDF 文件前置校验错误');
     }
     const agent=await importSource('functions/api/agent.js');
-    for(const agentId of ['research-funnel','research-reading-card']){
+    for(const agentId of ['research-funnel','research-reading-card','research-design','research-instrument']){
         let providerCount=0,model='';
         globalThis.fetch=async(url,options)=>{
             if(String(url).includes('accounts:lookup'))return new Response(JSON.stringify({users:[{localId:agentId+'-test',email:'teacher@example.invalid',emailVerified:true}]}),{headers:{'Content-Type':'application/json'}});
@@ -102,6 +102,55 @@ try {
         const response=await agent.onRequestPost({request:new Request('https://site.test/api/agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:'系统'},{role:'user',content:'教学研究'}],idToken:'test-token',agentId,curriculum:null})}),env:{ZHIPU_API_KEY:'fake-test-key'}});
         assert(![400,422].includes(response.status)&&providerCount===1,'科研调用被课程闸门误拦截');
         assert(model==='glm-5.2','科研智能体未优先使用 GLM');
+    }
+    {
+    // 第二批结构化输出、编辑与交接：全部为合成数据。
+    const methodsSpec=readFileSync(resolve(root,'docs/2026-10-12-research-methods-agents-spec.md'),'utf8');
+    for(const [anchor,value] of [['设计顾问系统提示',d.system],...['问卷','访谈提纲','观察记录表','重新审查'].map((a,i)=>['工坊系统提示：'+a,w.systems[['questionnaire','interview','observation','review'][i]]])])assert(value===methodsSpec.split('## '+anchor+'\n')[1].match(/```[^\n]*\n([\s\S]*?)\n```/)[1].trim(),anchor+'未逐字复制');
+    assert(RESEARCH_AGENTS.map(a=>a.id).join(',')==='research-funnel,research-reading-card,research-design,research-instrument','四个ID或顺序不正确');
+    for(const [system,request] of [[d.system,d.requestSystem],...Object.entries(w.systems).map(([k,v])=>[v,w.requestSystems[k]])])assert(request.startsWith(system)&&request.includes('【请求补充约束】'),'JSON补充约束缺失');
+    assert(w.systems.questionnaire.includes(C.ADAPTATION_NOTICE),'改编声明不一致');
+    const F=await import('./fixtures/research-methods.mjs'),j=v=>JSON.stringify(v),dc=F.designContext,ic=F.instrumentContext;
+    const designParsed=C.parseDesign(j(F.designFixture));assert(designParsed.design.recommended[0].method==='行动研究'&&designParsed.design.notRecommended[0].method==='准实验'&&designParsed.design.plan.length===3,'标准设计解析失败');
+    assert(C.parseDesign('无JSON')===null,'非JSON设计未拒绝');assert(C.parseDesign('说明```json\n'+j(F.designFixture)+'\n```结束')!==null,'设计JSON提取失败');
+    const messy=C.parseDesign(j({...F.designFixture,extra:'丢弃',analysis:{...F.designFixture.analysis,questionType:'研究描述'},recommended:[{...F.designFixture.recommended[0],method:'混合方法'},{...F.designFixture.recommended[0],method:'行动研究法'},{...F.designFixture.recommended[0],method:'访谈',role:'主方法'},{...F.designFixture.recommended[0],method:'观察法'}]}));
+    assert(messy.design.recommended.length===2&&messy.design.recommended[1].role==='辅助方法'&&!('extra' in messy.design)&&messy.design.analysis.questionType==='描述型','方法枚举、去重或主辅规范化失败');
+    const back=C.parseDesign(j({...F.designFixture,scope:{status:'回到教练',reason:'缺少问题'}}));assert(!back.design.plan.length&&!back.design.recommended.length,'回教练设计仍推荐方法');
+    for(const method of C.METHODS)assert(C.normalizeMethod(method)===method,'方法名无法保留');assert(!C.normalizeMethod('混合方法')&&!C.normalizeMethod('综合观察'),'笼统方法名未拒绝');
+    assert(d.buildUserMessage({...dc,title:'',conditions:{...dc.conditions,data:[],notes:''}}).includes('【拟定题目】未提供\n')&&d.buildUserMessage({...dc,title:'',conditions:{...dc.conditions,data:[],notes:''}}).includes('【可以收集的数据】未选择'),'设计空值模板错误');
+    const fixtures={questionnaire:F.questionnaireFixture,interview:F.interviewFixture,observation:F.observationFixture},parsed={};
+    for(const [kind,fixture] of Object.entries(fixtures)){parsed[kind]=C.parseInstrument(j(fixture),kind,ic).instrument;assert(parsed[kind].kind===kind&&C.instrumentEntries(parsed[kind]).length>0,'工具解析失败');assert(C.parseInstrument('{}',kind,ic)===null,'空核心工具未拒绝');assert(!C.instrumentChecks(parsed[kind],ic).length,'标准工具误报规则');const duplicate=structuredClone(fixture);if(kind==='questionnaire'){duplicate.items[1].id='Q1';duplicate.review=[{itemId:'Q1'}];}else if(kind==='interview')duplicate.warmup[0].id='';else duplicate.dimensions[0].indicators[0].id='';const result=C.parseInstrument(j(duplicate),kind,ic);assert(!result.instrument.review.length&&result.warnings.includes('review'),'失效编号未重排清审查');}
+    const q=C.parseInstrument(j({...F.questionnaireFixture,scale:{type:'未知',labels:[]}}),'questionnaire',{...ic,scaleName:'参考量表'}).instrument;assert(q.scale.type==='5点'&&q.scale.labels.length===5&&q.adaptationNotice===C.ADAPTATION_NOTICE,'量表回退或改编声明错误');
+    const ob=structuredClone(F.observationFixture);ob.dimensions[0].indicators[1].levels=['一级'];assert(C.parseInstrument(j(ob),'observation',ic).instrument.dimensions[0].indicators[1].levels[1]==='待补充标准','等级标准未补');
+    assert(C.parseInstrument(j({...F.interviewFixture,closing:null}),'interview',ic).instrument.closing===null,'访谈缺收尾被补造');
+    const largeQ=structuredClone(F.questionnaireFixture);largeQ.title='题'.repeat(160);largeQ.items=Array.from({length:45},(_,i)=>({...largeQ.items[0],id:'Q'+(i+1),text:'题'.repeat(160)}));largeQ.dimensions=Array.from({length:8},(_,i)=>({name:'维度'+i,definition:'定义',source:'教师'}));largeQ.demographics=Array.from({length:8},()=>({label:'年级',options:Array(10).fill('五'.repeat(40))}));largeQ.pending=Array(8).fill('核实');largeQ.administration.notes=Array(8).fill('匿名');largeQ.review=Array.from({length:40},(_,i)=>({itemId:'Q'+(i+1),issue:'其他',action:'保留'}));const lq=C.parseInstrument(j(largeQ),'questionnaire',ic).instrument;
+    assert(lq.items.length===40&&lq.items[0].text.length===150&&lq.title.length===150,'问卷题量或文字上限');assert(lq.dimensions.length===6&&lq.demographics.length===6&&lq.demographics[0].options.length===8&&lq.demographics[0].options[0].length===30,'问卷维度和人口学上限');assert(lq.review.length===30&&lq.pending.length===5&&lq.administration.notes.length===5,'审查与辅助数组上限');
+    const largeI=structuredClone(F.interviewFixture);largeI.warmup=Array.from({length:5},(_,i)=>({id:'W'+(i+1),text:'暖场'}));largeI.blocks=Array.from({length:10},(_,i)=>({id:'B'+(i+1),topic:'话题',main:'问题',probes:Array.from({length:8},(_,n)=>({id:'B'+(i+1)+'-'+(n+1),text:'追问'}))}));largeI.opening='字'.repeat(450);largeI.consentPoints=Array(8).fill('自愿');largeI.fieldNotes=Array(8).fill('整理');const li=C.parseInstrument(j(largeI),'interview',ic).instrument;assert(li.warmup.length===3&&li.blocks.length===8&&li.blocks.every(b=>b.probes.length===5),'访谈核心数组上限');assert(li.opening.length===400&&li.consentPoints.length===6&&li.fieldNotes.length===6,'访谈长文字与附加数组上限');
+    const largeO=structuredClone(F.observationFixture);largeO.dimensions=Array.from({length:7},(_,di)=>({name:'维度'+di,indicators:Array.from({length:10},(_,i)=>({id:'O'+(di*10+i+1),behavior:'行为',record:'等级',levels:['一','二','三','四']}))}));largeO.sampling.slots=Array(15).fill('时'.repeat(30));largeO.recordingRules=Array(8).fill('规则');largeO.ethics=Array(8).fill('编号');const lo=C.parseInstrument(j(largeO),'observation',ic);assert(lo.instrument.dimensions.length===6&&lo.instrument.dimensions[0].indicators.length===8&&C.instrumentEntries(lo.instrument).length===30,'观察全局和分组上限');assert(lo.warnings.includes('dimensions')&&lo.instrument.sampling.slots.length===10&&lo.instrument.sampling.slots[0].length===20&&lo.instrument.recordingRules.length===5&&lo.instrument.ethics.length===5,'观察截断警告及辅助数组上限');
+    const manyDesign=C.parseDesign(j({...F.designFixture,plan:Array(8).fill(F.designFixture.plan[0]),ethics:Array(9).fill('匿名'),pending:Array(8).fill('核实')})).design;assert(manyDesign.plan.length===4&&manyDesign.ethics.length===6&&manyDesign.pending.length===5,'设计数组上限');
+    const common=`【工具类型】问卷\n【来源】从零起草\n【研究问题】${ic.question}\n【子问题】${ic.subQuestion}`;assert(w.buildUserMessage(ic)===common+`\n【填答对象】${ic.respondent}（${ic.stage}）\n【维度】\n未提供，请拟定 2 至 4 个\n【每个维度题数】${ic.perDimension}\n【量表类型】${ic.scale}\n【人口学信息】需要\n【参考的成熟量表】无`,'完整问卷消息模板不一致');
+    const reviewed=C.parseReview(j({review:[{itemId:'Q1',issue:'双重问题',original:'假原句',action:'改写',suggestion:'新原句',reason:'一题一事'},{itemId:'Q99',issue:'其他'}],summary:'总体评价'}),q);assert(reviewed.review.length===1&&reviewed.review[0].original===q.items[0].text,'审查ID或原句未绑定');assert(C.parseReview('{}',q)===null,'无审查数组未拒绝');
+    const iq={...q,review:reviewed.review},original=j(iq),adopt=C.applySuggestion(iq,0);assert(adopt.items[0].text==='新原句'&&adopt.review[0].status==='已采用'&&j(iq)===original,'采用建议改了输入对象');assert(C.applySuggestion(C.updateEntry(iq,'Q1','手动修改'),0).items[0].text==='手动修改','过期建议覆盖新原句');
+    const deleted=C.removeEntry(iq,'Q1');assert(deleted.items[0].id==='Q2'&&deleted.review[0].status==='条目已删除','删除后重号或未标记');const adoptDelete=C.applySuggestion({...iq,review:[{...reviewed.review[0],action:'删除'}]},0);assert(adoptDelete.items.length===2&&adoptDelete.review[0].status==='已采用','采用删除未生效');
+    const maxQ={...q,items:Array.from({length:40},(_,i)=>({...q.items[0],id:'Q'+(i+1)}))};assert(C.addEntry(maxQ,{type:'item'})===maxQ,'达到上限未原样返回');assert(C.addEntry(parsed.interview,{type:'closing'})===parsed.interview,'已有收尾重复新增');
+    assert(C.addEntry(deleted,{type:'item',group:'完成经历'}).items.at(-1).id==='Q4','新增编号错误');
+    const cases=[
+      ['questionnaire',x=>x.instructions='自愿','没有写明匿名'],['questionnaire',x=>x.instructions='匿名','没有写明自愿'],['questionnaire',x=>x.items[0].reverse=true,'反向题'],['questionnaire',x=>x.items.pop(),'建议 3 至 6 道'],['questionnaire',x=>x.items[0].dimension='未分维度','没有归入维度'],['questionnaire',x=>x.demographics.push({label:'姓名',options:[]}),'可能识别个人'],['questionnaire',x=>x.items=Array.from({length:31},(_,i)=>({...x.items[0],id:'Q'+i})),'填答时间'],
+      ['interview',x=>x.opening='匿名，自愿，可停止','没有提到录音'],['interview',x=>x.opening='录音，自愿，可停止','没有提到匿名'],['interview',x=>x.opening='录音，匿名','可以不回答'],['interview',x=>x.blocks.pop(),'建议 2 至 3 个'],['interview',x=>x.blocks[0].main='你喜不喜欢作业？','封闭式'],['interview',x=>x.warmup=[],'没有暖场'],['interview',x=>x.closing=null,'没有收尾'],
+      ['observation',x=>x.dimensions[0].indicators[0].behavior='很专注','推断性词语'],['observation',x=>x.dimensions[0].indicators=Array.from({length:21},(_,i)=>({...x.dimensions[0].indicators[0],id:'O'+i})),'现场难以记全'],['observation',x=>x.sampling.slots=[],'没有列出'],['observation',x=>x.sampling={mode:'事件取样',rule:'',slots:[]},'起止'],['observation',x=>x.dimensions[0].indicators[1].levels=['','',''],'标准不完整']
+    ];
+    for(const [kind,mutate,hit] of cases){const sample=structuredClone(parsed[kind]);mutate(sample);assert(C.instrumentChecks(sample,ic).some(s=>s.includes(hit)),'规则未命中：'+hit);assert(!C.instrumentChecks(parsed[kind],ic).some(s=>s.includes(hit)),'规则误命中：'+hit);}
+    assert(C.instrumentChecks(q,{...ic,stage:'小学低年级（1–3年级）'}).some(s=>s.includes('4 点或 5 点')),'低年级量表未提醒');assert(!C.instrumentChecks(q,ic).some(s=>s.includes('4 点或 5 点')),'高年级量表误提醒');
+    assert(C.instrumentChecks({...parsed.interview,duration:'30'},ic).some(s=>s.includes('不超过 20')),'小学生访谈时长未提醒');assert(!C.instrumentChecks(parsed.interview,ic).some(s=>s.includes('不超过 20')),'短访谈误提醒');
+    const storage={data:new Map(),getItem(k){return this.data.get(k)||null;},setItem(k,v){this.data.set(k,v);},removeItem(k){this.data.delete(k);}};
+    assert(C.writeHandoff(storage,'a',{to:'design',question:'x'.repeat(400),titles:['y'.repeat(80)],mode:'bad',respondent:'unknown',stage:'unknown'},100),'交接写入失败');assert(C.takeHandoff(storage,'b','design',200)===null&&C.takeHandoff(storage,'a','instrument',200)===null&&storage.data.size===1,'交接账号或目标隔离失败');const hand=C.takeHandoff(storage,'a','design',200);assert(hand.question.length===300&&hand.titles[0].length===60&&!hand.mode&&!hand.respondent&&!hand.stage&&C.takeHandoff(storage,'a','design',200)===null,'交接清洗或一次性失败');C.writeHandoff(storage,'a',{to:'design'},100);assert(C.takeHandoff(storage,'a','design',100+C.HANDOFF_TTL+1)===null&&storage.data.size===0,'交接未过期');
+    for(const kind of C.INSTRUMENT_KINDS){const message=w.buildUserMessage({...ic,kind,source:'审查我的草稿',draft:'第一行\n第二行'});assert(message.endsWith('【草稿】\n第一行\n第二行')&&!message.includes('【每个维度题数】'),'审查模板失真');const reviewMessage=w.buildReviewMessage(C.addEntry(parsed[kind],kind==='interview'?{type:'warmup'}:{type:kind==='questionnaire'?'item':'indicator',group:parsed[kind].dimensions[0].name}),{...ic,kind});assert(reviewMessage.includes('【当前条目】')&&!reviewMessage.endsWith('］'),'复审发送空文字');const tsv=C.instrumentTsv(parsed[kind]).split('\n').map(r=>r.split('\t'));assert(tsv.every(r=>r.length===tsv[0].length),'工具TSV列不一致');}
+    const formula=structuredClone(F.designFixture);formula.plan[0].subQuestion='=SUM(A1)\t换行\n';assert(C.designPlanTsv(formula).includes("'=SUM(A1) 换行 "),'TSV公式或分隔符未清洗');formula.plan[0].tool='工具|备注';assert(C.designToMarkdown(formula,dc).includes('工具\\|备注'),'Markdown未转义');
+    globalThis.SafeRender={escape:s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),markdown:s=>String(s)};await importSource('js/site-copy.js');await importSource('js/research-methods.js');const c=globalThis.SiteCopy.defaults('research');
+    const attack='<img src=x onerror=alert(1)><script>alert(1)</script>',dx=structuredClone(F.designFixture);dx.analysis.focus=attack;const qx=structuredClone(q);qx.items[0].text=attack;qx.title=attack;
+    for(const html of [ResearchMethods.designHTML(dx,dc,c),ResearchMethods.instrumentHTML(qx,ic,c),ResearchMethods.printDocument(qx,ic,c).html])assert(!html.includes('<img src=x')&&!html.includes('<script>'),'模型HTML未转义');
+    const print=ResearchMethods.printDocument(q,ic,c);assert(!print.html.includes('反向题')&&!print.html.includes('完成经历')&&!print.landscape,'问卷打印泄露内部维度');assert(ResearchMethods.printDocument(parsed.observation,ic,c).landscape,'观察打印不是横向');
+
     }
     console.log(`科研写作回归通过：${passed} 项断言（全部合成数据，无真实模型调用）。`);
 } finally {globalThis.fetch=originalFetch;globalThis.window=originalWindow;}

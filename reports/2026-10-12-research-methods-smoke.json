@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-12",
+  "authorizedRequests": 6,
+  "requests": [
+    {
+      "number": 1,
+      "type": "研究设计",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "elapsedMs": 13529,
+      "parseable": true,
+      "checks": {
+        "completed": true,
+        "parseable": true,
+        "actionResearch": true,
+        "quasiExperimentExcluded": true,
+        "planCount": true,
+        "noStudentLabels": true
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "number": 2,
+      "type": "问卷从零起草",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "elapsedMs": 7302,
+      "parseable": true,
+      "checks": {
+        "completed": true,
+        "parseable": true,
+        "dimensionCounts": true,
+        "totalItems": true,
+        "reverseRatio": true,
+        "anonymityVoluntarySensitive": false
+      },
+      "issues": [
+        "anonymityVoluntarySensitive"
+      ],
+      "passed": false,
+      "ruleHints": [
+        "指导语没有写明匿名",
+        "指导语没有写明自愿"
+      ]
+    }
+  ],
+  "cleanup": {
+    "temporaryAccountRemaining": 0,
+    "mailSent": 0,
+    "businessConversationsSaved": 0
+  },
+  "passed": false,
+  "executedRequests": 2,
+  "stoppedAfterRequest": 2,
+  "remainingRequestsExecuted": false,
+  "failureOriginalResult": "2026-10-12-research-methods-smoke-failed-original.json",
+  "deployed": false
+}

@@ -31,10 +31,10 @@ check((await post({ action: 'savePageCopy', id: 'unknown', fields: {} })).status
 check((await post({ action: 'savePageCopy', id: 'research', fields: { ...researchDefaults, heroTitle: '虚构科研标题', funnelRole: '问题伙伴' } })).ok, '管理员可保存科研文案');
 let copy = await researchCopy();
 check(copy.status === 200 && copy.item.fields.heroTitle === '虚构科研标题' && copy.item.fields.funnelRole === '问题伙伴', '保存后的科研文案可公开读取');
-check(Object.keys(copy.item.fields).length === 153 && copy.item.fields.titleFormatHint === researchDefaults.titleFormatHint, '科研 153 项字段完整保存，包括末尾备注，没有截断');
+check(Object.keys(copy.item.fields).length === 288 && copy.item.fields.titleFormatHint === researchDefaults.titleFormatHint, '科研 288 项字段完整保存，包括末尾备注，没有截断');
 check(copy.headers.get('cache-control') === 'no-store', '科研文案禁止旧缓存');
 const beforeRejected = JSON.stringify(copy.item.fields);
-check((await post({action:'savePageCopy',id:'research',fields:Object.fromEntries(Array.from({length:161},(_,i)=>['field'+i,'text']))})).status===400, '超限科研字段整次拒绝');
+check((await post({action:'savePageCopy',id:'research',fields:Object.fromEntries(Array.from({length:301},(_,i)=>['field'+i,'text']))})).status===400, '超限科研字段整次拒绝');
 check(JSON.stringify((await researchCopy()).item.fields)===beforeRejected, '超限拒绝保留原文案');
 check((await post({action:'savePageCopy',id:'home',fields:Object.fromEntries(Array.from({length:41},(_,i)=>['field'+i,'text']))})).status===400, '其他页面仍限制40项');
 check((await post({action:'savePageCopy',id:'research',fields:{helpVerdict:'x'.repeat(4001)}})).status===400, '超长文案拒绝而非截断');

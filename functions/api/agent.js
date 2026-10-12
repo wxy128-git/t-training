@@ -45,7 +45,7 @@ const DEFAULT_ZHIPU_AGENT_IDS = [
     'exam-paper',
     'error-diagnosis',
     'research-funnel',
-    'research-reading-card'
+    'research-reading-card', 'research-design', 'research-instrument'
 ];
 
 const PROVIDERS = {
