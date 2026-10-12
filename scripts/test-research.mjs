@@ -38,6 +38,13 @@ try {
     const parts=C.extractFunnelResult([{role:'assistant',content:both}]);
     assert(C.extractFunnelResult([{role:'assistant',content:both},{role:'assistant',content:'## 研究问题聚焦结果\n新的研究问题'}]).titles==='', '重新聚焦后旧标题仍与新结果混合');
     assert(parts.question==='怎样提升参与？'&&parts.focus.startsWith('## 研究问题聚焦结果')&&!parts.focus.includes('## 五种结构的标题')&&parts.titles.startsWith('## 五种结构的标题'),'结果提取未切开两个块');
+    // 学术疑问句保持原文，供保存、标题与研究设计交接；不在前端机械改写。
+    for (const question of ['七年级学生在小组讨论中的参与呈现哪些特征？','教师互信与校本教研参与有何关联？','新教师在集体备课中如何形成教学判断？','两轮同伴反馈实践中，学生的作文修改行为发生哪些变化？']) {
+        const focus='## 研究问题聚焦结果\n- **研究对象**：教师已说明的对象\n- **可行性边界**：资料取得方式待核实\n- **研究问题（疑问句）**：'+question+'\n- **最初的困扰 → 现在的问题**：原始困扰 → '+question;
+        const history=[{role:'user',content:'我的困扰'},{role:'assistant',content:focus}];
+        const extracted=C.extractFunnelResult(history);
+        assert(extracted.question===question&&extracted.focus===focus&&C.buildFunnelMessages(f.requestSystem,history)[0].content.includes('不能只凭单班观察'),'学术问题或证据边界未保留至后续流程');
+    }
     const fixture={citation:{authors:'张三',year:'2021',title:'课堂参与',journal:'教育研究',isCore:'未知'},question:'原文未明确',sample:'七年级',method:'观察',viewpoints:['观点1','观点2'],findings:['结论'],keyReferences:[],limitations:['材料有限'],relevance:{borrow:['任务设计'],challenge:[],gap:[]},verdict:'值得核对',sources:{question:'摘要',sample:'摘要',method:'研究设计',viewpoints:'引言',findings:'结论',keyReferences:'正文',limitations:'结论'},unclear:[]};
     const json=JSON.stringify(fixture),parsed=C.parseReadingCard(json);
     assert(parsed.card && parsed.warnings.length===0 && Object.keys(parsed.card).length===12,'合法 JSON 未规范化');
@@ -149,6 +156,12 @@ try {
     globalThis.SafeRender={escape:s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),markdown:s=>String(s)};await importSource('js/site-copy.js');await importSource('js/research-methods.js');const c=globalThis.SiteCopy.defaults('research');
     const attack='<img src=x onerror=alert(1)><script>alert(1)</script>',dx=structuredClone(F.designFixture);dx.analysis.focus=attack;const qx=structuredClone(q);qx.items[0].text=attack;qx.title=attack;
     for(const html of [ResearchMethods.designHTML(dx,dc,c),ResearchMethods.instrumentHTML(qx,ic,c),ResearchMethods.printDocument(qx,ic,c).html])assert(!html.includes('<img src=x')&&!html.includes('<script>'),'模型HTML未转义');
+    const brief=ResearchMethods.designHTML(designParsed.design,dc,c),fold=brief.indexOf('rs-design-full');
+    assert(brief.slice(0,fold).includes(F.designFixture.recommended[0].limits)&&brief.slice(0,fold).includes(F.designFixture.ethics[0])&&brief.slice(0,fold).includes(F.designFixture.pending[0]),'精简设计隐藏了限制、伦理或待核实事项');
+    assert(brief.includes('rs-design-plan')&&brief.includes('data-design-row="0"')&&brief.includes('rs-design-table')&&!brief.includes('rs-design-full" open'),'精简安排、交接或完整设计展开缺失');
+    const conflict=ResearchMethods.designHTML({...designParsed.design,titleCheck:{...designParsed.design.titleCheck,conflict:'缺少平行班',suggestion:'改为行动研究'}},dc,c);
+    assert(conflict.indexOf('缺少平行班')<conflict.indexOf('rs-design-full'),'题目冲突被收进详细设计');
+    assert(d.buildUserMessage(dc).includes('【文字精简】')&&d.buildUserMessage(dc).includes('不得遗漏重要限制'),'生成请求未要求简洁并保留重要限制');
     const print=ResearchMethods.printDocument(q,ic,c);assert(!print.html.includes('反向题')&&!print.html.includes('完成经历')&&!print.landscape,'问卷打印泄露内部维度');assert(ResearchMethods.printDocument(parsed.observation,ic,c).landscape,'观察打印不是横向');
 
     }

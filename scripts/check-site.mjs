@@ -57,7 +57,7 @@ for (const file of dataPages) {
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!new RegExp('js/site-copy\\.js\\?v='+(file==='agents.html'?'20261008-reading-ui':'20261012-methods')).test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!new RegExp('js/site-copy\\.js\\?v='+(file==='agents.html'?'20261008-reading-ui':'20261012-design-ui')).test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -177,7 +177,7 @@ if (!/curriculum-guard\.js/.test(agentApiSource) || !/enforceCurriculumGate/.tes
 }
 const workspaceHtml = text('workspace.html');
 const researchHtml = text('research.html');
-for (const [name, version] of [['research-core','20261012-methods'], ['research-data','20261012-methods'], ['research-presentation','20261008-reading-ui'], ['agent-stream','20260924-local-email-direct']]) {
+for (const [name, version] of [['research-core','20261012-methods'], ['research-data','20261012-research-refinement'], ['research-presentation','20261008-reading-ui'], ['agent-stream','20260924-local-email-direct']]) {
     if (!researchHtml.includes(`js/${name}.js?v=${version}`)) fail('research.html', `${name} 当前版本缺失`);
 }
 for (const name of ['research-core', 'research-data']) {
@@ -187,7 +187,7 @@ if (!text('sw.js').includes("'/research'") || /pdfjs|research-pdf/.test(text('sw
 if (!researchHtml.includes('css/research-reading.css?v=20261008-reading-ui') || !text('sw.js').includes("'/css/research-reading.css'") || !text('sw.js').includes("'/js/research-presentation.js'")) fail('research.html','科研阅读资源或预缓存缺失');
 if (!researchHtml.includes('id="rs-preview-dialog"') || !researchHtml.includes('data-research-note="readingPrivacy"') || researchHtml.includes('id="rs-help-rows"')) fail('research.html','备注与预览未接入');
 for(const id of ['rs-design','rs-instrument','rs-print'])if(!researchHtml.includes(`id="${id}"`))fail('research.html',`${id} 缺失`);
-for(const file of ['js/research-methods.js','css/research-methods.css'])if(!researchHtml.includes(file+'?v=20261012-methods')||!text('sw.js').includes("'/"+file+"'"))fail(file,'资源加载或预缓存缺失');
+for(const file of ['js/research-methods.js','css/research-methods.css'])if(!researchHtml.includes(file+'?v=20261012-design-ui')||!text('sw.js').includes("'/"+file+"'"))fail(file,'资源加载或预缓存缺失');
 const researchData = text('js/research-data.js');
 for(const feature of ['你是一位熟悉中小学教育科研的研究方法顾问','问卷','访谈提纲','观察记录表','重新审查'])if(!researchData.includes(feature))fail('js/research-data.js','第二批提示词特征缺失：'+feature);
 if (!['## 研究问题聚焦结果', '## 五种结构的标题', 'isCore', 'unclear'].every(value => researchData.includes(value))) fail('js/research-data.js', '科研提示词标记不完整');
@@ -216,7 +216,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261012-v41/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261012-v44/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }

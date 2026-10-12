@@ -7,18 +7,25 @@
     const dl=values=>`<dl class="rs-method-facts">${values.map(([k,v])=>`<div><dt>${E(k)}</dt><dd>${E(v)}</dd></div>`).join('')}</dl>`;
     function table(headers,rows,cls=''){return `<div class="rs-table-scroll ${cls}" tabindex="0"><table><thead><tr>${headers.map(h=>`<th scope="col">${E(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map((v,i)=>`<td data-label="${E(headers[i])}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
     function designHTML(d,ctx,copy,options={}){
-        let body=section(copy.designAnalysisHeading,dl([['研究对象',d.analysis.object],['关键变量或现象',d.analysis.focus],['研究情境',d.analysis.context],['问题类型',d.analysis.questionType],['判断依据',d.analysis.typeReason]]));
-        body+=section(copy.designScopeHeading,`<p><span class="rs-method-status ${d.scope.status==='可行'?'rs-method-success':'rs-method-warning'}">${E(d.scope.status)}</span> ${E(d.scope.reason)}</p>${d.scope.narrowed?dl([['收窄后的研究问题',d.scope.narrowed]]):''}${d.scope.status==='需回到教练'?button('designToCoachAction',copy,'data-method-action="coach"'):''}`);
+        const detail=(title,body,cls='')=>`<details class="rs-design-detail ${cls}"><summary>${E(title)}</summary><div>${body}</div></details>`;
+        const question=d.scope.narrowed||ctx?.question||d.analysis.focus;
+        let body=`<header class="rs-design-decision"><span class="rs-method-status ${d.scope.status==='可行'?'rs-method-success':'rs-method-warning'}">${E(d.scope.status)}</span><h3>${E(question)}</h3><p>${E(d.scope.reason)}</p>${d.scope.status==='需回到教练'?button('designToCoachAction',copy,'data-method-action="coach"'):''}</header>`;
         if(d.scope.status!=='需回到教练'){
-            if(d.titleCheck.title!=='未提供')body+=section(copy.designTitleHeading,dl([['拟定题目',d.titleCheck.title],['题目承诺的证据',d.titleCheck.implies],['与条件的冲突',d.titleCheck.conflict],['修改建议',d.titleCheck.suggestion]]));
-            body+=section(copy.designRecommendedHeading,d.recommended.map(r=>`<div class="rs-method-recommendation"><h4>${E(r.method)} · ${E(r.role)}</h4>${dl([['为什么适合',r.why],['本案局限',r.limits],['会产生的数据',r.data]])}<div class="rs-method-minimal"><strong>${E(copy.designMinimalLabel)}</strong><p>${E(r.minimal)}</p></div></div>`).join(''));
-            body+=section(copy.designExcludedHeading,list(d.notRecommended.map(r=>r.method+'：'+r.reason)));
-            body+=section(copy.designPlanHeading,table(C.DESIGN_HEADERS,d.plan.map(r=>C.PLAN_KEYS.map(k=>E(r[k]))),'rs-design-table'));
-            const tools=d.plan.map((r,i)=>r.toolType==='现有材料'?`<li>${E(copy.designExistingMaterial.replace('{source}',r.source))}</li>`:['问卷','访谈提纲','观察记录表'].includes(r.toolType)?`<li><div><strong>${E(r.subQuestion)}</strong><p>${E(r.tool)}</p></div>${button('designToWorkshopAction',copy,`data-design-row="${i}"`)}</li>`:'').filter(Boolean);
-            if(tools.length)body+=section(copy.designToolsHeading,`<ul class="rs-method-tools">${tools.join('')}</ul>`);
+            if(d.titleCheck.title!=='未提供'&&d.titleCheck.conflict&&d.titleCheck.conflict!=='无明显冲突')body+=`<p class="rs-method-warning"><strong>${E(copy.designTitleHeading)}</strong>：${E(d.titleCheck.conflict)}${d.titleCheck.suggestion?`<br>${E(d.titleCheck.suggestion)}`:''}</p>`;
+            body+=section(copy.designRecommendedHeading,d.recommended.map(r=>`<div class="rs-design-method"><div class="rs-design-method-heading"><h4>${E(r.method)}</h4><span>${E(r.role)}</span></div><p>${E(r.why)}</p><div class="rs-method-minimal"><strong>${E(copy.designMinimalLabel)}</strong><p>${E(r.minimal)}</p></div>${r.limits?`<p class="rs-design-limit"><strong>本案局限：</strong>${E(r.limits)}</p>`:''}</div>`).join(''));
+            body+=section(copy.designPlanHeading,`<ol class="rs-design-plan">${d.plan.map((r,i)=>`<li><div class="rs-design-plan-heading"><span>${i+1}</span><h4>${E(r.subQuestion)}</h4></div><p class="rs-design-plan-action">${E(r.approach)}</p><p class="rs-design-plan-meta"><strong>时间：</strong>${E(r.timing)}<br><strong>分析：</strong>${E(r.analysis)}</p>${['问卷','访谈提纲','观察记录表'].includes(r.toolType)?`<div class="rs-design-plan-tool" aria-label="${E(copy.designToolsHeading)}"><span>${E(r.tool)}</span>${button('designToWorkshopAction',copy,`data-design-row="${i}"`)}</div>`:r.toolType==='现有材料'?`<p class="rs-design-material">${E(copy.designExistingMaterial.replace('{source}',r.source))}</p>`:''}</li>`).join('')}</ol>`);
         }
         if(d.ethics.length)body+=section(copy.designEthicsHeading,list(d.ethics));if(d.pending.length)body+=section(copy.designPendingHeading,list(d.pending));
-        return `<article class="rs-method-document">${options.warnings?.length?`<p class="rs-method-warning">${E(copy.missingFieldsHint.replace('{fields}',options.warnings.map(k=>({analysis:'问题解析',scope:'范围检查',titleCheck:'题目承诺检查',recommended:'推荐方法',notRecommended:'不推荐的方法',plan:'一页纸设计',ethics:'伦理提醒',pending:'待核实'})[k]||k).join('、')))}</p>`:''}${options.readOnly?`<p>${E(copy.designReadOnlyHint)}</p>`:''}${body}</article>`;
+        let full=section(copy.designAnalysisHeading,dl([['研究对象',d.analysis.object],['关键变量或现象',d.analysis.focus],['研究情境',d.analysis.context],['问题类型',d.analysis.questionType],['判断依据',d.analysis.typeReason]]));
+        full+=section(copy.designScopeHeading,`<p>${E(d.scope.status)}：${E(d.scope.reason)}</p>`);
+        if(d.scope.status!=='需回到教练'){
+            full+=section(copy.designRecommendedHeading,d.recommended.map(r=>`<h4>${E(r.method)}</h4>${dl([['会产生的数据',r.data]])}`).join(''));
+            if(d.titleCheck.title!=='未提供')full+=section(copy.designTitleHeading,dl([['拟定题目',d.titleCheck.title],['题目承诺的证据',d.titleCheck.implies],['与条件的冲突',d.titleCheck.conflict],['修改建议',d.titleCheck.suggestion]]));
+            if(d.notRecommended.length)full+=section(copy.designExcludedHeading,list(d.notRecommended.map(r=>r.method+'：'+r.reason)));
+            full+=section(copy.designPlanHeading,table(C.DESIGN_HEADERS,d.plan.map(r=>C.PLAN_KEYS.map(k=>E(r[k]))),'rs-design-table'));
+        }
+        body+=detail(copy.designDetailsAction,full,'rs-design-full');
+        return `<article class="rs-method-document rs-design-document">${options.warnings?.length?`<p class="rs-method-warning" role="alert">${E(copy.missingFieldsHint.replace('{fields}',options.warnings.map(k=>({analysis:'问题解析',scope:'范围检查',titleCheck:'题目承诺检查',recommended:'推荐方法',notRecommended:'不推荐的方法',plan:'一页纸设计',ethics:'伦理提醒',pending:'待核实'})[k]||k).join('、')))}</p>`:''}${options.readOnly?`<p>${E(copy.designReadOnlyHint)}</p>`:''}${body}</article>`;
     }
     const edit=(path,value,label,max=200)=>`<label class="rs-method-edit"><span>${E(label)}</span><textarea data-inst-path="${E(path)}" maxlength="${max}">${E(value)}</textarea></label>`;
     const select=(path,value,values,label)=>`<label>${E(label)}<select data-inst-path="${E(path)}">${values.map(v=>`<option${v===value?' selected':''}>${E(v)}</option>`).join('')}</select></label>`;
