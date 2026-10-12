@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261012-v45';
+const VERSION = '20261012-v46';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;

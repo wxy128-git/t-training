@@ -177,6 +177,15 @@ try {
     const conflict=ResearchMethods.designHTML({...designParsed.design,titleCheck:{...designParsed.design.titleCheck,conflict:'缺少平行班',suggestion:'改为行动研究'}},dc,c);
     assert(conflict.indexOf('缺少平行班')<conflict.indexOf('rs-design-full'),'题目冲突被收进详细设计');
     assert(d.buildUserMessage(dc).includes('【文字精简】')&&d.buildUserMessage(dc).includes('不得遗漏重要限制'),'生成请求未要求简洁并保留重要限制');
+    const workshop=ResearchMethods.instrumentHTML(q,ic,c),reviewPane=ResearchMethods.instrumentHTML(q,ic,c,{panel:'review'});
+    assert(workshop.includes('aria-labelledby="rs-instrument-tab-edit" >')&&workshop.includes('aria-labelledby="rs-instrument-tab-review" hidden'),'工坊默认编辑与审查隐藏关系不正确');
+    assert(reviewPane.includes('aria-labelledby="rs-instrument-tab-edit" hidden')&&reviewPane.includes('aria-labelledby="rs-instrument-tab-review" >'),'审查视图没有正确切换');
+    assert(workshop.includes('rs-entry-main')&&workshop.includes('data-inst-path="items.0.reverse"')&&workshop.includes('id="rs-method-checks"'),'条目设置或检查面板缺失');
+    const workshopReviewed={...q,review:[{itemId:q.items[0].id,original:q.items[0].text,action:'改写',issue:'双重问题',suggestion:attack,reason:attack,status:'未处理'}]};
+    const reviewCards=ResearchMethods.reviewHTML(workshopReviewed,c);
+    assert(reviewCards.includes('rs-review-comparison')&&reviewCards.includes('data-adopt="0"')&&reviewCards.includes('data-locate-entry=')&&!reviewCards.includes('<table')&&!reviewCards.includes('<img src=x'),'逐条审查、采用或转义不正确');
+    workshopReviewed.items=workshopReviewed.items.map((e,i)=>i?e:{...e,text:'教师已修改'});
+    assert(!ResearchMethods.reviewHTML(workshopReviewed,c).includes('data-adopt=')&&ResearchMethods.reviewHTML(workshopReviewed,c).includes(c.reviewStale),'原句已改写仍允许采用过期建议');
     const print=ResearchMethods.printDocument(q,ic,c);assert(!print.html.includes('反向题')&&!print.html.includes('完成经历')&&!print.landscape,'问卷打印泄露内部维度');assert(ResearchMethods.printDocument(parsed.observation,ic,c).landscape,'观察打印不是横向');
 
     }

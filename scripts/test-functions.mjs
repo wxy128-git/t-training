@@ -44,7 +44,7 @@ try {
     assert(globalThis.SiteCopy.definitions.research.fields.length <= 300, '科研文案超过科研保存字段上限');
     assert(globalThis.SiteCopy.normalize('research', { fields: { heroTitle: '', funnelRole: 'x'.repeat(21), extra: 'ignored' } }).funnelRole === researchDefaults.funnelRole, '科研缺失或超长文案未回退');
     assert(!('extra' in globalThis.SiteCopy.normalize('research', { extra: 'ignored' })), '科研未知字段未过滤');
-    assert(globalThis.SiteCopy.definitions.research.fields.length===293 && !('funnelTitle' in researchDefaults) && !('readingTitle' in researchDefaults), '退役功能名仍出现在后台字段');
+    assert(globalThis.SiteCopy.definitions.research.fields.length===300 && !('funnelTitle' in researchDefaults) && !('readingTitle' in researchDefaults), '退役功能名仍出现在后台字段');
     const oldIntro='我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。';
     assert(globalThis.SiteCopy.normalize('research',{funnelIntro:oldIntro}).funnelIntro===researchDefaults.funnelIntro, '已保存的六轮默认介绍未升级');
     assert(globalThis.SiteCopy.normalize('research',{funnelIntro:'管理员自定义介绍'}).funnelIntro==='管理员自定义介绍', '自定义科研文案被覆盖');

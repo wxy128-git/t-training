@@ -39,6 +39,7 @@ for (const route of routes) {
         assert(body.includes('研究问题教练') && body.includes('文献研读伙伴') && body.includes('rs-colleague'), '科研伙伴角色入口或工作台未上线');
         assert(body.includes('research-data.js?v=20261012-coach-convergence'), '科研伙伴脚本缓存版本未更新');
         assert(body.includes("SiteCopy.load('research')") && body.includes('data-site-copy="funnelRole"'), '科研文案未接入后台');
+        assert(['rs-instrument-panels','rs-instrument-options'].every(id=>body.includes(`id="${id}"`))&&body.includes('rs-workshop-layout'), '工具工坊分组与结果面板未上线');
         assert(body.includes('id="rs-chat-panel"') && body.includes('id="rs-chat-latest"') && !body.includes('class="rs-tool-purpose"'), '科研聊天工作台或功能名精简未上线');
     }
 }
@@ -53,7 +54,7 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261006-research-nav'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261012-design-ui'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261012-workshop-ui'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261012-methods'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261012-methods'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
@@ -113,7 +114,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261012-v45'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261012-v46'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -221,13 +222,14 @@ if (researchCopy) {
     assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
     assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
 }
-const researchRegistry = await request('/js/site-copy.js?v=20261012-design-ui');
+const researchRegistry = await request('/js/site-copy.js?v=20261012-workshop-ui');
 if (researchRegistry) {
     const registry=await researchRegistry.text();
     assert(['designRole','instrumentRole','designGuide','instrumentGuide','reviewAction'].every(k=>registry.includes(k)), '第二批科研文案字段未发布');
     assert(registry.includes("id: 'research'"), '科研文案注册表未发布');
     assert(registry.includes('"key": "helpVerdict"') && registry.includes('"key": "previewAction"') && registry.includes('"key": "titleFormatHint"'), '科研扩展文案未发布');
     assert(!registry.includes('"key": "funnelTitle"') && !registry.includes('"key": "readingTitle"'), '科研后台仍包含退役功能名字段');
+    assert(['instrumentBriefHeading','instrumentAudienceHeading','instrumentOptionsHeading','instrumentEditTab','instrumentReviewTab','instrumentUseTab','instrumentMoreAction'].every(k=>registry.includes(k)), '工具工坊七项新界面文案未发布');
     assert(['designBriefHeading','designEvidenceHeading','designOptionalHeading','designDetailsAction','designSelectPrompt'].every(k=>registry.includes(k)), '研究设计新界面文案未发布');
 }
 
@@ -236,7 +238,7 @@ if(coachData){const source=await coachData.text();assert(coachData.status===200&
 const coachCore=await request('/js/research-core.js?v=20261012-coach-convergence');
 if(coachCore){const source=await coachCore.text();assert(coachCore.status===200&&source.includes('funnelProgress')&&source.includes('本次回复任务与轮次控制'),'教练逐次请求轮次控制未上线');}
 
-for(const file of ['/js/research-presentation.js?v=20261008-reading-ui','/css/research-reading.css?v=20261008-reading-ui','/js/research-methods.js?v=20261012-design-ui','/css/research-methods.css?v=20261012-design-ui']) {const response=await request(file);if(response){assert(response.status===200 && response.headers.get('cache-control')?.includes('max-age=2592000'), `${file} 资源或缓存异常`);}}
+for(const file of ['/js/research-presentation.js?v=20261008-reading-ui','/css/research-reading.css?v=20261008-reading-ui','/js/research-methods.js?v=20261012-workshop-ui','/css/research-methods.css?v=20261012-workshop-ui']) {const response=await request(file);if(response){assert(response.status===200 && response.headers.get('cache-control')?.includes('max-age=2592000'), `${file} 资源或缓存异常`);}}
 
 for (const file of ['/assets/agent-portraits/research-funnel.jpg', '/assets/agent-portraits/research-reading-card.jpg', '/assets/agent-portraits/research-design.jpg', '/assets/agent-portraits/research-instrument.jpg']) {
     const response = await request(file);
