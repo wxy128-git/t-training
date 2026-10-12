@@ -33,7 +33,22 @@
         const question = focus.match(/研究问题[（(]疑问句[）)][*]*[：:][*]*\s*(.+)/)?.[1]?.replace(/\*\*/g, '').trim() || '';
         return { focus, titles, question };
     }
+    function funnelProgress(history = []) {
+        // Count before truncation. A new cycle reuses facts from the last result.
+        const anchor = history.findLastIndex(h => h.role === 'assistant' && (h.content.includes(FOCUS) || h.content.includes(TITLES)));
+        const round = history.slice(anchor + 1).filter(h => h.role === 'assistant' && h.content.trim()).length;
+        return { round, mode: anchor >= 0 && round === 0 ? 'followup' : round >= 7 ? 'focus' : round >= 5 ? 'converge' : 'probe' };
+    }
     function buildFunnelMessages(system, history) {
+        const progress = funnelProgress(history);
+        const task = progress.mode === 'focus'
+            ? '本次回复必须直接输出阶段二“## 研究问题聚焦结果”，不得再追问。只依据已有信息，缺失条件标为“待核实”；不能为完成聚焦虚构事实。此任务优先于阶段一的单问句约束。'
+            : progress.mode === 'converge'
+            ? '本次优先直接输出阶段二聚焦结果。只有研究对象或核心研究意图仍无法界定时，才问最后一个关键问题；资料、指标、周期、方法等次要细节写“待核实”，不得据此延长追问。'
+            : progress.mode === 'followup'
+            ? '已有聚焦或标题结果，按教师本次意愿生成标题、修订问题或重新澄清，不自动重复输出聚焦。重新澄清时复用全部已知信息，新周期争取 6—7 轮以内收束。'
+            : '只澄清会实质改变研究问题的一处关键缺口；已知信息不重复问，核心问题已清楚时立即聚焦，不必等到第 6 轮。';
+        const guidedSystem = `${system}\n\n【本次回复任务与轮次控制】\n当前聚焦周期已经提出 ${progress.round} 次追问，教师最新消息见对话末尾。${task}`;
         let selected = history;
         if (history.length > 29) {
             // Reserve anchors for the original concern and latest focus, plus recent exchanges.
@@ -44,7 +59,7 @@
             if (focus >= 0) indices.add(focus);
             selected = [...indices].sort((a,b) => a-b).map(i => history[i]);
         }
-        return [{ role: 'system', content: system }, ...selected.map(({role, content}) => ({ role, content }))];
+        return [{ role: 'system', content: guidedSystem }, ...selected.map(({role, content}) => ({ role, content }))];
     }
     function parseReadingCard(raw) {
         let data;
@@ -268,5 +283,5 @@
         else lines.push('## '+l.sampling,`${inst.sampling.mode}：${md(inst.sampling.rule)}`,inst.sampling.slots.map(md).join('、'),'## '+l.indicators,mdTable(['编号','维度','观察行为','记录方式','等级标准'],inst.dimensions.flatMap(d=>d.indicators.map(i=>[i.id,d.name,i.behavior,i.record,i.levels.join('／')]))),'## '+l.recordingRules,...inst.recordingRules.map(v=>'- '+md(v)),'## '+l.agreement,md(inst.agreement),'## '+l.ethics,...inst.ethics.map(v=>'- '+md(v)));
         lines.push('## '+l.review,mdTable(['编号','问题类型','原句','处理','建议','理由','状态'],inst.review.map(r=>['itemId','issue','original','action','suggestion','reason','status'].map(k=>r[k]))),'## '+l.checks,...instrumentChecks(inst,ctx).map(v=>'- '+md(v)),'## '+l.pending,...inst.pending.map(v=>'- '+md(v)));return lines.join('\n\n');}
 
-    root.ResearchCore = { detectFunnelPhase, extractFunnelResult, buildFunnelMessages, checkFunnelTitles, parseReadingCard, cardRows, cardToMarkdown, cardsToCsv, cardToTsv, truncateText, extractTitles, citationText, savedDate, CSV_HEADERS, METHODS,QUESTION_TYPES,SCOPE_STATUS,RESPONDENTS,TOOL_TYPES,INSTRUMENT_KINDS,KIND_NAMES,ISSUES,ACTIONS,REVIEW_STATUS,SCALE_LABELS,ADAPTATION_NOTICE,LIMITS,METHOD_LABELS,DESIGN_HEADERS,PLAN_KEYS,HANDOFF_TTL,normalizeMethod,parseDesign,parseInstrument,parseReview,instrumentEntries,updateEntry,applySuggestion,removeEntry,addEntry,compactInstrument,instrumentChecks,writeHandoff,takeHandoff,designToMarkdown,designPlanTsv,instrumentToMarkdown,instrumentTsv };
+    root.ResearchCore = { funnelProgress, detectFunnelPhase, extractFunnelResult, buildFunnelMessages, checkFunnelTitles, parseReadingCard, cardRows, cardToMarkdown, cardsToCsv, cardToTsv, truncateText, extractTitles, citationText, savedDate, CSV_HEADERS, METHODS,QUESTION_TYPES,SCOPE_STATUS,RESPONDENTS,TOOL_TYPES,INSTRUMENT_KINDS,KIND_NAMES,ISSUES,ACTIONS,REVIEW_STATUS,SCALE_LABELS,ADAPTATION_NOTICE,LIMITS,METHOD_LABELS,DESIGN_HEADERS,PLAN_KEYS,HANDOFF_TTL,normalizeMethod,parseDesign,parseInstrument,parseReview,instrumentEntries,updateEntry,applySuggestion,removeEntry,addEntry,compactInstrument,instrumentChecks,writeHandoff,takeHandoff,designToMarkdown,designPlanTsv,instrumentToMarkdown,instrumentTsv };
 })(globalThis);

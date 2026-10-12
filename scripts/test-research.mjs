@@ -35,6 +35,21 @@ try {
     assert(C.detectFunnelPhase([{role:'assistant',content:both}]).phase==='titles','标题阶段错误');
     assert(C.detectFunnelPhase(Array.from({length:9},()=>({role:'assistant',content:'最关键的缺口是什么？'}))).round===9,'追问次数仍被六轮封顶');
     assert(C.detectFunnelPhase([{role:'assistant',content:both},{role:'user',content:f.commands.reopen},{role:'assistant',content:'你想理解哪个协作环节？'}]).phase==='probing','标题之后无法重新澄清');
+    const probingHistory = n => [{role:'user',content:'小组讨论中参与不均'},...Array.from({length:n},(_,i)=>[{role:'assistant',content:`第${i+1}个关键缺口？`},{role:'user',content:'已观察到的事实'}]).flat()];
+    for (const [round,mode] of [[0,'probe'],[4,'probe'],[5,'converge'],[6,'converge'],[7,'focus'],[19,'focus']]) {
+        const history=probingHistory(round),progress=C.funnelProgress(history),request=C.buildFunnelMessages(f.requestSystem,history);
+        assert(progress.round===round&&progress.mode===mode&&request[0].content.includes(`已经提出 ${round} 次追问`),'轮次收束边界错误');
+    }
+    const seventhRequest=C.buildFunnelMessages(f.requestSystem,probingHistory(7));
+    assert(seventhRequest[0].content.endsWith('此任务优先于阶段一的单问句约束。')&&seventhRequest[0].content.includes('不得再追问'),'七轮后未请求直接聚焦');
+    const longProbe=C.buildFunnelMessages(f.requestSystem,probingHistory(19));
+    assert(longProbe.length<=30&&longProbe[0].content.includes('已经提出 19 次追问')&&longProbe[1].content==='小组讨论中参与不均','截断历史丢失真实轮次或原始困扰');
+    const focusedHistory=[...probingHistory(7),{role:'assistant',content:both},{role:'user',content:f.commands.titles}];
+    assert(C.funnelProgress(focusedHistory).mode==='followup'&&C.buildFunnelMessages(f.requestSystem,focusedHistory)[0].content.includes('按教师本次意愿生成标题'),'聚焦后被轮次上限阻断标题');
+    const reopened=[...focusedHistory,{role:'assistant',content:'## 五种结构的标题\n标题表格'},{role:'user',content:f.commands.reopen},{role:'assistant',content:'你希望改为关注哪个参与过程？'},{role:'user',content:'讨论中回应同伴的过程'}];
+    assert(C.funnelProgress(reopened).round===1&&C.funnelProgress(reopened).mode==='probe','重新澄清周期未重计数');
+    const stopped=[...probingHistory(6),{role:'user',content:'网络失败后重复发送的回答'}];
+    assert(C.funnelProgress(stopped).round===6,'失败重试的用户消息被多算追问');
     const parts=C.extractFunnelResult([{role:'assistant',content:both}]);
     assert(C.extractFunnelResult([{role:'assistant',content:both},{role:'assistant',content:'## 研究问题聚焦结果\n新的研究问题'}]).titles==='', '重新聚焦后旧标题仍与新结果混合');
     assert(parts.question==='怎样提升参与？'&&parts.focus.startsWith('## 研究问题聚焦结果')&&!parts.focus.includes('## 五种结构的标题')&&parts.titles.startsWith('## 五种结构的标题'),'结果提取未切开两个块');
