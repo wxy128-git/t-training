@@ -37,7 +37,7 @@ for (const route of routes) {
         assert(body.includes('research-presentation.js?v=20261008-reading-ui') && body.includes('research-reading.css?v=20261008-reading-ui') && body.includes('id="rs-preview-dialog"'), '科研阅读稿与预览未上线');
         assert(body.includes('data-research-note="readingPrivacy"') && !body.includes('id="rs-help-rows"'), '科研说明未改为备注');
         assert(body.includes('研究问题教练') && body.includes('文献研读伙伴') && body.includes('rs-colleague'), '科研伙伴角色入口或工作台未上线');
-        assert(body.includes('research-data.js?v=20261012-methods'), '科研伙伴脚本缓存版本未更新');
+        assert(body.includes('research-data.js?v=20261012-research-refinement'), '科研伙伴脚本缓存版本未更新');
         assert(body.includes("SiteCopy.load('research')") && body.includes('data-site-copy="funnelRole"'), '科研文案未接入后台');
         assert(body.includes('id="rs-chat-panel"') && body.includes('id="rs-chat-latest"') && !body.includes('class="rs-tool-purpose"'), '科研聊天工作台或功能名精简未上线');
     }

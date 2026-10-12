@@ -1,6 +1,6 @@
 # 研究设计顾问重设计验收
 
-日期：2026-10-12。状态：本地完成；按用户要求暂不上线，未提交或推送。
+日期：2026-10-12。状态：已按用户后续“连同刚才做的所有修改都直接上线”授权，随 `05eed84` 合并发布；下文保留各自本地验收证据。
 
 ## 设计与实现
 
@@ -21,7 +21,7 @@
 
 新增 5 项后台文案：`designBriefHeading`、`designEvidenceHeading`、`designOptionalHeading`、`designDetailsAction`、`designSelectPrompt`。科研总计 293 项，仍低于现有 300 项限制；旧管理员自定义字段保留。Firestore 兼容规则源同步，未部署、未连接旧 Firebase 数据库。
 
-科研 data / methods / CSS 和共享 site-copy 查询版本为 `20261012-design-ui`。共享文案版本在全部使用页面同步，`agents.html` 按用户边界保持不变。待发布 SW 为 `20261012-v43`，包含上一轮教练控件精简；线上仍为 v41。
+本地阶段 data / methods / CSS / site-copy 曾统一为 `20261012-design-ui`、SW v43；实际合并上线 data 为 `20261012-research-refinement`，methods / CSS / site-copy 保持 `20261012-design-ui`，SW 为 `20261012-v44`。共享文案版本同步至使用页面，`agents.html` 按用户边界保持不变。
 
 ## 验证
 
@@ -34,4 +34,8 @@
 
 ## 清理与发布
 
-临时验收脚本、截图、隔离浏览器与本机预览服务在验收后清理 / 关闭。已有 `output/` 用户工作文件保留。没有部署或远端推送，不新增 Deployment History。
+临时验收脚本、截图、隔离浏览器与本机预览服务在验收后清理 / 关闭。已有 `output/` 用户工作文件保留。此前独立验收阶段未部署或推送；后续合并上线见下方。
+
+## 后续合并上线
+
+发布提交 `05eed84`，当前 SW `20261012-v44`；详情见 [合并发布验收](2026-10-12-research-refinement.md)。早前暂不上线要求已由用户后续明确上线指示取代。
