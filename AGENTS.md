@@ -39,6 +39,8 @@
 
 ## Current Notes
 
+- **2026-10-12 科研第二批，已上线（aeea6f2）**：新增研究设计顾问、研究工具工坊与两张肖像，科研后台 288 项、腾讯字段上限 300；五段系统提示与方案逐字一致。完整检查全绿（科研 209 项）、本地隔离浏览器 109 项、独立 MariaDB 42 项通过。真实冒烟执行 2 次：研究设计通过，问卷匿名 / 自愿指导语未通过；先按要求停止，随后用户明确指示“上线”，依此发布现有版本且未追加调用或修改提示词。临时教师账号 / 会话残留 0。release `/home/ubuntu/t-training/releases/20261012-research-methods-aeea6f2`，完整私有回滚备份 `/home/ubuntu/t-training/backups/20261012-pre-research-methods-aeea6f2`；202 文件哈希一致，候选 3002、正式 3001、公网守卫各 20 项通过，双 Nginx 实际上游已回 3001。正式 API PID 1187109、课程站 PID 4180111；资源 20261012-methods、SW 20261012-v41。公网综合 158 项、线上隔离浏览器 116 项通过（真实游客 41、合成完整流程 75），脚本错误 0；候选、交换旧目录与依赖链接已清理，PM2 dump 仅正式两站，systemd active / enabled，MainPID 1091830；旧 Cloudflare 路径 / 参数 302 保留，课程站 200。见 `reports/2026-10-12-research-methods.md` 与同日 smoke JSON。
+
 - **2026-10-08 科研阅读与备注调整，已上线（277efd9）**：用户授权两位伙伴说明改为悬停 / 聚焦 / 点击备注，精读卡改连续分节稿、条目列表和重点强调，增加生成结果及未保存改写预览。后台科研 153 项、六组，腾讯上限仅科研 160 项、其他页 40 项，超限整次拒绝。模型提示、works 结构与 CSV / TSV 19 列不改；Firestore 兼容规则源同步、未发布。research core / presentation / reading CSS 与共享 site-copy `20261008-reading-ui`，SW `20261008-v40`。验收见 `reports/2026-10-08-research-reading-ui.md`。
 
 - **2026-10-08 科研伙伴与教练交互调整，已上线**：用户已确认移除功能名、自适应追问、五种题名以“研究”结尾与聊天美化。后续方案 `docs/2026-10-08-research-coach-update.md` 覆盖初版固定六轮及教练提示逐字要求；文献研读提示不改。该轮后台科研字段为 38 项（后续阅读调整扩至 153 项），退役功能名字段不再展示或保存，旧 stock 六轮文案及已知自定义六轮承诺按精确值/片段升级，其余自定义文案保留。科研 core / data 缓存 `20261008-coach`，共享 site-copy `20261008-coach2`，SW `20261008-v39`。验证与上线证据见 `reports/2026-10-08-research-coach.md`。
@@ -82,6 +84,11 @@
 - 教学质量后续重点：服务器当前没有配置智谱密钥，本轮未覆盖 GLM-5.2 与供应商回退；随机组卷仍需教师核验答案、条件和分值。
 
 ## Deployment History
+
+- **2026-10-12（研究设计顾问与研究工具工坊，已上线）**：
+  - 发布提交 `aeea6f2`；四伙伴入口、条件化研究设计、问卷 / 访谈 / 观察起草与审查、编辑、预览、打印、交接及备课本保存上线。科研后台共 288 项、腾讯上限 300，兼容规则源同步但未发布旧 Firebase；认证、管理员、邮箱、隐私、统计逻辑及 agents.html 不改。资源 `20261012-methods`，SW `20261012-v41`。
+  - 完整检查全绿（科研 209 项），本地隔离浏览器 109 项、独立 MariaDB 42 项通过。真实模型研究设计通过、问卷匿名与自愿指导语失败后按要求停止；用户知悉原样结果后明确要求“上线”，因此发布当前版本，未追加请求，也未修改五段提示词。原始失败结果保留。
+  - release `/home/ubuntu/t-training/releases/20261012-research-methods-aeea6f2`；回滚备份 `/home/ubuntu/t-training/backups/20261012-pre-research-methods-aeea6f2`（完整静态、API、两份 Nginx、事务数据库与配置；目录 700、文件 600）。候选 3002 → 双 Nginx 热切 → 静态 / API 原子交换 → 正式 3001 → 双 Nginx 切回；202 文件核验，候选、正式及公网接口守卫各 20 项通过。实际生效上游 3001，正式 API PID 1187109、课程站 PID 4180111。公网综合 158 项、线上浏览器 116 项通过（七种宽度、真实游客和合成完整流程），脚本错误 0；旧 Cloudflare 科研路径 / 参数 302 与课程站 200。候选、交换旧目录及依赖链接已清理，PM2 dump 保留正式两站，systemd active / enabled，MainPID 1091830。服务器与本机 QA 暂存、截图、脚本、打包副本均已删除并回查，浏览器已关闭；正式 release 与私有备份保留。
 
 - **2026-10-08（科研阅读、备注与预览，已上线）**：
   - 发布提交 `277efd9`。两位伙伴解释说明改备注，支持悬停、聚焦、点击与 Escape；精读卡为分节阅读稿、条目列表与重点强调，阅读区独立滚动。教练回复 / 结果及精读卡提供预览，当前改写同步、退出切号清空。后台科研 153 项、六组，腾讯科研字段上限 160、其他页 40，超限整次拒绝；兼容规则源同步、旧库规则未发布。
@@ -498,7 +505,7 @@ match /agent_usage/{agentId} {
 |---|---|
 | `index.html` | Homepage — **现代教研工作台**。首页 CSS 继续内联并全部使用 `.th-*` 命名，避免污染子页；颜色令牌限定在 `.th-root`。2026-08-23 为减轻首屏重心移除右侧四步 / 五步流程与装饰性阶段编号，当前结构为单列任务主张 → 6 个真实任务入口 → 可折叠的 4 项使用前核验 → 6 个学习与配套资源入口；登录用户可在首屏恢复教学项目或草稿。任务卡从 `window.AGENTS` 读取真实说明并链接到对应智能体。保留：`renderNav` / `renderFooter`、公告、联系反馈、订阅、悬浮向导与分析埋点。 |
 | `agents.html` | **智能体空间** — 19 人数字教研团队 + agent workspace。默认团队总览只让 `FEATURED` 4 位成员使用大幅肖像，其余能力收进 5 个教研部门目录；部门行显示职责、成员数量和少量头像预览，点击后才展示该部门 2–5 位完整人物，另有搜索与次要“查看全部 19 位成员”入口。首屏不再叠加“今日在席”人脸墙。人物入口和部门入口均保持原生 `<button>` 语义；分类筛选、`?cat=<key>` 与 hash 深链 `#agent-id` 保持兼容。Two workspace types: **form**（「任务简报 + 成员交付」；顶部显示成员肖像、在岗状态与“了解任务 → 起草初稿 → 教师核验”三阶段，左侧前置 1–2 个关键任务字段并把其余原参数收进“展开全部参数”，右侧同步任务摘要、流式接收成员初稿，继续支持草稿保存、项目背景复用、必填校验、结果编辑、复制、重新生成与保存到备课本；`.ws-top` 是普通文档流，勿设 sticky/fixed）和 **chat**（独立聊天窗口，**仅 `chat-stream` 内部滚动**、不带动整页避免抖动）。Login enforced on *use* (`openAgent` / run / send), not on browsing。Model calls funnel through `callAgentAPI()` → `functions/api/agent.js`（DeepSeek + 可选 GLM-5.2，前端显示实际 provider/model）。保存表单类和聊天类成果前均确认标题；表单类用 `buildWorkTitle()` 从输入字段生成具体标题。 |
-| `research.html` | **科研写作** — 独立问题漏斗、五读法文献精读卡、文献卡片夹。空 hash / `#funnel` / `#reading-card` / `#library`；浏览公开，发送、生成、保存和卡片夹复用 requireLogin。PDF 浏览器内提取，JSON 卡片教师改写后保存到 works，CSV/Markdown 汇总可导出；备课本 `?work=` 续接与只读卡片兼容。 |
+| `research.html` | **科研写作** — 四位科研伙伴：研究问题教练、文献研读伙伴、研究设计顾问、研究工具工坊，另有文献卡片夹。空 hash / `#funnel` / `#reading-card` / `#design` / `#instrument` / `#library`；浏览公开，生成与保存复用 requireLogin。研究设计条件表与一页纸设计、三类可编辑工具、逐条审查与规则检查、跨伙伴交接、预览 / 打印 / 导出；备课本 `?work=` 续接，设计只读后可基于此新建，工具可继续编辑并另存。PDF 仅浏览器内提取，全文不保存。2026-10-12 按用户知悉冒烟失败后的上线指令发布，模型失败记录见本批报告。 |
 | `multimodal.html` | **多模态工作坊** — static case gallery for image/video/audio/avatar/courseware generation workflows. It is an owned site feature placed after 智能体空间 in nav, but does **not** call paid generation APIs. Cases live inline in `CASES`; publish-ready assets live in `多模态素材/`. Video case thumbnails use static poster images; detail modals use `media-player.html` or GIF preview + MP4 link. |
 | `media-player.html` | Minimal same-origin video player used by `multimodal.html`; validates `src`/`poster` params so only `多模态素材/` paths without `..` can load. Keep it static and dependency-free. |
 | `tools.html` | Curated directory of **external** third-party AI products (cards link out). User-facing name **「AI资源精选」** (renamed 2026-06-16; nav key stays `tools`). Renders the complete 19-item `DEFAULT_TOOLS` synchronously first; `DB.getTools()` then uses `/api/tools` → browser Firestore → local defaults, so Firebase-unreachable users no longer drop to 14 items. Default "全部" = **grouped by category** (`#tools-grouped`); search/specific category → flat `#tools-grid`; task pills + tag pills from `buildFilterBar()`. **「教师 AI 工具选型台」改版 (2026-07-09)** — all CSS in an **inline `<style>` in tools.html** (not style.css): ① editorial chooser header (`.tt-hero`) + search card. ② Task-oriented categories: `plan` 备课·出题·检索 / `make` 课件·演示·动画 / `media` 图像·音视频·数字人 / `platform` 教研·AI 平台 (+ `more` 更多工具 fallback), each with `CAT_DESCS`/`CAT_ICONS`/`CAT_FITS`. ③ **Category + per-tool tags come from LOCAL `TOOL_META` keyed by tool NAME (NOT Firestore)**; admin 新增工具若未登记进 `TOOL_META` 会落进「更多工具」且无标签。④ Card tags: 免费 / 部分免费 / 付费 / 中文 / 海外 (`.tt-tag` variants; values are estimates and need manual audit). ⑤ Grid override: `#tools-grid, #tools-grouped .cards-grid` use `repeat(auto-fit, minmax(224px,268px))`. Design rule: do not add colored top/side bars to cards; keep category color on section icons / small tags only. |
@@ -513,8 +520,9 @@ match /agent_usage/{agentId} {
 
 ## Key JS Files
 
-- `js/research-data.js` — 两项 `RESEARCH_AGENTS` 定义、方案逐字系统提示与固定指令；文献仅基于教师提供的正文分析。
+- `js/research-data.js` — 四项 `RESEARCH_AGENTS` 定义、方案逐字系统提示与固定指令；文献仅基于教师提供的正文分析。
 - `js/research-core.js` — 漏斗阶段/结果、JSON 规范化、Markdown/CSV/TSV、代理对安全截断；浏览器/Node 共用，不访问外部服务。
+- `js/research-methods.js` — 第二批研究设计、可编辑工具、审查与打印 HTML 纯渲染；动态字段安全转义，配套 `css/research-methods.css`，已于 2026-10-12 按用户后续指令上线。
 - `js/research-pdf.js` — 懒加载固定 PDF.js legacy 主文件和 worker，最多 20 MB / 60 页 / 60,000 字；拒绝 CAJ、无效头，扫描件转粘贴提示，结束销毁 worker。
 
 - `js/data.js` — `DEFAULT_TOOLS / DEFAULT_PROMPTS / DEFAULT_PATHS / DEFAULT_ARTICLES / DEFAULT_RESOURCES` are used as fallbacks/seeds; `DB` object wraps Firestore reads/writes. `getTools` prefers `/api/tools` on user pages, then browser Firestore, then the complete 19-item static list; admin stays on direct Firestore. Work-book methods (`saveWork/getMyWorks/renameWork/deleteWork`) prefer `/api/works` and fall back to direct Firestore only for local/dev or temporary API failure.

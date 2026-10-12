@@ -55,5 +55,14 @@
   "stoppedAfterRequest": 2,
   "remainingRequestsExecuted": false,
   "failureOriginalResult": "2026-10-12-research-methods-smoke-failed-original.json",
-  "deployed": false
+  "deployed": true,
+  "deployment": {
+    "userInstruction": "上线",
+    "authorizedAfterFailure": true,
+    "commit": "aeea6f2",
+    "additionalModelRequests": 0,
+    "publicChecks": 158,
+    "productionBrowserChecks": 116,
+    "deployed": true
+  }
 }
