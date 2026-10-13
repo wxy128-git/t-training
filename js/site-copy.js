@@ -53,9 +53,9 @@
                 {"key": "privacyIntro", "label": "个人信息说明", "maxLength": 180, "defaultValue": "描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。", "rows": 3, "group": "科研首页"},
                 {"key": "funnelEyebrow", "label": "问题教练身份说明", "maxLength": 40, "defaultValue": "AI 科研伙伴 · 问题聚焦", "group": "研究问题教练"},
                 {"key": "funnelRole", "label": "问题教练角色名", "maxLength": 20, "defaultValue": "研究问题教练", "group": "研究问题教练"},
-                {"key": "funnelIntro", "label": "问题教练介绍", "maxLength": 180, "defaultValue": "我会根据你的困扰，一次问一个关键问题，陪你把它聚焦成能研究的问题。", "rows": 3, "group": "研究问题教练"},
+                {"key": "funnelIntro", "label": "问题教练介绍", "maxLength": 180, "defaultValue": "我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。", "rows": 3, "group": "研究问题教练"},
                 {"key": "funnelAction", "label": "问题教练入口提示", "maxLength": 50, "defaultValue": "聚焦结果 + 五种结构的标题 →", "group": "研究问题教练"},
-                {"key": "funnelGreeting", "label": "问题教练开场白（仅展示）", "maxLength": 600, "defaultValue": "我是你的 AI 研究问题教练。你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会根据你的困扰，一次问一个关键问题；信息足够时，就一起把它聚焦成能研究的问题。在那之前我不会给任何建议。", "rows": 5, "group": "研究问题教练"},
+                {"key": "funnelGreeting", "label": "问题教练开场白（仅展示）", "maxLength": 600, "defaultValue": "我是你的 AI 研究问题教练。你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。在那之前我不会给任何建议。", "rows": 5, "group": "研究问题教练"},
                 {"key": "readingEyebrow", "label": "文献伙伴身份说明", "maxLength": 40, "defaultValue": "AI 科研伙伴 · 文献研读", "group": "文献研读伙伴"},
                 {"key": "readingRole", "label": "文献伙伴角色名", "maxLength": 20, "defaultValue": "文献研读伙伴", "group": "文献研读伙伴"},
                 {"key": "readingIntro", "label": "文献伙伴介绍", "maxLength": 180, "defaultValue": "我陪你按五读法梳理论文的依据和方法；与你研究的关系，由你核对、改写。", "rows": 3, "group": "文献研读伙伴"},
@@ -240,9 +240,9 @@
                 {"key": "phaseProbing", "label": "教练进度：澄清", "maxLength": 100, "defaultValue": "澄清困扰", "group": "研究问题教练"},
                 {"key": "phaseFocused", "label": "教练进度：聚焦", "maxLength": 100, "defaultValue": "聚焦结果", "group": "研究问题教练"},
                 {"key": "phaseTitles", "label": "教练进度：标题", "maxLength": 100, "defaultValue": "标题方案", "group": "研究问题教练"},
-                {"key": "roundLabel", "label": "追问计数模板", "maxLength": 100, "defaultValue": "已追问 {count} 次", "group": "研究问题教练"},
+                {"key": "roundLabel", "label": "追问计数模板", "maxLength": 100, "defaultValue": "已追问 {count}/6 次", "group": "研究问题教练"},
                 {"key": "statusStart", "label": "教练状态：开始", "maxLength": 100, "defaultValue": "从一个真实困扰开始", "group": "研究问题教练"},
-                {"key": "statusProbing", "label": "教练状态：澄清", "maxLength": 100, "defaultValue": "按你的困扰逐步澄清", "group": "研究问题教练"},
+                {"key": "statusProbing", "label": "教练状态：澄清", "maxLength": 100, "defaultValue": "按六个维度逐步追问", "group": "研究问题教练"},
                 {"key": "statusFocused", "label": "教练状态：聚焦", "maxLength": 100, "defaultValue": "已聚焦 · 可以生成标题或继续梳理", "group": "研究问题教练"},
                 {"key": "statusTitles", "label": "教练状态：标题", "maxLength": 100, "defaultValue": "标题已生成 · 请核对研究条件", "group": "研究问题教练"},
                 {"key": "statusSent", "label": "教练状态：已发送", "maxLength": 100, "defaultValue": "已发送 · 正在梳理", "group": "研究问题教练"},
@@ -555,15 +555,22 @@
         const raw = source && typeof source === 'object' && source.fields && typeof source.fields === 'object'
             ? source.fields
             : (source || {});
+        const coachLegacyDefaults = {
+            funnelIntro: ['我会根据你的困扰，一次问一个关键问题，陪你把它聚焦成能研究的问题。'],
+            funnelGreeting: ['我是你的 AI 研究问题教练。','我是研究问题漏斗。'].flatMap(prefix => [
+                prefix+'你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会根据你的困扰，一次问一个关键问题；信息足够时，就一起把它聚焦成能研究的问题。在那之前我不会给任何建议。',
+                prefix+'你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。在那之前我不会给任何建议。'
+            ]),
+            roundLabel: ['已追问 {count} 次'],
+            statusProbing: ['按你的困扰逐步澄清']
+        };
         return Object.fromEntries(definition.fields.map(field => {
             let candidate = typeof raw[field.key] === 'string' ? raw[field.key].trim() : '';
             if (pageId === 'tools' && field.key === 'reviewNote' && candidate === '信息核对于 2026 年 8 月，请以官网为准。不要上传学生姓名、联系方式或成绩明细。') candidate = field.defaultValue;
             if (pageId === 'research' && field.key === 'moreTools' && candidate === '更多工具陆续推出：主题综合、评审专家、技术路线图。') candidate = field.defaultValue;
             if (pageId === 'research' && field.key === 'heroIntro' && candidate === '面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、整理；选题、判断和结论由你来做。') candidate = field.defaultValue;
             // Migrate only untouched legacy defaults; keep the administrator's own wording.
-            if (pageId === 'research' && field.key === 'funnelIntro' && candidate === '我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。') candidate = field.defaultValue;
-            if (pageId === 'research' && field.key === 'funnelGreeting' && ['我是你的 AI 研究问题教练。','我是研究问题漏斗。'].some(prefix => candidate === prefix+'你脑子里现在可能只有一团困扰，还不是研究问题，这很正常。\n\n先用一两句话说说：最近教学里最让你头疼的是什么？我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。在那之前我不会给任何建议。')) candidate = field.defaultValue;
-            if (pageId === 'research' && field.key === 'funnelGreeting') candidate = candidate.replace('尽量在六轮对话内帮你把它聚焦成明确的研究问题。','根据你的困扰逐步澄清，信息足够时就一起把它聚焦成明确的研究问题。');
+            if (pageId === 'research' && coachLegacyDefaults[field.key]?.includes(candidate)) candidate = field.defaultValue;
             const value = candidate && candidate.length <= field.maxLength ? candidate : field.defaultValue;
             return [field.key, value];
         }));

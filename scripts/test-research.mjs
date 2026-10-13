@@ -18,10 +18,14 @@ try {
     assert(f.system.includes('## 研究问题聚焦结果')&&f.system.includes('## 五种结构的标题')&&f.system.includes('每次只问一个问题')&&f.system.includes('不得以'),'漏斗约束缺失');
     for(const key of r.schemaKeys) assert(r.system.includes('"'+key+'"'),`精读卡 schema 缺 ${key}`);
     const specification=readFileSync(resolve(root,'docs/2026-10-06-research-writing-module-spec.md'),'utf8');
-    const coachSpec=readFileSync(resolve(root,'docs/2026-10-08-research-coach-update.md'),'utf8');
-    assert(f.system === coachSpec.split('## 教练系统提示')[1].split('```')[1].trim(),'教练系统提示与已确认更新方案不一致');
+    const coachSpec=readFileSync(resolve(root,'docs/2026-10-14-research-coach-six-rounds.md'),'utf8');
+    assert(f.system === coachSpec.split('## 教练系统提示')[1].match(/```[^\n]*\n([\s\S]*?)\n```/)[1].trim(),'教练系统提示与已确认更新方案不一致');
     assert(f.name==='研究问题教练' && r.name==='文献研读伙伴','角色名称仍显示功能名');
-    assert(!f.greeting.includes('六轮')&&f.system.includes('不设固定追问轮数')&&f.system.includes('待核实'),'自适应轮次或信息不足规则缺失');
+    assert(f.greeting.includes('六轮')&&f.system.includes('最多追问 6 轮')&&!f.system.includes('不设固定追问轮数'),'初版六轮规则未恢复');
+    const initialCoachSystem=specification.split('### 5.4')[1].match(/```[^\n]*\n([\s\S]*?)\n```/)[1].trim();
+    const probingRules=system=>system.split('【阶段一：追问】')[1].split('【阶段二：聚焦结果】')[0];
+    assert(probingRules(f.system)===probingRules(initialCoachSystem),'初版阶段一追问规则未逐字恢复');
+    assert(f.requestSystem.includes('整个疑问句最多 30 个字')&&f.requestSystem.includes('不要同时索取时间、班级和同事条件'),'初版单问句补充约束未恢复');
     assert(r.system === specification.split('系统提示词（全文，逐字写入）：')[1].split('```')[1].trim(),'精读卡系统提示未逐字保留');
     assert(f.requestSystem.startsWith(f.system) && f.requestSystem.includes('恰好一个问号'), '漏斗请求补充约束缺失');
     assert(r.requestSystem.startsWith(r.system) && r.requestSystem.includes('正文未明确说明时必须为“未知”'), '核心属性请求补充约束缺失');
@@ -33,21 +37,27 @@ try {
     const both='## 研究问题聚焦结果\n- **研究问题（疑问句）**：怎样提升参与？\n\n## 五种结构的标题\n标题表格';
     assert(C.detectFunnelPhase([{role:'assistant',content:'## 研究问题聚焦结果'}]).phase==='focused','聚焦阶段错误');
     assert(C.detectFunnelPhase([{role:'assistant',content:both}]).phase==='titles','标题阶段错误');
-    assert(C.detectFunnelPhase(Array.from({length:9},()=>({role:'assistant',content:'最关键的缺口是什么？'}))).round===9,'追问次数仍被六轮封顶');
+    assert(C.detectFunnelPhase(Array.from({length:9},()=>({role:'assistant',content:'最关键的缺口是什么？'}))).round===9,'既有长对话的真实追问次数被隐藏');
     assert(C.detectFunnelPhase([{role:'assistant',content:both},{role:'user',content:f.commands.reopen},{role:'assistant',content:'你想理解哪个协作环节？'}]).phase==='probing','标题之后无法重新澄清');
     const probingHistory = n => [{role:'user',content:'小组讨论中参与不均'},...Array.from({length:n},(_,i)=>[{role:'assistant',content:`第${i+1}个关键缺口？`},{role:'user',content:'已观察到的事实'}]).flat()];
-    for (const [round,mode] of [[0,'probe'],[4,'probe'],[5,'converge'],[6,'converge'],[7,'focus'],[19,'focus']]) {
+    for (const [round,mode] of [[0,'probe'],[1,'probe'],[4,'probe'],[5,'probe'],[6,'focus'],[7,'focus'],[19,'focus']]) {
         const history=probingHistory(round),progress=C.funnelProgress(history),request=C.buildFunnelMessages(f.requestSystem,history);
         assert(progress.round===round&&progress.mode===mode&&request[0].content.includes(`已经提出 ${round} 次追问`),'轮次收束边界错误');
     }
-    const seventhRequest=C.buildFunnelMessages(f.requestSystem,probingHistory(7));
-    assert(seventhRequest[0].content.endsWith('此任务优先于阶段一的单问句约束。')&&seventhRequest[0].content.includes('不得再追问'),'七轮后未请求直接聚焦');
+    const sixthRequest=C.buildFunnelMessages(f.requestSystem,probingHistory(6));
+    assert(sixthRequest[0].content.endsWith('此任务优先于阶段一的单问句约束。')&&sixthRequest[0].content.includes('不得再追问'),'六次追问得到回复后未请求直接聚焦');
+    const fifthRequest=C.buildFunnelMessages(f.requestSystem,probingHistory(5))[0].content;
+    assert(fifthRequest.includes('六项全部覆盖或教师要求直接总结时立即聚焦')&&!fifthRequest.includes('本次优先直接输出')&&fifthRequest.includes('最早尚未覆盖的一项'),'第六次提问前仍提前收束或未按顺序补缺');
+    const directSummary=C.buildFunnelMessages(f.requestSystem,[...probingHistory(2),{role:'user',content:f.commands.summarize}]);
+    assert(directSummary[0].content.includes('教师要求直接总结时立即聚焦')&&directSummary.at(-1).content===f.commands.summarize,'提前直接总结指令未保留');
     const longProbe=C.buildFunnelMessages(f.requestSystem,probingHistory(19));
     assert(longProbe.length<=30&&longProbe[0].content.includes('已经提出 19 次追问')&&longProbe[1].content==='小组讨论中参与不均','截断历史丢失真实轮次或原始困扰');
-    const focusedHistory=[...probingHistory(7),{role:'assistant',content:both},{role:'user',content:f.commands.titles}];
+    const focusedHistory=[...probingHistory(6),{role:'assistant',content:both},{role:'user',content:f.commands.titles}];
     assert(C.funnelProgress(focusedHistory).mode==='followup'&&C.buildFunnelMessages(f.requestSystem,focusedHistory)[0].content.includes('按教师本次意愿生成标题'),'聚焦后被轮次上限阻断标题');
     const reopened=[...focusedHistory,{role:'assistant',content:'## 五种结构的标题\n标题表格'},{role:'user',content:f.commands.reopen},{role:'assistant',content:'你希望改为关注哪个参与过程？'},{role:'user',content:'讨论中回应同伴的过程'}];
     assert(C.funnelProgress(reopened).round===1&&C.funnelProgress(reopened).mode==='probe','重新澄清周期未重计数');
+    assert(C.detectFunnelPhase(reopened).round===1&&C.buildFunnelMessages(f.requestSystem,reopened)[0].content.includes('已回答的维度直接跳过'),'重开后进度未重置或丢失已知事实');
+    assert(C.funnelProgress([...probingHistory(1),{role:'assistant',content:'   '}]).round===1,'空回复被误算为追问');
     const stopped=[...probingHistory(6),{role:'user',content:'网络失败后重复发送的回答'}];
     assert(C.funnelProgress(stopped).round===6,'失败重试的用户消息被多算追问');
     const parts=C.extractFunnelResult([{role:'assistant',content:both}]);
@@ -80,6 +90,13 @@ try {
     await importSource('js/site-copy.js');
     await importSource('js/research-presentation.js');
     const P=ResearchPresentation,copy=SiteCopy.defaults('research');
+    assert(copy.funnelGreeting===f.greeting&&copy.funnelIntro.includes('六轮')&&copy.roundLabel==='已追问 {count}/6 次','六轮介绍、开场或进度文案不一致');
+    const legacyCopy={funnelIntro:'我会根据你的困扰，一次问一个关键问题，陪你把它聚焦成能研究的问题。',funnelGreeting:f.greeting.replace('我会一个问题一个问题地问，六轮之内帮你把它聚焦成能研究的问题。','我会根据你的困扰，一次问一个关键问题；信息足够时，就一起把它聚焦成能研究的问题。'),roundLabel:'已追问 {count} 次',statusProbing:'按你的困扰逐步澄清'};
+    const migratedCopy=SiteCopy.normalize('research',legacyCopy);
+    for(const key of Object.keys(legacyCopy))assert(migratedCopy[key]===copy[key],'旧默认文案未迁移：'+key);
+    const customCopy={funnelIntro:'这是管理员自己的介绍',funnelGreeting:'请说说你在教研中遇到的困扰',roundLabel:'本轮追问 {count} 次',statusProbing:'梳理课堂困扰'};
+    const retainedCopy=SiteCopy.normalize('research',customCopy);
+    for(const key of Object.keys(customCopy))assert(retainedCopy[key]===customCopy[key],'管理员自定义文案被覆盖：'+key);
     const html=P.cardHTML(fixture,'我的问题',copy,true);
     assert(html.includes('rs-reading-document') && html.includes('data-relation="borrow"') && !html.includes('<table'), '阅读稿仍为长横表或缺少改写');
     assert(html.includes('<li>') && html.includes('data-research-note="helpFindings"') && html.includes('data-note-text="结论"'), '分点或栏目/依据备注缺失');

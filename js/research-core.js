@@ -16,7 +16,7 @@
     const object = v => v && typeof v === 'object' && !Array.isArray(v);
     function detectFunnelPhase(history = []) {
         const assistants = history.filter(h => h.role === 'assistant');
-        const round = assistants.filter(h => !h.content.includes(FOCUS) && !h.content.includes(TITLES)).length;
+        const { round } = funnelProgress(history);
         const latest = assistants.at(-1)?.content || '';
         const phase = latest.includes(TITLES) ? 'titles'
             : latest.includes(FOCUS) ? 'focused'
@@ -37,17 +37,15 @@
         // Count before truncation. A new cycle reuses facts from the last result.
         const anchor = history.findLastIndex(h => h.role === 'assistant' && (h.content.includes(FOCUS) || h.content.includes(TITLES)));
         const round = history.slice(anchor + 1).filter(h => h.role === 'assistant' && h.content.trim()).length;
-        return { round, mode: anchor >= 0 && round === 0 ? 'followup' : round >= 7 ? 'focus' : round >= 5 ? 'converge' : 'probe' };
+        return { round, mode: anchor >= 0 && round === 0 ? 'followup' : round >= 6 ? 'focus' : 'probe' };
     }
     function buildFunnelMessages(system, history) {
         const progress = funnelProgress(history);
         const task = progress.mode === 'focus'
             ? '本次回复必须直接输出阶段二“## 研究问题聚焦结果”，不得再追问。只依据已有信息，缺失条件标为“待核实”；不能为完成聚焦虚构事实。此任务优先于阶段一的单问句约束。'
-            : progress.mode === 'converge'
-            ? '本次优先直接输出阶段二聚焦结果。只有研究对象或核心研究意图仍无法界定时，才问最后一个关键问题；资料、指标、周期、方法等次要细节写“待核实”，不得据此延长追问。'
             : progress.mode === 'followup'
-            ? '已有聚焦或标题结果，按教师本次意愿生成标题、修订问题或重新澄清，不自动重复输出聚焦。重新澄清时复用全部已知信息，新周期争取 6—7 轮以内收束。'
-            : '只澄清会实质改变研究问题的一处关键缺口；已知信息不重复问，核心问题已清楚时立即聚焦，不必等到第 6 轮。';
+            ? '已有聚焦或标题结果，按教师本次意愿生成标题、修订问题或重新澄清，不自动重复输出聚焦。重新澄清时复用全部已知信息，按初版六个维度的顺序补齐尚未回答的内容，最多追问 6 轮。'
+            : '按初版顺序依次核对：①具体现象；②涉及对象；③发生情境；④教师最想改变什么；⑤可观察的变化迹象；⑥教师能投入的时间、班级或协作条件。已回答的维度直接跳过，只问顺序中最早尚未覆盖的一项，一轮只索取其中一项信息。六项全部覆盖或教师要求直接总结时立即聚焦；否则继续下一项追问，最多提出 6 次追问。不得因第 5 次追问即将到来而提前收束或跳过尚未回答的维度。';
         const guidedSystem = `${system}\n\n【本次回复任务与轮次控制】\n当前聚焦周期已经提出 ${progress.round} 次追问，教师最新消息见对话末尾。${task}`;
         let selected = history;
         if (history.length > 29) {
