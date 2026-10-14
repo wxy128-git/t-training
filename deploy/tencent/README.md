@@ -72,7 +72,7 @@ PM2 守护进程真的受 systemd 管理。发布后检查 systemd Main PID、PM
 智能体流式输出、备课本、管理后台、RSS 白名单、HTTP/2 + gzip 和静态缓存。最后运行
 `node scripts/check-production.mjs https://ai.teachailab.com/`，并检查旧站 302 跳转仍保留路径。
 
-## 独立运营统计（2026-10-14 本地待上线）
+## 独立运营统计（2026-10-14 已上线）
 
 复用 `/api/analytics` 的 `operations-status / operations-track / operations-summary`，不恢复旧研究 track。上线时同步部署 API、静态网页及政策，再在私密环境文件中显式设置 `T_TRAINING_OPERATIONS_ANALYTICS=1`。不输出该环境文件内容；默认值为关闭。
 
