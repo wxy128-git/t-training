@@ -39,23 +39,25 @@ let runId = 0;
 async function serverResponse(upstream, structured = true) {
     globalThis.fetch = async (url, options) => String(url).includes('accounts:lookup')
         ? Response.json({ users: [{ localId: `reliability-${++runId}`, email: 'teacher@example.invalid', emailVerified: true }] }) : upstream(options);
-    const pending = [];
+    const pending = [], operations=[];
     const response = await agent.onRequestPost({
         request: new Request('https://site.test/api/agent', { method: 'POST', body: JSON.stringify({
             idToken: 'test-only', agentId: 'parent-comm', messages: [{ role: 'user', content: '测试' }],
             ...(structured ? { streamProtocol: 'events-v1' } : {})
-        }) }), env: { DEEPSEEK_API_KEY: 'test-only' }, waitUntil: promise => pending.push(promise)
+        }) }), env: { DEEPSEEK_API_KEY: 'test-only' }, waitUntil: promise => pending.push(promise),onOperation:counter=>operations.push(counter)
     });
-    return { response, pending };
+    return { response, pending, operations };
 }
 try {
     let result = await serverResponse(() => new Response(chunk('完整教案') + done));
     let events = (await result.response.text()).trim().split('\n').map(JSON.parse);
     await Promise.all(result.pending);
     check(events.at(-1).type === 'done' && events[0].text === '完整教案', '正常输出必须有完成标记');
+    check(result.operations.length===1&&result.operations[0].action==='agent_run'&&!JSON.stringify(result.operations).includes('完整教案'),'完整生成只计一次且无正文');
     result = await serverResponse(() => new Response(chunk('只有一半')));
     events = (await result.response.text()).trim().split('\n').map(JSON.parse);
     check(events.at(-1).type === 'error' && events.every(event => event.type !== 'done'), '无完成标记不能标记成功');
+    await Promise.all(result.pending);check(result.operations.length===1&&result.operations[0].action==='generation_failed','不完整输出只计失败');
     result = await serverResponse(() => new Response(chunk('长度截断') + 'data: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\n' + done));
     events = (await result.response.text()).trim().split('\n').map(JSON.parse);
     check(events.at(-1).type === 'error', '达到 token 上限不能标记成功');

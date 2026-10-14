@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261014-v47';
+const VERSION = '20261014-v48';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -27,7 +27,7 @@ const CORE_ASSETS = [
     '/js/agents-data.js',
     '/js/curriculum-guard.js',
     '/js/account-policy.js',
-    '/js/analytics-policy.js',
+    '/js/analytics-policy.js', '/js/operations-policy.js', '/js/operations-analytics.js',
     '/js/email-gate.js',
     '/js/agent-stream.js',
     '/js/task-search.js',

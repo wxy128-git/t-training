@@ -1228,12 +1228,14 @@
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261007-research-copy"></script>
 <script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
-<script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
+<script src="js/privacy-policy.js?v=20261014-operations"></script>
     <script src="js/auth.js?v=20261006-research-nav"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
+<script src="js/operations-policy.js?v=20261014-operations"></script>
+<script src="js/operations-analytics.js?v=20261014-operations"></script>
 <script src="js/teaching-projects.js?v=20260924-local-email-direct"></script>
 <script>
 let workspacePageCopy = SiteCopy.defaults('workspace');
@@ -1551,7 +1553,7 @@ function viewWork(id) {
     const w = findWork(id); if (!w) return;
     _activeWorkId = id;
     _workModalReturnFocus = document.activeElement;
-    if (window.Analytics) Analytics.track('workbook_open', {
+    if (window.OperationsAnalytics) OperationsAnalytics.track('workbook_open', {
         feature: 'workspace',
         targetId: w.agentId || '',
         targetName: w.agentName || '',
@@ -1781,9 +1783,9 @@ async function loadWorks() {
         showToast('备课本加载失败，请稍后重试');
     }
     renderWorks();
-    if (!_workbookViewTracked && window.Analytics) {
+    if (!_workbookViewTracked && window.OperationsAnalytics) {
         _workbookViewTracked = true;
-        Analytics.track('workbook_view', { feature: 'workspace', meta: { workCount: _works.length } });
+        OperationsAnalytics.track('workbook_view', { feature: 'workspace', meta: { workCount: _works.length } });
     }
 }
 

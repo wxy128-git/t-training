@@ -32,6 +32,7 @@ const isApi = file => (
     || file === 'js/curriculum-guard.js'
     || file === 'js/account-policy.js'
     || file === 'js/analytics-policy.js'
+    || file === 'js/operations-policy.js'
     || file === 'js/privacy-policy.js'
     || file === 'server/tencent-api.mjs'
     || /^server\/[^/]+\.mjs$/.test(file)

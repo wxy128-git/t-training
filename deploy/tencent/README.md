@@ -71,3 +71,13 @@ PM2 守护进程真的受 systemd 管理。发布后检查 systemd Main PID、PM
 上线前必须先在候选端口完成健康检查和函数回归；切换后验证无后缀路由、登录 / 注册、
 智能体流式输出、备课本、管理后台、RSS 白名单、HTTP/2 + gzip 和静态缓存。最后运行
 `node scripts/check-production.mjs https://ai.teachailab.com/`，并检查旧站 302 跳转仍保留路径。
+
+## 独立运营统计（2026-10-14 本地待上线）
+
+复用 `/api/analytics` 的 `operations-status / operations-track / operations-summary`，不恢复旧研究 track。上线时同步部署 API、静态网页及政策，再在私密环境文件中显式设置 `T_TRAINING_OPERATIONS_ANALYTICS=1`。不输出该环境文件内容；默认值为关闭。
+
+先创建完整回滚备份。候选 API 初始化只新增 `operations_daily / operations_state` 两张表，重复初始化保留首次启用时间；不修改旧研究记录、账号或作品。正式和候选进程共享新表，因此模型 / 保存计数与切换兼容。无需执行旧事件清理或恢复 Firestore 统计。
+
+验证公开状态 enabled=true / research=false、旧 track 仍 recorded=false、普通用户和匿名请求不能读取汇总、访问汇总更新及模型 / 保存统计不重复。真实模型测试与邮件仍需专门授权；默认用独立数据库和合成上游验证。公网检查只读状态与资源，不用伪造访问污染生产计数。
+
+回滚时恢复静态 / API 与备份环境配置，或将该开关置 0 后重启；保留新汇总表，不自动删除或恢复数据库。再次启用时须检查时间范围内是否存在停用空档，避免把空档显示为真实 0。完整流程见对应验收报告。

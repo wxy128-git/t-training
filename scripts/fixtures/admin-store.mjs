@@ -7,9 +7,31 @@ export async function adminFixture() {
     let sessions = new Map(), metadata = new Map(), actionTokens = new Map(), profiles = new Map();
     const adminUid = 'MCUSTieySYczODKB9hkERtyvtZG2';
     let users = [adminUid, 'teacher'].map(uid => ({ uid, email: `${uid}@example.invalid`, email_verified: 1, name: '演示用户（虚构）', school: '演示学校', joined_at_iso: '2026-10-01T00:00:00Z' }));
-    const state = { failId: '', failRead: '', commits: 0, rollbacks: 0 };
+    const state = { failId: '', failRead: '', commits: 0, rollbacks: 0, operations:new Map(), operationState:new Map(), failOperations:false };
     let unlock, tail = Promise.resolve();
     async function execute(sql, p = []) {
+        if(sql.includes('operations_daily')||sql.includes('operations_state')){
+            if(state.failOperations)throw new Error('模拟运营数据库不可用');
+            if(sql.startsWith('CREATE TABLE'))return [{}];
+            if(sql.startsWith('INSERT IGNORE INTO operations_state')){if(!state.operationState.has(p[0]))state.operationState.set(p[0],p[1]);return [{}];}
+            if(sql.startsWith('SELECT value FROM operations_state'))return [[{value:state.operationState.get(p[0])}]];
+            if(sql.includes('INSERT INTO operations_daily')){
+                const key=p.slice(0,4).join('|'),row=state.operations.get(key)||{day:p[0],action:p[1],feature:p[2],target_id:p[3],count:0,duration_ms:0};
+                row.count++;row.duration_ms+=p[4];state.operations.set(key,row);return [{}];
+            }
+            if(sql.includes('FROM operations_daily'))return [[...state.operations.values()].filter(r=>r.day>=p[0]&&r.day<=p[1])];
+        }
+        if(sql.includes('COUNT(*) AS count')&&sql.includes('FROM firestore_documents')){
+            const days=new Map();
+            for(const row of documents.values())if(row.collection_name==='works'){
+                const date=decodeFields(JSON.parse(row.fields_json)).createdAt;
+                const stamp=new Date(date);if(Number.isNaN(stamp.getTime()))continue;
+                const day=new Date(stamp.getTime()+8*3600000).toISOString().slice(0,10);
+                if(day>=p[0]&&day<=p[1])days.set(day,(days.get(day)||0)+1);
+            }
+            return [[...days].map(([day,count])=>({day,count}))];
+        }
+
         if (sql.includes('GET_LOCK')) { const prior = tail; tail = new Promise(resolve => { unlock = resolve; }); const release = unlock; await prior; state.releaseLock = release; return [[{ acquired: 1 }]]; }
         if (sql.includes('RELEASE_LOCK')) { state.releaseLock(); return [[{ released: 1 }]]; }
         if (sql.includes('INSERT INTO auth_sessions')) { sessions.set(p[0], p[1]); return [{}]; }

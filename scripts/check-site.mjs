@@ -216,7 +216,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261014-v47/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261014-v48/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }
@@ -352,6 +352,12 @@ for (const file of publicPages.filter(name => name !== 'article.html')) {
 }
 
 notices.push(`检查 ${publicPages.length} 个公开页面、${appPages.length} 个应用页面`);
+// Independent operations assets must accompany every page that can emit counters.
+for(const file of appPages){
+    if(text(file).includes('js/analytics.js') && !text(file).includes('js/operations-analytics.js?v=20261014-operations'))fail(file,'未接入当前运营汇总脚本');
+}
+for(const file of ['js/operations-policy.js','js/operations-analytics.js'])if(!text('sw.js').includes("'/"+file+"'"))fail(file,'运营资源预缓存缺失');
+
 if (failures.length) {
     console.error(`站点检查失败（${failures.length} 项）：`);
     failures.forEach(item => console.error(`- ${item}`));

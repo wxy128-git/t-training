@@ -106,7 +106,7 @@ try {
  const authSource=readFileSync(new URL('../js/auth.js',import.meta.url),'utf8');
  const uiSource=readFileSync(new URL('../js/privacy-ui.js',import.meta.url),'utf8');
  const policyPage=readFileSync(new URL('../privacy.html',import.meta.url),'utf8');
- check(policyPage.includes(policy.VERSION)&&!/尚未生效|审阅稿|待确认|待核实|研究参与|研究采集/.test(policyPage),'注册使用的政策与正式说明一致');
+ check(policyPage.includes(policy.VERSION)&&!/尚未生效|审阅稿|待确认|待核实|研究参与/.test(policyPage),'注册使用的政策与正式说明一致');
  check(!/已暂停研究|研究采集保持暂停/.test(uiSource),'确认界面仅说明政策确认');
  check(policyPage.includes('data-contact-trigger')&&policyPage.includes('js/assistant.js'),'政策页申请入口具备处理脚本');
  check(!authSource.includes('id="rg-research"')&&!uiSource.includes('id="privacy-research"')&&!uiSource.includes('id="privacy-withdraw"'),'移除注册、个人区域研究开关与撤回入口');

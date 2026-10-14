@@ -120,12 +120,14 @@
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261007-research-copy"></script>
 <script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
-<script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
+<script src="js/privacy-policy.js?v=20261014-operations"></script>
 <script src="js/auth.js?v=20261006-research-nav"></script>
 <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
+<script src="js/operations-policy.js?v=20261014-operations"></script>
+<script src="js/operations-analytics.js?v=20261014-operations"></script>
 <script src="js/agent-stream.js?v=20260924-local-email-direct"></script>
 <script src="js/research-core.js?v=20261014-coach-six-rounds"></script>
 <script src="js/research-data.js?v=20261014-coach-six-rounds"></script>
@@ -476,7 +478,7 @@
             else if(w.agentId===design.id||w.agentId===instrument.id)loadMethodWork(w);else throw new Error('暂不支持打开这类科研条目');
         }catch(e){if(same(user.uid,version)){loadedWork='';showToast(e.message);}}
     }
-    function showView(next){notes.close();$('rs-preview-dialog').close();view=['funnel','reading-card','library','design','instrument'].includes(next)?next:'';document.querySelectorAll('.rs-view').forEach(el=>el.hidden=el.id!==`rs-${view||'home'}`);document.body.classList.toggle('rs-coach-active',view==='funnel');document.body.classList.remove('rs-coach-keyboard');$(`rs-${view||'home'}`).querySelector('h1,h2')?.focus({preventScroll:true});layoutChat();layoutWorkshop();}
+    function showView(next){const partner=({funnel, 'reading-card':reading, design, instrument})[next];if(partner&&view!==next)void window.OperationsAnalytics?.track('agent_open',{targetId:partner.id});notes.close();$('rs-preview-dialog').close();view=['funnel','reading-card','library','design','instrument'].includes(next)?next:'';document.querySelectorAll('.rs-view').forEach(el=>el.hidden=el.id!==`rs-${view||'home'}`);document.body.classList.toggle('rs-coach-active',view==='funnel');document.body.classList.remove('rs-coach-keyboard');$(`rs-${view||'home'}`).querySelector('h1,h2')?.focus({preventScroll:true});layoutChat();layoutWorkshop();}
     function route(){
         const next=normalizedView();if(next!==view&&generation){if(!confirm(t('leaveConfirm'))){window.history.replaceState(null,'',location.pathname+location.search+(view?'#'+view:''));return;}stopGeneration();}
         if(next==='library'&&!login()){window.history.replaceState(null,'',location.pathname+location.search);showView('');return;}

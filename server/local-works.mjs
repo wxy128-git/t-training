@@ -40,7 +40,7 @@ async function ownedWork(env, id, uid) {
 
 export async function onRequestOptions() { return new Response(null, { status: 204, headers: CORS_HEADERS }); }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, onOperation }) {
     if (Number(request.headers.get('content-length') || 0) > 300000) return jsonResponse(413, { ok: false, msg: '备课本请求过大' });
     let payload;
     try { payload = await request.json(); } catch { return jsonResponse(400, { ok: false, msg: '请求格式不正确' }); }
@@ -57,6 +57,7 @@ export async function onRequestPost({ request, env }) {
             const work = normalizeWork(payload.work, uid);
             const id = crypto.randomUUID().replaceAll('-', '');
             await upsertDocument(env, 'works', id, work);
+            try{onOperation?.({action:'workbook_save',targetId:work.agentId});}catch{}
             return jsonResponse(200, { ok: true, id });
         }
         if (payload.action === 'rename') {

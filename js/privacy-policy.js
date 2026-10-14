@@ -1,6 +1,6 @@
 /* Shared consent contract. No content, identity details or browser attributes. */
 (function () {
-    const VERSION = '2026-09-30.1';
+    const VERSION = '2026-10-14.1';
     const RETENTION_DAYS = 180;
     function registration(value) {
         // 当前发布范围暂不把尚未定稿的政策作为注册前置条件。

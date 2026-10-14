@@ -1,4 +1,5 @@
 import '../js/analytics-policy.js';
+import {handleOperations} from './operations-analytics.mjs';
 import { getPool, publicUser } from './local-auth-store.mjs';
 import { localFeatureSession, listDocuments } from './local-firestore-store.mjs';
 
@@ -51,6 +52,7 @@ export async function onRequestPost({ request, env }) {
     try { payload = await request.json(); }
     catch { return response(400, { ok:false, msg:'请求格式不正确' }); }
     try {
+        if (payload?.action?.startsWith('operations-')) return await handleOperations({request,env,payload}) || response(400,{ok:false,msg:'未知运营统计操作'});
         if (payload.action === 'track') {
             return response(200,{ok:true,recorded:false,reason:'research_paused'});
         }

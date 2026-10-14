@@ -114,17 +114,21 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261014-v47'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261014-v48'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
 const privacy = await request('/privacy');
 if (privacy) {
     const body = await privacy.text();
-    assert(privacy.status === 200 && body.includes('2026-09-30.1'), '当前隐私政策未上线');
-    assert(!/尚未生效|审阅稿|待确认|待核实|研究参与|研究采集/.test(body), '隐私政策仍有冲突或过期文案');
+    assert(privacy.status === 200 && body.includes('2026-10-14.1'), '当前隐私政策未上线');
+    assert(!/尚未生效|审阅稿|待确认|待核实|研究参与/.test(body), '隐私政策仍有冲突或过期文案');
     assert(body.includes('data-contact-trigger') && body.includes('js/assistant.js'), '隐私申请入口不可用');
 }
+const operationsStatus = await request('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'operations-status'})});
+if(operationsStatus){const body=await operationsStatus.json().catch(()=>null);assert(operationsStatus.status===200&&body?.enabled===true&&body?.research===false,'匿名运营统计未启用或研究采集状态异常');}
+const operationsScript=await request('/js/operations-analytics.js?v=20261014-operations');
+if(operationsScript){const source=await operationsScript.text();assert(operationsScript.status===200&&source.includes("credentials:'omit'")&&source.includes('operations-track'),'独立运营汇总脚本未上线');}
 const paused = await request('/api/analytics', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'track',event:{action:'page_view'}})});
 if (paused) {
     const body = await paused.json().catch(()=>null);

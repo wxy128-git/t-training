@@ -212,7 +212,7 @@
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:28px" id="dash-stats"></div>
                 <div style="background:var(--paper);border-radius:var(--r-md);padding:22px;border:1px solid var(--line)">
                     <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">内容管理</h3>
-                    <p style="font-size:13px;color:#64748b">后台内容统一保存在腾讯服务器。请通过左侧栏目管理；使用事件采集保持关闭。</p>
+                    <p style="font-size:13px;color:#64748b">后台内容统一保存在腾讯服务器。请通过左侧栏目管理；研究采集保持关闭；运营统计仅保存按天汇总的计数。</p>
                     <button class="btn-secondary" onclick="initAdmin()">刷新概览</button>
                 </div>
             </div>
@@ -222,7 +222,7 @@
                 <div class="analytics-head">
                     <div class="analytics-title">
                         <h2>数据看板</h2>
-                        <p>查看每日新增用户、网站访客，以及智能体、备课本、多模态工作坊的使用情况。</p>
+                        <p>查看每日注册、页面访问、生成成败、成果保存及多模态使用的汇总情况。</p>
                     </div>
                     <div class="analytics-toolbar">
                         <select id="analytics-range" class="analytics-select" onchange="renderAnalyticsPanel(true)">
@@ -239,7 +239,7 @@
                     <div class="analytics-empty">切换到数据看板后加载统计数据。</div>
                 </div>
                 <div class="analytics-note">
-                    使用事件采集已关闭，此处仅展示历史记录；数据停止增长不代表无人使用网站。关闭采集不会自动删除历史数据。
+                    运营统计与研究采集分开。运营看板只显示汇总计数，不显示个人使用明细；研究采集继续关闭。
                 </div>
             </div>
 
@@ -745,7 +745,7 @@
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261007-research-copy"></script>
 <script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
-<script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
+<script src="js/privacy-policy.js?v=20261014-operations"></script>
     <script src="js/auth.js?v=20261006-research-nav"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
@@ -1060,7 +1060,7 @@ async function fetchAnalyticsSummary(days) {
     const res = await fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'summary', adminIdToken, days })
+        body: JSON.stringify({ action: 'operations-summary', adminIdToken, days })
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.msg || `统计接口返回 ${res.status}`);
@@ -1192,7 +1192,40 @@ function renderAnalyticsUsers(summary) {
     </div>`;
 }
 
+function renderOperationsContent(summary) {
+    const daily=summary.daily||[], coverage=summary.coverage||{}, totals=summary.totals||{};
+    const newUsersByDay=analyticsNewUsersByDay(daily.map(d=>d.day));
+    const count=value=>value===null||value===undefined?'—':Number(value).toLocaleString('zh-CN');
+    const metrics=[
+        ['新增注册',[...newUsersByDay.values()].reduce((a,b)=>a+b,0),'根据账号注册时间'],
+        ['页面访问',totals.pageViews,'浏览器上报的页面打开次数'],
+        ['独立访客',null,'未设置访客标识，不统计人数'],
+        ['生成成功',totals.agentRuns,'模型完整生成；对话每轮算一次'],
+        ['生成失败',totals.generationFailures,'进入模型调用后的失败或中断'],
+        ['平均生成耗时',totals.averageGenerationMs==null?'—':(totals.averageGenerationMs/1000).toFixed(1)+' 秒','仅计算完整成功的模型生成'],
+        ['成果保存',totals.workbookSaves,'启用运营统计后的成功新建次数'],
+        ['现存成果',totals.existingWorks,'按创建日期统计，已删除成果不计'],
+        ['备课本使用',totals.workbookUses,'进入、打开及成功保存次数'],
+        ['多模态使用',totals.multimodalUses,'页面、案例、视频及音频打开次数']
+    ];
+    const note=coverage.enabled
+        ? '运营计数自 '+(coverage.startedAt?analyticsDateTime(coverage.startedAt):'启用时')+' 起记录；启用当天只包含启用后的部分时段。此前访问和生成数据无法补回，显示“—”；启用后的 0 表示尚无记录。注册和现存成果来自业务记录。'
+        : '运营计数尚未启用。目前只展示账号注册和现存成果；访问、生成等未采集指标显示“—”，不代表无人使用。';
+    const max=Math.max(1,...daily.map(d=>d.pageViews||0));
+    document.getElementById('analytics-content').innerHTML=`
+        <div class="analytics-note" role="status">${analyticsEscape(note)}</div>
+        <div class="analytics-kpis">${metrics.map(([label,value,help])=>`<div class="analytics-kpi"><span>${analyticsEscape(label)}</span><strong>${typeof value==='string'?analyticsEscape(value):count(value)}</strong><small>${analyticsEscape(help)}</small></div>`).join('')}</div>
+        <div class="analytics-grid"><div class="analytics-box" style="grid-column:1/-1">
+        <div class="analytics-box-head"><h3>每日运营趋势</h3><span>注册 / 访问 / 生成成功 / 新保存；“—”为未采集</span></div>
+        <div class="analytics-trend"><div class="analytics-trend-row head"><span>日期</span><span>访问次数</span><span>注册</span><span>访问</span><span>生成</span><span>保存</span></div>
+        ${daily.map(d=>`<div class="analytics-trend-row"><span>${analyticsDayLabel(d.day)}</span><div class="analytics-bar-track">${d.available?`<div class="analytics-bar" style="width:${Math.round((d.pageViews||0)/max*100)}%"></div>`:''}</div><span>${newUsersByDay.get(d.day)||0}</span><span>${count(d.pageViews)}</span><span>${count(d.agentRuns)}</span><span>${count(d.workbookSaves)}</span></div>`).join('')}</div></div>
+        ${renderAnalyticsRanks('热门智能体','按完整生成次数',summary.topAgents||[],coverage.hasCoverage?'启用以来暂无生成记录':'此时间段未采集生成次数')}
+        ${renderAnalyticsRanks('多模态案例','按案例、视频、音频打开次数',summary.topMultimodal||[],coverage.hasCoverage?'启用以来暂无案例使用记录':'此时间段未采集案例使用次数')}
+        </div>`;
+}
+
 function renderAnalyticsContent(summary) {
+    if(summary.mode==='operations'){renderOperationsContent(summary);return;}
     const days = (summary.daily || []).map(d => d.day);
     const newUsersByDay = analyticsNewUsersByDay(days);
     const newUsers = [...newUsersByDay.values()].reduce((sum, n) => sum + n, 0);

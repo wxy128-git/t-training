@@ -392,7 +392,7 @@ export async function onRequestOptions() {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export async function onRequestPost({ request, env, waitUntil }) {
+export async function onRequestPost({ request, env, waitUntil, onOperation }) {
     let payload;
     try { payload = await request.json(); }
     catch { return jsonResponse(400, { ok: false, msg: '请求格式不正确' }); }
@@ -429,6 +429,12 @@ export async function onRequestPost({ request, env, waitUntil }) {
         });
     }
 
+    const operationStarted=Date.now(); let operationRecorded=false;
+    const measure=action=>{
+        if(operationRecorded)return; operationRecorded=true;
+        try{onOperation?.({action,feature:agentId?.startsWith('research-')?'research':'agents',targetId:agentId,
+            meta:{durationMs:Math.min(600000,Math.max(0,Date.now()-operationStarted))}});}catch{}
+    };
     // 调用模型供应商（流式）：默认 DeepSeek，部分智能体可由 GLM-5.2 承担，失败时尽量回退 DeepSeek。
     let upstream;
     let activeProvider = selectedProvider;
@@ -439,10 +445,12 @@ export async function onRequestPost({ request, env, waitUntil }) {
         activeProvider = result.provider;
         fallbackFrom = result.fallbackFrom || null;
     } catch (e) {
+        measure('generation_failed');
         return jsonResponse(e.statusCode || 502, { ok: false, msg: e.message, code: e.code });
     }
 
     if (!upstream.ok || !upstream.body) {
+        measure('generation_failed');
         const errText = await upstream.text().catch(() => '');
         releaseUpstream(upstream);
         let msg = `${activeProvider.label} 调用失败（${upstream.status}）`;
@@ -491,8 +499,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
             if (!completed && finishReason !== 'stop') throw new Error('连接提前结束，内容尚未生成完整');
             if (!hasText) throw new Error('模型没有返回内容，请重试');
             if (structured) await emit({ type: 'done' });
+            measure('agent_run');
             await writer.close();
         } catch (error) {
+            measure('generation_failed');
             if (structured) {
                 try { await emit({ type: 'error', message: error.message || '生成中断，请重试' }); await writer.close(); } catch {}
             } else {

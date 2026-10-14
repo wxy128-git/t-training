@@ -733,12 +733,14 @@
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261007-research-copy"></script>
 <script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
-<script src="js/privacy-policy.js?v=20260930-privacy-service"></script>
+<script src="js/privacy-policy.js?v=20261014-operations"></script>
     <script src="js/auth.js?v=20261006-research-nav"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
+<script src="js/operations-policy.js?v=20261014-operations"></script>
+<script src="js/operations-analytics.js?v=20261014-operations"></script>
 <script src="js/curriculum-guard.js?v=20260828-curriculum-gate"></script>
 <script src="js/agents-data.js?v=20260922-teaching-quality"></script>
 <script src="js/task-search.js?v=20260924-local-email-direct"></script>
@@ -1337,7 +1339,7 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
     window._wsAgent = a;
     renderActiveProject();
     renderWorkflowOrigin(activeHistoryState);
-    if (window.Analytics) Analytics.track('agent_open', {
+    if (window.OperationsAnalytics) OperationsAnalytics.track('agent_open', {
         feature: 'agents',
         targetId: a.id,
         targetName: a.name,
@@ -1740,7 +1742,7 @@ function saveProjectFromModal() {
         updateBriefSummary(window._wsAgent);
         scheduleDraftSave(window._wsAgent, '项目背景已应用并保存');
     }
-    if (window.Analytics) Analytics.track('project_saved', {
+    if (window.OperationsAnalytics) OperationsAnalytics.track('project_saved', {
         feature: 'agents', targetId: window._wsAgent?.id || '', meta: { hasSubject: !!project.subject, hasGrade: !!project.grade }
     });
     showToast('教学项目已保存并应用');
@@ -1944,7 +1946,7 @@ function restoreAgentDraft(agent, draft) {
         updateInputSummary(agent, _lastInputs || {});
     }
     updateDraftState(`已恢复 ${formatDraftTime(draft.updatedAt)} 的本地草稿`, true);
-    if (window.Analytics) Analytics.track('draft_restored', { feature: 'agents', targetId: agent.id, targetName: agent.name });
+    if (window.OperationsAnalytics) OperationsAnalytics.track('draft_restored', { feature: 'agents', targetId: agent.id, targetName: agent.name });
 }
 
 function initTeachingProjectForm(agent) {
@@ -2117,7 +2119,7 @@ function updateReviewCounter(agentId, track = true) {
     if (agent && track) scheduleDraftSave(agent, summary.reviewed === 4 ? (summary.revise ? `核验完成，${summary.revise} 项待修改` : '教师核验已完成并保存') : '核验记录已自动保存');
     if (summary.reviewed === 4 && track && !_reviewTracked) {
         _reviewTracked = true;
-        if (window.Analytics) Analytics.track('teacher_reviewed', { feature: 'agents', targetId: agentId, targetName: agent?.name || '', meta: { status: summary.status, reviseCount: summary.revise } });
+        if (window.OperationsAnalytics) OperationsAnalytics.track('teacher_reviewed', { feature: 'agents', targetId: agentId, targetName: agent?.name || '', meta: { status: summary.status, reviseCount: summary.revise } });
         showToast(summary.revise ? `核验完成：${summary.revise} 项待修改` : '教师核验已完成');
     }
 }
@@ -2153,7 +2155,7 @@ function setResultFeedback(button, agentId) {
     });
     const agent = AGENTS.find(item => item.id === agentId);
     if (agent) scheduleDraftSave(agent, '结果反馈已保存');
-    if (window.Analytics) Analytics.track('result_feedback', {
+    if (window.OperationsAnalytics) OperationsAnalytics.track('result_feedback', {
         feature: 'agents', targetId: agentId, targetName: agent?.name || '', meta: { reason: _resultFeedback }
     });
 }
@@ -2243,7 +2245,7 @@ function performWorkflowTransition(pending) {
         persistCurrentDraft(current, '当前成果已保存在本机');
         _workflowCarryInputs = { ...(_lastInputs || collectInputs(current)) };
     }
-    if (window.Analytics) Analytics.track('workflow_continue', {
+    if (window.OperationsAnalytics) OperationsAnalytics.track('workflow_continue', {
         feature: 'agents', targetId: pending.targetId, targetName: AGENTS.find(item => item.id === pending.targetId)?.name || '', meta: { from: current?.id || '' }
     });
     openAgent(pending.targetId, true, 'push', { fromAgentId: current?.id || '', fromAgentName: current?.name || '' });
@@ -2570,7 +2572,7 @@ async function runForm(aid) {
         persistCurrentDraft(a, '生成结果已自动保存');
         document.dispatchEvent(new Event('teachingTaskCompleted'));
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于常用状态标签）
-        if (window.Analytics) Analytics.track('agent_run', {
+        if (window.OperationsAnalytics) OperationsAnalytics.track('agent_run', {
             feature: 'agents',
             targetId: aid,
             targetName: a ? a.name : '',
@@ -2594,7 +2596,7 @@ async function runForm(aid) {
             renderGenerationError(e, aid);
         }
         persistCurrentDraft(a, previous.result ? '上一份结果与当前输入已保留' : '当前输入和未完成内容已保存在本机');
-        if (window.Analytics) Analytics.track('generation_failed', {
+        if (window.OperationsAnalytics) OperationsAnalytics.track('generation_failed', {
             feature: 'agents', targetId: aid, targetName: a?.name || '', meta: {
                 reason: generationErrorDetails(e).title,
                 durationMs: Math.round(performance.now() - runStartedAt)
@@ -2785,7 +2787,7 @@ async function saveToWorkbook(aid, options = {}) {
         _lastWorkbookId = workId || '';
         persistCurrentDraft(a, '已存入“我的备课本”');
         const review = currentReviewSummary();
-        if (window.Analytics) Analytics.track('workbook_save', {
+        if (window.OperationsAnalytics) OperationsAnalytics.track('workbook_save', {
             feature: 'workspace',
             targetId: aid,
             targetName: a ? a.name : '',
@@ -2940,7 +2942,7 @@ async function sendChat(aid) {
         if (runSeq !== _chatRunSeq || currentAuthUid() !== ownerUid) return;
         _chatHistory.push({ role: 'assistant', content: assistantText });
         if (window.DB && DB.bumpAgentUsage) DB.bumpAgentUsage(aid);   // 使用计数（用于常用状态标签）
-        if (window.Analytics) Analytics.track('agent_run', {
+        if (window.OperationsAnalytics) OperationsAnalytics.track('agent_run', {
             feature: 'agents',
             targetId: aid,
             targetName: a ? a.name : '',
@@ -3013,7 +3015,7 @@ async function saveChatToWorkbook(aid) {
             content,
             inputs: workInputsWithProject({})
         });
-        if (window.Analytics) Analytics.track('workbook_save', {
+        if (window.OperationsAnalytics) OperationsAnalytics.track('workbook_save', {
             feature: 'workspace',
             targetId: aid,
             targetName: a ? a.name : '',
