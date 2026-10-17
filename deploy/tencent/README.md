@@ -20,6 +20,7 @@ node scripts/build-tencent-package.mjs /tmp/t-training-package
 
 部署包只包含用户可访问的静态文件、API 路由函数、本地认证与数据适配模块、Node 适配层和运维模板；
 被 `.gitignore` 排除的多模态制作源文件不会进入生产包。
+打包器显式将交付目录设为 755、文件设为 644，避免受本机 `umask` 影响。切换前须以 Nginx 用户确认静态入口可读；切换后必须检查首页与无后缀页面为 200，不能仅以 API 健康检查判断成功。
 
 ## 腾讯云邮件推送
 
@@ -82,8 +83,8 @@ PM2 守护进程真的受 systemd 管理。发布后检查 systemd Main PID、PM
 
 回滚时恢复静态 / API 与备份环境配置，或将该开关置 0 后重启；保留新汇总表，不自动删除或恢复数据库。再次启用时须检查时间范围内是否存在停用空档，避免把空档显示为真实 0。完整流程见对应验收报告。
 
-## 来源汇总（2026-10-17 本地完成，待上线）
+## 来源汇总（2026-10-17 已上线）
 
-发布此版本时同时安装锁定的 `ip2region.js` 依赖，并保留 API 白名单包内的 `server/geo-data/` 两份离线库及许可证；这些文件不得拷贝到静态目录或浏览器预缓存。原运营开关之外，新增 `T_TRAINING_OPERATIONS_SOURCES=1` 才累计地区和渠道，默认 0。启动幂等新增 `operations_sources_daily` 与独立 `sourcesStartedAt`，不处理历史事件或账号资料；候选与正式共享新来源表。来源与旧研究 track 分开，不恢复研究采集。
+本次发布 `e24078e`，生产已启用 `T_TRAINING_OPERATIONS_SOURCES=1`。后续发布同时安装锁定的 `ip2region.js` 依赖，并保留 API 白名单包内的 `server/geo-data/` 两份离线库及许可证；这些文件不得拷贝到静态目录或浏览器预缓存。原运营开关之外，新增 `T_TRAINING_OPERATIONS_SOURCES=1` 才累计地区和渠道，默认 0。启动幂等新增 `operations_sources_daily` 与独立 `sourcesStartedAt`，不处理历史事件或账号资料；候选与正式共享新来源表。来源与旧研究 track 分开，不恢复研究采集。
 
 发布前保留完整回滚备份，候选验证来源开关、建表与固定管理员权限、三层地区和功能筛选；禁止用虚构访问污染正式计数。首次启用前历史无法补回。关闭来源开关只停止新来源计数，原运营继续；回滚保留新表，不删除历史业务数据。详细范围和验收见 `reports/2026-10-17-operations-sources.md`。

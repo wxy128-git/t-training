@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -71,5 +71,16 @@ writeFileSync(join(output, 'deployment-manifest.json'), `${JSON.stringify({
     staticFiles: Object.fromEntries(staticFiles.map(file => [file, hash(file)])),
     apiFiles: Object.fromEntries(apiFiles.map(file => [file, hash(file)]))
 }, null, 2)}\n`);
+
+// A restrictive shell umask must not make published static directories unreadable by Nginx.
+function normalizePermissions(directory) {
+    chmodSync(directory, 0o755);
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        const path = join(directory, entry.name);
+        if (entry.isDirectory()) normalizePermissions(path);
+        else chmodSync(path, 0o644);
+    }
+}
+normalizePermissions(output);
 
 console.log(`腾讯云部署包已生成：${staticFiles.length} 个静态文件，${apiFiles.length} 个 API 文件。`);
