@@ -62,9 +62,17 @@ export async function sourceSummary(env,days,{filter,level}={}){
     if(selected.feature){clauses.push('feature=?');params.push(selected.feature);}
     if(selected.targetId){clauses.push('target_id=?');params.push(selected.targetId);}
     const where=clauses.join(' AND '),columns={country:'country',region:'country,region',city:'country,region,city'}[geoLevel];
-    const [totalRows]=await pool.execute(`SELECT ${sums} FROM operations_sources_daily WHERE ${where}`,params);
-    const [geoRows]=await pool.execute(`SELECT ${columns},${sums},SUM(count) AS total FROM operations_sources_daily WHERE ${where} GROUP BY ${columns} ORDER BY total DESC,${columns} LIMIT 20`,params);
-    const [channelRows]=await pool.execute(`SELECT source,${sums} FROM operations_sources_daily WHERE ${where} GROUP BY source ORDER BY SUM(count) DESC,source`,params);
+    // Keep totals and both breakdowns on one InnoDB snapshot during concurrent visits.
+    const connection=await pool.getConnection();
+    let totalRows,geoRows,channelRows;
+    try{
+        await connection.beginTransaction();
+        [totalRows]=await connection.execute(`SELECT ${sums} FROM operations_sources_daily WHERE ${where}`,params);
+        [geoRows]=await connection.execute(`SELECT ${columns},${sums},SUM(count) AS total FROM operations_sources_daily WHERE ${where} GROUP BY ${columns} ORDER BY total DESC,${columns} LIMIT 20`,params);
+        [channelRows]=await connection.execute(`SELECT source,${sums} FROM operations_sources_daily WHERE ${where} GROUP BY source ORDER BY SUM(count) DESC,source`,params);
+        await connection.commit();
+    }catch(error){await connection.rollback();throw error;}
+    finally{connection.release();}
     const totals=values(totalRows[0]||{});
     const regions=geoRows.map(row=>({label:columns.split(',').map(key=>row[key]||'未知').filter((v,i,a)=>i===0||v!==a[i-1]).join(' · '),...values(row)}));
     const rest=Object.fromEntries(Object.keys(metrics).map(key=>[key,totals[key]-regions.reduce((n,r)=>n+r[key],0)]));
