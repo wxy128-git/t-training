@@ -43,7 +43,7 @@ for (const file of appPages) {
     const styleVersion = '20261006-research-nav';
     if (!new RegExp(`css/style\\.css\\?v=${styleVersion}`).test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260924-local-email-direct/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20261006-research-nav/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!/js\/auth\.js\?v=20261017-sources/.test(html)) fail(file, '认证脚本缓存版本未统一');
     if (!new RegExp('js/assistant\\.js\\?v='+(file==='agents.html'?'20261006-research':'20261012-methods')).test(html)) fail(file, '网站向导缓存版本未统一');
     if (!/js\/account-policy\.js\?v=20260924-local-email-direct/.test(html)
         || !/js\/email-gate\.js\?v=20260924-local-email-direct/.test(html)
@@ -52,7 +52,7 @@ for (const file of appPages) {
 }
 
 for (const file of dataPages) {
-    const dataVersion = '20261007-research-copy';
+    const dataVersion = '20261017-sources';
     if (!new RegExp(`js/data\\.js\\?v=${dataVersion}`).test(text(file))) fail(file, '数据脚本缓存版本未统一');
 }
 
@@ -177,7 +177,7 @@ if (!/curriculum-guard\.js/.test(agentApiSource) || !/enforceCurriculumGate/.tes
 }
 const workspaceHtml = text('workspace.html');
 const researchHtml = text('research.html');
-for (const [name, version] of [['research-core','20261014-coach-six-rounds'], ['research-data','20261014-coach-six-rounds'], ['research-presentation','20261008-reading-ui'], ['agent-stream','20260924-local-email-direct']]) {
+for (const [name, version] of [['research-core','20261014-coach-six-rounds'], ['research-data','20261014-coach-six-rounds'], ['research-presentation','20261008-reading-ui'], ['agent-stream','20261017-sources']]) {
     if (!researchHtml.includes(`js/${name}.js?v=${version}`)) fail('research.html', `${name} 当前版本缺失`);
 }
 for (const name of ['research-core', 'research-data']) {
@@ -216,12 +216,12 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261014-v48/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261017-v49/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }
 for (const module of ['agent-stream', 'task-search']) {
-    if (!agentsHtml.includes(`js/${module}.js?v=20260924-local-email-direct`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
+    if (!agentsHtml.includes(`js/${module}.js?v=${module==='agent-stream'?'20261017-sources':'20260924-local-email-direct'}`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
 }
 
 const loginTransitionSource = text('js/auth.js');
@@ -354,7 +354,7 @@ for (const file of publicPages.filter(name => name !== 'article.html')) {
 notices.push(`检查 ${publicPages.length} 个公开页面、${appPages.length} 个应用页面`);
 // Independent operations assets must accompany every page that can emit counters.
 for(const file of appPages){
-    if(text(file).includes('js/analytics.js') && !text(file).includes('js/operations-analytics.js?v=20261014-operations'))fail(file,'未接入当前运营汇总脚本');
+    if(text(file).includes('js/analytics.js') && !text(file).includes('js/operations-analytics.js?v=20261017-sources'))fail(file,'未接入当前运营汇总脚本');
 }
 for(const file of ['js/operations-policy.js','js/operations-analytics.js'])if(!text('sw.js').includes("'/"+file+"'"))fail(file,'运营资源预缓存缺失');
 

@@ -36,6 +36,7 @@ const isApi = file => (
     || file === 'js/privacy-policy.js'
     || file === 'server/tencent-api.mjs'
     || /^server\/[^/]+\.mjs$/.test(file)
+    || /^server\/geo-data\/(?:ip2region_v[46]\.xdb|LICENSE\.md|README\.md)$/.test(file)
     || file === 'package.json'
     || file === 'package-lock.json'
 );

@@ -7,7 +7,25 @@ import { fileURLToPath } from 'node:url';
 import { adminFixture } from './fixtures/admin-store.mjs';
 import * as content from '../server/local-content.mjs';
 import * as users from '../server/local-admin-users.mjs';
+import * as analytics from '../server/local-analytics.mjs';
+import {recordOperation} from '../server/operations-analytics.mjs';
 const f = await adminFixture();
+if(process.argv.includes('--operations')){
+    Object.assign(f.env,{T_TRAINING_OPERATIONS_ANALYTICS:'1',T_TRAINING_OPERATIONS_SOURCES:'1'});
+    const samples=[['wechat','113.118.113.77','research-funnel',7],['baidu','8.8.8.8','lesson-design',4],['direct','127.0.0.1','research-design',2]];
+    for(const [channel,ip,targetId,n] of samples){
+        const request=new Request('http://127.0.0.1/api/analytics',{headers:{'CF-Connecting-IP':ip,'X-Operations-Source':channel}});
+        for(let i=0;i<n;i++){
+            await recordOperation(f.env,{action:'page_view',path:targetId.startsWith('research-')?'/research':'/agents'},{request});
+            await recordOperation(f.env,{action:'agent_open',targetId},{request});
+            await recordOperation(f.env,{action:'agent_run',targetId,meta:{durationMs:1200}},{trusted:true,request});
+        }
+        await recordOperation(f.env,{action:'registration'},{trusted:true,request});
+        await recordOperation(f.env,{action:'workbook_save',targetId},{trusted:true,request});
+        f.users.push({uid:'source-demo-'+channel,name:'来源演示用户（虚构）',email:channel+'@example.invalid',email_verified:1,joined_at_iso:new Date().toISOString()});
+    }
+    await recordOperation(f.env,{action:'classroom_open',targetId:'countdown'},{request:new Request('http://127.0.0.1',{headers:{'CF-Connecting-IP':'113.118.113.77','X-Operations-Source':'wechat'}})});
+}
 f.users.push({uid:'teacher-with-work',name:'有作品的演示教师',email:'author@example.invalid',email_verified:1,school:'演示学校',joined_at_iso:'2026-10-01T00:00:00Z'});
 f.seed('works','protected-work',{uid:'teacher-with-work',title:'演示备课本',content:'此作品应受到保护'});
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -33,6 +51,7 @@ const server = createServer(async(req,res)=>{
             const request=new Request(url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})});
             if(url.pathname==='/api/content')response=await content[req.method==='POST'?'onRequestPost':'onRequestGet']({request,env:f.env});
             else if(url.pathname==='/api/admin-users')response=await users.onRequestPost({request,env:f.env});
+            else if(url.pathname==='/api/analytics')response=await analytics.onRequestPost({request,env:f.env});
             else response=Response.json({ok:false,msg:'本地演示未提供此接口'},{status:404});
             res.writeHead(response.status,Object.fromEntries(response.headers));res.end(await response.text());return;
         }

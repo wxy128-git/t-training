@@ -2,6 +2,7 @@ import '../js/analytics-policy.js';
 import '../js/operations-policy.js';
 import {getPool} from './local-auth-store.mjs';
 import {localFeatureSession} from './local-firestore-store.mjs';
+import {recordSource,sourceSummary,sourcesEnabled} from './operations-sources.mjs';
 
 const initialized = new WeakMap();
 const P=globalThis.OperationsPolicy;
@@ -32,13 +33,14 @@ export async function initializeOperations(env) {
     return initialized.get(pool);
 }
 
-export async function recordOperation(env, raw, {trusted=false,now=new Date()}={}) {
+export async function recordOperation(env, raw, {trusted=false,now=new Date(),request}={}) {
     if(!enabled(env))return false;
     const counter=P.normalize(raw,trusted);
     await initializeOperations(env);
     await getPool(env).execute(`INSERT INTO operations_daily (day,action,feature,target_id,count,duration_ms)
         VALUES (?,?,?,?,1,?) ON DUPLICATE KEY UPDATE count=count+1,duration_ms=duration_ms+VALUES(duration_ms)`,
         [chinaDay(now),counter.action,counter.feature,counter.targetId,counter.durationMs]);
+    try{await recordSource(env,counter,{request,now});}catch{console.warn('[operations] source counter unavailable');}
     return true;
 }
 
@@ -76,7 +78,7 @@ export function summarizeOperations(rows, days, startedAt, savedRows=[], isEnabl
         totals,daily,topAgents:rank(agents),topMultimodal:rank(cases),users:[],recent:[],funnel:[],feedbackReasons:[]};
 }
 
-export async function operationsSummary(env,count,now=new Date()) {
+export async function operationsSummary(env,count,now=new Date(),sourceOptions={}) {
     const days=Array.from({length:count},(_,i)=>chinaDay(new Date(now.getTime()-(count-1-i)*86400000)));
     const pool=getPool(env),isEnabled=enabled(env);
     const startedAt=isEnabled?await initializeOperations(env):null;
@@ -87,16 +89,16 @@ export async function operationsSummary(env,count,now=new Date()) {
     const [saved]=await pool.execute(`SELECT DATE_FORMAT(DATE_ADD(STR_TO_DATE(LEFT(${dateExpression},19),'%Y-%m-%dT%H:%i:%s'),INTERVAL 8 HOUR),'%Y-%m-%d') AS day,COUNT(*) AS count
         FROM firestore_documents WHERE collection_name='works' AND JSON_VALID(fields_json)
         GROUP BY day HAVING day BETWEEN ? AND ?`,[days[0],days.at(-1)]);
-    return summarizeOperations(rows,days,startedAt,saved,isEnabled);
+    return {...summarizeOperations(rows,days,startedAt,saved,isEnabled),sources:await sourceSummary(env,days,sourceOptions)};
 }
 
 export async function handleOperations({request,env,payload}) {
-    if(payload.action==='operations-status')return reply(200,{ok:true,enabled:enabled(env),research:false});
+    if(payload.action==='operations-status')return reply(200,{ok:true,enabled:enabled(env),sources:sourcesEnabled(env),research:false});
     if(payload.action==='operations-summary'){
         const session=await localFeatureSession(env,payload.adminIdToken);
         if(!session.user.isAdmin)return reply(403,{ok:false,msg:'当前账号没有管理员权限'});
         const count=[7,14,30,60,90].includes(Number(payload.days))?Number(payload.days):14;
-        return reply(200,{ok:true,...await operationsSummary(env,count)});
+        return reply(200,{ok:true,...await operationsSummary(env,count,new Date(),{filter:payload.sourceFilter,level:payload.sourceLevel})});
     }
     if(payload.action==='operations-track'){
         if(!enabled(env))return reply(200,{ok:true,recorded:false,reason:'operations_disabled'});
@@ -106,7 +108,7 @@ export async function handleOperations({request,env,payload}) {
         if(Number(request.headers.get('content-length')||0)>2048)return reply(413,{ok:false,msg:'统计请求过大'});
         let counter;
         try{counter=P.normalize(payload.counter);}catch{return reply(400,{ok:false,msg:'不支持的运营计数'});}
-        await recordOperation(env,counter);
+        await recordOperation(env,counter,{request});
         return reply(200,{ok:true,recorded:true});
     }
     return null;

@@ -17,6 +17,7 @@ import * as worksFirebase from '../functions/api/works.js';
 import * as privacyFirebase from '../functions/api/privacy.js';
 import * as resourceLogo from './resource-logo.mjs';
 import {enabled as operationsEnabled, initializeOperations, recordOperation} from './operations-analytics.mjs';
+import {sourcesEnabled,initializeSources} from './operations-sources.mjs';
 
 const authProxy = process.env.T_TRAINING_AUTH_BACKEND === 'local'
     ? await import('./local-auth-proxy.mjs')
@@ -165,7 +166,7 @@ export function createApiServer(options = {}) {
 
             const webRequest = toWebRequest(request, publicOrigin, response);
             const onOperation = env.T_TRAINING_DATA_BACKEND === 'local' && operationsEnabled(env)
-                ? counter => waitUntil(recordOperation(env,counter,{trusted:true})) : undefined;
+                ? counter => waitUntil(recordOperation(env,counter,{trusted:true,request:webRequest})) : undefined;
             const result = await handler({ request: webRequest, env, waitUntil, onOperation });
             if (!(result instanceof Response)) throw new Error(`${handlerName} did not return a Response`);
             sendWebResponse(response, result, request.method);
@@ -192,6 +193,7 @@ export async function startApiServer(options = {}) {
     const port = Number(options.port ?? env.PORT ?? DEFAULT_PORT);
     if (env.T_TRAINING_DATA_BACKEND === 'local' && operationsEnabled(env)) {
         try { await initializeOperations(env); } catch { console.error('[operations] initialization unavailable; business services remain enabled'); }
+        if(sourcesEnabled(env))try{await initializeSources(env);}catch{console.error('[operations] source initialization unavailable; business services remain enabled');}
     }
     const server = createApiServer({ ...options, env });
     await new Promise((resolveListen, rejectListen) => {

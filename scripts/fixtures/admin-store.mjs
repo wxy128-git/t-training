@@ -7,9 +7,30 @@ export async function adminFixture() {
     let sessions = new Map(), metadata = new Map(), actionTokens = new Map(), profiles = new Map();
     const adminUid = 'MCUSTieySYczODKB9hkERtyvtZG2';
     let users = [adminUid, 'teacher'].map(uid => ({ uid, email: `${uid}@example.invalid`, email_verified: 1, name: '演示用户（虚构）', school: '演示学校', joined_at_iso: '2026-10-01T00:00:00Z' }));
-    const state = { failId: '', failRead: '', commits: 0, rollbacks: 0, operations:new Map(), operationState:new Map(), failOperations:false };
+    const state = { failId: '', failRead: '', commits: 0, rollbacks: 0, operations:new Map(), operationSources:new Map(), operationState:new Map(), failOperations:false };
     let unlock, tail = Promise.resolve();
     async function execute(sql, p = []) {
+        if(sql.includes('operations_sources_daily')){
+            if(state.failOperations)throw new Error('模拟运营数据库不可用');
+            if(sql.startsWith('CREATE TABLE'))return [{}];
+            if(sql.startsWith('INSERT INTO operations_sources_daily')){
+                const key=p.join('|'),row=state.operationSources.get(key)||{day:p[0],action:p[1],feature:p[2],target_id:p[3],country:p[4],region:p[5],city:p[6],source:p[7],count:0};
+                row.count++;state.operationSources.set(key,row);return [{}];
+            }
+            const rows=[...state.operationSources.values()].filter(r=>r.day>=p[0]&&r.day<=p[1]&&(!p[2]||r.feature===p[2])&&(!p[3]||r.target_id===p[3]));
+            const columns=sql.match(/GROUP BY ([a-z_,]+)/)?.[1]?.split(',')||[];
+            const groups=new Map();
+            const blank=()=>({registrations:0,pageViews:0,opens:0,generations:0,failures:0,saves:0,total:0});
+            if(!columns.length)groups.set('',blank());
+            for(const row of rows){
+                const key=columns.map(c=>row[c]).join('|'),g=groups.get(key)||{...Object.fromEntries(columns.map(c=>[c,row[c]])),...blank()};
+                const metric=({registration:'registrations',page_view:'pageViews',agent_run:'generations',generation_failed:'failures',workbook_save:'saves'})[row.action]||'opens';
+                g[metric]+=row.count;g.total+=row.count;groups.set(key,g);
+            }
+            let result=[...groups.values()].sort((a,b)=>b.total-a.total||columns.map(c=>a[c]).join().localeCompare(columns.map(c=>b[c]).join()));
+            if(sql.includes('LIMIT 20'))result=result.slice(0,20);
+            return [result];
+        }
         if(sql.includes('operations_daily')||sql.includes('operations_state')){
             if(state.failOperations)throw new Error('模拟运营数据库不可用');
             if(sql.startsWith('CREATE TABLE'))return [{}];

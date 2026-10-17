@@ -13,7 +13,7 @@
         try {
             arm(firstTimeout);
             const response = await fetch('/api/agent', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json', ...root.OperationsAnalytics?.headers?.() },
                 body: JSON.stringify({ ...payload, streamProtocol: 'events-v1' }), signal: controller.signal
             });
             if (!response.ok || !response.body) {

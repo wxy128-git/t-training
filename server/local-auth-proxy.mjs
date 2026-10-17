@@ -332,7 +332,7 @@ export async function onRequestOptions() {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, onOperation }) {
     let payload;
     try { payload = await request.json(); } catch { return jsonResponse(400, { ok: false, msg: '请求格式不正确' }); }
     const action = cleanText(payload?.action, 40);
@@ -356,7 +356,9 @@ export async function onRequestPost({ request, env }) {
                 catch(error) { return jsonResponse(400,{ok:false,msg:error.message,code:error.code}); }
                 profile.privacy = globalThis.PrivacyPolicy.update(null,payload.consent);
             }
-            return jsonResponse(200, { ok: true, ...(await localRegister(env, email, payload.password, profile)) });
+            const registered=await localRegister(env, email, payload.password, profile);
+            try{onOperation?.({action:'registration'});}catch{}
+            return jsonResponse(200, { ok: true, ...registered });
         }
         if (action === 'refresh') {
             if (!payload.refreshToken) return jsonResponse(400, { ok: false, msg: '缺少刷新令牌' });

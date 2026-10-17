@@ -52,9 +52,9 @@ if (home) {
     assert(home.headers.get('strict-transport-security')?.includes('max-age='), '缺少 HSTS');
     assert(body.includes('css/style.css?v=20261006-research-nav'), '首页未加载当前全局样式版本');
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
-    assert(body.includes('js/auth.js?v=20261006-research-nav'), '首页未加载当前导航与账户脚本版本');
+    assert(body.includes('js/auth.js?v=20261017-sources'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261007-research-copy') && body.includes('js/site-copy.js?v=20261014-coach-six-rounds'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261014-coach-six-rounds'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261012-methods'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261012-methods'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/agents-data.js?v=20260922-teaching-quality'), '首页未加载当前智能体教学质量版本');
@@ -67,9 +67,10 @@ if (home) {
 const adminPage = await request('/admin');
 if (adminPage) {
     const body = await adminPage.text();
-    assert(adminPage.status === 200 && body.includes('js/data.js?v=20261007-research-copy'), '腾讯后台当前版本未上线');
+    assert(adminPage.status === 200 && body.includes('js/data.js?v=20261017-sources'), '腾讯后台当前版本未上线');
     assert(!body.includes('onclick="seedDatabase()"') && !body.includes('onclick="deleteUserByIdentifier()"'), '后台仍显示旧库初始化或认证清理入口');
     assert(body.includes('后台内容统一保存在腾讯服务器'), '后台数据路径提示未更新');
+    assert(body.includes('function renderOperationsSources') && body.includes('analytics-source-filter') && body.includes('地区分布') && body.includes('访问渠道'), '来源统计后台未上线');
     assert(body.includes('id="delete-user-modal"') && body.includes('previewUserDeletion') && body.includes('confirmUserDeletion'), '账号删除核对窗口未上线');
 }
 
@@ -81,7 +82,7 @@ if (pwaScript) {
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
 }
 
-const authScript = await request('/js/auth.js?v=20261006-research-nav');
+const authScript = await request('/js/auth.js?v=20261017-sources');
 if (authScript) {
     const body = await authScript.text();
     assert(authScript.status === 200 && authScript.headers.get('content-type')?.includes('javascript'), '当前认证脚本未上线');
@@ -114,21 +115,23 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261014-v48'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261017-v49'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
 const privacy = await request('/privacy');
 if (privacy) {
     const body = await privacy.text();
-    assert(privacy.status === 200 && body.includes('2026-10-14.1'), '当前隐私政策未上线');
+    assert(privacy.status === 200 && body.includes('2026-10-17.1'), '当前隐私政策未上线');
     assert(!/尚未生效|审阅稿|待确认|待核实|研究参与/.test(body), '隐私政策仍有冲突或过期文案');
     assert(body.includes('data-contact-trigger') && body.includes('js/assistant.js'), '隐私申请入口不可用');
 }
 const operationsStatus = await request('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'operations-status'})});
-if(operationsStatus){const body=await operationsStatus.json().catch(()=>null);assert(operationsStatus.status===200&&body?.enabled===true&&body?.research===false,'匿名运营统计未启用或研究采集状态异常');}
-const operationsScript=await request('/js/operations-analytics.js?v=20261014-operations');
+if(operationsStatus){const body=await operationsStatus.json().catch(()=>null);assert(operationsStatus.status===200&&body?.enabled===true&&body?.sources===true&&body?.research===false,'匿名运营统计未启用或研究采集状态异常');}
+const operationsScript=await request('/js/operations-analytics.js?v=20261017-sources');
 if(operationsScript){const source=await operationsScript.text();assert(operationsScript.status===200&&source.includes("credentials:'omit'")&&source.includes('operations-track'),'独立运营汇总脚本未上线');}
+const geoPublic = await request('/server/geo-data/ip2region_v4.xdb');
+if(geoPublic)assert(geoPublic.status===404,'服务器离线地区库不应从静态站访问');
 const paused = await request('/api/analytics', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'track',event:{action:'page_view'}})});
 if (paused) {
     const body = await paused.json().catch(()=>null);

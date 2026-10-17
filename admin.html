@@ -70,6 +70,19 @@
         .analytics-funnel-step span { display:block; margin-top:6px; color:var(--subtle); font-family:var(--font-mono); font-size:10px; }
         .analytics-quality { display:flex; flex-wrap:wrap; gap:8px 16px; padding:0 18px 16px; color:var(--muted); font-size:11.5px; }
         .analytics-quality b { color:var(--ink); }
+        .analytics-sources { margin-top:22px; }
+        .analytics-sources h3 { margin:0; font-size:18px; }
+        .analytics-sources .analytics-grid { grid-template-columns:minmax(0,1fr); }
+        .analytics-sources .analytics-grid[hidden] { display:none; }
+        .analytics-sources .analytics-box-head h4 { margin:0; font-size:14px; }
+        .analytics-source-controls { display:flex; flex-wrap:wrap; gap:12px; padding:16px 0; }
+        .analytics-source-controls label { display:flex; align-items:center; gap:8px; font-size:13px; min-width:0; }
+        .analytics-source-controls select { max-width:290px; min-width:0; }
+        .analytics-source-table { min-width:680px; }
+        .analytics-source-table td:not(:first-child), .analytics-source-table th:not(:first-child) { text-align:right; white-space:nowrap; }
+        .analytics-source-table th:first-child, .analytics-source-table td:first-child { min-width:150px; }
+        .analytics-source-table tfoot { font-weight:700; background:var(--soft); }
+        @media(max-width:640px) { .analytics-source-controls label { width:100%; justify-content:space-between; } .analytics-source-controls select { flex:1; max-width:calc(100% - 80px); } }
         .modal-admin { display: none; position: fixed; inset: 0; background: rgba(26,22,18,0.55); z-index: 500; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; }
         .modal-admin.active { display: flex; }
         .panel { display: none; }
@@ -743,10 +756,12 @@
 <script src="js/safe-render.js?v=20260719-security"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
-<script src="js/data.js?v=20261007-research-copy"></script>
+<script src="js/data.js?v=20261017-sources"></script>
 <script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
-<script src="js/privacy-policy.js?v=20261014-operations"></script>
-    <script src="js/auth.js?v=20261006-research-nav"></script>
+<script src="js/privacy-policy.js?v=20261017-sources"></script>
+<script src="js/analytics-policy.js?v=20260930-privacy-service"></script>
+<script src="js/operations-policy.js?v=20261017-sources"></script>
+    <script src="js/auth.js?v=20261017-sources"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script>
@@ -1055,12 +1070,12 @@ function analyticsNewUsersByDay(days) {
     return map;
 }
 
-async function fetchAnalyticsSummary(days) {
+async function fetchAnalyticsSummary(days, sourceFilter='all', sourceLevel='region') {
     const adminIdToken = await Auth.getIdToken();
     const res = await fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'operations-summary', adminIdToken, days })
+        body: JSON.stringify({ action: 'operations-summary', adminIdToken, days, sourceFilter, sourceLevel })
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.msg || `统计接口返回 ${res.status}`);
@@ -1192,6 +1207,19 @@ function renderAnalyticsUsers(summary) {
     </div>`;
 }
 
+function renderOperationsSources(sources={}) {
+    const P=globalThis.OperationsPolicy||{},selected=sources.filter||'all',level=sources.level||'region';
+    const option=(value,label)=>`<option value="${analyticsEscape(value)}"${selected===value?' selected':''}>${analyticsEscape(label)}</option>`;
+    const features={site:'首页与注册',agents:'智能体空间',research:'科研写作',workspace:'备课本',multimodal:'多模态工作坊',classroom:'课堂工具',tools:'AI 资源精选',prompts:'提示词',paths:'学习路径',articles:'文章',resources:'课件素材',news:'AI 资讯'};
+    const options=option('all','全部功能')+'<optgroup label="功能栏目">'+Object.entries(features).map(([id,name])=>option('feature:'+id,name)).join('')+'</optgroup>'+[['agent','具体智能体与科研伙伴',P.agents],['classroom','具体课堂工具',P.classroom],['case','具体多模态案例',P.cases]].map(([kind,label,entries])=>`<optgroup label="${label}">${Object.entries(entries||{}).map(([id,name])=>option(kind+':'+id,name)).join('')}</optgroup>`).join('');
+    const number=value=>value==null?'—':Number(value).toLocaleString('zh-CN');
+    const registrations=selected==='all'||selected==='feature:site';
+    const cells=row=>['registrations','pageViews','opens','generations','failures','saves'].map(key=>`<td>${number(key==='registrations'&&!registrations?null:row?.[key])}</td>`).join('');
+    const table=(title,rows)=>`<div class="analytics-box"><div class="analytics-box-head"><h4>${title}</h4><span>次数</span></div><div class="table-wrap" tabindex="0" role="region" aria-label="${title}表，可左右滚动"><table class="analytics-source-table"><thead><tr><th>${title==='地区分布'?'地区':'渠道'}</th><th>新注册</th><th>页面访问</th><th>功能打开</th><th>生成成功</th><th>生成失败</th><th>成果保存</th></tr></thead><tbody>${rows.length?rows.map(row=>`<tr><td>${analyticsEscape(row.label)}</td>${cells(row)}</tr>`).join(''):`<tr><td colspan="7"><div class="analytics-empty">${sources.available===false?'此时间段尚未采集来源':'所选范围暂无来源记录'}</div></td></tr>`}</tbody><tfoot><tr><td>合计</td>${cells(sources.totals)}</tr></tfoot></table></div></div>`;
+    if(!sources.enabled)return '<section class="analytics-sources" aria-label="用户来源"><h3>用户来源</h3><p class="analytics-note">来源统计尚未启用；地区和渠道显示“—”，历史访问与功能使用无法补回。</p></section>';
+    return `<section class="analytics-sources" aria-labelledby="analytics-sources-title"><h3 id="analytics-sources-title">用户来源</h3><p class="analytics-note">自 ${analyticsEscape(analyticsDateTime(sources.startedAt))} 起累计，首日为部分时段。按发生次数统计，不代表独立人数或个人转化漏斗。地区是 IP 网络出口的估算，VPN、校园网和移动网络可能影响结果；“未知”表示无法定位。渠道按当前标签页最近一次可识别入口归类，最长保留 30 分钟；无可见来源归为“直接访问／来源不可见”，不一定是手动输入网址。${registrations?'':'注册仅在“全部功能”或“首页与注册”中统计，不能归因到某个功能。'}</p><div class="analytics-source-controls"><label for="analytics-source-filter">查看功能<select class="analytics-select" id="analytics-source-filter" onchange="renderAnalyticsPanel(true,true)">${options}</select></label><label for="analytics-source-level">地区层级<select class="analytics-select" id="analytics-source-level" onchange="renderAnalyticsPanel(true,true)">${[['country','国家／地区'],['region','省份／地区'],['city','城市']].map(([id,label])=>`<option value="${id}"${level===id?' selected':''}>${label}</option>`).join('')}</select></label></div><p class="analytics-source-status" role="status" aria-live="polite"></p><div class="analytics-grid">${table('地区分布',sources.regions||[])}${table('访问渠道',sources.channels||[])}</div><p style="font-size:12px;color:var(--muted);margin-top:10px">地区按记录次数排序，前 20 项之外合并为“其他地区”。功能打开包含智能体、课堂工具、备课本和多模态案例的打开操作；生成按每次完成或失败计数。只展示当前范围的汇总；窄屏表格可左右滑动。</p><details class="analytics-note"><summary>怎样区分分享渠道？</summary><p>微信等应用可能不提供来源信息。分享时可使用带固定渠道标记的链接，例如 <code>https://ai.teachailab.com/?utm_source=wechat</code>。也支持 qq、weibo、douyin、xiaohongshu、bilibili、zhihu、share 等固定值。未带标记且不提供来源的访问无法可靠识别，不会猜测为微信或其他渠道。</p></details></section>`;
+}
+
 function renderOperationsContent(summary) {
     const daily=summary.daily||[], coverage=summary.coverage||{}, totals=summary.totals||{};
     const newUsersByDay=analyticsNewUsersByDay(daily.map(d=>d.day));
@@ -1221,7 +1249,7 @@ function renderOperationsContent(summary) {
         ${daily.map(d=>`<div class="analytics-trend-row"><span>${analyticsDayLabel(d.day)}</span><div class="analytics-bar-track">${d.available?`<div class="analytics-bar" style="width:${Math.round((d.pageViews||0)/max*100)}%"></div>`:''}</div><span>${newUsersByDay.get(d.day)||0}</span><span>${count(d.pageViews)}</span><span>${count(d.agentRuns)}</span><span>${count(d.workbookSaves)}</span></div>`).join('')}</div></div>
         ${renderAnalyticsRanks('热门智能体','按完整生成次数',summary.topAgents||[],coverage.hasCoverage?'启用以来暂无生成记录':'此时间段未采集生成次数')}
         ${renderAnalyticsRanks('多模态案例','按案例、视频、音频打开次数',summary.topMultimodal||[],coverage.hasCoverage?'启用以来暂无案例使用记录':'此时间段未采集案例使用次数')}
-        </div>`;
+        </div>${renderOperationsSources(summary.sources)}`;
 }
 
 function renderAnalyticsContent(summary) {
@@ -1251,21 +1279,35 @@ function renderAnalyticsError(error) {
     document.getElementById('analytics-content').innerHTML = `<div class="analytics-box"><div class="analytics-error">${analyticsEscape(msg)}<br>本地验收请使用隔离的统计测试服务；普通静态预览不提供统计数据库。</div></div>`;
 }
 
-async function renderAnalyticsPanel(force = false) {
+async function renderAnalyticsPanel(force = false, sourceOnly = false) {
     if (_analyticsLoading) return;
     if (_analyticsLoaded && !force) return;
     const range = Number(document.getElementById('analytics-range')?.value || 14);
+    const sourceFilter=document.getElementById('analytics-source-filter')?.value||'all';
+    const sourceLevel=document.getElementById('analytics-source-level')?.value||'region';
     const btn = document.getElementById('analytics-refresh');
+    const sourceSection=sourceOnly?document.querySelector('.analytics-sources'):null;
+    const focusedId=document.activeElement?.id;
     _analyticsLoading = true;
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i>加载中'; }
-    document.getElementById('analytics-content').innerHTML = '<div class="analytics-box"><div class="analytics-empty">正在读取统计数据…</div></div>';
+    if(sourceSection){
+        sourceSection.setAttribute('aria-busy','true');
+        sourceSection.querySelectorAll('select').forEach(el=>el.disabled=true);
+        sourceSection.querySelector('.analytics-source-status').textContent='正在读取来源统计…';
+    }else document.getElementById('analytics-content').innerHTML = '<div class="analytics-box"><div class="analytics-empty">正在读取统计数据…</div></div>';
     try {
-        const summary = await fetchAnalyticsSummary(range);
-        renderAnalyticsContent(summary);
+        const summary = await fetchAnalyticsSummary(range,sourceFilter,sourceLevel);
+        if(sourceSection)sourceSection.outerHTML=renderOperationsSources(summary.sources);
+        else renderAnalyticsContent(summary);
         _analyticsLoaded = true;
     } catch (error) {
-        renderAnalyticsError(error);
+        if(sourceSection){
+            sourceSection.querySelector('.analytics-grid').hidden=true;
+            sourceSection.querySelector('.analytics-source-status').textContent='来源统计读取失败：'+(error.message||'请稍后重试')+'。请重新选择筛选或点击刷新。';
+        }else renderAnalyticsError(error);
     } finally {
+        if(sourceSection){sourceSection.removeAttribute('aria-busy');sourceSection.querySelectorAll('select').forEach(el=>el.disabled=false);}
+        if(focusedId)document.getElementById(focusedId)?.focus({preventScroll:true});
         _analyticsLoading = false;
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph ph-arrow-clockwise"></i>刷新'; }
     }

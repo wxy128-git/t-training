@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node scripts/check-site.mjs && node scripts/test-curriculum-guard.mjs && node scripts/test-functions.mjs && node scripts/test-email-verification.mjs && node scripts/test-local-mailer.mjs && node scripts/test-generation-reliability.mjs && node scripts/test-resource-logo.mjs && node scripts/test-admin-content-client.mjs && node scripts/test-tencent-server.mjs && node scripts/test-analytics-privacy.mjs && node scripts/test-privacy-consent.mjs && node scripts/test-privacy-ui.mjs && node scripts/test-tencent-admin.mjs && node scripts/test-account-deletion.mjs && node scripts/test-research.mjs && node scripts/test-operations-analytics.mjs",
+    "check": "node scripts/check-site.mjs && node scripts/test-curriculum-guard.mjs && node scripts/test-functions.mjs && node scripts/test-email-verification.mjs && node scripts/test-local-mailer.mjs && node scripts/test-generation-reliability.mjs && node scripts/test-resource-logo.mjs && node scripts/test-admin-content-client.mjs && node scripts/test-tencent-server.mjs && node scripts/test-analytics-privacy.mjs && node scripts/test-privacy-consent.mjs && node scripts/test-privacy-ui.mjs && node scripts/test-tencent-admin.mjs && node scripts/test-account-deletion.mjs && node scripts/test-research.mjs && node scripts/test-operations-analytics.mjs && node scripts/test-operations-sources.mjs",
     "start:tencent": "node server/tencent-api.mjs",
     "check:analytics-db": "node scripts/test-analytics-mariadb.mjs",
     "preview:analytics": "node scripts/preview-analytics-privacy.mjs",
     "preview:privacy": "node scripts/preview-privacy.mjs",
-    "preview:admin": "node scripts/preview-tencent-admin.mjs"
+    "preview:admin": "node scripts/preview-tencent-admin.mjs",
+    "preview:operations": "node scripts/preview-tencent-admin.mjs --operations"
   },
   "dependencies": {
+    "ip2region.js": "3.1.8",
     "mysql2": "3.24.4",
     "nodemailer": "10.0.10",
     "tencentcloud-sdk-nodejs-ses": "4.1.271"

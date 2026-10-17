@@ -89,7 +89,7 @@ async function callAuthProxy(action, payload, options = {}) {
     try {
         response = await fetch('/api/auth-proxy', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(action==='register' ? window.OperationsAnalytics?.headers?.() : {}) },
             body: JSON.stringify({ action, ...payload }),
             signal: controller.signal
         });

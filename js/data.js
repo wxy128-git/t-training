@@ -478,7 +478,7 @@ async function callWorksAPI(action, payload = {}) {
     try {
         response = await fetch('/api/works', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(action==='create' ? globalThis.OperationsAnalytics?.headers?.() : {}) },
             body: JSON.stringify({ action, idToken: await Auth.getIdToken(), ...payload })
         });
     } catch(e) {
