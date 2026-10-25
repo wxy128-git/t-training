@@ -170,7 +170,7 @@ if (agents) {
     assert(body.includes('class="agent-directory"') && body.includes('function departmentHtml') && body.includes('function showAllAgents'), '智能体部门目录或全部成员入口未上线');
     assert(!/agent-roster-list|HERO_ROSTER|renderHeroRoster/.test(body), '智能体默认页仍保留重复的人物在席墙');
     assert(body.includes('class="agent-member"') && body.includes('assets/agent-portraits/'), '数字教研团队人物化界面未上线');
-    assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('教学任务描述') && body.includes('补充信息（可选）'), '数字成员任务简报或渐进参数未上线');
+    assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('填写教学信息') && body.includes('补充信息（可选）'), '数字成员任务简报或渐进参数未上线');
     assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('生成${agentDeliverable(agent)}'), '数字成员工作阶段或交付物操作未上线');
     assert(body.includes('id="ws-project-options"') && body.includes('aria-controls="ws-input-scroll"') && body.includes('.ws-task-first .ws-titles p'), '移动工作台精简或无障碍折叠未上线');
     assert(body.includes('TaskSearch.tasks[a.id]?.title || a.name') && body.includes('AI 初稿，使用前请核对'), '任务标题或教师核验提示未上线');

@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-25",
+  "origin": "https://ai.teachailab.com",
+  "revision": "27d247b",
+  "serviceWorker": "20261025-v51-reviewed",
+  "passed": 49,
+  "checks": [
+    "首页原大标题",
+    "智能体导航原名",
+    "多模态原名",
+    "科研写作导航",
+    "学习资源导航",
+    "首页六任务",
+    "团队标题保留原有后台文案",
+    "原角色入口",
+    "团队概况可见",
+    "工作台任务标题",
+    "课题单行输入",
+    "可选信息折叠",
+    "工作区隐藏悬浮帮助",
+    "科研保留既有后台自定义大标题",
+    "科研四个角色原名",
+    "游客可见文献卡片夹",
+    "备课本顶部新建按钮已移除",
+    "320px score 右侧按钮和备注",
+    "320px score 备注可点击",
+    "320px rubric 右侧按钮和备注",
+    "320px rubric 备注可点击",
+    "320px routine 右侧按钮和备注",
+    "320px routine 备注可点击",
+    "390px score 右侧按钮和备注",
+    "390px score 备注可点击",
+    "390px rubric 右侧按钮和备注",
+    "390px rubric 备注可点击",
+    "390px routine 右侧按钮和备注",
+    "390px routine 备注可点击",
+    "768px score 右侧按钮和备注",
+    "768px score 备注可点击",
+    "768px rubric 右侧按钮和备注",
+    "768px rubric 备注可点击",
+    "768px routine 右侧按钮和备注",
+    "768px routine 备注可点击",
+    "1440px score 右侧按钮和备注",
+    "1440px score 备注可点击",
+    "1440px rubric 右侧按钮和备注",
+    "1440px rubric 备注可点击",
+    "1440px routine 右侧按钮和备注",
+    "1440px routine 备注可点击",
+    "320px 演示模式备注位于按钮右侧",
+    "390px 演示模式备注位于按钮右侧",
+    "768px 演示模式备注位于按钮右侧",
+    "1440px 演示模式备注位于按钮右侧",
+    "手机首页两列任务卡",
+    "手机首页无横向溢出",
+    "手机必填学科年级不默认代选",
+    "手机主要输入可见"
+  ],
+  "positions": [
+    {
+      "width": 320,
+      "tool": "score",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "tool": "rubric",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "tool": "routine",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "tool": "score",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "tool": "rubric",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "tool": "routine",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "tool": "score",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "tool": "rubric",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "tool": "routine",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "tool": "score",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "tool": "rubric",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "tool": "routine",
+      "gap": 5,
+      "centerDifference": 0,
+      "rightDifference": 0,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "realModelRequests": 0,
+  "emails": 0,
+  "businessWrites": 0,
+  "note": "读取真实公开页面与文案；隔离浏览器禁用 Service Worker，operations-track 被拦截以避免虚构验收计数；后台自定义标题原样保留。"
+}
