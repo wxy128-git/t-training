@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-25",
+  "origin": "https://ai.teachailab.com",
+  "revision": "dbab84d",
+  "serviceWorker": "20261025-v54-resource-unified",
+  "passed": 36,
+  "errors": [],
+  "viewports": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "layout": [
+    {
+      "width": 320,
+      "columns": 1,
+      "gridHeight": 424,
+      "cardHeight": 64
+    },
+    {
+      "width": 390,
+      "columns": 1,
+      "gridHeight": 424,
+      "cardHeight": 64
+    },
+    {
+      "width": 768,
+      "columns": 2,
+      "gridHeight": 264,
+      "cardHeight": 80
+    },
+    {
+      "width": 1440,
+      "columns": 3,
+      "gridHeight": 172,
+      "cardHeight": 80
+    }
+  ],
+  "verified": [
+    "上下卡片边框、圆角和底色一致",
+    "上下图标底板、尺寸和配色一致",
+    "六张本地 SVG 完整加载、MIME 为 image/svg+xml",
+    "保留紧凑高度、原六链接，文字无截断",
+    "右箭头方向一致",
+    "无横向溢出",
+    "键盘可见焦点及 Tab 顺序",
+    "Service Worker 版本 v54",
+    "脚本错误为零"
+  ],
+  "serviceWorkers": "blocked",
+  "analyticsTrack": "intercepted to avoid synthetic counters",
+  "realModelRequests": 0,
+  "emails": 0,
+  "businessWrites": 0
+}

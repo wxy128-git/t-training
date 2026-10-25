@@ -1,0 +1,149 @@
+{
+  "date": "2026-10-25T08:32:56.347Z",
+  "revision": "dbab84d",
+  "serviceWorker": "20261025-v54-resource-unified",
+  "staticOnly": true,
+  "apiRestarted": false,
+  "nginxChanged": false,
+  "apiSourceFilesUnchanged": 38,
+  "staticFiles": 184,
+  "verifiedFiles": 222,
+  "backupDatabaseBytes": 3785482,
+  "backupGzipVerified": true,
+  "apps": [
+    {
+      "name": "edu-media",
+      "pid": 4180111,
+      "status": "online"
+    },
+    {
+      "name": "t-training-api",
+      "pid": 1259773,
+      "status": "online"
+    }
+  ],
+  "savedApps": [
+    "edu-media",
+    "t-training-api"
+  ],
+  "systemdActive": "active",
+  "systemdEnabled": "enabled",
+  "systemdMainPid": "1091830",
+  "pm2DaemonPid": "1091830",
+  "fullProductionChecks": 170,
+  "guards": {
+    "candidate": {
+      "base": "http://127.0.0.1:3002",
+      "passed": 19,
+      "checks": [
+        "API healthy",
+        "auth validates actions",
+        "auth no-store",
+        "account status requires login",
+        "public tools",
+        "published content",
+        "no drafts exposed",
+        "page copy home",
+        "page copy agents",
+        "page copy research",
+        "workbook requires login",
+        "agent refuses unauthenticated generation",
+        "admin requires login",
+        "privacy requires login",
+        "operations enabled, research paused",
+        "operations summary requires admin",
+        "legacy research stays paused",
+        "RSS allowlist",
+        "logo path validation"
+      ],
+      "realModelRequests": 0,
+      "emails": 0,
+      "businessWrites": 0
+    },
+    "formal": {
+      "base": "http://127.0.0.1:3001",
+      "passed": 19,
+      "checks": [
+        "API healthy",
+        "auth validates actions",
+        "auth no-store",
+        "account status requires login",
+        "public tools",
+        "published content",
+        "no drafts exposed",
+        "page copy home",
+        "page copy agents",
+        "page copy research",
+        "workbook requires login",
+        "agent refuses unauthenticated generation",
+        "admin requires login",
+        "privacy requires login",
+        "operations enabled, research paused",
+        "operations summary requires admin",
+        "legacy research stays paused",
+        "RSS allowlist",
+        "logo path validation"
+      ],
+      "realModelRequests": 0,
+      "emails": 0,
+      "businessWrites": 0
+    },
+    "public": {
+      "base": "https://ai.teachailab.com",
+      "passed": 19,
+      "checks": [
+        "API healthy",
+        "auth validates actions",
+        "auth no-store",
+        "account status requires login",
+        "public tools",
+        "published content",
+        "no drafts exposed",
+        "page copy home",
+        "page copy agents",
+        "page copy research",
+        "workbook requires login",
+        "agent refuses unauthenticated generation",
+        "admin requires login",
+        "privacy requires login",
+        "operations enabled, research paused",
+        "operations summary requires admin",
+        "legacy research stays paused",
+        "RSS allowlist",
+        "logo path validation"
+      ],
+      "realModelRequests": 0,
+      "emails": 0,
+      "businessWrites": 0
+    }
+  },
+  "realModelRequests": 0,
+  "emails": 0,
+  "accountOrWorkWrites": 0,
+  "release": "/home/ubuntu/t-training/releases/20261025-resources-dbab84d",
+  "backup": "/home/ubuntu/t-training/backups/20261025-pre-resources-dbab84d",
+  "deltaFiles": 10,
+  "unchangedFiles": 212,
+  "deltaBytes": 34697,
+  "browserChecks": 36,
+  "browserErrors": 0,
+  "network": {
+    "http2Home200": true,
+    "htmlNoCache": true,
+    "gzip": true,
+    "jsThirtyDayCache": true,
+    "swNoCache": true,
+    "svgMime": true,
+    "svgThirtyDayCache": true,
+    "legacy302": true,
+    "legacyPreservesPathAndQuery": true,
+    "course200": true,
+    "upstreamPort": 3001,
+    "upstreamCounts": [
+      4,
+      4
+    ]
+  },
+  "remoteCleanupVerified": true,
+  "localCleanupVerified": true
+}
