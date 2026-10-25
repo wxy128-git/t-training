@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261025-v51-reviewed';
+const VERSION = '20261025-v54-resource-unified';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -47,6 +47,12 @@ const CORE_ASSETS = [
     '/vendor/phosphor/2.1.2/light/style.css',
     '/vendor/phosphor/2.1.2/light/Phosphor-Light.woff2',
     '/assets/favicon.svg',
+    '/assets/home-resources/learning-path.svg',
+    '/assets/home-resources/articles.svg',
+    '/assets/home-resources/ai-tools.svg',
+    '/assets/home-resources/courseware.svg',
+    '/assets/home-resources/ai-news.svg',
+    '/assets/home-resources/prompts.svg',
     '/assets/pwa/icon-192.png',
     '/assets/pwa/icon-512.png'
 ];

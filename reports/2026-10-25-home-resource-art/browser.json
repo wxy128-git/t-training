@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-25",
+  "status": "local-only-awaiting-user-review",
+  "revision": "shared-phosphor-icon-styles",
+  "serviceWorker": "20261025-v54-resource-unified",
+  "skills": [
+    "frontend-design",
+    "ui-ux-pro-max"
+  ],
+  "passed": 57,
+  "errors": [],
+  "viewports": [
+    320,
+    375,
+    390,
+    600,
+    768,
+    1024,
+    1440
+  ],
+  "verified": [
+    "手机默认折叠与展开",
+    "资源列数与页面无横向溢出",
+    "上下卡片边框、圆角和底色相同",
+    "共享图标底板样式，图形尺寸相同",
+    "箭头方向和尺寸相同",
+    "配套资源使用较小字号和紧凑高度",
+    "六张本地 SVG 完整加载，装饰图不重复朗读",
+    "图标底色来自上方主任务配色",
+    "原六个入口链接保留",
+    "键盘可见焦点及 Tab 顺序",
+    "鼠标悬停不改变卡片尺寸",
+    "减少动态效果偏好",
+    "页面脚本错误为零"
+  ],
+  "layout": [
+    {
+      "width": 320,
+      "columns": 1,
+      "resourceGridHeight": 424,
+      "primaryGridHeight": 451.0625
+    },
+    {
+      "width": 375,
+      "columns": 1,
+      "resourceGridHeight": 424,
+      "primaryGridHeight": 427.6875
+    },
+    {
+      "width": 390,
+      "columns": 1,
+      "resourceGridHeight": 424,
+      "primaryGridHeight": 427.6875
+    },
+    {
+      "width": 600,
+      "columns": 2,
+      "resourceGridHeight": 264,
+      "primaryGridHeight": 416
+    },
+    {
+      "width": 768,
+      "columns": 2,
+      "resourceGridHeight": 264,
+      "primaryGridHeight": 459.4453125
+    },
+    {
+      "width": 1024,
+      "columns": 3,
+      "resourceGridHeight": 172,
+      "primaryGridHeight": 302.296875
+    },
+    {
+      "width": 1440,
+      "columns": 3,
+      "resourceGridHeight": 172,
+      "primaryGridHeight": 302.296875
+    }
+  ],
+  "apiMode": "mocked",
+  "externalRequests": "blocked",
+  "realModelRequests": 0,
+  "emails": 0,
+  "productionWrites": 0
+}
