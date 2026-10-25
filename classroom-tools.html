@@ -470,6 +470,7 @@
         }
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
+    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
 </head>
 <body>
 <div id="main-nav"></div>
@@ -535,8 +536,8 @@
         <div class="ct-stage-bar">
             <button class="ct-back-btn" onclick="ctBack()"><i class="ph ph-arrow-left"></i><span data-site-copy="backAction">返回工具列表</span></button>
             <div class="ct-stage-title" id="ct-stage-title"></div>
-            <button class="ct-fullscreen-btn" onclick="ctToggleFullscreen()" id="ct-fs-btn" aria-pressed="false" aria-describedby="ct-stage-note"><i class="ph ph-arrows-out"></i><span data-site-copy="presentationAction">演示模式</span></button>
-            <p class="ct-stage-note" id="ct-stage-note" data-site-copy="presentationNote">演示模式会隐藏站点导航；再次点击即可退出。</p>
+            <div class="ct-action-note"><button class="ct-fullscreen-btn" onclick="ctToggleFullscreen()" id="ct-fs-btn" aria-pressed="false"><i class="ph ph-arrows-out"></i><span data-site-copy="presentationAction">演示模式</span></button><button type="button" class="ui-note-trigger" data-note-source="ct-stage-note" aria-label="了解演示模式" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div>
+            <p class="ct-stage-note ui-note-source" id="ct-stage-note" data-site-copy="presentationNote">演示模式会隐藏站点导航；再次点击即可退出。</p>
         </div>
         <div id="ct-stage-content"></div>
     </div>
@@ -548,12 +549,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
+<script src="js/ui-notes.js?v=20261025-ux"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
+<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
-    <script src="js/auth.js?v=20261017-sources"></script>
+    <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
@@ -920,10 +922,9 @@ function mountScore(root) {
                     <span class="ct-score-num" id="sc-count"></span>
                     <button class="ct-btn-secondary ct-score-cnt" data-cd="1">＋</button>
                 </div>
-                <button class="ct-btn-secondary" id="sc-reset">分数清零</button>
+                <div class="ct-action-note"><button class="ct-btn-secondary" id="sc-reset">分数清零</button>${UiNotes.button('点击组名可改名；加减分自动保存在本机，领先小组会突出显示。','计分板操作说明')}</div>
             </div>
             <div class="ct-score-grid" id="sc-grid"></div>
-            <p class="ct-seating-hint">点组名可改名 · 加减分自动保存 · 领先组自动突出</p>
         </div>`;
 
     const grid = root.querySelector('#sc-grid');
@@ -1803,10 +1804,9 @@ function mountRubric(root) {
                 </select>
                 <button class="ct-btn-secondary" id="rb-addrow">＋维度</button>
                 <button class="ct-btn-secondary" id="rb-delrow">－维度</button>
-                <button class="ct-btn-secondary" id="rb-print"><i class="ph ph-printer"></i> 打印 / PDF</button>
+                <div class="ct-action-note"><button class="ct-btn-secondary" id="rb-print"><i class="ph ph-printer"></i> 打印 / PDF</button>${UiNotes.button('点击单元格直接编辑，内容自动保存在本机。点击“打印/PDF”可导出。','评价量规操作说明')}</div>
             </div>
             <table class="ct-rb-table" id="rb-table"></table>
-            <p class="ct-seating-hint">点单元格直接编辑 · 自动保存 · 「打印/PDF」导出成稿</p>
         </div>`;
 
     const table = root.querySelector('#rb-table');
@@ -1881,10 +1881,9 @@ function mountRoutine(root) {
                 <button class="ct-rt-tab" data-t="kwl">KWL 表格</button>
                 <button class="ct-rt-tab" data-t="321">3-2-1 反思</button>
                 <button class="ct-rt-tab" data-t="tps">思考·配对·分享</button>
-                <button class="ct-btn-secondary" id="rt-print" style="margin-left:auto"><i class="ph ph-printer"></i> 打印 / PDF</button>
+                <div class="ct-action-note"><button class="ct-btn-secondary" id="rt-print"><i class="ph ph-printer"></i> 打印 / PDF</button>${UiNotes.button('可直接在大屏填写，内容自动保存在本机。点击“打印/PDF”可导出。','课堂活动模板操作说明')}</div>
             </div>
             <div class="ct-rt-grid cols-3" id="rt-grid"></div>
-            <p class="ct-seating-hint">当堂在大屏上填写 · 自动保存 · 「打印/PDF」导出</p>
         </div>`;
 
     const grid = root.querySelector('#rt-grid');
@@ -1917,7 +1916,7 @@ function mountRoutine(root) {
     return () => {};
 }
 </script>
-<script src="js/pwa.js?v=20261012-methods"></script>
-<script src="js/assistant.js?v=20261012-methods"></script>
+<script src="js/pwa.js?v=20261025-ux-reviewed"></script>
+<script src="js/assistant.js?v=20261025-ux-reviewed"></script>
 </body>
 </html>

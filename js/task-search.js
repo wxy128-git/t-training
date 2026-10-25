@@ -1,4 +1,26 @@
 (function (root) {
+    // User-facing tasks, independent of persona names and model instructions.
+    const tasks = Object.freeze({
+        'lesson-design': {title:'备一节课', output:'教案初稿'},
+        'courseware-outline': {title:'制作课件大纲', output:'课件大纲'},
+        'micro-script': {title:'写微课脚本', output:'微课脚本'},
+        'lesson-hook': {title:'设计新课导入', output:'课堂导入方案'},
+        'socratic': {title:'练习启发式提问', output:'提问对话'},
+        'layered-q': {title:'设计课堂提问', output:'分层问题链'},
+        'concept-explainer': {title:'讲清一个概念', output:'概念讲解'},
+        'class-activity': {title:'设计课堂活动', output:'课堂活动方案'},
+        'quiz-gen': {title:'出一份练习', output:'练习初稿'},
+        'homework-grader': {title:'批改作业', output:'批改建议'},
+        'essay-review': {title:'评改作文', output:'作文评改建议'},
+        'exam-paper': {title:'组一份试卷', output:'试卷初稿'},
+        'error-diagnosis': {title:'分析学生错题', output:'错因诊断'},
+        'parent-comm': {title:'准备家校沟通', output:'沟通话术'},
+        'student-comment': {title:'写学生评语', output:'学生评语'},
+        'class-meeting': {title:'设计主题班会', output:'班会方案'},
+        'heart-talk': {title:'准备学生谈心', output:'谈心建议'},
+        'teaching-reflection': {title:'写教学反思', output:'教学反思初稿'},
+        'lesson-observe': {title:'整理听评课记录', output:'听评课记录'}
+    });
     const aliases = {
         'lesson-design': ['教案', '备课', '教学设计', '设计一节课'],
         'courseware-outline': ['课件', 'ppt', '演示稿', '幻灯片'],
@@ -30,5 +52,5 @@
         const core = q.replace(/请|帮我|帮忙|我想|我要|需要|设计|生成|制作|一场|一份|一个|一些|怎样|怎么|如何|的|吧|一下/g, '').trim();
         return core.length >= 2 && text.includes(core) ? 10 : 0;
     }
-    root.TaskSearch = { score };
+    root.TaskSearch = { score, tasks };
 })(globalThis);

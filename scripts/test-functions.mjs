@@ -28,7 +28,7 @@ try {
     globalThis.window = globalThis;
     await importSource('js/site-copy.js');
     const homeDefaults = globalThis.SiteCopy.defaults('home');
-    assert(homeDefaults.heroAccent === 'AI' && homeDefaults.taskHeading === '今天要完成什么？', '首页默认文案不完整');
+    assert(homeDefaults.heroAccent === 'AI' && homeDefaults.taskHeading === '教学任务', '首页默认文案不完整');
     assert(Object.keys(globalThis.SiteCopy.definitions).length === 13 && globalThis.SiteCopy.defaults('classroom').routineName === '课堂活动模板', '全站页面文案定义不完整');
     const pageFiles = { home:'index.html', classroom:'classroom-tools.html' };
     for (const [pageId, definition] of Object.entries(globalThis.SiteCopy.definitions)) {
@@ -39,6 +39,15 @@ try {
         assert(missingKeys.length === 0, `${pageId} 页面未使用文案字段：${missingKeys.join(', ')}`);
     }
     assert(globalThis.SiteCopy.normalize('home', { fields: { heroTitle: '' } }).heroTitle === homeDefaults.heroTitle, '无效后台文案未回退到本地默认值');
+    assert(homeDefaults.heroTitle === '让 AI 真正走进你的课堂', '首页原始标题未恢复');
+    assert(globalThis.SiteCopy.normalize('home', {heroTitle:'今天，想用 AI 完成什么？'}).heroTitle === homeDefaults.heroTitle, '已否决的首页默认标题未恢复');
+    assert(globalThis.SiteCopy.normalize('agents', {heroTitle:'你想完成哪项教学任务？'}).heroTitle === '和一位懂教学的数字成员一起工作', '已否决的智能体列表标题未恢复');
+    assert(globalThis.SiteCopy.normalize('research', {heroTitle:'从你的研究任务开始',funnelAction:'梳理研究问题'}).funnelAction === '聚焦结果 + 五种结构的标题 →', '科研角色入口原文未恢复');
+    assert(globalThis.SiteCopy.normalize('agents', {heroTitle:'管理员自己的团队标题'}).heroTitle === '管理员自己的团队标题', '自定义团队标题被恢复操作覆盖');
+    assert(globalThis.SiteCopy.normalize('multimodal', {heroTitle:'教学素材案例',heroAccent:'素材'}).heroTitle === '多模态工作坊', '多模态默认标题未按核对恢复');
+    assert(globalThis.SiteCopy.normalize('multimodal', {heroTitle:'管理员的素材页面',heroAccent:'素材'}).heroAccent === '素材', '自定义标题的强调词被恢复操作覆盖');
+    assert(globalThis.SiteCopy.validate('multimodal', {...globalThis.SiteCopy.defaults('multimodal'),heroTitle:'管理员的素材页面',heroAccent:'素材'}).ok, '合法自定义标题在恢复默认值后无法保存');
+    assert(globalThis.SiteCopy.normalize('home', {heroTitle:'管理员的自定义首页 AI'}).heroTitle === '管理员的自定义首页 AI', '自定义首页文案被覆盖');
     assert(globalThis.SiteCopy.validate('home', { ...homeDefaults, heroAccent: '课堂外' }).ok === false, '标题强调词校验未生效');
     const researchDefaults = globalThis.SiteCopy.defaults('research');
     assert(globalThis.SiteCopy.definitions.research.fields.length <= 300, '科研文案超过科研保存字段上限');

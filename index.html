@@ -380,8 +380,9 @@
         @media(max-width:560px){.th-callout{padding:18px;align-items:flex-start}.th-callout-copy>span{font-size:13px}}
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
+    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
 </head>
-<body>
+<body class="ux-home">
 <div id="main-nav"></div>
 
 <main id="main-content">
@@ -391,14 +392,10 @@
                 <div class="th-hero-main">
                     <div class="th-eyebrow" data-site-copy="heroEyebrow">教师 AI 教学实践平台</div>
                     <h1 data-site-copy-headline="heroTitle" data-site-copy-accent="heroAccent">让<span>AI</span>真正走进你的课堂</h1>
-                    <p class="th-hero-copy" data-site-copy="heroIntro">从真实教学任务出发，填写背景并获得可编辑初稿；重要事实与课堂适配由教师核验。</p>
-                    <div class="th-hero-actions">
-                        <a class="th-btn primary" href="#task-start"><i class="ph ph-play-circle"></i><span data-site-copy="primaryAction">选择教学任务</span></a>
-                        <a class="th-btn" id="th-personal-link" href="/workspace"><i class="ph ph-notebook"></i>打开我的备课本</a>
-                    </div>
+                    <p class="th-hero-copy" data-site-copy="heroIntro">选一个任务，开始准备你的教学内容。</p>
                     <div class="th-resume" id="th-resume" aria-live="polite">
                         <span class="th-resume-icon"><i class="ph ph-clock-counter-clockwise"></i></span>
-                        <div class="th-resume-copy"><small>CONTINUE WORK</small><b id="th-resume-title"></b><span id="th-resume-meta"></span></div>
+                        <div class="th-resume-copy"><small>继续上次任务</small><b id="th-resume-title"></b><span id="th-resume-meta"></span></div>
                         <a class="th-resume-link" id="th-resume-link" href="/agents"><span>继续</span><i class="ph ph-arrow-right"></i></a>
                     </div>
                 </div>
@@ -408,12 +405,17 @@
         <section class="th-section" id="task-start">
             <div class="th-shell">
                 <div class="th-section-head">
-                    <div><h2 data-site-copy="taskHeading">今天要完成什么？</h2></div>
+                    <div><h2 data-site-copy="taskHeading">教学任务</h2></div>
                 </div>
                 <div class="th-task-grid" id="th-task-grid"></div>
-            <a class="th-callout" href="/research">
+                <div class="th-task-extra">
+                    <a class="ui-action-link" href="/agents"><i class="ph ph-squares-four" aria-hidden="true"></i><span data-site-copy="primaryAction">全部任务</span></a>
+                    <a class="ui-action-link" href="/classroom-tools" aria-label="课堂工具：倒计时、点名、计分"><i class="ph ph-chalkboard-teacher" aria-hidden="true"></i>课堂工具</a>
+                    <a class="ui-action-link" id="th-personal-link" href="/workspace"><i class="ph ph-notebook" aria-hidden="true"></i>我的备课本</a>
+                </div>
+            <a class="th-callout" href="/research" aria-label="科研写作：聚焦问题、研读文献、设计问卷">
                 <span class="th-callout-icon"><i class="ph ph-flask" aria-hidden="true"></i></span>
-                <span class="th-callout-copy"><b>新板块 · 科研写作</b><span>把教学困扰聚焦成研究问题，读文献、定方法、做工具。AI 追问与整理，判断由你来做。</span></span>
+                <span class="th-callout-copy"><b>科研写作</b><span>聚焦问题、研读文献、设计问卷</span></span>
                 <i class="ph ph-arrow-right" aria-hidden="true"></i>
             </a>
                 <details class="th-task-closure th-mobile-secondary">
@@ -462,21 +464,22 @@
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
+<script src="js/ui-notes.js?v=20261025-ux"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
+<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
-    <script src="js/auth.js?v=20261017-sources"></script>
+    <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
 <script src="js/operations-policy.js?v=20261017-sources"></script>
 <script src="js/operations-analytics.js?v=20261017-sources"></script>
-<script src="js/pwa.js?v=20261012-methods"></script>
-<script src="js/assistant.js?v=20261012-methods"></script>
-<script src="js/agents-data.js?v=20260922-teaching-quality"></script>
+<script src="js/pwa.js?v=20261025-ux-reviewed"></script>
+<script src="js/assistant.js?v=20261025-ux-reviewed"></script>
+<script src="js/task-search.js?v=20261025-ux-reviewed"></script>
 <script src="js/teaching-projects.js?v=20260924-local-email-direct"></script>
 <script>
 renderNav('index');
@@ -529,10 +532,10 @@ function renderHomeContinuation() {
         box.classList.remove('active');
         return;
     }
-    const agent = (window.AGENTS || []).find(item => item.id === draft?.agentId);
+    const taskName = TaskSearch.tasks[draft?.agentId]?.title || '教学任务';
     const context = project ? [project.grade, project.subject, project.topic].filter(Boolean).join(' · ') : '';
-    document.getElementById('th-resume-title').textContent = project?.title || `${agent?.name || '智能体'}未完成草稿`;
-    document.getElementById('th-resume-meta').textContent = [context, draft ? `${agent?.name || '任务'}草稿已自动保存` : '继续当前教学项目'].filter(Boolean).join(' · ');
+    document.getElementById('th-resume-title').textContent = project?.title || `草稿：${taskName}`;
+    document.getElementById('th-resume-meta').textContent = [context, draft ? '输入和初稿已保存在本机' : '继续当前教学项目'].filter(Boolean).join(' · ');
     const link = document.getElementById('th-resume-link');
     link.href = draft?.agentId ? `/agents#${encodeURIComponent(draft.agentId)}` : '/agents#lesson-design';
     link.querySelector('span').textContent = draft ? '恢复草稿' : '继续项目';
@@ -567,11 +570,6 @@ try {
 syncHomeDetailsToggle();
 
 (function renderHomeWorkbench() {
-    const agents = window.AGENTS || [];
-    const agentMap = Object.fromEntries(agents.map(agent => [agent.id, agent]));
-    const count = agents.length || 19;
-    document.querySelectorAll('.th-agent-count').forEach(element => { element.textContent = count; });
-
     const taskConfigs = [
         { id: 'lesson-design', title: '备一节课', output: '完整教学设计', kind: '备课设计', icon: 'ph-blueprint', color: '#287a68', soft: '#e5f2ef' },
         { id: 'quiz-gen', title: '设计练习与检测', output: '题目、答案与解析', kind: '作业评价', icon: 'ph-exam', color: '#245b78', soft: '#e7f0f5' },
@@ -583,13 +581,11 @@ syncHomeDetailsToggle();
 
     const taskGrid = document.getElementById('th-task-grid');
     taskGrid.innerHTML = taskConfigs.map(config => {
-        const agent = agentMap[config.id] || {};
-        const description = agent.desc || '进入相应工作台，按步骤完成任务。';
         return `<a class="th-task" href="/agents#${config.id}" style="--task-color:${config.color};--task-soft:${config.soft}">
             <div class="th-task-top"><span class="th-task-icon"><i class="ph ${config.icon}"></i></span><span class="th-task-kind">${config.kind}</span></div>
-            <h3>${config.title}</h3>
-            <p>${homeEscape(description)}</p>
-            <div class="th-task-output"><span>输出：${config.output}</span><i class="ph ph-arrow-right"></i></div>
+            <h3>${TaskSearch.tasks[config.id]?.title || config.title}</h3>
+
+            <div class="th-task-output"><span>${config.output}</span><i class="ph ph-arrow-right"></i></div>
         </a>`;
     }).join('');
 

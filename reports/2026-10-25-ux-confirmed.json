@@ -1,0 +1,564 @@
+{
+  "title": "教师培训网站修改核对",
+  "date": "2026-10-25",
+  "source": "用户在对话中提交的核对结果",
+  "summary": {
+    "reviewed": 54,
+    "total": 73,
+    "adopted": 39,
+    "reverted": 14,
+    "adjusted": 1,
+    "pending": 19
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "顶部“智能体空间”改为“教学助手”。",
+      "group": "全站导航",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "2",
+      "text": "顶部“多模态工作坊”改为“素材案例”，对应页面标题改为“教学素材案例”。",
+      "group": "全站导航",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "3",
+      "text": "顶部“科研”改为“科研写作”。",
+      "group": "全站导航",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "4",
+      "text": "顶部“资源”改为“学习资源”。",
+      "group": "全站导航",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "5",
+      "text": "页脚和安装版应用中的对应入口名称同步调整。",
+      "group": "全站导航",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "6",
+      "text": "大标题改为“今天，想用 AI 完成什么？”。",
+      "group": "首页",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "7",
+      "text": "简介缩短为“选一个任务，开始准备你的教学内容。”",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "8",
+      "text": "缩小介绍区的高度，让教学任务更靠前。",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "9",
+      "text": "六张任务卡删除长段介绍，只保留任务名和预期成果。",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "10",
+      "text": "任务卡改成分开的紧凑卡片；手机上保持两列。",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "11",
+      "text": "任务区下方集中放置“全部任务”“课堂工具”“我的备课本”三个入口。",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "12",
+      "text": "科研入口缩短为“科研写作”，说明改为“聚焦问题、研读文献、设计问卷”。",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "13",
+      "text": "恢复草稿提示改成中文；只浏览空白工作台，不再被记录成一项“未完成任务”。",
+      "group": "首页",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "14",
+      "text": "页面标题改为“你想完成哪项教学任务？”。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "15",
+      "text": "原来右侧的团队概况收进备注。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "16",
+      "text": "人物卡改成“左侧小肖像＋右侧任务文字”，缩小图片占用；桌面两列，手机一列。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "17",
+      "text": "卡片主标题改成任务名称，原来的角色名称保留在次要位置。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "17.1",
+      "text": "教学设计助手 → 备一节课",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.2",
+      "text": "课件大纲生成 → 制作课件大纲",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.3",
+      "text": "微课脚本撰写 → 写微课脚本",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.4",
+      "text": "情境导入设计 → 设计新课导入",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.5",
+      "text": "苏格拉底助手 → 练习启发式提问",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.6",
+      "text": "分层提问设计 → 设计课堂提问",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.7",
+      "text": "概念解释器 → 讲清一个概念",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.8",
+      "text": "课堂活动设计 → 设计课堂活动",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.9",
+      "text": "智能出题 → 出一份练习",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.10",
+      "text": "作业批改助手 → 批改作业",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.11",
+      "text": "作文评改 → 评改作文",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.12",
+      "text": "单元组卷 → 组一份试卷",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.13",
+      "text": "错题诊断 → 分析学生错题",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.14",
+      "text": "家校沟通助手 → 准备家校沟通",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.15",
+      "text": "学生评语生成 → 写学生评语",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.16",
+      "text": "主题班会设计 → 设计主题班会",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.17",
+      "text": "学生谈心顾问 → 准备学生谈心",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.18",
+      "text": "教学反思助手 → 写教学反思",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "17.19",
+      "text": "听评课助手 → 整理听评课记录",
+      "group": "逐个入口名称",
+      "decision": "",
+      "note": "",
+      "implementedDecision": "revert",
+      "implementationBasis": "主项 17 恢复原样；该子项未独立核对"
+    },
+    {
+      "id": "18",
+      "text": "隐藏卡片上的“AI 智能体”“建议起点”等角标，以及人物悬停开场白。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "19",
+      "text": "“团队总览”“推荐成员”“查看成员”等文字，调整为“常用任务”“查看任务”等。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "20",
+      "text": "部门目录隐藏重复的小头像预览，按“几项任务”显示数量。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "21",
+      "text": "搜索同步识别新的任务名称，搜索结果和无结果提示也改为任务语义。",
+      "group": "教学助手列表",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "22",
+      "text": "工作台主标题使用任务名称，角色名称放在上方小字中；角色介绍收进标题旁的备注。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "23",
+      "text": "步骤文字改为“填写信息 → 生成初稿 → 检查与保存”。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "24",
+      "text": "“任务简报”改为“填写教学信息”；结果区标题改成“教案初稿”“练习初稿”等具体成果名。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "25",
+      "text": "课题等短内容改回单行输入，不再默认使用大文本框。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "26",
+      "text": "“展开全部参数”改为“补充信息（可选）”；必填项保持在展开区域之外。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "27",
+      "text": "必填下拉框先显示“选择学科”“选择年级”等，不再直接替老师选第一项；已有背景和草稿仍可恢复。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "28",
+      "text": "字段补充解释移到备注，选填字段用简短的“选填”标记。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "29",
+      "text": "空结果区不再重复展示尚未填写的任务摘要。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "30",
+      "text": "必填校验改为就近显示错误，并按页面上的先后顺序聚焦；选择题型后立即清除对应错误。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "31",
+      "text": "手写作业模板的两个按钮合并为“填入整理模板”，只填空白项，避免覆盖已有文字。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "32",
+      "text": "生成中的按钮和等待说明缩短；手机点击生成后，自动把结果区域带到视野中。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "33",
+      "text": "本机草稿提示明确标注“本机”，原来的云朵图标改为设备图标。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "34",
+      "text": "“保存到备课本”按钮突出显示；成功后出现“查看已保存成果”链接。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "35",
+      "text": "保存失败时在结果区显示原因和保留状态；编辑初稿后撤下旧的“保存成功”提示。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "36",
+      "text": "人工核验的长说明和每项标准的解释收进备注；底部保留“AI 初稿，使用前请核对”。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "37",
+      "text": "尚未调用模型时，隐藏“智能体路由”标识；实际模型信息仍会在生成后显示。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "38",
+      "text": "压缩手机工作台顶部，隐藏手机上的工作台头像；进入工作区后隐藏悬浮帮助按钮，避免遮挡操作。",
+      "group": "教学工作台",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "39",
+      "text": "标题改为“从你的研究任务开始”，简介缩短。",
+      "group": "科研写作",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "40",
+      "text": "四个入口以“梳理研究问题”“生成文献精读卡”“制定研究方案”“设计问卷、访谈或观察表”为主标题。",
+      "group": "科研写作",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "41",
+      "text": "缩小人物图片区，角色名称保留；每位伙伴的介绍放入对应备注。",
+      "group": "科研写作",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "42",
+      "text": "原来排在功能之前的三块原则说明收进“使用说明”；学生个人信息提醒仍直接显示。",
+      "group": "科研写作",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "43",
+      "text": "未登录时也显示“我的文献卡片夹”入口；保存仍需登录。",
+      "group": "科研写作",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "44",
+      "text": "进入科研工作区后隐藏悬浮帮助按钮。",
+      "group": "科研写作",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "45",
+      "text": "页面增加“新建教学任务”入口。",
+      "group": "我的备课本",
+      "decision": "revert",
+      "note": ""
+    },
+    {
+      "id": "46",
+      "text": "空备课本增加“备一节课”和“开始科研写作”入口。",
+      "group": "我的备课本",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "47",
+      "text": "筛选结果为空时，增加直接“清除筛选”的按钮。",
+      "group": "我的备课本",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "48",
+      "text": "目录／活页切换按钮增加文字和选中状态。",
+      "group": "我的备课本",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "49",
+      "text": "从保存成功的链接进入时，直接打开对应成果；成果弹窗打开后隐藏悬浮帮助按钮。",
+      "group": "我的备课本",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "50",
+      "text": "演示模式、计分板、评价量规、课堂活动模板的补充说明改为备注。",
+      "group": "课堂工具、提示词与通用备注",
+      "decision": "adjust",
+      "note": "按钮的位置还是放在右侧，把备注符号放在按钮的右侧"
+    },
+    {
+      "id": "51",
+      "text": "社区提示词的“使用说明”改为备注。",
+      "group": "课堂工具、提示词与通用备注",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "52",
+      "text": "新备注统一支持鼠标悬停、键盘聚焦和手机点击。",
+      "group": "课堂工具、提示词与通用备注",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "53",
+      "text": "备注支持再次点击、点击外部或按 Esc 关闭，并限制在屏幕范围内。",
+      "group": "课堂工具、提示词与通用备注",
+      "decision": "adopt",
+      "note": ""
+    },
+    {
+      "id": "54",
+      "text": "原有科研备注与新备注协调关闭，避免两个提示同时遮挡页面。",
+      "group": "课堂工具、提示词与通用备注",
+      "decision": "adopt",
+      "note": ""
+    }
+  ]
+}

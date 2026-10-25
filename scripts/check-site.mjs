@@ -39,12 +39,13 @@ for (const file of publicPages) {
 
 for (const file of appPages) {
     const html = text(file);
+    if (!html.includes('css/ux.css?v=20261025-ux-reviewed') || !html.includes('js/ui-notes.js?v=20261025-ux')) fail(file, '任务与备注资源版本未统一');
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
     const styleVersion = '20261006-research-nav';
     if (!new RegExp(`css/style\\.css\\?v=${styleVersion}`).test(html)) fail(file, '样式缓存版本未统一');
     if (!/js\/firebase-config\.js\?v=20260924-local-email-direct/.test(html)) fail(file, 'Firebase 配置缓存版本未统一');
-    if (!/js\/auth\.js\?v=20261017-sources/.test(html)) fail(file, '认证脚本缓存版本未统一');
-    if (!new RegExp('js/assistant\\.js\\?v='+(file==='agents.html'?'20261006-research':'20261012-methods')).test(html)) fail(file, '网站向导缓存版本未统一');
+    if (!/js\/auth\.js\?v=20261025-ux-reviewed/.test(html)) fail(file, '认证脚本缓存版本未统一');
+    if (!new RegExp('js/assistant\\.js\\?v=20261025-ux-reviewed').test(html)) fail(file, '网站向导缓存版本未统一');
     if (!/js\/account-policy\.js\?v=20260924-local-email-direct/.test(html)
         || !/js\/email-gate\.js\?v=20260924-local-email-direct/.test(html)
         || html.indexOf('js/account-policy.js') > html.indexOf('js/firebase-config.js')
@@ -57,7 +58,7 @@ for (const file of dataPages) {
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!new RegExp('js/site-copy\\.js\\?v=20261014-coach-six-rounds').test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!new RegExp('js/site-copy\\.js\\?v=20261025-ux-reviewed').test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -83,7 +84,7 @@ for (const file of pwaPages) {
     if (!/display-mode:\s*standalone/.test(html)) fail(file, '缺少安装态首帧识别');
     if (!/<meta\s+name="mobile-web-app-capable"\s+content="yes">/i.test(html)) fail(file, '缺少标准移动 Web App 声明');
     if (!/css\/pwa\.css\?v=20260924-local-email-direct/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
-    if (!new RegExp('js/pwa\\.js\\?v='+(file==='agents.html'?'20261006-research':'20261012-methods')).test(html)) fail(file, 'PWA 脚本缓存版本未统一');
+    if (!new RegExp('js/pwa\\.js\\?v=20261025-ux-reviewed').test(html)) fail(file, 'PWA 脚本缓存版本未统一');
 }
 
 const pwaSource = text('js/pwa.js');
@@ -138,16 +139,16 @@ if (!/class="agent-directory"/.test(agentsHtml) || !/function departmentHtml/.te
     fail('agents.html', '智能体部门目录或全部成员入口未接入');
 }
 if (/agent-roster-list|HERO_ROSTER|renderHeroRoster/.test(agentsHtml)) fail('agents.html', '默认页仍保留重复的人物在席墙');
-if (!/AGENT_BRIEF_PRIMARY_KEYS/.test(agentsHtml) || !/教学任务描述/.test(agentsHtml) || !/展开全部参数/.test(agentsHtml)) {
+if (!/AGENT_BRIEF_PRIMARY_KEYS/.test(agentsHtml) || !/这节课的课题/.test(agentsHtml) || !/补充信息（可选）/.test(agentsHtml)) {
     fail('agents.html', '数字成员工作台未接入任务简报或渐进参数');
 }
 if (!/id="ws-presence"/.test(agentsHtml) || !/function setAgentWorkStage/.test(agentsHtml) || !/生成\$\{agentDeliverable\(agent\)\}/.test(agentsHtml)) {
     fail('agents.html', '数字成员工作阶段或成员化操作未接入');
 }
-if (!/教学设计助手的交付/.test(agentsHtml) && !/\$\{escapeHtml\(a\.name\)\}的交付/.test(agentsHtml)) {
+if (!/escapeHtml\(a\.name\)/.test(agentsHtml) || !/id="ws-cat"/.test(agentsHtml) || !/escapeHtml\(deliverable\)/.test(agentsHtml)) {
     fail('agents.html', '数字成员交付区缺少成员归属');
 }
-if (!/AI 交付的是初稿/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
+if (!/AI 初稿，使用前请核对/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
 for (const [pattern, label] of [
     [/题量是所有题型合计总数/, '出题总题量约束'],
     [/不能保留错误原题再附“修正说明”/, '组卷自检修正约束'],
@@ -177,7 +178,7 @@ if (!/curriculum-guard\.js/.test(agentApiSource) || !/enforceCurriculumGate/.tes
 }
 const workspaceHtml = text('workspace.html');
 const researchHtml = text('research.html');
-for (const [name, version] of [['research-core','20261014-coach-six-rounds'], ['research-data','20261014-coach-six-rounds'], ['research-presentation','20261008-reading-ui'], ['agent-stream','20261017-sources']]) {
+for (const [name, version] of [['research-core','20261014-coach-six-rounds'], ['research-data','20261014-coach-six-rounds'], ['research-presentation','20261025-ux'], ['agent-stream','20261017-sources']]) {
     if (!researchHtml.includes(`js/${name}.js?v=${version}`)) fail('research.html', `${name} 当前版本缺失`);
 }
 for (const name of ['research-core', 'research-data']) {
@@ -212,16 +213,16 @@ if (!/localApiModules/.test(previewServerSource) || !/\/api\/auth-proxy/.test(pr
 const pathsHtml = text('paths.html');
 if (!/PATH_PROGRESS_PREFIX/.test(pathsHtml) || !/step-complete-btn/.test(pathsHtml) || !/path-continue/.test(pathsHtml)) fail('paths.html', '学习路径续学或完成进度功能不完整');
 const offlineHtml = text('offline.html');
-if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20261012-methods/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
+if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20261025-ux-reviewed/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261017-v49/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261025-v51-reviewed/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }
 for (const module of ['agent-stream', 'task-search']) {
-    if (!agentsHtml.includes(`js/${module}.js?v=${module==='agent-stream'?'20261017-sources':'20260924-local-email-direct'}`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
+    if (!agentsHtml.includes(`js/${module}.js?v=${module==='agent-stream'?'20261017-sources':module==='task-search'?'20261025-ux-reviewed':'20260924-local-email-direct'}`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
 }
 
 const loginTransitionSource = text('js/auth.js');

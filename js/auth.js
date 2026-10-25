@@ -418,7 +418,7 @@ function renderNav(currentPage) {
         { key:'index',     href:'/',    label:'首页' },
         { key:'agents',    href:'/agents',   label:'智能体空间' },
         { key:'multimodal', href:'/multimodal', label:'多模态工作坊', icon:'ph ph-images-square' },
-        { key:'research', href:'/research', label:'科研', icon:'ph ph-flask' },
+        { key:'research', href:'/research', label:'科研写作', icon:'ph ph-flask' },
         { key:'classroom', href:'/classroom-tools', label:'课堂工具' }
     ];
     const resourcePages = [
@@ -433,7 +433,7 @@ function renderNav(currentPage) {
     const navAnchor = (p, extraClass = '') => {
         const feature = p.key === 'agents' ? ' nav-feature' : '';
         const icon = p.icon ? `<i class="${p.icon}"></i>` : (p.key === 'agents' ? '<i class="ph-fill ph-sparkle"></i>' : '');
-        return `<a href="${p.href}" class="nav-link${feature}${extraClass ? ` ${extraClass}` : ''}${p.key === currentPage ? ' active' : ''}">${icon}${p.label}</a>`;
+        return `<a href="${p.href}" class="nav-link${feature}${extraClass ? ` ${extraClass}` : ''}${p.key === currentPage ? ' active' : ''}"${p.key === currentPage ? ' aria-current="page"' : ''}>${icon}${p.label}</a>`;
     };
     const primaryLinks = primaryPages.map(p => navAnchor(p)).join('');
     const workbookPage = { key:'workspace', href:'/workspace', label:'备课本', icon:'ph ph-notebook' };
@@ -443,14 +443,14 @@ function renderNav(currentPage) {
     const workbookDrawerLink = user ? navAnchor({ ...workbookPage, label:'我的备课本' }, 'nav-workbook') : '';
     const resourceActive = resourcePages.some(p => p.key === currentPage);
     const resourceItems = resourcePages.map(p => `
-        <a href="${p.href}" class="nav-dropdown-item${p.key === currentPage ? ' active' : ''}">
+        <a href="${p.href}" class="nav-dropdown-item${p.key === currentPage ? ' active' : ''}"${p.key === currentPage ? ' aria-current="page"' : ''}>
             <i class="${p.icon}"></i>
             <span>${p.label}</span>
         </a>`).join('');
     const resourceMenu = `
         <div class="nav-group" id="resource-nav-group">
             <button type="button" class="nav-link nav-dropdown-trigger${resourceActive ? ' active' : ''}" aria-haspopup="true" aria-expanded="false" onclick="toggleResourceMenu(event)">
-                资源 <i class="ph ph-caret-down"></i>
+                学习资源 <i class="ph ph-caret-down"></i>
             </button>
             <div class="nav-dropdown-menu" role="menu">${resourceItems}</div>
         </div>`;

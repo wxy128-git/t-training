@@ -10,11 +10,11 @@
                 { key: 'heroEyebrow', label: '首屏眉题', maxLength: 40, defaultValue: '教师 AI 教学实践平台' },
                 { key: 'heroTitle', label: '首屏标题', maxLength: 50, defaultValue: '让 AI 真正走进你的课堂' },
                 { key: 'heroAccent', label: '标题强调词', maxLength: 12, defaultValue: 'AI', help: '必须是首屏标题中出现的文字。' },
-                { key: 'heroIntro', label: '首屏简介', maxLength: 140, rows: 3, defaultValue: '从真实教学任务出发，填写背景并获得可编辑初稿；重要事实与课堂适配由教师核验。' },
-                { key: 'primaryAction', label: '主要按钮', maxLength: 24, defaultValue: '选择教学任务' },
-                { key: 'workbookActionGuest', label: '备课本按钮（未登录）', maxLength: 24, defaultValue: '打开我的备课本' },
-                { key: 'workbookActionMember', label: '备课本按钮（已登录）', maxLength: 24, defaultValue: '继续我的备课' },
-                { key: 'taskHeading', label: '任务区标题', maxLength: 40, defaultValue: '今天要完成什么？' },
+                { key: 'heroIntro', label: '首屏简介', maxLength: 140, rows: 3, defaultValue: '选一个任务，开始准备你的教学内容。' },
+                { key: 'primaryAction', label: '主要按钮', maxLength: 24, defaultValue: '全部任务' },
+                { key: 'workbookActionGuest', label: '备课本按钮（未登录）', maxLength: 24, defaultValue: '我的备课本' },
+                { key: 'workbookActionMember', label: '备课本按钮（已登录）', maxLength: 24, defaultValue: '我的备课本' },
+                { key: 'taskHeading', label: '任务区标题', maxLength: 40, defaultValue: '教学任务' },
                 { key: 'checklistHeading', label: '核验区标题', maxLength: 30, defaultValue: '使用前核验' },
                 { key: 'checklistAction', label: '核验区展开文字', maxLength: 20, defaultValue: '查看 4 项' },
                 { key: 'resourcesHeading', label: '资源区标题', maxLength: 40, defaultValue: '学习与配套资源' }
@@ -515,7 +515,7 @@
                 { key: 'searchPlaceholder', label: '搜索框提示', maxLength: 60, defaultValue: '查找课题、项目或智能体' },
                 { key: 'sortLabel', label: '排序标题', maxLength: 16, defaultValue: '目录排序' },
                 { key: 'loginPrompt', label: '登录提示', maxLength: 60, defaultValue: '登录后即可查看你保存的备课内容' },
-                { key: 'loginAction', label: '登录按钮', maxLength: 20, defaultValue: '登录 / 注册' },
+                { key: 'loginAction', label: '登录按钮', maxLength: 20, defaultValue: '登录查看' },
                 { key: 'filterAll', label: '全部筛选', maxLength: 16, defaultValue: '全部' },
                 { key: 'filterDraft', label: '文稿筛选', maxLength: 20, defaultValue: '生成文稿' },
                 { key: 'filterChat', label: '对话筛选', maxLength: 20, defaultValue: '对话记录' },
@@ -534,7 +534,7 @@
                 { key: 'moreActions', label: '更多操作', maxLength: 16, defaultValue: '更多操作' },
                 { key: 'clearFilters', label: '清除筛选按钮', maxLength: 20, defaultValue: '清除筛选' },
                 { key: 'emptyTitle', label: '空备课本标题', maxLength: 30, defaultValue: '备课本还是空的' },
-                { key: 'emptyHint', label: '空备课本提示', maxLength: 80, defaultValue: '在智能体空间保存成果后会显示在这里。' }
+                { key: 'emptyHint', label: '空备课本提示', maxLength: 80, defaultValue: '先完成一项教学任务，再将初稿保存到这里。' }
             ])
         })
     });
@@ -548,6 +548,110 @@
         if (!definition) return {};
         return Object.fromEntries(definition.fields.map(field => [field.key, field.defaultValue]));
     }
+
+    const UX_LEGACY_DEFAULTS = {
+    "multimodal": {
+        "heroTitle": [
+            "多模态工作坊",
+            "教学素材案例"
+        ],
+        "heroAccent": [
+            "工作坊",
+            "素材"
+        ]
+    },
+    "home": {
+        "workbookActionGuest": "打开我的备课本",
+        "heroTitle": [
+            "让 AI 真正走进你的课堂",
+            "今天，想用 AI 完成什么？"
+        ],
+        "heroIntro": "从真实教学任务出发，填写背景并获得可编辑初稿；重要事实与课堂适配由教师核验。",
+        "primaryAction": "选择教学任务",
+        "workbookActionMember": "继续我的备课",
+        "taskHeading": "今天要完成什么？"
+    },
+    "agents": {
+        "heroTitle": [
+            "和一位懂教学的数字成员一起工作",
+            "你想完成哪项教学任务？"
+        ],
+        "heroIntro": [
+            "他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。",
+            "选择任务，填写信息，获得可编辑的初稿。"
+        ],
+        "overviewFilter": [
+            "团队总览",
+            "常用任务"
+        ],
+        "recommendedHeading": [
+            "推荐成员",
+            "常用任务"
+        ],
+        "directoryHeading": [
+            "按教研部门找到合适成员",
+            "更多教学任务"
+        ],
+        "directoryIntro": [
+            "每个部门只处理一组相近任务，进入后再选择具体成员。",
+            "按任务类型选择，再进入对应的工作台。人物是独立虚构的 AI 伙伴形象。"
+        ],
+        "departmentAction": [
+            "查看成员",
+            "查看任务"
+        ],
+        "allMembersAction": [
+            "查看全部 19 位成员",
+            "全部 19 项任务"
+        ],
+        "memberAction": [
+            "开始协作",
+            "开始使用"
+        ],
+        "memberCountUnit": [
+            "位数字成员",
+            "项教学任务"
+        ],
+        "emptyMessage": [
+            "没有匹配的智能体，换个关键词试试",
+            "没有找到相关任务，换个关键词试试"
+        ]
+    },
+    "research": {
+        "heroKicker": [
+            "科研写作 · RESEARCH WRITING",
+            "科研写作"
+        ],
+        "heroTitle": [
+            "把教学困扰，变成能研究的问题",
+            "从你的研究任务开始"
+        ],
+        "heroIntro": [
+            "面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、给设计建议和审查工具；选题、方法、判断和结论由你来做。",
+            "聚焦问题、研读文献、设计研究和工具。"
+        ],
+        "funnelAction": [
+            "聚焦结果 + 五种结构的标题 →",
+            "梳理研究问题"
+        ],
+        "readingAction": [
+            "十栏精读卡 + 卡片夹 CSV →",
+            "生成文献精读卡"
+        ],
+        "designAction": [
+            "方法选择 + 一页纸研究设计 →",
+            "制定研究方案"
+        ],
+        "instrumentAction": [
+            "问卷 · 访谈提纲 · 观察记录表 →",
+            "设计问卷、访谈或观察表"
+        ]
+    },
+    "workspace": {
+        "loginAction": "登录 / 注册",
+        "emptyHint": "在智能体空间保存成果后会显示在这里。"
+    }
+};
 
     function normalize(pageId, source) {
         const definition = getDefinition(pageId);
@@ -566,6 +670,17 @@
         };
         return Object.fromEntries(definition.fields.map(field => {
             let candidate = typeof raw[field.key] === 'string' ? raw[field.key].trim() : '';
+            const legacyDefault = UX_LEGACY_DEFAULTS[pageId]?.[field.key];
+            const previousDefaults = Array.isArray(legacyDefault) ? legacyDefault : [legacyDefault];
+            let migrateDefault = true;
+            if (field.key === 'heroAccent' && typeof raw.heroTitle === 'string') {
+                const title = raw.heroTitle.trim();
+                const titleDefault = definition.fields.find(item => item.key === 'heroTitle')?.defaultValue;
+                const legacyTitle = UX_LEGACY_DEFAULTS[pageId]?.heroTitle;
+                const previousTitles = Array.isArray(legacyTitle) ? legacyTitle : [legacyTitle];
+                migrateDefault = !title || title === titleDefault || previousTitles.includes(title);
+            }
+            if (migrateDefault && previousDefaults.includes(candidate)) candidate = field.defaultValue;
             if (pageId === 'tools' && field.key === 'reviewNote' && candidate === '信息核对于 2026 年 8 月，请以官网为准。不要上传学生姓名、联系方式或成绩明细。') candidate = field.defaultValue;
             if (pageId === 'research' && field.key === 'moreTools' && candidate === '更多工具陆续推出：主题综合、评审专家、技术路线图。') candidate = field.defaultValue;
             if (pageId === 'research' && field.key === 'heroIntro' && candidate === '面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、整理；选题、判断和结论由你来做。') candidate = field.defaultValue;

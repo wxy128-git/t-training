@@ -567,8 +567,9 @@
         }
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
+    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
 </head>
-<body>
+<body class="ux-agents">
 <div id="main-nav"></div>
 <div id="main-content">
 
@@ -609,20 +610,19 @@
             <div class="ws-ico" id="ws-ico"></div>
             <div class="ws-titles">
                 <div class="ws-cat-tag" id="ws-cat"></div>
-                <h1 id="ws-name"></h1>
-                <p id="ws-intro"></p>
+                <div class="ws-task-title"><h1 id="ws-name" tabindex="-1"></h1><button type="button" class="ui-note-trigger" data-note-source="ws-intro" aria-label="了解当前任务" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div><p id="ws-intro" class="ui-note-source"></p>
+            </div>
                 <div class="ws-presence" id="ws-presence" role="status" aria-live="polite">
                     <i class="ph ph-clipboard-text"></i>
                     <span id="ws-presence-label">正在了解你的教学任务</span>
                     <span class="ws-agent-stage" id="ws-agent-stage" aria-label="协作进度">
-                        <span data-stage="brief"><b>1</b> 了解任务</span>
+                        <span data-stage="brief"><b>1</b> 填写信息</span>
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
-                        <span data-stage="working"><b>2</b> 起草初稿</span>
+                        <span data-stage="working"><b>2</b> 生成初稿</span>
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
-                        <span data-stage="review"><b>3</b> 教师核验</span>
+                        <span data-stage="review"><b>3</b> 检查与保存</span>
                     </span>
                 </div>
-            </div>
             <div class="ws-status">
                 <a class="ws-mini-btn" href="/workspace" onclick="return requestWorkbookNavigation(event)"><i class="ph ph-notebook"></i> 备课本</a>
                 <span class="ws-model-badge" id="ws-model-badge"><i class="ph ph-cpu"></i><span>模型服务：<strong id="ws-model-name">智能体路由</strong></span></span>
@@ -645,8 +645,8 @@
             <div class="ws-origin-copy"><small>CONTINUED FROM</small><b id="ws-origin-title"></b></div>
             <button type="button" onclick="returnToWorkflowSource()"><i class="ph ph-arrow-left"></i><span id="ws-origin-action">返回上一成果</span></button>
         </section>
-        <div id="ws-body"></div>
-        <div class="api-note">
+        <div id="ws-body"></div><div class="ws-stage-note"><span>AI 初稿，使用前请核对</span><button type="button" class="ui-note-trigger" data-note-source="agent-model-note" aria-label="查看模型与使用说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div>
+        <div class="api-note ui-note-source" id="agent-model-note">
             <i class="ph ph-sparkle"></i>
             <span>内容由 <strong id="api-model-name">本站智能体模型服务</strong> 实时生成，仅供参考，请结合教学实际核对后使用。</span>
         </div>
@@ -729,12 +729,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-app-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/ui-notes.js?v=20261025-ux"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
+<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
-    <script src="js/auth.js?v=20261017-sources"></script>
+    <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
@@ -743,7 +744,7 @@
 <script src="js/operations-analytics.js?v=20261017-sources"></script>
 <script src="js/curriculum-guard.js?v=20260828-curriculum-gate"></script>
 <script src="js/agents-data.js?v=20260922-teaching-quality"></script>
-<script src="js/task-search.js?v=20260924-local-email-direct"></script>
+<script src="js/task-search.js?v=20261025-ux-reviewed"></script>
 <script src="js/agent-stream.js?v=20261017-sources"></script>
 <script src="js/teaching-projects.js?v=20260924-local-email-direct"></script>
 <script>
@@ -1328,12 +1329,15 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
     const c = CAT_MAP[a.cat];
     document.getElementById('view-home').style.display = 'none';
     document.getElementById('view-workspace').style.display = '';
+    document.body.classList.add('teaching-task-open');
     document.getElementById('view-workspace').classList.toggle('ws-task-first', a.type === 'form');
     const ico = document.getElementById('ws-ico');
     ico.style.background = c.soft; ico.style.color = c.color;
     ico.innerHTML = `<img src="${portraitSrc(a)}" alt="" width="900" height="900" decoding="async">`;
-    document.getElementById('ws-cat').innerHTML = `<i class="ph ph-circle-fill" style="font-size:6px;color:${c.color}"></i><span style="color:${c.color}">${c.name}</span>`;
-    document.getElementById('ws-name').textContent = a.name;
+    document.getElementById('ws-cat').innerHTML = `<i class="ph ph-circle-fill" style="font-size:6px;color:${c.color}"></i><span style="color:${c.color}">${escapeHtml(a.name)}</span>`;
+    document.getElementById('ws-name').textContent = TaskSearch.tasks[a.id]?.title || a.name;
+    document.title = `${TaskSearch.tasks[a.id]?.title || a.name} · AI 教师培训中心`;
+    UiNotes.close();
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
     setAgentModelLabel('智能体路由');
     window._wsAgent = a;
@@ -1354,16 +1358,21 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
     } else {
         buildForm(a);
     }
+    document.getElementById('ws-name').focus({preventScroll:true});
 }
 
 function backToHome() {
+    const returnId = window._wsAgent?.id;
+    UiNotes.close();
     if (window._wsAgent?.type === 'form') persistCurrentDraft(window._wsAgent);
     clearAgentWorkState();
     document.getElementById('view-workspace').style.display = 'none';
+    document.body.classList.remove('teaching-task-open');
     document.getElementById('view-home').style.display = '';
     history.replaceState({ view: 'home' }, '', location.pathname);
     renderWorkflowOrigin({});
     document.title = '智能体空间 · AI 教师培训中心';
+    document.querySelector(`[data-agent-id="${returnId}"]`)?.focus({preventScroll:true});
 }
 
 function renderWorkflowOrigin(state = {}) {
@@ -1397,7 +1406,7 @@ function backFromWorkspace() {
 
 function reviewItemMarkup(key, title, description, agentId) {
     return `<div class="ws-review-item" data-review-item="${key}">
-        <div class="ws-review-item-copy"><b>${escapeHtml(title)}</b><span>${escapeHtml(description)}</span></div>
+        <div class="ws-review-item-copy"><b>${escapeHtml(title)}</b>${UiNotes.button(description, title+'说明')}</div>
         <div class="ws-review-item-actions" role="group" aria-label="${escapeHtml(title)}">
             <button type="button" class="ws-review-choice pass" data-review-key="${key}" data-review-value="pass" aria-pressed="false" onclick="setTeacherReview(this,'${agentId}')"><i class="ph ph-check-circle"></i>符合</button>
             <button type="button" class="ws-review-choice revise" data-review-key="${key}" data-review-value="revise" aria-pressed="false" onclick="setTeacherReview(this,'${agentId}')"><i class="ph ph-warning-circle"></i>需修改</button>
@@ -1434,7 +1443,8 @@ function briefFieldGroups(agent) {
         if (field.required && !AGENT_BRIEF_CONTEXT_KEYS.has(field.key)) primaryKeys.add(field.key);
     });
     const primary = agent.fields.filter(field => primaryKeys.has(field.key));
-    const context = agent.fields.filter(field => !primaryKeys.has(field.key) && AGENT_BRIEF_CONTEXT_KEYS.has(field.key)).slice(0, 3);
+    const contextCandidates = agent.fields.filter(field => !primaryKeys.has(field.key) && AGENT_BRIEF_CONTEXT_KEYS.has(field.key));
+    const context = contextCandidates.filter((field, index) => field.required || index < 3);
     const visibleKeys = new Set([...primary, ...context].map(field => field.key));
     const extra = agent.fields.filter(field => !visibleKeys.has(field.key));
     return { primary, context, extra };
@@ -1445,32 +1455,14 @@ function agentRunLabel(agent) {
 }
 
 function agentDeliverable(agent) {
-    const labels = {
-        'lesson-design': '教案初稿',
-        'courseware-outline': '课件大纲',
-        'micro-script': '微课脚本',
-        'lesson-hook': '课堂导入方案',
-        'quiz-gen': '练习初稿',
-        'homework-grader': '批改建议',
-        'essay-review': '作文评改建议',
-        'exam-paper': '试卷初稿',
-        'error-diagnosis': '错因诊断',
-        'parent-comm': '沟通话术',
-        'student-comment': '学生评语',
-        'class-meeting': '班会方案',
-        'teaching-reflection': '教学反思初稿',
-        'lesson-observe': '听评课记录'
-    };
-    return labels[agent.id] || agent.tagline || '工作成果';
+    return TaskSearch.tasks[agent.id]?.output || agent.tagline || '工作成果';
 }
 
 function briefFieldMarkup(agent, field, index, primaryFields) {
-    const hasPrimaryTextarea = primaryFields.some(item => item.type === 'textarea');
-    const makeMultiline = index === 0 && field.type === 'text' && !hasPrimaryTextarea;
-    const options = { primary: true, multiline: makeMultiline };
+    const options = { primary: true };
     if (agent.id === 'lesson-design' && field.key === 'topic') {
-        options.label = '教学任务描述';
-        options.placeholder = '请说明课题、学生基础，以及你最希望学生学会什么';
+        options.label = '这节课的课题';
+        options.placeholder = '如：《背影》；学习目标和学情可在补充信息中填写';
     }
     return renderField(agent.id, field, options);
 }
@@ -1488,27 +1480,27 @@ function buildForm(a) {
         <div class="ws-panel ws-input-col" id="ws-input-panel">
             <div class="ws-brief-head">
                 <i class="ph ph-note-pencil"></i>
-                <strong>任务简报</strong>
+                <strong>填写教学信息</strong>
                 <button type="button" class="ws-toggle-input" id="ws-input-toggle" aria-expanded="true" aria-controls="ws-input-scroll" onclick="toggleInputPanel()">收起</button>
             </div>
             <div class="ws-input-summary" id="ws-input-summary"></div>
             <div class="ws-input-scroll" id="ws-input-scroll">
                 ${handwritingAssist}
-                <form id="agent-form" onsubmit="runForm('${a.id}'); return false;">
+                <form id="agent-form" novalidate onsubmit="runForm('${a.id}'); return false;">
                     <div class="ws-brief-primary">${primaryHtml}</div>
                     ${contextHtml ? `<div class="ws-brief-context" aria-label="任务背景">${contextHtml}</div>` : ''}
-                    ${extraHtml ? `<details class="ws-extra-params" id="ws-extra-params"><summary>展开全部参数 <i class="ph ph-caret-down" aria-hidden="true"></i></summary><div class="ws-extra-fields">${extraHtml}</div></details>` : ''}
+                    ${extraHtml ? `<details class="ws-extra-params" id="ws-extra-params"><summary>补充信息（可选） <i class="ph ph-caret-down" aria-hidden="true"></i></summary><div class="ws-extra-fields">${extraHtml}</div></details>` : ''}
                     <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> ${escapeHtml(agentRunLabel(a))}</button>
                 </form>
                 <div class="ws-draft-state" id="ws-draft-state" role="status" aria-live="polite">
-                    <i class="ph ph-cloud-check"></i><span>任务简报会自动保存在这台设备上</span>
+                    <i class="ph ph-device-mobile"></i><span>填写后自动保存到本机</span>${UiNotes.button('输入和初稿自动保存在当前设备；点击“保存到备课本”才能跨设备查看。','草稿保存说明')}
                     <button type="button" onclick="clearCurrentDraft('${a.id}')">清空草稿</button>
                 </div>
             </div>
         </div>
         <div class="ws-panel ws-out-panel">
             <div class="ws-out-head">
-                <span class="label"><i class="ph ph-file-text"></i> ${escapeHtml(a.name)}的交付</span>
+                <span class="label"><i class="ph ph-file-text"></i> ${escapeHtml(deliverable)}</span>
                 <div class="ws-out-actions" id="out-actions" style="display:none">
                     <button class="ws-mini-btn" id="save-btn" onclick="saveToWorkbook('${a.id}')"><i class="ph ph-bookmark-simple"></i> 保存到备课本</button>
                     <button class="ws-mini-btn" id="edit-btn" onclick="toggleEdit()"><i class="ph ph-pencil-simple"></i> 编辑</button>
@@ -1517,14 +1509,15 @@ function buildForm(a) {
                 </div>
             </div>
             <button type="button" id="stop-generation" class="ws-stop" hidden onclick="stopGeneration()"><i class="ph ph-stop-circle"></i> 停止生成</button>
-            <div class="ws-task-summary" id="ws-task-summary" aria-live="polite"></div>
+            <div class="ws-task-summary" id="ws-task-summary"></div>
+            <div class="ws-save-status" id="ws-save-status" role="status" hidden></div>
             <div class="ws-out-body placeholder" id="out-body" role="status" aria-live="polite" aria-busy="false">
-                <div class="ws-empty-delivery"><i class="ph ph-file-text"></i><b>${escapeHtml(deliverable)}将在这里交付</b><p>任务确认后，${escapeHtml(a.name)}会在这里提交初稿。</p></div>
+                <div class="ws-empty-delivery"><i class="ph ph-file-text"></i><b>${escapeHtml(deliverable)}</b><p>填写信息后，点击“${escapeHtml(agentRunLabel(a))}”</p></div>
             </div>
             <details class="ws-review-panel" id="ws-review-panel" hidden>
-                <summary><i class="ph ph-shield-check"></i><span>下一步：教师核验</span><span class="review-state" id="review-state">0 / 4</span></summary>
+                <summary><i class="ph ph-shield-check"></i><span>检查初稿</span><span class="review-state" id="review-state">0 / 4</span></summary>
                 <div class="ws-review-content">
-                    <div class="ws-review-intro"><i class="ph ph-info"></i><span>AI 生成的是教学初稿。请结合教材、学情和课堂条件逐项判断；选择表示教师已人工检查，不是系统自动验证。</span></div>
+                    <div class="ui-note-row"><span>逐项记录你的检查结果</span>${UiNotes.button('请结合教材、学情和课堂条件判断。“符合”表示你已人工检查，系统不会自动核验教学质量。','了解人工核验')}</div>
                     <div class="ws-review-progress">
                         <span id="review-progress-text">尚未开始核验 · 0 / 4</span>
                         <div class="ws-review-track" id="review-progress-track" role="progressbar" aria-label="教师核验进度" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><i id="review-progress-bar"></i></div>
@@ -1547,7 +1540,7 @@ function buildForm(a) {
                 </div>
             </details>
             <div class="ws-next" id="ws-next" aria-label="下一步任务"></div>
-            <div class="ws-delivery-note"><i class="ph ph-shield-check"></i>AI 交付的是初稿，请结合教学实际核验后使用。</div>
+
         </div>
     </div>`;
     // 恢复 chip 多选监听
@@ -1570,11 +1563,9 @@ function handwritingAssistMarkup(a) {
         <div class="hw-assist-top">
             <div class="hw-assist-ico"><i class="ph ph-scan"></i></div>
             <div>
-                <div class="hw-assist-title">${escapeHtml(cfg.title)}</div>
-                <div class="hw-assist-copy">${escapeHtml(cfg.copy)}</div>
+                <div class="ui-note-row"><div class="hw-assist-title">${escapeHtml(cfg.title)}</div>${UiNotes.button(cfg.copy,'了解作业粘贴模板')}</div>
                 <div class="hw-assist-actions">
-                    <button type="button" onclick="insertHandwritingTemplate('${a.id}', false)"><i class="ph ph-textbox"></i> 插入粘贴模板</button>
-                    <button type="button" onclick="insertHandwritingTemplate('${a.id}', true)"><i class="ph ph-plus-circle"></i> 只填空白项</button>
+                    <button type="button" onclick="insertHandwritingTemplate('${a.id}', true)"><i class="ph ph-textbox"></i> 填入整理模板</button>
                 </div>
             </div>
         </div>
@@ -1585,6 +1576,7 @@ function insertHandwritingTemplate(aid, onlyEmpty) {
     const cfg = HANDWRITING_ASSIST[aid];
     const form = document.getElementById('agent-form');
     if (!cfg || !form) return;
+    form.dataset.draftTouched = 'true';
     Object.entries(cfg.fields).forEach(([key, value]) => {
         const el = form.querySelector(`[name="${key}"]`);
         if (!el) return;
@@ -1595,32 +1587,36 @@ function insertHandwritingTemplate(aid, onlyEmpty) {
             el.style.height = Math.max(el.scrollHeight + 8, 96) + 'px';
         }
     });
-    if (window._wsAgent) updateBriefSummary(window._wsAgent);
+    if (window._wsAgent) { updateBriefSummary(window._wsAgent); scheduleDraftSave(window._wsAgent); }
     showToast(onlyEmpty ? '已填入空白模板' : '已插入粘贴模板');
 }
 
 function renderField(aid, f, options = {}) {
-    const req = f.required ? '<span class="req">*</span>' : '';
-    const hint = f.hint ? `<span class="hint">${f.hint}</span>` : '';
+    const req = f.required ? '<span class="req" aria-hidden="true">*</span>' : '';
     const fieldId = `agent-${aid}-${f.key}`;
     const labelId = `${fieldId}-label`;
     const fieldLabel = options.label || f.label;
+    const optional = !f.required && !/可选|选填/.test(fieldLabel) ? '<span class="hint">选填</span>' : '';
+    const helpText = f.hint?.replace(/^可选[，,、\s]*/, '').trim();
+    const help = helpText && helpText !== '可选' ? UiNotes.button(helpText, fieldLabel+'填写说明') : '';
     const label = f.type === 'chips'
-        ? `<div class="field-label" id="${labelId}">${fieldLabel}${req}${hint}</div>`
-        : `<label for="${fieldId}">${fieldLabel}${req}${hint}</label>`;
+        ? `<div class="field-label" id="${labelId}">${escapeHtml(fieldLabel)}${req}${optional}</div>`
+        : `<label for="${fieldId}">${escapeHtml(fieldLabel)}${req}${optional}</label>`;
     let control = '';
-    const placeholder = options.placeholder || f.placeholder || '';
+    const placeholder = escapeHtml(options.placeholder || f.placeholder || '');
+    const required = f.required ? 'required aria-required="true"' : '';
     if (f.type === 'textarea' || options.multiline) {
-        control = `<textarea id="${fieldId}" name="${f.key}" rows="${options.multiline ? 5 : (f.rows || 4)}" placeholder="${placeholder}" ${f.required ? 'required' : ''}></textarea>`;
+        control = `<textarea id="${fieldId}" name="${f.key}" rows="${options.multiline ? 3 : (f.rows || 4)}" placeholder="${placeholder}" ${required}></textarea>`;
     } else if (f.type === 'select') {
-        control = `<select id="${fieldId}" name="${f.key}" ${f.required ? 'required' : ''}>${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
+        const prompt = f.required ? `<option value="" disabled selected>选择${escapeHtml(fieldLabel)}</option>` : '';
+        control = `<select id="${fieldId}" name="${f.key}" ${required}>${prompt}${f.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}</select>`;
     } else if (f.type === 'chips') {
-        control = `<div class="chips" data-key="${f.key}" role="group" aria-labelledby="${labelId}">${f.options.map(o => `<button type="button" class="chip-opt" aria-pressed="false">${o}</button>`).join('')}</div>`;
+        control = `<div class="chips" data-key="${f.key}" role="group" aria-labelledby="${labelId}">${f.options.map(o => `<button type="button" class="chip-opt" aria-pressed="false">${escapeHtml(o)}</button>`).join('')}</div>`;
     } else {
-        control = `<input id="${fieldId}" type="${f.type || 'text'}" name="${f.key}" placeholder="${placeholder}" ${f.required ? 'required' : ''}>`;
+        control = `<input id="${fieldId}" type="${f.type || 'text'}" name="${f.key}" placeholder="${placeholder}" ${required}>`;
     }
     const classes = ['field', options.primary ? 'is-brief-primary' : '', options.context ? 'is-brief-context' : ''].filter(Boolean).join(' ');
-    return `<div class="${classes}" data-field="${f.key}">${label}${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
+    return `<div class="${classes}" data-field="${f.key}"><div class="field-heading">${label}${help}</div>${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
 }
 
 function collectInputs(a) {
@@ -1814,8 +1810,8 @@ function updateDraftState(text, saved) {
     if (!box) return;
     const icon = box.querySelector('i');
     const span = box.querySelector('span');
-    if (icon) icon.className = saved ? 'ph ph-cloud-check' : 'ph ph-cloud-arrow-up';
-    if (span) span.textContent = text;
+    if (icon) icon.className = saved ? 'ph ph-device-mobile' : 'ph ph-clock';
+    if (span) span.textContent = saved && !/本机|备课本/.test(text) ? `${text}（本机）` : text;
 }
 
 function currentReviewDecisions() {
@@ -1868,9 +1864,15 @@ function currentVersionIsInWorkbook(agent = window._wsAgent) {
     return !!(_lastWorkbookFingerprint && _lastWorkbookFingerprint === workStateFingerprint(agent));
 }
 
+function hasDraftInput(agent, inputs) {
+    return agent.fields.some(field => field.type !== 'select' && (Array.isArray(inputs[field.key]) ? inputs[field.key].length > 0 : String(inputs[field.key] || '').trim().length > 0));
+}
+
 function persistCurrentDraft(agent, statusText) {
     if (!agent || agent.type !== 'form' || !document.getElementById('agent-form')) return false;
     const inputs = collectInputs(agent);
+    const form = document.getElementById('agent-form');
+    if (!_lastResult && form.dataset.draftTouched !== 'true' && !hasDraftInput(agent, inputs)) return true;
     _lastInputs = inputs;
     if (_editing) {
         const editor = document.getElementById('edit-area');
@@ -1888,7 +1890,7 @@ function persistCurrentDraft(agent, statusText) {
         workbookFingerprint: _lastWorkbookFingerprint,
         workbookId: _lastWorkbookId
     });
-    updateDraftState(ok === false ? '浏览器存储空间不足，草稿未保存' : (statusText || `已自动保存 ${formatDraftTime(new Date())}`), ok !== false);
+    updateDraftState(ok === false ? '浏览器存储空间不足，草稿未保存' : (statusText || `本机已保存 ${formatDraftTime(new Date())}`), ok !== false);
     return ok !== false;
 }
 
@@ -1903,9 +1905,13 @@ function clearFieldError(control) {
     const field = control?.closest?.('.field');
     if (!field) return;
     field.classList.remove('has-error');
-    control.removeAttribute('aria-invalid');
-    control.removeAttribute('aria-describedby');
     const error = field.querySelector('.field-error');
+    field.querySelectorAll('[aria-invalid]').forEach(input => {
+        input.removeAttribute('aria-invalid');
+        const ids = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(id => id && id !== error?.id);
+        if (ids.length) input.setAttribute('aria-describedby', ids.join(' '));
+        else input.removeAttribute('aria-describedby');
+    });
     if (error) error.textContent = '';
 }
 
@@ -1964,16 +1970,20 @@ function initTeachingProjectForm(agent) {
 
     const form = document.getElementById('agent-form');
     form?.addEventListener('input', event => {
+        form.dataset.draftTouched = 'true';
         clearFieldError(event.target);
         updateBriefSummary(agent);
         scheduleDraftSave(agent);
     });
     form?.addEventListener('change', event => {
+        form.dataset.draftTouched = 'true';
         clearFieldError(event.target);
         updateBriefSummary(agent);
         scheduleDraftSave(agent);
     });
     form?.querySelectorAll('.chip-opt').forEach(button => button.addEventListener('click', () => {
+        form.dataset.draftTouched = 'true';
+        clearFieldError(button);
         updateBriefSummary(agent);
         scheduleDraftSave(agent);
     }));
@@ -1994,6 +2004,8 @@ function setAgentModelLabel(label) {
     const note = document.getElementById('api-model-name');
     if (head) head.textContent = text;
     if (note) note.textContent = text;
+    const badge = document.getElementById('ws-model-badge');
+    if (badge) badge.hidden = !label || label === '智能体路由';
 }
 
 function summarizeInputs(a, inputs) {
@@ -2032,6 +2044,7 @@ function updateBriefSummary(agent) {
     }).filter(Boolean).slice(0, 4).join('');
     const primaryTextField = groups.primary.find(field => field.type !== 'select' && field.type !== 'chips');
     const primaryText = primaryTextField ? fieldText(inputs[primaryTextField.key]) : '';
+    if (!primaryText && !_lastResult && !_activeGeneration) { box.replaceChildren(); return; }
     box.innerHTML = `<b>本次任务</b><div class="ws-task-summary-meta">${context || '<span>关键信息尚未填写</span>'}</div><p>${primaryText ? escapeHtml(primaryText) : '填写左侧任务简报后，这里会同步显示关键信息。'}</p>`;
 }
 
@@ -2328,6 +2341,7 @@ function resetAgentWorkspaceForAuth(nextUid) {
     if (shouldExitWorkspace) {
         clearAgentWorkState();
         document.getElementById('view-workspace').style.display = 'none';
+        document.body.classList.remove('teaching-task-open');
         document.getElementById('view-home').style.display = '';
         history.replaceState({ view: 'home' }, '', location.pathname);
         document.title = '智能体空间 · AI 教师培训中心';
@@ -2348,10 +2362,10 @@ function quizPointPlaceholder(subject) {
 }
 
 function initAgentFormHelpers(a) {
-    if (a.id !== 'quiz-gen') return;
+    if (a.id !== 'quiz-gen' && !a.fields?.some(field => field.key === 'subject' && field.type === 'select')) return;
     const form = document.getElementById('agent-form');
     const subject = form?.querySelector('[name="subject"]');
-    const point = form?.querySelector('[name="point"]');
+    const point = form?.querySelector(a.id === 'quiz-gen' ? '[name="point"]' : '[name="topic"]');
     if (!subject || !point) return;
     const sync = () => { point.placeholder = quizPointPlaceholder(subject.value); };
     subject.addEventListener('change', sync);
@@ -2440,9 +2454,11 @@ function formFocusWithoutScroll(element) {
 }
 
 function showMissingFields(missing) {
+    toggleInputPanel(true);
     const form = document.getElementById('agent-form');
+    const visualOrder = Array.from(form?.querySelectorAll('.field') || []).map(field => field.dataset.field);
     let firstControl = null;
-    missing.forEach(field => {
+    [...missing].sort((a, b) => visualOrder.indexOf(a.key) - visualOrder.indexOf(b.key)).forEach(field => {
         const wrapper = form?.querySelector(`[data-field="${field.key}"]`);
         const details = wrapper?.closest('details');
         if (details) details.open = true;
@@ -2451,7 +2467,7 @@ function showMissingFields(missing) {
             : wrapper?.querySelector(`[name="${field.key}"]`);
         const error = wrapper?.querySelector('.field-error');
         wrapper?.classList.add('has-error');
-        if (error) error.textContent = `请填写${field.label}`;
+        if (error) error.textContent = `${field.type === 'select' || field.type === 'chips' ? '请选择' : '请填写'}${field.label}`;
         if (control) {
             control.setAttribute('aria-invalid', 'true');
             control.setAttribute('aria-describedby', `agent-${window._wsAgent?.id}-${field.key}-error`);
@@ -2537,13 +2553,15 @@ async function runForm(aid) {
     const runSeq = ++_formRunSeq;
     const ownerUid = currentAuthUid();
     const runStartedAt = performance.now();
-    btn.disabled = true; btn.innerHTML = `<i class="ph ph-spinner-gap ph-spin"></i> ${escapeHtml(a.name)}正在核对并处理…`;
+    btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> 生成中…';
+    document.getElementById('ws-save-status').hidden = true;
+    if (matchMedia('(max-width:1080px)').matches) body.closest('.ws-out-panel').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
     actions.style.display = 'none';
     setAgentWorkStage('working', a);
     body.className = 'ws-out-body placeholder';
     body.setAttribute('role', 'status');
     body.setAttribute('aria-busy', 'true');
-    body.innerHTML = `<div class="ws-empty-delivery"><i class="ph ph-spinner-gap ph-spin"></i><b>${escapeHtml(a.name)}正在核对课程匹配</b><p>匹配通过后会继续形成${escapeHtml(agentDeliverable(a))}；如果学科或年级不合适，将停止生成。</p></div>`;
+    body.innerHTML = `<div class="ws-empty-delivery"><i class="ph ph-spinner-gap ph-spin"></i><b>正在生成${escapeHtml(agentDeliverable(a))}…</b><p>收到内容后将在这里逐步显示</p></div>`;
     _editing = false;
     const editBtn = document.getElementById('edit-btn');
     if (editBtn) { editBtn.classList.remove('active'); editBtn.innerHTML = '<i class="ph ph-pencil-simple"></i> 编辑'; }
@@ -2554,6 +2572,7 @@ async function runForm(aid) {
             onToken: (full) => {
                 if (runSeq !== _formRunSeq || currentAuthUid() !== ownerUid) return;
                 body.className = 'ws-out-body md cursor-blink';
+                setAgentWorkStage('working', a, '正在生成初稿');
                 body.innerHTML = mdToHtml(full) + ' ';
             }
         });
@@ -2692,6 +2711,8 @@ function workInputsWithProject(inputs = {}) {
 
 function refreshSaveButtonLabel() {
     const btn = document.getElementById('save-btn');
+    const savedStatus = document.getElementById('ws-save-status');
+    if (savedStatus?.dataset.state === 'success' && !currentVersionIsInWorkbook()) savedStatus.hidden = true;
     if (!btn || btn.disabled || btn.classList.contains('copied')) return;
     const review = currentReviewSummary();
     if (currentVersionIsInWorkbook()) btn.innerHTML = '<i class="ph ph-check-circle"></i> 已存入备课本';
@@ -2794,6 +2815,8 @@ async function saveToWorkbook(aid, options = {}) {
             meta: { source: options.source || 'agent_form', reviewed: review.status === 'reviewed', reviewStatus: review.status }
         });
         if (btn) { btn.classList.add('copied'); btn.innerHTML = '<i class="ph ph-check"></i> 已保存'; }
+        const saved = document.getElementById('ws-save-status');
+        if (saved) { saved.hidden = false; saved.dataset.state = 'success'; saved.setAttribute('role','status'); saved.innerHTML = '<span><i class="ph ph-check-circle" aria-hidden="true"></i> 已保存到我的备课本</span><a href="/workspace?work=' + encodeURIComponent(workId || '') + '">查看已保存成果 <i class="ph ph-arrow-right" aria-hidden="true"></i></a>'; }
         showToast('已保存到「我的备课本」✓');
         setTimeout(() => {
             if (!btn) return;
@@ -2804,6 +2827,8 @@ async function saveToWorkbook(aid, options = {}) {
         return true;
     } catch (e) {
         if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+        const saved = document.getElementById('ws-save-status');
+        if (saved) { saved.hidden = false; saved.dataset.state = 'error'; saved.setAttribute('role','alert'); saved.textContent = '保存未成功：' + (e.message || '请重试') + '。初稿仍保留在当前页面。'; }
         showToast('保存失败：' + (e.message || '请稍后重试'));
         return false;
     }
@@ -3202,7 +3227,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20261006-research"></script>
-<script src="js/assistant.js?v=20261006-research"></script>
+<script src="js/pwa.js?v=20261025-ux-reviewed"></script>
+<script src="js/assistant.js?v=20261025-ux-reviewed"></script>
 </body>
 </html>

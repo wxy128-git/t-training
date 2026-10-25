@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261017-v49';
+const VERSION = '20261025-v51-reviewed';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -20,6 +20,8 @@ const CORE_ASSETS = [
     '/js/data.js',
     '/js/site-copy.js',
     '/js/auth.js',
+    '/js/ui-notes.js',
+    '/css/ux.css',
     '/privacy',
     '/css/privacy.css',
     '/js/privacy-policy.js',

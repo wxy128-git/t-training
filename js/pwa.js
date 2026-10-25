@@ -117,7 +117,7 @@
         const path = cleanPathname();
         return ({
             '/': 'AI 教研',
-            '/agents': '智能体工作台',
+            '/agents': '智能体空间',
             '/workspace': '我的备课本',
             '/classroom-tools': '课堂工具',
             '/multimodal': '多模态工作坊',

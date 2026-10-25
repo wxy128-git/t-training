@@ -1,0 +1,469 @@
+{
+  "date": "2026-10-25",
+  "status": "local-only",
+  "checks": [
+    "6：首页恢复原标题",
+    "7：首页保留简短简介",
+    "9：六任务卡仍无长段介绍",
+    "1/5：导航与页脚恢复智能体空间",
+    "2/5：导航与页脚恢复多模态工作坊",
+    "3：保留科研写作导航",
+    "4：保留学习资源措辞",
+    "2：多模态页面原标题恢复",
+    "14：恢复团队原标题",
+    "15：团队概况直接显示",
+    "16：保留四位推荐人物",
+    "16：恢复四列大肖像人物卡",
+    "17：恢复成员入口原名称",
+    "18：恢复身份与建议起点角标",
+    "18：恢复人物悬停开场白",
+    "19：恢复团队总览措辞",
+    "20：恢复部门小头像预览",
+    "20：部门按成员人数展示",
+    "21：搜索不再额外使用工作台任务标题",
+    "22：工作台仍保留任务标题",
+    "25：保留单行课题",
+    "26：保留补充信息折叠",
+    "27：学科仍需明确选择",
+    "22/28：工作台备注保留",
+    "17：全部19个成员入口均保留",
+    "17：全部入口名称均与原角色一致",
+    "39：科研原标题恢复",
+    "39：科研原简介恢复",
+    "40：四个科研入口恢复伙伴名",
+    "41：保留缩小后的科研肖像",
+    "42：原则说明仍在备注中",
+    "43：游客仍可看到卡片夹入口",
+    "45：撤下新增教学任务入口",
+    "46：保留空备课本两个起点",
+    "48：保留视图切换文字",
+    "50：320px sc-reset在右侧且备注紧随其右",
+    "50：320px 演示按钮与备注保持右侧一组",
+    "50：320px 计分板操作说明可打开",
+    "50：320px rb-print在右侧且备注紧随其右",
+    "50：320px 演示按钮与备注保持右侧一组",
+    "50：320px 评价量规操作说明可打开",
+    "50：320px rt-print在右侧且备注紧随其右",
+    "50：320px 演示按钮与备注保持右侧一组",
+    "50：320px 课堂活动模板操作说明可打开",
+    "50：390px sc-reset在右侧且备注紧随其右",
+    "50：390px 演示按钮与备注保持右侧一组",
+    "50：390px 计分板操作说明可打开",
+    "50：390px rb-print在右侧且备注紧随其右",
+    "50：390px 演示按钮与备注保持右侧一组",
+    "50：390px 评价量规操作说明可打开",
+    "50：390px rt-print在右侧且备注紧随其右",
+    "50：390px 演示按钮与备注保持右侧一组",
+    "50：390px 课堂活动模板操作说明可打开",
+    "50：768px sc-reset在右侧且备注紧随其右",
+    "50：768px 演示按钮与备注保持右侧一组",
+    "50：768px 计分板操作说明可打开",
+    "50：768px rb-print在右侧且备注紧随其右",
+    "50：768px 演示按钮与备注保持右侧一组",
+    "50：768px 评价量规操作说明可打开",
+    "50：768px rt-print在右侧且备注紧随其右",
+    "50：768px 演示按钮与备注保持右侧一组",
+    "50：768px 课堂活动模板操作说明可打开",
+    "50：1440px sc-reset在右侧且备注紧随其右",
+    "50：1440px 演示按钮与备注保持右侧一组",
+    "50：1440px 计分板操作说明可打开",
+    "50：1440px rb-print在右侧且备注紧随其右",
+    "50：1440px 演示按钮与备注保持右侧一组",
+    "50：1440px 评价量规操作说明可打开",
+    "50：1440px rt-print在右侧且备注紧随其右",
+    "50：1440px 演示按钮与备注保持右侧一组",
+    "50：1440px 课堂活动模板操作说明可打开",
+    "320px /布局与可见图片正常",
+    "320px /agents布局与可见图片正常",
+    "320px /agents#lesson-design布局与可见图片正常",
+    "320px /research布局与可见图片正常",
+    "320px /research#design布局与可见图片正常",
+    "320px /research#instrument布局与可见图片正常",
+    "320px /multimodal布局与可见图片正常",
+    "390px /布局与可见图片正常",
+    "390px /agents布局与可见图片正常",
+    "390px /agents#lesson-design布局与可见图片正常",
+    "390px /research布局与可见图片正常",
+    "390px /research#design布局与可见图片正常",
+    "390px /research#instrument布局与可见图片正常",
+    "390px /multimodal布局与可见图片正常",
+    "768px /布局与可见图片正常",
+    "768px /agents布局与可见图片正常",
+    "768px /agents#lesson-design布局与可见图片正常",
+    "768px /research布局与可见图片正常",
+    "768px /research#design布局与可见图片正常",
+    "768px /research#instrument布局与可见图片正常",
+    "768px /multimodal布局与可见图片正常",
+    "1440px /布局与可见图片正常",
+    "1440px /agents布局与可见图片正常",
+    "1440px /agents#lesson-design布局与可见图片正常",
+    "1440px /research布局与可见图片正常",
+    "1440px /research#design布局与可见图片正常",
+    "1440px /research#instrument布局与可见图片正常",
+    "1440px /multimodal布局与可见图片正常"
+  ],
+  "layout": [
+    {
+      "width": 320,
+      "path": "/classroom-tools#score",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 320,
+      "path": "/classroom-tools#rubric",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 320,
+      "path": "/classroom-tools#routine",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 390,
+      "path": "/classroom-tools#score",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 390,
+      "path": "/classroom-tools#rubric",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 390,
+      "path": "/classroom-tools#routine",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 768,
+      "path": "/classroom-tools#score",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 768,
+      "path": "/classroom-tools#rubric",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 768,
+      "path": "/classroom-tools#routine",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 1440,
+      "path": "/classroom-tools#score",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 1440,
+      "path": "/classroom-tools#rubric",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    },
+    {
+      "width": 1440,
+      "path": "/classroom-tools#routine",
+      "placement": {
+        "gap": 5,
+        "centerDifference": 0,
+        "rightDifference": 0,
+        "overflow": false
+      },
+      "stage": {
+        "gap": 5,
+        "rightDifference": 0,
+        "centerDifference": 0
+      }
+    }
+  ],
+  "responsive": [
+    {
+      "width": 320,
+      "path": "/",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "path": "/agents",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "path": "/research",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "path": "/research#design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "path": "/research#instrument",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "path": "/multimodal",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/agents",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/research",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/research#design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/research#instrument",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "path": "/multimodal",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/agents",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/research",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/research#design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/research#instrument",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 768,
+      "path": "/multimodal",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/agents",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/research",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/research#design",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/research#instrument",
+      "overflow": false,
+      "broken": []
+    },
+    {
+      "width": 1440,
+      "path": "/multimodal",
+      "overflow": false,
+      "broken": []
+    }
+  ],
+  "errors": [],
+  "realModelRequests": 0,
+  "realEmails": 0,
+  "productionWrites": 0,
+  "screenshots": [
+    "01-home.png",
+    "02-agents.png",
+    "03-research.png",
+    "04-classroom.png",
+    "05-classroom-mobile.png",
+    "06-workbench-mobile.png"
+  ]
+}

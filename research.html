@@ -53,23 +53,30 @@
     </style>
     <link rel="stylesheet" href="css/research-reading.css?v=20261008-reading-ui">
 <link rel="stylesheet" href="css/research-methods.css?v=20261012-workshop-ui">
+    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
 </head>
-<body>
+<body class="ux-research">
 <div id="main-nav"></div>
 <main id="main-content" class="rs-wrap">
     <section id="rs-home" class="rs-view">
-        <div class="rs-hero"><p class="rs-kicker" data-site-copy="heroKicker">科研写作 · RESEARCH WRITING</p><h1 tabindex="-1" data-site-copy="heroTitle">把教学困扰，变成能研究的问题</h1><p class="rs-sub" data-site-copy="heroIntro">面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、整理；选题、判断和结论由你来做。</p></div>
-        <div class="rs-principles">
-            <div><h2><i class="ph ph-books" aria-hidden="true"></i><span data-site-copy="literatureTitle">AI 不替你找文献</span></h2><p data-site-copy="literatureIntro">文献必须来自知网、国家哲学社会科学文献中心等数据库，模型只负责读和整理。</p></div>
-            <div><h2><i class="ph ph-pencil" aria-hidden="true"></i><span data-site-copy="judgmentTitle">AI 不替你下判断</span></h2><p data-site-copy="judgmentIntro">精读卡的“与我的研究的关系”和最终评价由你亲自写。</p></div>
-            <div><h2><i class="ph ph-shield-check" aria-hidden="true"></i><span data-site-copy="privacyTitle">不上传学生个人信息</span></h2><p data-site-copy="privacyIntro">描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。</p></div>
-        </div>
+        <div class="rs-hero"><p class="rs-kicker" data-site-copy="heroKicker">科研写作 · RESEARCH WRITING</p><h1 tabindex="-1" data-site-copy="heroTitle">把教学困扰，变成能研究的问题</h1><p class="rs-sub" data-site-copy="heroIntro">面向中小学教师的论文与课题写作支持。AI 负责追问、填卡、给设计建议和审查工具；选题、方法、判断和结论由你来做。</p></div>
+        <div class="rs-home-top"><span>选择当前要做的事</span><span class="ui-note-row"><span>使用说明</span><button type="button" class="ui-note-trigger" data-note-source="research-use-note" aria-label="科研使用说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></span></div>
         <div class="rs-tools">
-            <button type="button" class="rs-tool" data-route="funnel"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="funnelEyebrow">AI 科研伙伴 · 问题聚焦</span><h2 data-site-copy="funnelRole">研究问题教练</h2><p data-site-copy="funnelIntro">我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。</p><small data-site-copy="funnelAction">聚焦结果 + 五种结构的标题 →</small></span></button>
-            <button type="button" class="rs-tool" data-route="reading-card"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-reading-card.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="readingEyebrow">AI 科研伙伴 · 文献研读</span><h2 data-site-copy="readingRole">文献研读伙伴</h2><p data-site-copy="readingIntro">我陪你按五读法梳理论文的依据和方法；与你研究的关系，由你核对、改写。</p><small data-site-copy="readingAction">十栏精读卡 + 卡片夹 CSV →</small></span></button><button type="button" class="rs-tool" data-route="design"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-design.jpg" alt="" width="900" height="900" loading="lazy"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="designEyebrow">AI 科研伙伴 · 研究设计</span><h2 data-site-copy="designRole">研究设计顾问</h2><p data-site-copy="designIntro">我会根据你的研究问题和真实条件，挑一到两种做得成的方法，排出一页纸研究设计。</p><small data-site-copy="designAction">方法选择 + 一页纸研究设计 →</small></span></button><button type="button" class="rs-tool" data-route="instrument"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-instrument.jpg" alt="" width="900" height="900" loading="lazy"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="instrumentEyebrow">AI 科研伙伴 · 研究工具</span><h2 data-site-copy="instrumentRole">研究工具工坊</h2><p data-site-copy="instrumentIntro">告诉我工具要回答哪个子问题，我陪你起草或审查问卷、访谈提纲和观察记录表，逐条指出该改在哪里。</p><small data-site-copy="instrumentAction">问卷 · 访谈提纲 · 观察记录表 →</small></span></button>
+            <div class="rs-tool-entry"><button type="button" class="rs-tool" data-route="funnel"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="funnelEyebrow">AI 科研伙伴 · 问题聚焦</span><h2 data-site-copy="funnelRole">研究问题教练</h2><small data-site-copy="funnelAction">聚焦结果 + 五种结构的标题 →</small></span></button><div class="rs-task-note"><span>了解研究问题教练</span><button type="button" class="ui-note-trigger" data-note-source="funnel-entry-note" aria-label="研究问题教练说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div><div class="ui-note-source" id="funnel-entry-note"><p data-site-copy="funnelIntro">我会一次追问一个问题，陪你在六轮之内把课堂困扰聚焦成能研究的问题。</p></div></div>
+            <div class="rs-tool-entry"><button type="button" class="rs-tool" data-route="reading-card"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-reading-card.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="readingEyebrow">AI 科研伙伴 · 文献研读</span><h2 data-site-copy="readingRole">文献研读伙伴</h2><small data-site-copy="readingAction">十栏精读卡 + 卡片夹 CSV →</small></span></button><div class="rs-task-note"><span>了解文献研读伙伴</span><button type="button" class="ui-note-trigger" data-note-source="reading-entry-note" aria-label="文献研读伙伴说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div><div class="ui-note-source" id="reading-entry-note"><p data-site-copy="readingIntro">我陪你按五读法梳理论文的依据和方法；与你研究的关系，由你核对、改写。</p></div></div>
+            <div class="rs-tool-entry"><button type="button" class="rs-tool" data-route="design"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-design.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="designEyebrow">AI 科研伙伴 · 研究设计</span><h2 data-site-copy="designRole">研究设计顾问</h2><small data-site-copy="designAction">方法选择 + 一页纸研究设计 →</small></span></button><div class="rs-task-note"><span>了解研究设计顾问</span><button type="button" class="ui-note-trigger" data-note-source="design-entry-note" aria-label="研究设计顾问说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div><div class="ui-note-source" id="design-entry-note"><p data-site-copy="designIntro">我会根据你的研究问题和真实条件，挑一到两种做得成的方法，排出一页纸研究设计。</p></div></div>
+            <div class="rs-tool-entry"><button type="button" class="rs-tool" data-route="instrument"><span class="rs-tool-portrait"><img src="/assets/agent-portraits/research-instrument.jpg" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="rs-tool-copy"><span class="rs-role-label" data-site-copy="instrumentEyebrow">AI 科研伙伴 · 研究工具</span><h2 data-site-copy="instrumentRole">研究工具工坊</h2><small data-site-copy="instrumentAction">问卷 · 访谈提纲 · 观察记录表 →</small></span></button><div class="rs-task-note"><span>了解研究工具工坊</span><button type="button" class="ui-note-trigger" data-note-source="instrument-entry-note" aria-label="研究工具工坊说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div><div class="ui-note-source" id="instrument-entry-note"><p data-site-copy="instrumentIntro">告诉我工具要回答哪个子问题，我陪你起草或审查问卷、访谈提纲和观察记录表，逐条指出该改在哪里。</p></div></div>
         </div>
+        <p class="rs-note">请用编号或化名代替学生姓名，不输入学生个人信息。</p>
+        <div class="rs-principles ui-note-source" id="research-use-note">
+            <div><h2><i class="ph ph-books" aria-hidden="true"></i><span data-site-copy="literatureTitle">AI 不替你找文献</span></h2>
+<p data-site-copy="literatureIntro">文献必须来自知网、国家哲学社会科学文献中心等数据库，模型只负责读和整理。</p></div>
+            <div><h2><i class="ph ph-pencil" aria-hidden="true"></i><span data-site-copy="judgmentTitle">AI 不替你下判断</span></h2>
+<p data-site-copy="judgmentIntro">精读卡的“与我的研究的关系”和最终评价由你亲自写。</p></div>
+            <div><h2><i class="ph ph-shield-check" aria-hidden="true"></i><span data-site-copy="privacyTitle">不上传学生个人信息</span></h2>
+<p data-site-copy="privacyIntro">描述困扰时用“某生”“A 同学”，文献材料不含学生姓名。</p></div>
+        <p class="rs-note" data-site-copy="moreTools">更多工具陆续推出：主题综合、评审专家、技术路线图。</p></div>
         <div class="rs-home-library" id="rs-home-library">登录后可保存精读卡并导出表格</div>
-        <p class="rs-note" data-site-copy="moreTools">更多工具陆续推出：主题综合、评审专家、技术路线图。</p>
     </section>
     <section id="rs-funnel" class="rs-view rs-coach-view" hidden>
         <div class="rs-heading"><div><a href="/research" class="rs-btn" data-route="" data-site-copy="backResearch">← 科研写作</a><div class="rs-colleague"><span class="rs-avatar"><img src="/assets/agent-portraits/research-funnel.jpg" alt="" width="900" height="900" decoding="async"></span><div><h2 tabindex="-1" data-site-copy="funnelRole">研究问题教练</h2><button type="button" class="rs-note-trigger" data-research-note="funnelIntro" data-note-label="introNoteLabel" aria-label="伙伴使用说明" aria-expanded="false">ⓘ</button></div></div></div><a class="rs-btn" href="/workspace" data-site-copy="workspaceAction">我的备课本</a></div>
@@ -116,12 +123,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-app-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-auth-compat.js"></script>
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/ui-notes.js?v=20261025-ux"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
+<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
-<script src="js/auth.js?v=20261017-sources"></script>
+<script src="js/auth.js?v=20261025-ux-reviewed"></script>
 <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
@@ -132,7 +140,7 @@
 <script src="js/research-core.js?v=20261014-coach-six-rounds"></script>
 <script src="js/research-data.js?v=20261014-coach-six-rounds"></script>
 <script src="js/research-methods.js?v=20261012-workshop-ui"></script>
-<script src="js/research-presentation.js?v=20261008-reading-ui"></script>
+<script src="js/research-presentation.js?v=20261025-ux"></script>
 <script>
 (function () {
     const $ = id => document.getElementById(id), C = ResearchCore, [funnel, reading, design, instrument] = RESEARCH_AGENTS;
@@ -446,7 +454,7 @@
         finally{$('rs-save-submit').disabled=false;}
     }
     const selectedWorks=()=>works.filter(w=>!$('rs-filter').value||w.inputs?._researchQuestion===$('rs-filter').value);
-    function updateLibraryLink(){const target=$('rs-home-library');if(uid)target.innerHTML=`<a href="#library" data-route="library" class="rs-btn">${esc(researchCopy.libraryMember)}（${works.length} 张）</a><span class="rs-note">${esc(researchCopy.libraryIntro)}</span>`;else target.textContent=researchCopy.libraryGuest;}
+    function updateLibraryLink(){const target=$('rs-home-library');if(uid)target.innerHTML=`<a href="#library" data-route="library" class="rs-btn">${esc(researchCopy.libraryMember)}（${works.length} 张）</a><span class="rs-note">${esc(researchCopy.libraryIntro)}</span>`;else target.innerHTML=`<a href="#library" data-route="library" class="rs-btn">${esc(researchCopy.libraryMember)}</a><span class="rs-note">${esc(researchCopy.libraryGuest)}</span>`;}
     function renderLibrary(){
         const list=selectedWorks();$('rs-export-csv').disabled=!list.length;$('rs-export-md').disabled=!list.length;
         $('rs-library-list').innerHTML=list.length?list.map((w,i)=>{
@@ -478,7 +486,7 @@
             else if(w.agentId===design.id||w.agentId===instrument.id)loadMethodWork(w);else throw new Error('暂不支持打开这类科研条目');
         }catch(e){if(same(user.uid,version)){loadedWork='';showToast(e.message);}}
     }
-    function showView(next){const partner=({funnel, 'reading-card':reading, design, instrument})[next];if(partner&&view!==next)void window.OperationsAnalytics?.track('agent_open',{targetId:partner.id});notes.close();$('rs-preview-dialog').close();view=['funnel','reading-card','library','design','instrument'].includes(next)?next:'';document.querySelectorAll('.rs-view').forEach(el=>el.hidden=el.id!==`rs-${view||'home'}`);document.body.classList.toggle('rs-coach-active',view==='funnel');document.body.classList.remove('rs-coach-keyboard');$(`rs-${view||'home'}`).querySelector('h1,h2')?.focus({preventScroll:true});layoutChat();layoutWorkshop();}
+    function showView(next){const partner=({funnel, 'reading-card':reading, design, instrument})[next];if(partner&&view!==next)void window.OperationsAnalytics?.track('agent_open',{targetId:partner.id});notes.close();$('rs-preview-dialog').close();view=['funnel','reading-card','library','design','instrument'].includes(next)?next:'';document.querySelectorAll('.rs-view').forEach(el=>el.hidden=el.id!==`rs-${view||'home'}`);document.body.classList.toggle('rs-coach-active',view==='funnel');document.body.classList.toggle('research-task-open',!!view&&view!=='library');document.body.classList.remove('rs-coach-keyboard');$(`rs-${view||'home'}`).querySelector('h1,h2')?.focus({preventScroll:true});layoutChat();layoutWorkshop();}
     function route(){
         const next=normalizedView();if(next!==view&&generation){if(!confirm(t('leaveConfirm'))){window.history.replaceState(null,'',location.pathname+location.search+(view?'#'+view:''));return;}stopGeneration();}
         if(next==='library'&&!login()){window.history.replaceState(null,'',location.pathname+location.search);showView('');return;}
@@ -562,8 +570,8 @@
     void SiteCopy.load('research').then(applyResearchCopy);
 })();
 </script>
-<script src="js/pwa.js?v=20261012-methods"></script>
-<script src="js/assistant.js?v=20261012-methods"></script>
+<script src="js/pwa.js?v=20261025-ux-reviewed"></script>
+<script src="js/assistant.js?v=20261025-ux-reviewed"></script>
 <div id="rs-print" hidden></div>
 </body>
 </html>

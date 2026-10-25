@@ -1,0 +1,757 @@
+{
+  "viewportChecks": [
+    {
+      "width": 320,
+      "path": "/",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "今天，想用 AI 完成什么？"
+    },
+    {
+      "width": 320,
+      "path": "/agents",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 320,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 320,
+      "path": "/research",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 320,
+      "path": "/research#design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 320,
+      "path": "/research#instrument",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 390,
+      "path": "/",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "今天，想用 AI 完成什么？"
+    },
+    {
+      "width": 390,
+      "path": "/agents",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 390,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 390,
+      "path": "/research",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 390,
+      "path": "/research#design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 390,
+      "path": "/research#instrument",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 768,
+      "path": "/",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "今天，想用 AI 完成什么？"
+    },
+    {
+      "width": 768,
+      "path": "/agents",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 768,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 768,
+      "path": "/research",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 768,
+      "path": "/research#design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 768,
+      "path": "/research#instrument",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "今天，想用 AI 完成什么？"
+    },
+    {
+      "width": 1440,
+      "path": "/agents",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 1440,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "你想完成哪项教学任务？"
+    },
+    {
+      "width": 1440,
+      "path": "/research",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 1440,
+      "path": "/research#design",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 1440,
+      "path": "/research#instrument",
+      "overflow": false,
+      "invalidImages": [],
+      "heading": "从你的研究任务开始"
+    },
+    {
+      "width": 320,
+      "path": "/workspace",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/classroom-tools",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/multimodal",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/tools",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/resources",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/prompts",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/paths",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/articles",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/news",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/workspace",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/classroom-tools",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/multimodal",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/tools",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/resources",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/prompts",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/paths",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/articles",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "path": "/news",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/workspace",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/classroom-tools",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/multimodal",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/tools",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/resources",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/prompts",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/paths",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/articles",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "path": "/news",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/workspace",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/classroom-tools",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/multimodal",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/tools",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/resources",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/prompts",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/paths",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/articles",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "path": "/news",
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#courseware-outline",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#micro-script",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#lesson-hook",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#socratic",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#layered-q",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#concept-explainer",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#class-activity",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#quiz-gen",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#homework-grader",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#essay-review",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#exam-paper",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#error-diagnosis",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#parent-comm",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#student-comment",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#class-meeting",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#heart-talk",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#teaching-reflection",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 320,
+      "path": "/agents#lesson-observe",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#courseware-outline",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#micro-script",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#lesson-hook",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#socratic",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#layered-q",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#concept-explainer",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#class-activity",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#quiz-gen",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#homework-grader",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#essay-review",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#exam-paper",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#error-diagnosis",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#parent-comm",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#student-comment",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#class-meeting",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#heart-talk",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#teaching-reflection",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 390,
+      "path": "/agents#lesson-observe",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#lesson-design",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#courseware-outline",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#micro-script",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#lesson-hook",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#socratic",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#layered-q",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#concept-explainer",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#class-activity",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#quiz-gen",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#homework-grader",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#essay-review",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#exam-paper",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#error-diagnosis",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#parent-comm",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#student-comment",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#class-meeting",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#heart-talk",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#teaching-reflection",
+      "overflow": false,
+      "hiddenRequired": 0
+    },
+    {
+      "width": 1440,
+      "path": "/agents#lesson-observe",
+      "overflow": false,
+      "hiddenRequired": 0
+    }
+  ],
+  "behaviorChecks": [
+    "缺少信息时逐项报错",
+    "按界面顺序聚焦第一个必填项",
+    "选择题型立即清除对应错误",
+    "游客生成时显示登录入口",
+    "模拟登录后保留游客输入",
+    "模拟登录后保留题型",
+    "生成中禁止重复提交",
+    "生成中显示停止操作",
+    "手机生成后结果进入可视区域",
+    "模拟响应完整呈现",
+    "保存时给出可识别的默认标题",
+    "保存失败给出就地反馈并保留内容",
+    "保存失败可直接重试",
+    "保存后直达具体成果",
+    "修改初稿后撤下旧版本保存成功状态",
+    "编辑完成显示修改内容",
+    "服务失败保留上一份改写结果",
+    "服务失败保留输入",
+    "停止操作立即反馈",
+    "停止后仍保留上一份结果",
+    "鼠标悬停显示对应任务说明",
+    "备注保持在手机视口内",
+    "光标可移入备注阅读",
+    "Escape关闭备注",
+    "鼠标关闭说明后可转用键盘聚焦打开",
+    "键盘Escape关闭后保持关闭",
+    "离开后重新聚焦可打开说明",
+    "再次点击关闭固定的说明",
+    "点击说明外部关闭",
+    "使用说明保留原有隐私文案",
+    "自然语言搜索直接找到课堂活动",
+    "搜索结果用任务名称说明用途",
+    "搜索为空给出可执行的返回入口",
+    "返回推荐任务恢复默认入口",
+    "全部任务入口可用",
+    "点击任务直接进入对应工作台",
+    "工作台不被悬浮帮助遮挡",
+    "成果直达链接打开当前账号的对应内容",
+    "直达成果内容与保存一致",
+    "切换账号关闭上一账号成果",
+    "切换账号不保留上一账号正文",
+    "空备课本提供直接开始的任务入口",
+    "触屏点击打开备注",
+    "触屏再次点击关闭备注",
+    "手机导航抽屉可打开",
+    "手机导航能进入课堂工具",
+    "课堂工具备注可在触屏打开",
+    "课堂工具备注可关闭",
+    "演示模式显示选中状态",
+    "进入演示不自动遮挡操作说明",
+    "再次点击退出演示模式",
+    "返回课堂工具列表正常",
+    "仅浏览空白工作台不产生虚假的未完成任务",
+    "成果弹窗不被悬浮帮助遮挡"
+  ],
+  "scriptErrors": [],
+  "simulatedModelRequests": 3,
+  "realModelRequests": 0,
+  "realEmails": 0,
+  "productionWrites": 0,
+  "externalRequests": "blocked",
+  "serviceWorkers": "blocked in isolated test contexts"
+}

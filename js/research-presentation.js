@@ -63,9 +63,9 @@
             button.setAttribute('aria-describedby',tip.id); button.setAttribute('aria-expanded','true'); place();
         }
         function later() { if (!pinned && document.activeElement !== anchor) {clearTimeout(timer);timer=setTimeout(close,160);} }
-        document.addEventListener('pointerover',event=>{const b=event.target.closest('[data-research-note]');if(b && event.pointerType !== 'touch')open(b);});
+        document.addEventListener('pointerover',event=>{const b=event.target.closest('[data-research-note]');if(b && event.pointerType !== 'touch')open(b);else if(event.target.closest('[data-ui-note],[data-note-source]'))close();});
         document.addEventListener('pointerout',event=>{if(event.target.closest('[data-research-note]') && !event.relatedTarget?.closest('.rs-note-popover'))later();});
-        document.addEventListener('focusin',event=>{const b=event.target.closest('[data-research-note]');if(b)open(b);else if(!pinned)close();});
+        document.addEventListener('focusin',event=>{const b=event.target.closest('[data-research-note]');if(b)open(b);else if(!pinned || event.target.closest('[data-ui-note],[data-note-source]'))close();});
         document.addEventListener('focusout',later);
         document.addEventListener('click',event=>{const b=event.target.closest('[data-research-note]');if(b){if(anchor===b && pinned)close();else{open(b);pinned=true;}}else if(!event.target.closest('.rs-note-popover'))close();});
         document.addEventListener('keydown',event=>{if(event.key==='Escape' && anchor){event.preventDefault();event.stopPropagation();close();}},true);

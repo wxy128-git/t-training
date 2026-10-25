@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<title>教师培训网站 · 修改核对</title>
+<style>
+:root{color-scheme:light;--ink:#17212b;--muted:#526472;--line:#d9e2e8;--blue:#245b78;--green:#24674e;--red:#a83e32;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:#f3f6f8}
+*{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 24px 80px}h1{font-size:28px;line-height:1.4;margin:0 0 8px}p{line-height:1.7;margin:8px 0;color:var(--muted)}a{color:var(--blue);text-underline-offset:3px}button,input,textarea{font:inherit}button{cursor:pointer}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid #245b78;outline-offset:3px}
+.intro{margin-bottom:20px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 0;border-block:1px solid var(--line);margin:20px 0}.counts{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:14px}.counts b{font-variant-numeric:tabular-nums}.counts .adopt{color:var(--green)}.counts .revert{color:var(--blue)}.counts .adjust{color:#8a5c13}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{min-height:44px;padding:10px 15px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);font-weight:600}.actions .primary{background:var(--blue);border-color:var(--blue);color:white}#feedback{min-height:24px;font-size:13px;margin:0 0 12px}#feedback.error{color:var(--red)}nav{display:flex;gap:8px 20px;flex-wrap:wrap;margin:16px 0 24px}nav a{min-height:32px;display:inline-flex;align-items:center;font-size:14px}section{scroll-margin-top:20px;margin:28px 0}h2{font-size:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px}h2 a{font-size:13px;font-weight:400;white-space:nowrap}
+.row{padding:16px 18px;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}.row[data-decision=adopt]{border-left:4px solid var(--green)}.row[data-decision=revert]{border-left:4px solid var(--blue)}.row[data-decision=adjust]{border-left:4px solid #8a5c13}.row-main{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start}.description{display:flex;gap:12px;font-size:15px;line-height:1.7}.number{flex:none;min-width:28px;color:var(--muted);font-variant-numeric:tabular-nums}.description>span:last-child{overflow-wrap:anywhere}.choices{display:flex;gap:8px;flex-wrap:wrap}.choice{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-size:14px;white-space:nowrap;cursor:pointer}.choice input{width:18px;height:18px;margin:0;accent-color:var(--blue);cursor:pointer}.choice.adopt:has(input:checked){color:var(--green);background:#edf7f1;border-color:#b6d6c4}.choice.revert:has(input:checked){color:var(--blue);background:#edf4fa;border-color:#b9cfdc}.choice.adjust:has(input:checked){color:#8a5c13;background:#fff7e9;border-color:#dccba6}.note{margin-left:40px;margin-top:6px}.note summary{cursor:pointer;min-height:32px;display:list-item;width:max-content;color:var(--muted);font-size:13px}.note textarea{display:block;width:100%;min-height:70px;resize:vertical;padding:10px 12px;border:1px solid var(--line);border-radius:7px;line-height:1.65;background:#fafcfd;color:var(--ink);margin-top:6px}.name-review{margin:14px 0 0 40px}.name-review>summary{min-height:40px;cursor:pointer;color:var(--blue);font-size:14px;line-height:1.7}.name-review .row{background:#fafcfd;margin-top:10px}.name-review .number{min-width:40px}.name-review .note{margin-left:52px}.name-review .description{font-size:14px}.legend{font-size:14px}.empty-note{font-size:13px}.footer{margin-top:30px;font-size:13px}progress{width:100%;height:6px;display:block;accent-color:var(--blue);margin-top:12px}
+@media(max-width:640px){main{padding:22px 14px 56px}h1{font-size:24px}.row{padding:12px}.row-main{grid-template-columns:1fr;gap:8px}.choices{padding-left:0}.choice{min-height:44px;padding-inline:12px}.note{margin-top:8px}.name-review{margin-left:0}.name-review .choices{padding-left:0}.toolbar{gap:12px}.actions{width:100%}.actions button{flex:1}.description{font-size:15px}.name-review .row{padding:10px}h2{font-size:18px}.counts{gap:10px 16px}}
+@media print{body{background:white}main{max-width:none;padding:0}.toolbar,.intro,.legend,nav,.footer,h2 a,#feedback{display:none}.row{break-inside:avoid}.name-review{display:block}.note:not([open]){display:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>教师培训网站 · 修改核对</h1>
+<p class="intro">沿用上条清单的 1—54 编号；第 17 项可展开逐个核对 19 个入口名称。</p>
+<p class="legend"><strong>✓ 采用本次改动</strong>：认可改后的设计。<strong>✕ 恢复原样</strong>：保留修改前的设计。<strong>另行调整</strong>：希望换一种改法，可填写备注。都不勾即为未核对；勾选不会自动修改网站。</p>
+<div class="toolbar">
+  <div class="counts" role="status" aria-live="polite"><span>已核对 <b id="done">0</b> / <b id="total">73</b></span><span class="adopt">采用改动 <b id="adopted">0</b></span><span class="revert">恢复原样 <b id="reverted">0</b></span><span class="adjust">另行调整 <b id="adjusted">0</b></span><span>未核对 <b id="pending">73</b></span></div>
+  <div class="actions"><button type="button" class="primary" id="copy">复制核对结果</button><button type="button" id="download">下载核对结果</button></div>
+</div>
+<p id="feedback" role="status" aria-live="polite">选择和备注自动保存在当前浏览器。核对后，可复制结果发给我。</p>
+<progress id="progress" value="0" max="73" aria-label="修改核对进度"></progress>
+<nav aria-label="核对分组" id="groups"></nav>
+<div id="checklist"></div>
+<div class="actions"><button type="button" id="copy-bottom">复制核对结果</button><button type="button" id="download-bottom">下载核对结果</button></div>
+<p class="footer">本地核对页 · 仅在当前浏览器保存，不提交到服务器。<a href="/" target="_blank" rel="noopener">打开网站预览</a></p>
+</main>
+<script>
+'use strict';
+const sections = [
+ ['navigation','全站导航','/',[
+  [1,'顶部“智能体空间”改为“教学助手”。'],
+  [2,'顶部“多模态工作坊”改为“素材案例”，对应页面标题改为“教学素材案例”。'],
+  [3,'顶部“科研”改为“科研写作”。'],
+  [4,'顶部“资源”改为“学习资源”。'],
+  [5,'页脚和安装版应用中的对应入口名称同步调整。']]],
+ ['home','首页','/',[
+  [6,'大标题改为“今天，想用 AI 完成什么？”。'],
+  [7,'简介缩短为“选一个任务，开始准备你的教学内容。”'],
+  [8,'缩小介绍区的高度，让教学任务更靠前。'],
+  [9,'六张任务卡删除长段介绍，只保留任务名和预期成果。'],
+  [10,'任务卡改成分开的紧凑卡片；手机上保持两列。'],
+  [11,'任务区下方集中放置“全部任务”“课堂工具”“我的备课本”三个入口。'],
+  [12,'科研入口缩短为“科研写作”，说明改为“聚焦问题、研读文献、设计问卷”。'],
+  [13,'恢复草稿提示改成中文；只浏览空白工作台，不再被记录成一项“未完成任务”。']]],
+ ['agents','教学助手列表','/agents',[
+  [14,'页面标题改为“你想完成哪项教学任务？”。'],
+  [15,'原来右侧的团队概况收进备注。'],
+  [16,'人物卡改成“左侧小肖像＋右侧任务文字”，缩小图片占用；桌面两列，手机一列。'],
+  [17,'卡片主标题改成任务名称，原来的角色名称保留在次要位置。'],
+  [18,'隐藏卡片上的“AI 智能体”“建议起点”等角标，以及人物悬停开场白。'],
+  [19,'“团队总览”“推荐成员”“查看成员”等文字，调整为“常用任务”“查看任务”等。'],
+  [20,'部门目录隐藏重复的小头像预览，按“几项任务”显示数量。'],
+  [21,'搜索同步识别新的任务名称，搜索结果和无结果提示也改为任务语义。']]],
+ ['workbench','教学工作台','/agents#lesson-design',[
+  [22,'工作台主标题使用任务名称，角色名称放在上方小字中；角色介绍收进标题旁的备注。'],
+  [23,'步骤文字改为“填写信息 → 生成初稿 → 检查与保存”。'],
+  [24,'“任务简报”改为“填写教学信息”；结果区标题改成“教案初稿”“练习初稿”等具体成果名。'],
+  [25,'课题等短内容改回单行输入，不再默认使用大文本框。'],
+  [26,'“展开全部参数”改为“补充信息（可选）”；必填项保持在展开区域之外。'],
+  [27,'必填下拉框先显示“选择学科”“选择年级”等，不再直接替老师选第一项；已有背景和草稿仍可恢复。'],
+  [28,'字段补充解释移到备注，选填字段用简短的“选填”标记。'],
+  [29,'空结果区不再重复展示尚未填写的任务摘要。'],
+  [30,'必填校验改为就近显示错误，并按页面上的先后顺序聚焦；选择题型后立即清除对应错误。'],
+  [31,'手写作业模板的两个按钮合并为“填入整理模板”，只填空白项，避免覆盖已有文字。'],
+  [32,'生成中的按钮和等待说明缩短；手机点击生成后，自动把结果区域带到视野中。'],
+  [33,'本机草稿提示明确标注“本机”，原来的云朵图标改为设备图标。'],
+  [34,'“保存到备课本”按钮突出显示；成功后出现“查看已保存成果”链接。'],
+  [35,'保存失败时在结果区显示原因和保留状态；编辑初稿后撤下旧的“保存成功”提示。'],
+  [36,'人工核验的长说明和每项标准的解释收进备注；底部保留“AI 初稿，使用前请核对”。'],
+  [37,'尚未调用模型时，隐藏“智能体路由”标识；实际模型信息仍会在生成后显示。'],
+  [38,'压缩手机工作台顶部，隐藏手机上的工作台头像；进入工作区后隐藏悬浮帮助按钮，避免遮挡操作。']]],
+ ['research','科研写作','/research',[
+  [39,'标题改为“从你的研究任务开始”，简介缩短。'],
+  [40,'四个入口以“梳理研究问题”“生成文献精读卡”“制定研究方案”“设计问卷、访谈或观察表”为主标题。'],
+  [41,'缩小人物图片区，角色名称保留；每位伙伴的介绍放入对应备注。'],
+  [42,'原来排在功能之前的三块原则说明收进“使用说明”；学生个人信息提醒仍直接显示。'],
+  [43,'未登录时也显示“我的文献卡片夹”入口；保存仍需登录。'],
+  [44,'进入科研工作区后隐藏悬浮帮助按钮。']]],
+ ['workbook','我的备课本','/workspace',[
+  [45,'页面增加“新建教学任务”入口。'],
+  [46,'空备课本增加“备一节课”和“开始科研写作”入口。'],
+  [47,'筛选结果为空时，增加直接“清除筛选”的按钮。'],
+  [48,'目录／活页切换按钮增加文字和选中状态。'],
+  [49,'从保存成功的链接进入时，直接打开对应成果；成果弹窗打开后隐藏悬浮帮助按钮。']]],
+ ['notes','课堂工具、提示词与通用备注','/classroom-tools',[
+  [50,'演示模式、计分板、评价量规、课堂活动模板的补充说明改为备注。'],
+  [51,'社区提示词的“使用说明”改为备注。'],
+  [52,'新备注统一支持鼠标悬停、键盘聚焦和手机点击。'],
+  [53,'备注支持再次点击、点击外部或按 Esc 关闭，并限制在屏幕范围内。'],
+  [54,'原有科研备注与新备注协调关闭，避免两个提示同时遮挡页面。']]]
+];
+const names = [
+ ['教学设计助手','备一节课'],['课件大纲生成','制作课件大纲'],['微课脚本撰写','写微课脚本'],['情境导入设计','设计新课导入'],['苏格拉底助手','练习启发式提问'],['分层提问设计','设计课堂提问'],['概念解释器','讲清一个概念'],['课堂活动设计','设计课堂活动'],['智能出题','出一份练习'],['作业批改助手','批改作业'],['作文评改','评改作文'],['单元组卷','组一份试卷'],['错题诊断','分析学生错题'],['家校沟通助手','准备家校沟通'],['学生评语生成','写学生评语'],['主题班会设计','设计主题班会'],['学生谈心顾问','准备学生谈心'],['教学反思助手','写教学反思'],['听评课助手','整理听评课记录']
+].map(([before,after],index)=>({id:'17.'+(index+1),text:before+' → '+after,group:'逐个入口名称'}));
+const items=[];
+for(const [,group,,rows] of sections)for(const [id,text] of rows){items.push({id:String(id),text,group});if(id===17)items.push(...names);}
+const storageKey='t-training:ux-review:20261025:v1';
+const state={};
+const feedback=document.getElementById('feedback');
+function notify(message,error=false){feedback.textContent=message;feedback.classList.toggle('error',error);}
+try{
+ const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
+ if(saved&&[1,2].includes(saved.version)&&saved.items&&typeof saved.items==='object'){for(const item of items){const v=saved.items[item.id];if(v&&typeof v==='object'){const decision=saved.version===1?({keep:'adopt',change:'adjust'}[v.decision]||''):v.decision;state[item.id]={decision:['adopt','revert','adjust'].includes(decision)?decision:'',note:typeof v.note==='string'?v.note.slice(0,5000):''};}}if(saved.version===1)notify('已保留旧记录：原“保留”对应“采用本次改动”，原“调整”对应“另行调整”。请按新名称核对。');}
+}catch{notify('未能读取本机记录。当前选择仍可导出，请核对后及时下载。',true);}
+const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function row(item){
+ const v=state[item.id]||{decision:'',note:''};
+ return `<article class="row" id="item-${item.id}" data-item="${item.id}" data-decision="${v.decision}"><div class="row-main"><div class="description" id="description-${item.id}"><span class="number">${item.id}</span><span>${escapeHtml(item.text)}</span></div><div class="choices" role="group" aria-labelledby="description-${item.id}"><label class="choice adopt"><input type="checkbox" id="adopt-${item.id}" data-choice="adopt" ${v.decision==='adopt'?'checked':''}><span>✓ 采用本次改动</span></label><label class="choice revert"><input type="checkbox" id="revert-${item.id}" data-choice="revert" ${v.decision==='revert'?'checked':''}><span>✕ 恢复原样</span></label><label class="choice adjust"><input type="checkbox" id="adjust-${item.id}" data-choice="adjust" ${v.decision==='adjust'?'checked':''}><span>另行调整</span></label></div></div><details class="note" ${v.note?'open':''}><summary>备注${v.note?'（已填写）':''}</summary><label for="note-${item.id}" hidden>第 ${item.id} 项备注</label><textarea id="note-${item.id}" data-note maxlength="5000" aria-label="第 ${item.id} 项备注" placeholder="需要怎么调整（选填）"></textarea></details>${item.id==='17'?'<details class="name-review"><summary>逐个核对 19 个入口名称（可展开）</summary>'+names.map(row).join('')+'</details>':''}</article>`;
+}
+document.getElementById('groups').innerHTML=sections.map(([id,title])=>`<a href="#${id}">${title}</a>`).join('');
+document.getElementById('checklist').innerHTML=sections.map(([id,title,href,rows])=>`<section id="${id}"><h2>${title}<a href="${href}" target="_blank" rel="noopener">查看对应页面</a></h2>${rows.map(([n,text])=>row({id:String(n),text})).join('')}</section>`).join('');
+for(const item of items)document.getElementById('note-'+item.id).value=state[item.id]?.note||'';
+if(names.some(item=>state[item.id]?.decision||state[item.id]?.note))document.querySelector('.name-review').open=true;
+function counts(){const values=items.map(item=>state[item.id]?.decision);const adopted=values.filter(v=>v==='adopt').length,reverted=values.filter(v=>v==='revert').length,adjusted=values.filter(v=>v==='adjust').length;return{adopted,reverted,adjusted,done:adopted+reverted+adjusted,total:items.length};}
+function refresh(){const n=counts();for(const [id,v]of Object.entries({done:n.done,total:n.total,adopted:n.adopted,reverted:n.reverted,adjusted:n.adjusted,pending:n.total-n.done}))document.getElementById(id).textContent=v;const progress=document.getElementById('progress');progress.max=n.total;progress.value=n.done;}
+function save(){refresh();try{localStorage.setItem(storageKey,JSON.stringify({version:2,updatedAt:new Date().toISOString(),items:state}));notify('已自动保存在当前浏览器。核对后，可复制结果发给我。');}catch{notify('未能自动保存，请先下载核对结果；当前页面中的选择仍保留。',true);}}
+document.getElementById('checklist').addEventListener('change',event=>{
+ const box=event.target.closest('input[data-choice]');if(!box)return;const card=box.closest('[data-item]'),id=card.dataset.item;
+ const v=state[id]||{decision:'',note:''};v.decision=box.checked?box.dataset.choice:'';state[id]=v;
+ for(const choice of ['adopt','revert','adjust'])document.getElementById(choice+'-'+id).checked=v.decision===choice;card.dataset.decision=v.decision;
+ if(v.decision==='adjust')card.querySelector(':scope > .note').open=true;save();
+});
+document.getElementById('checklist').addEventListener('input',event=>{
+ if(!event.target.matches('textarea[data-note]'))return;const id=event.target.closest('[data-item]').dataset.item;const v=state[id]||{decision:'',note:''};v.note=event.target.value;state[id]=v;event.target.closest('details').querySelector('summary').textContent=v.note?'备注（已填写）':'备注';save();
+});
+function exportData(){return{title:'教师培训网站修改核对',version:2,exportedAt:new Date().toISOString(),summary:counts(),items:items.map(item=>({...item,decision:state[item.id]?.decision||'',note:state[item.id]?.note||''}))};}
+function exportText(){const data=exportData(),n=data.summary;return['教师培训网站修改核对',`已核对 ${n.done}/${n.total}；采用改动 ${n.adopted}；恢复原样 ${n.reverted}；另行调整 ${n.adjusted}；未核对 ${n.total-n.done}`,'',...data.items.map(item=>`${item.id}. ${item.decision==='adopt'?'[✓ 采用本次改动]':item.decision==='revert'?'[✕ 恢复原样]':item.decision==='adjust'?'[另行调整]':'[未核对]'} ${item.text}${item.note?'\n备注：'+item.note:''}`)].join('\n');}
+async function copy(){try{await navigator.clipboard.writeText(exportText());notify('核对结果已复制，可以粘贴发给我。');}catch{notify('复制未成功，请使用“下载核对结果”。',true);}}
+function download(){const blob=new Blob([JSON.stringify(exportData(),null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='教师培训网站-修改核对-2026-10-25.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notify('核对结果已下载，可以把文件发给我。');}
+for(const id of ['copy','copy-bottom'])document.getElementById(id).addEventListener('click',copy);
+for(const id of ['download','download-bottom'])document.getElementById(id).addEventListener('click',download);
+refresh();
+</script>
+</body>
+</html>

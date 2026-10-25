@@ -1077,8 +1077,9 @@
         #wb-edit-button[hidden] { display: none; }
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
+    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
 </head>
-<body>
+<body class="ux-workspace">
 <div id="main-nav"></div>
 
 <main class="wb-wrap" id="main-content">
@@ -1094,7 +1095,7 @@
     <div id="login-gate">
         <i class="ph ph-notebook"></i>
         <p data-site-copy="loginPrompt">登录后即可查看你保存的备课内容</p>
-        <button class="btn-primary" onclick="showAuthModal('login')" data-site-copy="loginAction">登录 / 注册</button>
+        <button class="btn-primary" onclick="showAuthModal('login')" data-site-copy="loginAction">登录查看</button>
     </div>
 
     <!-- 已登录 -->
@@ -1143,8 +1144,8 @@
                                     <select class="wb-select" id="wb-project-filter" onchange="updateWorkbookState({ project: this.value })" aria-label="按教学项目筛选"></select>
                                     <select class="wb-select" id="wb-agent-filter" onchange="updateWorkbookState({ agent: this.value })" aria-label="按智能体筛选"></select>
                                     <div class="wb-view-toggle" aria-label="切换显示方式">
-                                        <button type="button" data-view="cards" onclick="setWorkbookView('cards')" title="活页视图" aria-label="活页视图"><i class="ph ph-squares-four"></i></button>
-                                        <button type="button" data-view="list" class="active" onclick="setWorkbookView('list')" title="目录视图" aria-label="目录视图"><i class="ph ph-list-bullets"></i></button>
+                                        <button type="button" data-view="cards" onclick="setWorkbookView('cards')" title="活页视图" aria-label="活页视图" aria-pressed="false"><i class="ph ph-squares-four" aria-hidden="true"></i><span>活页</span></button>
+                                        <button type="button" data-view="list" class="active" onclick="setWorkbookView('list')" title="目录视图" aria-label="目录视图" aria-pressed="true"><i class="ph ph-list-bullets" aria-hidden="true"></i><span>目录</span></button>
                                     </div>
                                     <button class="wb-clear" onclick="resetWorkbookFilters()" data-site-copy="clearFilters">清除筛选</button>
                                     <div class="wb-statline" id="wb-statline"></div>
@@ -1162,12 +1163,12 @@
                             <div id="wb-empty">
                                 <i class="ph ph-folder-open"></i>
                                 <p style="font-size:16px;font-weight:600;margin-bottom:6px" data-site-copy="emptyTitle">备课本还是空的</p>
-                                <p style="font-size:13px" data-site-copy="emptyHint">在智能体空间保存成果后会显示在这里。</p>
+                                <p style="font-size:13px" data-site-copy="emptyHint">先完成一项教学任务，再将初稿保存到这里。</p><div class="ui-secondary-actions"><a class="ui-action-link primary" href="/agents#lesson-design">备一节课</a><a class="ui-action-link" href="/research" style="color:var(--ink);border-color:var(--line)">开始科研写作</a></div>
                             </div>
                             <div class="wb-filter-empty" id="wb-filter-empty">
                                 <i class="ph ph-funnel-simple"></i>
                                 <p style="font-size:15px;font-weight:700;margin:0 0 6px;color:var(--ink)">没有符合条件的内容</p>
-                                <p style="font-size:13px;margin:0">换个关键词，或清除筛选后再看。</p>
+                                <p style="font-size:13px;margin:0">换个关键词，或清除筛选后再看。</p><div class="ui-secondary-actions"><button type="button" class="ui-action-link" onclick="resetWorkbookFilters()">清除筛选</button></div>
                             </div>
                             <div id="wb-error">
                                 <i class="ph ph-warning-circle"></i>
@@ -1224,12 +1225,13 @@
 <script src="/vendor/firebase/10.12.0/firebase-firestore-compat.js"></script>
 <script src="/vendor/marked/9.1.6/marked.min.js"></script>
 <script src="js/safe-render.js?v=20260719-security"></script>
+<script src="js/ui-notes.js?v=20261025-ux"></script>
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261014-coach-six-rounds"></script>
+<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
-    <script src="js/auth.js?v=20261017-sources"></script>
+    <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
@@ -1248,6 +1250,7 @@ let _works = [];
 let _activeWorkId = null;
 let _workModalReturnFocus = null;
 let _workbookViewTracked = false;
+let _requestedWorkOpenedFor = '';
 let _wbState = { q: '', type: 'all', project: 'all', agent: 'all', sort: 'updated-desc', view: 'list' };
 let _wbError = '';
 
@@ -1391,6 +1394,7 @@ function renderFilterControls() {
 
     document.querySelectorAll('.wb-view-toggle button').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.view === _wbState.view);
+        btn.setAttribute('aria-pressed', String(btn.dataset.view === _wbState.view));
     });
 
     const projectSelect = document.getElementById('wb-project-filter');
@@ -1588,6 +1592,7 @@ function viewWork(id) {
     }
     const modal = document.getElementById('wb-modal');
     modal.classList.add('active');
+    document.body.classList.add('workbook-work-open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => modal.querySelector('.wb-modal-head button')?.focus());
@@ -1663,6 +1668,7 @@ function closeModal() {
     const modal = document.getElementById('wb-modal');
     if (!modal.classList.contains('active')) return;
     modal.classList.remove('active');
+    document.body.classList.remove('workbook-work-open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     _activeWorkId = null;
@@ -1757,6 +1763,7 @@ async function loadWorks() {
         _workbookViewTracked = false;
         const modal = document.getElementById('wb-modal');
         modal.classList.remove('active');
+        document.body.classList.remove('workbook-work-open');
         modal.setAttribute('aria-hidden', 'true');
         document.getElementById('wb-modal-body').replaceChildren();
         document.body.style.overflow = '';
@@ -1783,6 +1790,12 @@ async function loadWorks() {
         showToast('备课本加载失败，请稍后重试');
     }
     renderWorks();
+    const requestedWork = new URLSearchParams(location.search).get('work');
+    if (requestedWork && !_wbError && _requestedWorkOpenedFor !== uid + ':' + requestedWork) {
+        _requestedWorkOpenedFor = uid + ':' + requestedWork;
+        if (findWork(requestedWork)) viewWork(requestedWork);
+        else showToast('这份成果未找到，可在目录中重新查找');
+    }
     if (!_workbookViewTracked && window.OperationsAnalytics) {
         _workbookViewTracked = true;
         OperationsAnalytics.track('workbook_view', { feature: 'workspace', meta: { workCount: _works.length } });
@@ -1797,7 +1810,7 @@ document.addEventListener('authRefresh', () => loadWorks());  // 在本页登录
 document.addEventListener('authChanged', () => loadWorks());
 window.addEventListener('pagehide', persistWorkEdit);
 </script>
-<script src="js/pwa.js?v=20261012-methods"></script>
-<script src="js/assistant.js?v=20261012-methods"></script>
+<script src="js/pwa.js?v=20261025-ux-reviewed"></script>
+<script src="js/assistant.js?v=20261025-ux-reviewed"></script>
 </body>
 </html>
