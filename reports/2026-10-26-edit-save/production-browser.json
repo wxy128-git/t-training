@@ -1,0 +1,237 @@
+{
+  "testedAt": "2026-10-28",
+  "production": "https://ai.teachailab.com/",
+  "assertions": 50,
+  "groups": [
+    {
+      "assertions": 25,
+      "checks": [
+        {
+          "name": "home 320 fits",
+          "pass": true
+        },
+        {
+          "name": "home 320 no checklist",
+          "pass": true
+        },
+        {
+          "name": "home 390 fits",
+          "pass": true
+        },
+        {
+          "name": "home 390 no checklist",
+          "pass": true
+        },
+        {
+          "name": "home 768 fits",
+          "pass": true
+        },
+        {
+          "name": "home 768 no checklist",
+          "pass": true
+        },
+        {
+          "name": "home 1440 fits",
+          "pass": true
+        },
+        {
+          "name": "home 1440 no checklist",
+          "pass": true
+        },
+        {
+          "name": "third step edit save",
+          "pass": true
+        },
+        {
+          "name": "retired controls absent",
+          "pass": true
+        },
+        {
+          "name": "optional feedback collapsed",
+          "pass": true
+        },
+        {
+          "name": "workbench 320 fits",
+          "pass": true
+        },
+        {
+          "name": "workbench 320 save enabled",
+          "pass": true
+        },
+        {
+          "name": "workbench 390 fits",
+          "pass": true
+        },
+        {
+          "name": "workbench 390 save enabled",
+          "pass": true
+        },
+        {
+          "name": "workbench 768 fits",
+          "pass": true
+        },
+        {
+          "name": "workbench 768 save enabled",
+          "pass": true
+        },
+        {
+          "name": "workbench 1440 fits",
+          "pass": true
+        },
+        {
+          "name": "workbench 1440 save enabled",
+          "pass": true
+        },
+        {
+          "name": "edits rendered",
+          "pass": true
+        },
+        {
+          "name": "failed save keeps text",
+          "pass": true
+        },
+        {
+          "name": "saved link",
+          "pass": true
+        },
+        {
+          "name": "save has no review metadata",
+          "pass": true
+        },
+        {
+          "name": "edit clears success",
+          "pass": true
+        },
+        {
+          "name": "script errors",
+          "pass": true
+        }
+      ],
+      "errors": [],
+      "synthetic": true,
+      "realModelCalls": 0,
+      "businessWrites": 0
+    },
+    {
+      "assertions": 16,
+      "checks": [
+        {
+          "name": "old three works visible",
+          "pass": true
+        },
+        {
+          "name": "three content metrics",
+          "pass": true
+        },
+        {
+          "name": "retired reviewed metric removed",
+          "pass": true
+        },
+        {
+          "name": "all old states use draft type",
+          "pass": true
+        },
+        {
+          "name": "workbook 320 fits",
+          "pass": true
+        },
+        {
+          "name": "workbook 390 fits",
+          "pass": true
+        },
+        {
+          "name": "workbook 768 fits",
+          "pass": true
+        },
+        {
+          "name": "workbook 1440 fits",
+          "pass": true
+        },
+        {
+          "name": "old original opens",
+          "pass": true
+        },
+        {
+          "name": "old review select absent",
+          "pass": true
+        },
+        {
+          "name": "new revision drops old fields",
+          "pass": true
+        },
+        {
+          "name": "original metadata intact",
+          "pass": true
+        },
+        {
+          "name": "version reference intact",
+          "pass": true
+        },
+        {
+          "name": "previous version link",
+          "pass": true
+        },
+        {
+          "name": "account switch clears prior works",
+          "pass": true
+        },
+        {
+          "name": "script errors",
+          "pass": true
+        }
+      ],
+      "errors": [],
+      "synthetic": true,
+      "businessWrites": 0
+    },
+    {
+      "assertions": 9,
+      "checks": [
+        {
+          "name": "synthetic stream renders",
+          "pass": true
+        },
+        {
+          "name": "stream leads to edit save",
+          "pass": true
+        },
+        {
+          "name": "failed regenerate keeps previous",
+          "pass": true
+        },
+        {
+          "name": "failure still editable",
+          "pass": true
+        },
+        {
+          "name": "mobile note opens",
+          "pass": true
+        },
+        {
+          "name": "note no mandatory confirmation",
+          "pass": true
+        },
+        {
+          "name": "popover stays in viewport",
+          "pass": true
+        },
+        {
+          "name": "Esc closes note",
+          "pass": true
+        },
+        {
+          "name": "script errors",
+          "pass": true
+        }
+      ],
+      "errors": [],
+      "syntheticModelOnly": true,
+      "realModelCalls": 0,
+      "businessWrites": 0
+    }
+  ],
+  "realModelCalls": 0,
+  "emails": 0,
+  "businessWrites": 0,
+  "note": "生产页面在隔离浏览器内用合成账号、内存作品和模拟生成响应测试；运营写入被拦截。一次测试把 workDirectoryState 返回对象误当字符串，修正断言读取 label/className 后全部通过。"
+}

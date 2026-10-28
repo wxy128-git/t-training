@@ -1,0 +1,335 @@
+{
+  "deployedAt": "2026-10-28T09:40:29.527Z",
+  "revision": "4c4ac31",
+  "release": "/home/ubuntu/t-training/releases/20261028-edit-save-4c4ac31",
+  "backup": "/home/ubuntu/t-training/backups/20261028-pre-edit-save-4c4ac31",
+  "cacheVersion": "20261026-v55-edit-save",
+  "staticOnly": true,
+  "apiRestarted": false,
+  "nginxChanged": false,
+  "apiFilesUnchanged": 38,
+  "databaseBackupBytes": 3787750,
+  "databaseBackupIntegrity": true,
+  "candidate": {
+    "base": "http://127.0.0.1:3002",
+    "assertions": 19,
+    "checks": [
+      {
+        "name": "health",
+        "pass": true
+      },
+      {
+        "name": "auth unknown action",
+        "pass": true
+      },
+      {
+        "name": "auth cache disabled",
+        "pass": true
+      },
+      {
+        "name": "email requires identity",
+        "pass": true
+      },
+      {
+        "name": "public tools",
+        "pass": true
+      },
+      {
+        "name": "public articles",
+        "pass": true
+      },
+      {
+        "name": "published only",
+        "pass": true
+      },
+      {
+        "name": "pageCopy home",
+        "pass": true
+      },
+      {
+        "name": "pageCopy agents",
+        "pass": true
+      },
+      {
+        "name": "pageCopy research",
+        "pass": true
+      },
+      {
+        "name": "works identity",
+        "pass": true
+      },
+      {
+        "name": "model identity/input guard",
+        "pass": true
+      },
+      {
+        "name": "admin identity",
+        "pass": true
+      },
+      {
+        "name": "privacy identity",
+        "pass": true
+      },
+      {
+        "name": "operations flags",
+        "pass": true
+      },
+      {
+        "name": "operations admin only",
+        "pass": true
+      },
+      {
+        "name": "research remains paused",
+        "pass": true
+      },
+      {
+        "name": "RSS allowlist",
+        "pass": true
+      },
+      {
+        "name": "logo path guard",
+        "pass": true
+      }
+    ],
+    "realModelCalls": 0,
+    "emails": 0,
+    "businessWrites": 0
+  },
+  "formal": {
+    "base": "http://127.0.0.1:3001",
+    "assertions": 19,
+    "checks": [
+      {
+        "name": "health",
+        "pass": true
+      },
+      {
+        "name": "auth unknown action",
+        "pass": true
+      },
+      {
+        "name": "auth cache disabled",
+        "pass": true
+      },
+      {
+        "name": "email requires identity",
+        "pass": true
+      },
+      {
+        "name": "public tools",
+        "pass": true
+      },
+      {
+        "name": "public articles",
+        "pass": true
+      },
+      {
+        "name": "published only",
+        "pass": true
+      },
+      {
+        "name": "pageCopy home",
+        "pass": true
+      },
+      {
+        "name": "pageCopy agents",
+        "pass": true
+      },
+      {
+        "name": "pageCopy research",
+        "pass": true
+      },
+      {
+        "name": "works identity",
+        "pass": true
+      },
+      {
+        "name": "model identity/input guard",
+        "pass": true
+      },
+      {
+        "name": "admin identity",
+        "pass": true
+      },
+      {
+        "name": "privacy identity",
+        "pass": true
+      },
+      {
+        "name": "operations flags",
+        "pass": true
+      },
+      {
+        "name": "operations admin only",
+        "pass": true
+      },
+      {
+        "name": "research remains paused",
+        "pass": true
+      },
+      {
+        "name": "RSS allowlist",
+        "pass": true
+      },
+      {
+        "name": "logo path guard",
+        "pass": true
+      }
+    ],
+    "realModelCalls": 0,
+    "emails": 0,
+    "businessWrites": 0
+  },
+  "public": {
+    "base": "https://ai.teachailab.com",
+    "assertions": 19,
+    "checks": [
+      {
+        "name": "health",
+        "pass": true
+      },
+      {
+        "name": "auth unknown action",
+        "pass": true
+      },
+      {
+        "name": "auth cache disabled",
+        "pass": true
+      },
+      {
+        "name": "email requires identity",
+        "pass": true
+      },
+      {
+        "name": "public tools",
+        "pass": true
+      },
+      {
+        "name": "public articles",
+        "pass": true
+      },
+      {
+        "name": "published only",
+        "pass": true
+      },
+      {
+        "name": "pageCopy home",
+        "pass": true
+      },
+      {
+        "name": "pageCopy agents",
+        "pass": true
+      },
+      {
+        "name": "pageCopy research",
+        "pass": true
+      },
+      {
+        "name": "works identity",
+        "pass": true
+      },
+      {
+        "name": "model identity/input guard",
+        "pass": true
+      },
+      {
+        "name": "admin identity",
+        "pass": true
+      },
+      {
+        "name": "privacy identity",
+        "pass": true
+      },
+      {
+        "name": "operations flags",
+        "pass": true
+      },
+      {
+        "name": "operations admin only",
+        "pass": true
+      },
+      {
+        "name": "research remains paused",
+        "pass": true
+      },
+      {
+        "name": "RSS allowlist",
+        "pass": true
+      },
+      {
+        "name": "logo path guard",
+        "pass": true
+      }
+    ],
+    "realModelCalls": 0,
+    "emails": 0,
+    "businessWrites": 0
+  },
+  "hashes": {
+    "revision": "4c4ac312653e",
+    "files": 222,
+    "passed": true
+  },
+  "network": {
+    "checks": [
+      {
+        "name": "home HTTP/2 200",
+        "pass": true
+      },
+      {
+        "name": "HTML no-cache",
+        "pass": true
+      },
+      {
+        "name": "gzip",
+        "pass": true
+      },
+      {
+        "name": "static cache",
+        "pass": true
+      },
+      {
+        "name": "SW no-cache",
+        "pass": true
+      },
+      {
+        "name": "SVG MIME",
+        "pass": true
+      },
+      {
+        "name": "legacy 302",
+        "pass": true
+      },
+      {
+        "name": "legacy path and query",
+        "pass": true
+      },
+      {
+        "name": "course 200",
+        "pass": true
+      }
+    ],
+    "assertions": 9
+  },
+  "publicCheckLog": "生产检查通过：170 项断言，目标 https://ai.teachailab.com。\n",
+  "apps": [
+    {
+      "name": "edu-media",
+      "pid": 4180111,
+      "status": "online"
+    },
+    {
+      "name": "t-training-api",
+      "pid": 1259773,
+      "status": "online"
+    }
+  ],
+  "systemd": {
+    "active": true,
+    "enabled": true,
+    "mainPID": 1091830
+  },
+  "realModelCalls": 0,
+  "emails": 0,
+  "businessWrites": 0
+}
