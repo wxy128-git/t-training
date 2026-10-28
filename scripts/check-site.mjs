@@ -39,7 +39,7 @@ for (const file of publicPages) {
 
 for (const file of appPages) {
     const html = text(file);
-    if (!html.includes('css/ux.css?v=20261025-ux-reviewed') || !html.includes('js/ui-notes.js?v=20261025-ux')) fail(file, '任务与备注资源版本未统一');
+    if (!html.includes('css/ux.css?v=20261026-edit-save') || !html.includes('js/ui-notes.js?v=20261025-ux')) fail(file, '任务与备注资源版本未统一');
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
     const styleVersion = '20261006-research-nav';
     if (!new RegExp(`css/style\\.css\\?v=${styleVersion}`).test(html)) fail(file, '样式缓存版本未统一');
@@ -58,7 +58,7 @@ for (const file of dataPages) {
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!new RegExp('js/site-copy\\.js\\?v=20261025-ux-reviewed').test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!new RegExp('js/site-copy\\.js\\?v=20261026-edit-save').test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -148,7 +148,7 @@ if (!/id="ws-presence"/.test(agentsHtml) || !/function setAgentWorkStage/.test(a
 if (!/escapeHtml\(a\.name\)/.test(agentsHtml) || !/id="ws-cat"/.test(agentsHtml) || !/escapeHtml\(deliverable\)/.test(agentsHtml)) {
     fail('agents.html', '数字成员交付区缺少成员归属');
 }
-if (!/AI 初稿，使用前请核对/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少教师核验提示');
+if (!/AI 初稿，使用前请核对/.test(agentsHtml)) fail('agents.html', '数字成员交付区缺少使用前提示');
 for (const [pattern, label] of [
     [/题量是所有题型合计总数/, '出题总题量约束'],
     [/不能保留错误原题再附“修正说明”/, '组卷自检修正约束'],
@@ -202,7 +202,7 @@ if (!agentApiSource.includes("'research-design'") || !agentApiSource.includes("'
 if (!/class="wb-desk-scene wb-workbook-light"/.test(workspaceHtml) || !/class="wb-binder-spine"/.test(workspaceHtml) || !/class="wb-directory-page"/.test(workspaceHtml)) {
     fail('workspace.html', '轻量备课本或装订线索结构未接入');
 }
-if (!/data-type="reviewed"/.test(workspaceHtml) || !/class="wb-card-more"/.test(workspaceHtml) || !/wb-sheet-open/.test(workspaceHtml)) {
+if (!/data-type="draft"/.test(workspaceHtml) || !/class="wb-card-more"/.test(workspaceHtml) || !/wb-sheet-open/.test(workspaceHtml)) {
     fail('workspace.html', '备课本章节筛选、页侧操作或轻量打开交互不完整');
 }
 if (/class="(?:wb-paper-under|wb-page-hole|wb-binder-ring|wb-sheet-hole)"/.test(workspaceHtml)) {
@@ -217,7 +217,7 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261025-v54-resource-unified/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261026-v55-edit-save/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }

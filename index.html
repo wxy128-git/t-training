@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <script>if(matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)document.documentElement.classList.add('pwa-app-mode');</script>
     <title>AI 教师培训中心</title>
-    <meta name="description" content="面向中小学教师的 AI 教学实践平台：从备课、上课、评价到复盘，AI 起草初稿、教师核验定稿，成果可保存、导出和复用。">
+    <meta name="description" content="面向中小学教师的 AI 教学实践平台：从备课、上课、评价到复盘，AI 起草初稿、教师修改完善，成果可保存、导出和复用。">
     <meta property="og:title" content="AI 教师培训中心">
     <meta property="og:description" content="从真实教学任务出发，使用专业 AI 智能体完成备课、评价、家校沟通与教学复盘。">
     <meta property="og:type" content="website">
@@ -209,34 +209,6 @@
         .th-task-output i { margin-left: auto; color: var(--th-subtle); font-size: 16px; transition: transform .18s, color .18s; }
         .th-task:hover .th-task-output i { color: var(--task-color, var(--th-blue)); transform: translateX(3px); }
 
-        .th-task-closure {
-            margin-top: 16px;
-            border: 1px solid var(--th-line-strong);
-            border-radius: 10px;
-            background: var(--th-panel);
-            overflow: hidden;
-        }
-        .th-task-closure > summary {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            align-items: center;
-            gap: 24px;
-            min-height: 64px;
-            padding: 10px 18px;
-            cursor: pointer;
-            list-style: none;
-        }
-        .th-task-closure > summary::-webkit-details-marker { display: none; }
-        .th-closure-label { display: inline-flex; align-items: center; gap: 8px; color: var(--th-ink); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
-        .th-closure-label i { color: var(--th-blue); font-size: 18px; }
-        .th-closure-more { display: inline-flex; align-items: center; gap: 5px; color: var(--th-blue); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
-        .th-closure-more i { transition: transform .18s; }
-        .th-task-closure[open] .th-closure-more i { transform: rotate(180deg); }
-        .th-closure-checks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--th-line); background: #f9fbfc; }
-        .th-closure-check { display: flex; align-items: flex-start; gap: 8px; padding: 14px 16px; border-right: 1px solid var(--th-line); color: var(--th-muted); font-size: 11.5px; line-height: 1.55; }
-        .th-closure-check:last-child { border-right: 0; }
-        .th-closure-check i { flex: none; margin-top: 1px; color: var(--th-teal); font-size: 16px; }
-
         .th-method-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .th-method-card { border: 1px solid var(--th-line-strong); border-radius: 10px; background: var(--th-panel); overflow: hidden; }
         .th-method-title {
@@ -357,10 +329,6 @@
             .th-task h3 { margin: 14px 0 0; font-size: 15px; }
             .th-task p { display: none; }
             .th-task-output { padding-top: 12px; font-size: 10.5px; line-height: 1.4; }
-            .th-task-closure > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; padding: 14px 15px; }
-            .th-closure-checks { grid-template-columns: 1fr 1fr; }
-            .th-closure-check:nth-child(2) { border-right: 0; }
-            .th-closure-check:nth-child(-n + 2) { border-bottom: 1px solid var(--th-line); }
             .th-mobile-more { display: inline-flex; }
             #main-content:not(.mobile-expanded) .th-mobile-secondary { display: none; }
             .th-index-row { grid-template-columns: 112px minmax(0, 1fr) 70px; gap: 12px; }
@@ -370,10 +338,6 @@
             .th-hero-actions .th-btn { width: 100%; }
             .th-resume { grid-template-columns: auto minmax(0,1fr); }
             .th-resume-link { grid-column: 1 / -1; justify-content: center; }
-            .th-closure-checks { grid-template-columns: 1fr; }
-            .th-closure-check { border-right: 0; border-bottom: 1px solid var(--th-line); }
-            .th-closure-check:nth-child(3) { border-bottom: 1px solid var(--th-line); }
-            .th-closure-check:last-child { border-bottom: 0; }
             .th-index-row { grid-template-columns: 1fr auto; }
             .th-index-list { grid-column: 1 / -1; grid-row: 2; }
             .th-resource-grid { grid-template-columns: 1fr; gap: 8px; }
@@ -391,7 +355,7 @@
         @media(max-width:560px){.th-callout{padding:18px;align-items:flex-start}.th-callout-copy>span{font-size:13px}}
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
-    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
+    <link rel="stylesheet" href="css/ux.css?v=20261026-edit-save">
 </head>
 <body class="ux-home">
 <div id="main-nav"></div>
@@ -429,20 +393,8 @@
                 <span class="th-callout-copy"><b>科研写作</b><span>聚焦问题、研读文献、设计问卷</span></span>
                 <i class="ph ph-arrow-right" aria-hidden="true"></i>
             </a>
-                <details class="th-task-closure th-mobile-secondary">
-                    <summary>
-                        <span class="th-closure-label"><i class="ph ph-shield-check"></i><span data-site-copy="checklistHeading">使用前核验</span></span>
-                        <span class="th-closure-more"><span data-site-copy="checklistAction">查看 4 项</span> <i class="ph ph-caret-down"></i></span>
-                    </summary>
-                    <div class="th-closure-checks">
-                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>目标、活动与评价一致</span></div>
-                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>适合当前学生与课堂条件</span></div>
-                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>事实和课程依据已经核实</span></div>
-                        <div class="th-closure-check"><i class="ph ph-check-circle"></i><span>不输入敏感信息，教师最终定稿</span></div>
-                    </div>
-                </details>
                 <button type="button" class="th-mobile-more" id="th-mobile-more" aria-expanded="false" onclick="toggleHomeDetails()">
-                    <span>查看使用提示与配套资源</span><i class="ph ph-caret-down" aria-hidden="true"></i>
+                    <span>查看配套资源</span><i class="ph ph-caret-down" aria-hidden="true"></i>
                 </button>
             </div>
         </section>
@@ -479,7 +431,7 @@
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
+<script src="js/site-copy.js?v=20261026-edit-save"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
     <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
@@ -561,7 +513,7 @@ function syncHomeDetailsToggle() {
     if (!main || !button) return;
     const expanded = main.classList.contains('mobile-expanded');
     button.setAttribute('aria-expanded', String(expanded));
-    button.querySelector('span').textContent = expanded ? '收起使用提示与配套资源' : '查看使用提示与配套资源';
+    button.querySelector('span').textContent = expanded ? '收起配套资源' : '查看配套资源';
     button.querySelector('i').className = `ph ${expanded ? 'ph-caret-up' : 'ph-caret-down'}`;
 }
 

@@ -40,6 +40,50 @@ check(input.includes('aria-required="true"') && input.includes('for="agent-test-
 const select = ctx.renderField('test', {key:'grade',label:'年级',type:'select',required:true,options:['小学一年级']});
 check(select.includes('value="" disabled selected'), 'required select asks for an explicit choice');
 
+// Retiring checklist UI must preserve saved content and never invent a completed review.
+const stateCtx = vm.createContext({
+    console, _lastResult: '已保存的教案', _resultFeedback: '', _lastInputs: null,
+    liveInputs: {topic:'分数'}, document: {getElementById: id => id === 'agent-form' ? {} : null}
+});
+stateCtx.window = stateCtx;
+stateCtx.collectInputs = () => stateCtx.liveInputs;
+stateCtx.TeachingProjects = {getActiveProject: () => null};
+function sourceFunction(source, name) {
+    const match = source.match(new RegExp('^function '+name+'\\([^\\n]*\\) \\{\\n[\\s\\S]*?^\\}', 'm'));
+    assert.ok(match, name + ': definition exists');
+    return match[0];
+}
+for (const name of ['fingerprintWorkState','workStateFingerprint','restoredWorkbookFingerprint','workInputsWithProject']) {
+    vm.runInContext(sourceFunction(page, name), stateCtx);
+}
+const storedDraft = {result:'已保存的教案',review:{alignment:'pass',facts:'pass'},feedback:'',workbookId:'saved-work'};
+storedDraft.workbookFingerprint = stateCtx.fingerprintWorkState({agentId:lesson.id,inputs:stateCtx.liveInputs,result:storedDraft.result,review:storedDraft.review,feedback:''}, 'v1');
+check(stateCtx.restoredWorkbookFingerprint(lesson, storedDraft) === stateCtx.workStateFingerprint(lesson), 'unchanged legacy draft keeps its saved marker');
+check(stateCtx.workStateFingerprint(lesson).startsWith('v2:'), 'new fingerprints use content and feedback only');
+check(!stateCtx.restoredWorkbookFingerprint(lesson, {...storedDraft,result:'尚未保存的修改'}), 'changed legacy content is not falsely marked saved');
+stateCtx.liveInputs = {topic:'小数'};
+check(!stateCtx.restoredWorkbookFingerprint(lesson, storedDraft), 'changed legacy inputs are not falsely marked saved');
+stateCtx.liveInputs = {topic:'分数'};
+check(!stateCtx.restoredWorkbookFingerprint(lesson, {...storedDraft,workbookId:''}), 'missing saved work identity is not treated as saved');
+const current = stateCtx.workStateFingerprint(lesson);
+check(stateCtx.restoredWorkbookFingerprint(lesson, {workbookFingerprint:current}) === current, 'current saved fingerprints restore unchanged');
+const legacyInputs = {topic:'分数',_sourceWorkId:'parent',_reviewStatus:'reviewed',_reviewChecks:['facts'],_reviewDecisions:{facts:'pass'}};
+const beforeInputs = JSON.stringify(legacyInputs);
+const cleanInputs = stateCtx.workInputsWithProject(legacyInputs);
+check(!('_reviewStatus' in cleanInputs) && !('_reviewChecks' in cleanInputs) && !('_reviewDecisions' in cleanInputs), 'new saves carry no checklist status');
+check(cleanInputs.topic === '分数' && cleanInputs._sourceWorkId === 'parent', 'removing checklist metadata keeps task inputs and version lineage');
+check(JSON.stringify(legacyInputs) === beforeInputs, 'legacy input records are not mutated');
+const workbook = read('workspace.html');
+stateCtx.workType = () => 'draft';
+stateCtx.workTypeLabel = () => '生成文稿';
+vm.runInContext(sourceFunction(workbook, 'workDirectoryState'), stateCtx);
+for (const status of ['draft','needs_revision','reviewed']) {
+    const work = {inputs:{_reviewStatus:status},content:'原始内容'};
+    const original = JSON.stringify(work);
+    check(stateCtx.workDirectoryState(work).label === '生成文稿', status + ': legacy checklist does not create a workbook badge');
+    check(JSON.stringify(work) === original, status + ': reading an old work preserves it');
+}
+
 // Small DOM fixture for the note event lifecycle; no browser, storage or external requests.
 class Element {
     constructor(tag = 'div') { this.tag = tag; this.attrs = {}; this.dataset = {}; this.children = []; this.style = {}; this.listeners = {}; this.isConnected = true; this.rect = {left:370,top:620,bottom:652,width:32}; }

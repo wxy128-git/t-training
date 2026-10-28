@@ -1,0 +1,169 @@
+{
+  "date": "2026-10-26",
+  "status": "local-only-awaiting-user-review",
+  "cache": {
+    "siteCopy": "20261026-edit-save",
+    "uxCss": "20261026-edit-save",
+    "serviceWorker": "20261026-v55-edit-save"
+  },
+  "responsive": {
+    "date": "2026-10-26",
+    "status": "local-only",
+    "passed": 31,
+    "checks": [
+      "320px / 无横向溢出",
+      "320px / 无核验待办控件",
+      "320px /agents#lesson-design 无横向溢出",
+      "320px /agents#lesson-design 无核验待办控件",
+      "320px /workspace 无横向溢出",
+      "320px /workspace 无核验待办控件",
+      "320px 只保留内容类型筛选",
+      "390px / 无横向溢出",
+      "390px / 无核验待办控件",
+      "390px /agents#lesson-design 无横向溢出",
+      "390px /agents#lesson-design 无核验待办控件",
+      "手机可点击检查要点备注",
+      "手机备注不超出屏幕",
+      "390px /workspace 无横向溢出",
+      "390px /workspace 无核验待办控件",
+      "390px 只保留内容类型筛选",
+      "768px / 无横向溢出",
+      "768px / 无核验待办控件",
+      "768px /agents#lesson-design 无横向溢出",
+      "768px /agents#lesson-design 无核验待办控件",
+      "768px /workspace 无横向溢出",
+      "768px /workspace 无核验待办控件",
+      "768px 只保留内容类型筛选",
+      "1440px / 无横向溢出",
+      "1440px / 无核验待办控件",
+      "1440px /agents#lesson-design 无横向溢出",
+      "1440px /agents#lesson-design 无核验待办控件",
+      "1440px /workspace 无横向溢出",
+      "1440px /workspace 无核验待办控件",
+      "1440px 只保留内容类型筛选",
+      "页面脚本错误为零"
+    ],
+    "layout": [
+      {
+        "width": 320,
+        "route": "/",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 320,
+        "route": "/agents#lesson-design",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 320,
+        "route": "/workspace",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 390,
+        "route": "/",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 390,
+        "route": "/agents#lesson-design",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 390,
+        "route": "/workspace",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 768,
+        "route": "/",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 768,
+        "route": "/agents#lesson-design",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 768,
+        "route": "/workspace",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 1440,
+        "route": "/",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 1440,
+        "route": "/agents#lesson-design",
+        "overflow": false,
+        "retired": 0
+      },
+      {
+        "width": 1440,
+        "route": "/workspace",
+        "overflow": false,
+        "retired": 0
+      }
+    ],
+    "errors": [],
+    "realModels": 0,
+    "realEmails": 0,
+    "productionWrites": 0
+  },
+  "workbook": {
+    "passed": 10,
+    "checks": [
+      "旧作品编辑不显示核验选择",
+      "旧编辑缓存正文恢复",
+      "保存失败保留编辑",
+      "无需核验保存编辑正文",
+      "新版本关联原稿",
+      "新版本不带旧核验状态",
+      "三种旧记录均未改写",
+      "可查看上一版",
+      "账号切换关闭旧成果",
+      "其他账号不显示旧作品"
+    ],
+    "saved": {
+      "uid": "qa-workbook",
+      "agentId": "lesson-design",
+      "agentName": "教学设计助手",
+      "agentType": "form",
+      "workType": "draft",
+      "title": "恢复的编辑标题",
+      "content": "# 恢复的本机修改\n\n尚未保存的新内容。",
+      "inputs": {
+        "topic": "原有课题 2",
+        "_sourceWorkId": "old-2"
+      },
+      "id": "new-version",
+      "createdAt": "2026-10-25T23:21:21.523Z"
+    }
+  },
+  "workbenchScenarios": [
+    "旧核验草稿恢复为可编辑正文，没有核验勾选或进度",
+    "直接编辑、普通保存，无需逐项确认",
+    "模拟保存失败显示原因且保留正文，重试成功可直达成果",
+    "新保存不含 _reviewStatus/_reviewChecks/_reviewDecisions",
+    "保存成功后继续编辑会撤下旧成功提示",
+    "可选检查备注可点击、Esc 关闭，手机不超屏",
+    "可选总体反馈仍可使用",
+    "模拟完成事件后直接进入修改与保存阶段",
+    "模拟生成失败保留上一份完整结果，可继续修改与保存"
+  ],
+  "realModelCalls": 0,
+  "emails": 0,
+  "productionWrites": 0
+}

@@ -44,6 +44,12 @@ try {
     assert(globalThis.SiteCopy.normalize('agents', {heroTitle:'你想完成哪项教学任务？'}).heroTitle === '和一位懂教学的数字成员一起工作', '已否决的智能体列表标题未恢复');
     assert(globalThis.SiteCopy.normalize('research', {heroTitle:'从你的研究任务开始',funnelAction:'梳理研究问题'}).funnelAction === '聚焦结果 + 五种结构的标题 →', '科研角色入口原文未恢复');
     assert(globalThis.SiteCopy.normalize('agents', {heroTitle:'管理员自己的团队标题'}).heroTitle === '管理员自己的团队标题', '自定义团队标题被恢复操作覆盖');
+    assert(!('checklistHeading' in homeDefaults) && !('checklistAction' in homeDefaults), '首页后台仍显示退役核验字段');
+    const workbookCopy = globalThis.SiteCopy.defaults('workspace');
+    assert(!('metricReviewed' in workbookCopy) && !('filterReviewed' in workbookCopy), '备课本后台仍显示退役核验字段');
+    assert(globalThis.SiteCopy.normalize('workspace', {columnState:'状态'}).columnState === '内容类型', '目录旧默认状态标题未更新为内容类型');
+    assert(globalThis.SiteCopy.normalize('agents', {heroIntro:'他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。'}).heroIntro.includes('修改'), '旧默认团队简介仍提示核验流程');
+    assert(globalThis.SiteCopy.normalize('agents', {heroIntro:'管理员保留的自定义简介'}).heroIntro === '管理员保留的自定义简介', '简化流程覆盖了自定义简介');
     assert(globalThis.SiteCopy.normalize('multimodal', {heroTitle:'教学素材案例',heroAccent:'素材'}).heroTitle === '多模态工作坊', '多模态默认标题未按核对恢复');
     assert(globalThis.SiteCopy.normalize('multimodal', {heroTitle:'管理员的素材页面',heroAccent:'素材'}).heroAccent === '素材', '自定义标题的强调词被恢复操作覆盖');
     assert(globalThis.SiteCopy.validate('multimodal', {...globalThis.SiteCopy.defaults('multimodal'),heroTitle:'管理员的素材页面',heroAccent:'素材'}).ok, '合法自定义标题在恢复默认值后无法保存');

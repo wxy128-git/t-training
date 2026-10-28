@@ -15,8 +15,6 @@
                 { key: 'workbookActionGuest', label: '备课本按钮（未登录）', maxLength: 24, defaultValue: '我的备课本' },
                 { key: 'workbookActionMember', label: '备课本按钮（已登录）', maxLength: 24, defaultValue: '我的备课本' },
                 { key: 'taskHeading', label: '任务区标题', maxLength: 40, defaultValue: '教学任务' },
-                { key: 'checklistHeading', label: '核验区标题', maxLength: 30, defaultValue: '使用前核验' },
-                { key: 'checklistAction', label: '核验区展开文字', maxLength: 20, defaultValue: '查看 4 项' },
                 { key: 'resourcesHeading', label: '资源区标题', maxLength: 40, defaultValue: '学习与配套资源' }
             ])
         }),
@@ -349,7 +347,7 @@
             fields: Object.freeze([
                 { key: 'heroKicker', label: '首屏眉题', maxLength: 40, defaultValue: '你的数字教研团队' },
                 { key: 'heroTitle', label: '首屏标题', maxLength: 50, defaultValue: '和一位懂教学的数字成员一起工作' },
-                { key: 'heroIntro', label: '首屏简介', maxLength: 120, rows: 3, defaultValue: '他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。' },
+                { key: 'heroIntro', label: '首屏简介', maxLength: 120, rows: 3, defaultValue: '他们分工明确，会先了解你的教学任务，再和你一起完成初稿、修改与整理。' },
                 { key: 'teamIndexHeading', label: '团队索引标题', maxLength: 20, defaultValue: '团队索引' },
                 { key: 'teamIndexSummary', label: '团队索引概况', maxLength: 40, defaultValue: '5 个教研部门 · 19 位成员可协作' },
                 { key: 'teamIndexHint', label: '团队索引提示', maxLength: 60, defaultValue: '先描述任务，或从下方部门进入。' },
@@ -508,7 +506,6 @@
                 { key: 'metricAll', label: '统计：全部内容', maxLength: 20, defaultValue: '全部内容' },
                 { key: 'metricDraft', label: '统计：生成文稿', maxLength: 20, defaultValue: '生成文稿' },
                 { key: 'metricChat', label: '统计：对话记录', maxLength: 20, defaultValue: '对话记录' },
-                { key: 'metricReviewed', label: '统计：完成核验', maxLength: 20, defaultValue: '完成核验' },
                 { key: 'binderLabel', label: '书脊标签', maxLength: 30, defaultValue: '教学成果备课夹' },
                 { key: 'directoryKicker', label: '目录英文眉题', maxLength: 30, defaultValue: 'TEACHING WORKBOOK' },
                 { key: 'directoryTitle', label: '目录标题', maxLength: 24, defaultValue: '成果目录' },
@@ -519,7 +516,6 @@
                 { key: 'filterAll', label: '全部筛选', maxLength: 16, defaultValue: '全部' },
                 { key: 'filterDraft', label: '文稿筛选', maxLength: 20, defaultValue: '生成文稿' },
                 { key: 'filterChat', label: '对话筛选', maxLength: 20, defaultValue: '对话记录' },
-                { key: 'filterReviewed', label: '核验筛选', maxLength: 20, defaultValue: '完成核验' },
                 { key: 'projectFilterAll', label: '全部项目筛选', maxLength: 24, defaultValue: '全部教学项目' },
                 { key: 'agentFilterAll', label: '全部智能体筛选', maxLength: 24, defaultValue: '全部智能体' },
                 { key: 'sortUpdated', label: '排序：最近更新', maxLength: 20, defaultValue: '最近更新' },
@@ -529,7 +525,7 @@
                 { key: 'sortAgent', label: '排序：智能体', maxLength: 20, defaultValue: '智能体名称' },
                 { key: 'columnPage', label: '目录列：页码', maxLength: 12, defaultValue: '页码' },
                 { key: 'columnWork', label: '目录列：课题来源', maxLength: 20, defaultValue: '课题 / 来源' },
-                { key: 'columnState', label: '目录列：状态', maxLength: 12, defaultValue: '状态' },
+                { key: 'columnState', label: '目录列：内容类型', maxLength: 12, defaultValue: '内容类型' },
                 { key: 'columnUpdated', label: '目录列：更新', maxLength: 12, defaultValue: '更新' },
                 { key: 'moreActions', label: '更多操作', maxLength: 16, defaultValue: '更多操作' },
                 { key: 'clearFilters', label: '清除筛选按钮', maxLength: 20, defaultValue: '清除筛选' },
@@ -648,8 +644,7 @@
         ]
     },
     "workspace": {
-        "loginAction": "登录 / 注册",
-        "emptyHint": "在智能体空间保存成果后会显示在这里。"
+        "columnState": "状态"
     }
 };
 

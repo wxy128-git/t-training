@@ -25,7 +25,7 @@
         .wb-head h1 { font-family: var(--font-display); font-size: clamp(34px, 4vw, 48px); line-height: 1.08; font-weight: 760; color: var(--ink); margin: 0; letter-spacing: -0.03em; }
         .wb-head h1 em, .wb-head h1 .site-copy-accent { color: var(--ink); font-style: normal; }
         .wb-head p { font-size: 14.5px; color: var(--text); margin: 12px 0 0; max-width: 43em; line-height: 1.75; }
-        .wb-metrics { display: grid; grid-template-columns: repeat(4, minmax(72px,1fr)); gap: 8px; min-width: 372px; }
+        .wb-metrics { display: grid; grid-template-columns: repeat(3, minmax(72px,1fr)); gap: 8px; min-width: 278px; }
         .wb-metric { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 10px 12px; box-shadow: none; }
         .wb-metric b { display: block; font-family: var(--font-display); font-size: 24px; line-height: 1; color: var(--ink); }
         .wb-metric span { display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted); }
@@ -58,7 +58,7 @@
             .wb-statline { white-space: normal; }
             .wb-clear { margin-left: 0; }
         }
-        @media (max-width: 460px) { .wb-metrics { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        @media (max-width: 460px) { .wb-metrics { grid-template-columns: repeat(3, minmax(0,1fr)); } }
 
         /* 登录门 */
         #login-gate { display: none; min-height: 46vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: var(--muted); }
@@ -82,10 +82,7 @@
         .wb-card-meta { min-width: 0; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); flex-wrap: wrap; }
         .wb-type { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 5px; background: var(--soft-2); color: var(--text-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 750; }
         .wb-type.chat { background: var(--brand-soft); color: var(--brand-dark); }
-        .wb-project-tag, .wb-review-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid #c5d7e0; border-radius: 5px; background: #f2f7f9; color: #245b78; font-family: var(--font-sans); font-size: 11px; font-weight: 650; }
-        .wb-review-tag { border-color: #bedbd3; background: #eef8f5; color: #287a68; }
-        .wb-review-tag.needs-revision { border-color: #dfc28d; background: #fff7e8; color: #875c0e; }
-        .wb-review-tag.pending { border-color: var(--line); background: var(--soft); color: var(--muted); }
+        .wb-project-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid #c5d7e0; border-radius: 5px; background: #f2f7f9; color: #245b78; font-family: var(--font-sans); font-size: 11px; font-weight: 650; }
         .wb-card-agent { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .wb-card-date { font-family: var(--font-mono); color: var(--muted); font-size: 11.5px; white-space: nowrap; }
         .wb-card-title { font-size: 16px; font-weight: 850; color: var(--ink); line-height: 1.42; margin: 0 0 9px; cursor: pointer;
@@ -518,7 +515,6 @@
             align-items: stretch;
         }
         .wb-card.chat { --work-color: #245b78; }
-        .wb-card.reviewed { --work-color: #287a68; }
         .wb-card.needs_revision { --work-color: #9a681d; }
         .wb-card:hover {
             z-index: 5;
@@ -703,7 +699,6 @@
         #wb-grid:not(.wb-list) .wb-sheet-hole:nth-child(3) { top: 78%; }
         .wb-type,
         .wb-project-tag,
-        .wb-review-tag { padding: 2px 6px; font-size: 10px; }
 
         .wb-filter-empty,
         #wb-empty,
@@ -811,7 +806,7 @@
             .wb-binder-ring { left: 3px; width: 44px; height: 16px; border-width: 3px; }
             .wb-directory-head { display: block; }
             .wb-directory-title h2 { font-size: 27px; }
-            .wb-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 6px; margin: 18px 0 0; }
+            .wb-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin: 18px 0 0; }
             .wb-metric { min-width: 0; }
             .wb-metric b { font-size: 18px; }
             .wb-metric span { font-size: 8.5px; }
@@ -1077,7 +1072,7 @@
         #wb-edit-button[hidden] { display: none; }
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
-    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
+    <link rel="stylesheet" href="css/ux.css?v=20261026-edit-save">
 </head>
 <body class="ux-workspace">
 <div id="main-nav"></div>
@@ -1119,7 +1114,6 @@
                                     <span class="wb-metric"><b id="wb-total-metric">0</b><span data-site-copy="metricAll">全部内容</span></span>
                                     <span class="wb-metric"><b id="wb-draft-metric">0</b><span data-site-copy="metricDraft">生成文稿</span></span>
                                     <span class="wb-metric"><b id="wb-chat-metric">0</b><span data-site-copy="metricChat">对话记录</span></span>
-                                    <span class="wb-metric"><b id="wb-reviewed-metric">0</b><span data-site-copy="metricReviewed">完成核验</span></span>
                                 </div>
                             </header>
 
@@ -1155,7 +1149,7 @@
                             <div class="wb-directory-columns" aria-hidden="true">
                                 <span data-site-copy="columnPage">页码</span>
                                 <span data-site-copy="columnWork">课题 / 来源</span>
-                                <span data-site-copy="columnState">状态</span>
+                                <span data-site-copy="columnState">内容类型</span>
                                 <span data-site-copy="columnUpdated">更新</span>
                                 <span></span><span></span>
                             </div>
@@ -1188,7 +1182,6 @@
                         <button type="button" class="wb-index-tab active" data-type="all" onclick="setWorkType('all')"><span data-site-copy="filterAll">全部</span></button>
                         <button type="button" class="wb-index-tab" data-type="draft" onclick="setWorkType('draft')"><span data-site-copy="filterDraft">生成文稿</span></button>
                         <button type="button" class="wb-index-tab" data-type="chat" onclick="setWorkType('chat')"><span data-site-copy="filterChat">对话记录</span></button>
-                        <button type="button" class="wb-index-tab" data-type="reviewed" onclick="setWorkType('reviewed')"><span data-site-copy="filterReviewed">完成核验</span></button>
                     </nav>
                 </div>
             </div>
@@ -1229,7 +1222,7 @@
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
+<script src="js/site-copy.js?v=20261026-edit-save"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
     <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
@@ -1271,29 +1264,11 @@ function workTypeIcon(w) { return workType(w) === 'chat' ? 'ph-chats-circle' : '
 function agentKey(w) { return w.agentId || w.agentName || 'unknown'; }
 function workProjectId(w) { return w.inputs?._projectId || 'unassigned'; }
 function workProjectTitle(w) { return w.inputs?._projectTitle || '未归入项目'; }
-function workReviewStatus(w) {
-    if (w.inputs?._reviewStatus === 'reviewed' || (Array.isArray(w.inputs?._reviewChecks) && w.inputs._reviewChecks.length === 4 && w.inputs?._reviewStatus !== 'needs_revision')) return 'reviewed';
-    if (w.inputs?._reviewStatus === 'needs_revision') return 'needs_revision';
-    if (w.inputs?._reviewStatus === 'draft' && workType(w) === 'draft') return 'pending';
-    return '';
-}
-function workReviewed(w) { return workReviewStatus(w) === 'reviewed'; }
+
 function workDirectoryState(w) {
-    const review = workReviewStatus(w);
-    if (review === 'reviewed') return { label: '已核验', className: 'reviewed' };
-    if (review === 'needs_revision') return { label: '待修改', className: 'needs_revision' };
-    if (review === 'pending') return { label: '待核验', className: 'pending' };
     return { label: workTypeLabel(w), className: workType(w) };
 }
-function workReviewBadge(w, modal = false) {
-    const status = workReviewStatus(w);
-    if (!status) return '';
-    const labels = status === 'reviewed'
-        ? ['ph-shield-check', modal ? '教师已核验' : '已核验']
-        : (status === 'needs_revision' ? ['ph-warning-circle', '待修改'] : ['ph-clock', '待核验']);
-    const badgeClass = status === 'needs_revision' ? 'needs-revision' : status;
-    return `<span class="${modal ? 'wb-modal-chip' : `wb-review-tag ${status === 'reviewed' ? '' : badgeClass}`}"><i class="ph ${labels[0]}"></i>${labels[1]}</span>`;
-}
+
 function titlePart(value, max = 28) {
     const raw = Array.isArray(value) ? value.join('、') : String(value || '');
     return raw.replace(/[#*_>`\[\]（）()《》]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -1422,8 +1397,7 @@ function filteredWorks() {
     const q = _wbState.q.trim().toLowerCase();
     const list = _works.filter(w => {
         const typeOk = _wbState.type === 'all'
-            || workType(w) === _wbState.type
-            || (_wbState.type === 'reviewed' && workReviewed(w));
+            || workType(w) === _wbState.type;
         const projectOk = _wbState.project === 'all' || workProjectId(w) === _wbState.project;
         const agentOk = _wbState.agent === 'all' || agentKey(w) === _wbState.agent;
         const haystack = `${displayWorkTitle(w)} ${w.title || ''} ${workProjectTitle(w)} ${w.agentName || ''} ${w.content || ''}`.toLowerCase();
@@ -1450,13 +1424,11 @@ function renderWorks() {
     const totalMetric = document.getElementById('wb-total-metric');
     const draftMetric = document.getElementById('wb-draft-metric');
     const chatMetric = document.getElementById('wb-chat-metric');
-    const reviewedMetric = document.getElementById('wb-reviewed-metric');
     const directoryRange = document.getElementById('wb-directory-range');
     const directorySection = document.getElementById('wb-directory-section');
     if (totalMetric) totalMetric.textContent = _works.length;
     if (draftMetric) draftMetric.textContent = _works.filter(w => workType(w) === 'draft').length;
     if (chatMetric) chatMetric.textContent = _works.filter(w => workType(w) === 'chat').length;
-    if (reviewedMetric) reviewedMetric.textContent = _works.filter(workReviewed).length;
     if (_wbError) {
         if (errorBox) errorBox.style.display = 'block';
         if (errorMsg) errorMsg.textContent = _wbError;
@@ -1485,7 +1457,6 @@ function renderWorks() {
     if (directorySection) {
         directorySection.textContent = _wbState.type === 'draft' ? workspacePageCopy.filterDraft
             : _wbState.type === 'chat' ? workspacePageCopy.filterChat
-            : _wbState.type === 'reviewed' ? workspacePageCopy.filterReviewed
             : workspacePageCopy.filterAll;
     }
     if (!list.length) {
@@ -1507,7 +1478,6 @@ function renderWorks() {
                     <span class="wb-entry-tags">
                         <span class="wb-type ${workType(w)}"><i class="ph ${workTypeIcon(w)}"></i>${escapeHtml(workTypeLabel(w))}</span>
                         <span class="wb-project-tag"><i class="ph ph-folder-notch"></i>${escapeHtml(workProjectTitle(w))}</span>
-                        ${workReviewBadge(w)}
                     </span>
                     <strong>${escapeHtml(displayWorkTitle(w))}</strong>
                     <small>${escapeHtml(workProjectTitle(w))} · ${escapeHtml(w.agentName || '智能体')}</small>
@@ -1540,7 +1510,7 @@ let _worksUid = null;
 let _worksLoadSequence = 0;
 
 function workEditValues() {
-    return { title: document.getElementById('wb-edit-title')?.value || '', content: document.getElementById('wb-edit-content')?.value || '', review: document.getElementById('wb-edit-review')?.value || 'draft' };
+    return { title: document.getElementById('wb-edit-title')?.value || '', content: document.getElementById('wb-edit-content')?.value || '' };
 }
 function workEditDirty() { return _workEditing && JSON.stringify(workEditValues()) !== _workEditOriginal; }
 function workEditKey() { return 'xylaoshiWorkbookEdit:' + encodeURIComponent(_worksUid || '') + ':' + encodeURIComponent(_activeWorkId || ''); }
@@ -1567,7 +1537,6 @@ function viewWork(id) {
     document.getElementById('wb-modal-meta').innerHTML = `
         <span class="wb-modal-chip"><i class="ph ${workTypeIcon(w)}"></i>${escapeHtml(workTypeLabel(w))}</span>
         <span class="wb-modal-chip"><i class="ph ph-folder-notch"></i>${escapeHtml(workProjectTitle(w))}</span>
-        ${workReviewBadge(w, true)}
         <span class="wb-modal-chip"><i class="ph ph-robot"></i>${escapeHtml(w.agentName || '智能体')}</span>
         <span class="wb-modal-chip"><i class="ph ph-calendar-blank"></i>${fmtDate(w.updatedAt || w.createdAt)}</span>`;
     document.getElementById('wb-modal-body').innerHTML = mdToHtml(w.content);
@@ -1614,17 +1583,16 @@ function editActiveWork() {
     const work = findWork(_activeWorkId);
     if (!work) return;
     _workEditing = true;
-    const values = { title: displayWorkTitle(work), content: work.content || '', review: 'draft' };
+    const values = { title: displayWorkTitle(work), content: work.content || '' };
     _workEditOriginal = JSON.stringify(values);
     let recovered = null;
     try { recovered = JSON.parse(localStorage.getItem(workEditKey())); } catch (_) {}
     document.getElementById('wb-edit-button').hidden = true;
     document.querySelector('.wb-modal-foot').hidden = true;
     const body = document.getElementById('wb-modal-body');
-    body.innerHTML = `<div class="wb-editor"><p>修改会保存为新版本，原稿继续保留。</p><label for="wb-edit-title">作品标题</label><input id="wb-edit-title" maxlength="160"><label for="wb-edit-content">正文（Markdown）</label><textarea id="wb-edit-content"></textarea><label for="wb-edit-review">教师核验状态</label><select id="wb-edit-review"><option value="draft">待核验</option><option value="needs_revision">待修改</option><option value="reviewed">已核验</option></select><div class="wb-editor-actions"><button type="button" onclick="saveWorkRevision(this)">保存为新版本</button><button type="button" onclick="cancelWorkEdit()">取消编辑</button></div><p id="wb-edit-status" role="status"></p></div>`;
+    body.innerHTML = `<div class="wb-editor"><p>修改会保存为新版本，原稿继续保留。</p><label for="wb-edit-title">作品标题</label><input id="wb-edit-title" maxlength="160"><label for="wb-edit-content">正文（Markdown）</label><textarea id="wb-edit-content"></textarea><div class="wb-editor-actions"><button type="button" onclick="saveWorkRevision(this)">保存为新版本</button><button type="button" onclick="cancelWorkEdit()">取消编辑</button></div><p id="wb-edit-status" role="status"></p></div>`;
     document.getElementById('wb-edit-title').value = recovered?.title ?? values.title;
     document.getElementById('wb-edit-content').value = recovered?.content ?? values.content;
-    document.getElementById('wb-edit-review').value = recovered?.review || 'draft';
     body.querySelectorAll('input, textarea, select').forEach(el => el.addEventListener('input', persistWorkEdit));
     if (recovered) document.getElementById('wb-edit-status').textContent = '已恢复此账号在本机尚未保存的修改。';
     document.getElementById('wb-edit-content').focus();
@@ -1642,10 +1610,12 @@ async function saveWorkRevision(button) {
     if (!work || !user) return;
     const content = document.getElementById('wb-edit-content').value.trim();
     const title = document.getElementById('wb-edit-title').value.trim();
-    const status = document.getElementById('wb-edit-review').value;
     const message = document.getElementById('wb-edit-status');
     if (!content || !title) { message.textContent = '请填写标题和正文'; return; }
-    const inputs = { ...(work.inputs || {}), _sourceWorkId: work.id, _reviewStatus: status, _reviewDecisions: status === 'reviewed' ? { alignment:'pass', level:'pass', facts:'pass', feasibility:'pass' } : {} };
+    const inputs = { ...(work.inputs || {}), _sourceWorkId: work.id };
+    delete inputs._reviewStatus;
+    delete inputs._reviewChecks;
+    delete inputs._reviewDecisions;
     _workSaving = true; button.disabled = true; message.textContent = '正在保存新版本…';
     try {
         const id = await DB.saveWork({ uid: user.uid, agentId: work.agentId, agentName: work.agentName, agentType: work.agentType || 'form', workType: work.workType || 'draft', title, content, inputs });

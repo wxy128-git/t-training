@@ -23,7 +23,7 @@ async function request(path, options = {}) {
 }
 
 const routes = ['/', '/agents', '/multimodal', '/research', '/classroom-tools', '/tools', '/resources', '/news', '/paths', '/articles', '/prompts', '/workspace'];
-for (const [path, marker] of [['/js/ui-notes.js?v=20261025-ux', 'root.UiNotes'], ['/css/ux.css?v=20261025-ux-reviewed', '.ui-note-popover']]) {
+for (const [path, marker] of [['/js/ui-notes.js?v=20261025-ux', 'root.UiNotes'], ['/css/ux.css?v=20261026-edit-save', '.ui-note-popover']]) {
     const asset = await request(path);
     if (asset) assert(asset.status === 200 && (await asset.text()).includes(marker), '任务与备注资源缺失：' + path);
 }
@@ -58,7 +58,7 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261025-ux-reviewed'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261025-ux-reviewed'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261026-edit-save'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261025-ux-reviewed'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261025-ux-reviewed'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/task-search.js?v=20261025-ux-reviewed') && !body.includes('js/agents-data.js'), '首页任务映射或精简加载未上线');
@@ -119,7 +119,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261025-v54-resource-unified'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261026-v55-edit-save'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -173,7 +173,7 @@ if (agents) {
     assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('填写教学信息') && body.includes('补充信息（可选）'), '数字成员任务简报或渐进参数未上线');
     assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('生成${agentDeliverable(agent)}'), '数字成员工作阶段或交付物操作未上线');
     assert(body.includes('id="ws-project-options"') && body.includes('aria-controls="ws-input-scroll"') && body.includes('.ws-task-first .ws-titles p'), '移动工作台精简或无障碍折叠未上线');
-    assert(body.includes('TaskSearch.tasks[a.id]?.title || a.name') && body.includes('AI 初稿，使用前请核对'), '任务标题或教师核验提示未上线');
+    assert(body.includes('TaskSearch.tasks[a.id]?.title || a.name') && body.includes('AI 初稿，使用前请核对'), '任务标题或使用前提示未上线');
     assert(body.includes('js/curriculum-guard.js?v=20260828-curriculum-gate') && body.includes('function curriculumContext'), '课程匹配守卫未上线');
     assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('showInputValidation(e.curriculum)'), '旧教材校验章未移除或服务端拦截反馈未上线');
 }
@@ -189,7 +189,7 @@ const workspace = await request('/workspace');
 if (workspace) {
     const body = await workspace.text();
     assert(body.includes('class="wb-desk-scene wb-workbook-light"') && body.includes('class="wb-binder-spine"') && body.includes('class="wb-directory-page"'), '轻量备课本或装订线索界面未上线');
-    assert(body.includes('data-type="reviewed"') && body.includes('class="wb-card-more"') && body.includes('wb-sheet-open'), '备课本筛选、页侧操作或轻量打开交互未上线');
+    assert(body.includes('data-type="draft"') && body.includes('class="wb-card-more"') && body.includes('wb-sheet-open'), '备课本筛选、页侧操作或轻量打开交互未上线');
     assert(!/class="(?:wb-paper-under|wb-page-hole|wb-binder-ring|wb-sheet-hole)"/.test(body), '备课本仍渲染过重拟物装饰');
 }
 
@@ -233,7 +233,7 @@ if (researchCopy) {
     assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
     assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
 }
-const researchRegistry = await request('/js/site-copy.js?v=20261025-ux-reviewed');
+const researchRegistry = await request('/js/site-copy.js?v=20261026-edit-save');
 if (researchRegistry) {
     const registry=await researchRegistry.text();
     assert(['designRole','instrumentRole','designGuide','instrumentGuide','reviewAction'].every(k=>registry.includes(k)), '第二批科研文案字段未发布');

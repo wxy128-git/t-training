@@ -312,37 +312,10 @@
         .ws-error-state b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 5px; }
         .ws-error-state p { margin: 0; color: var(--text); font-size: 12.5px; line-height: 1.65; }
         .ws-error-state button { margin-top: 12px; min-height: 40px; border: 1px solid var(--ink); border-radius: 7px; background: var(--ink); color: #fff; font: inherit; font-size: 12.5px; font-weight: 650; padding: 8px 13px; cursor: pointer; }
-        .ws-review-panel { flex-shrink: 0; border-top: 1px solid var(--line); background: var(--paper); }
-        .ws-review-panel[hidden] { display: none; }
-        .ws-review-panel summary { list-style: none; display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 12px 18px; color: var(--ink); font-size: 12.5px; font-weight: 750; cursor: pointer; }
-        .ws-review-panel summary::-webkit-details-marker { display: none; }
-        .ws-review-panel summary .review-state { margin-left: auto; color: #245b78; border: 1px solid #c5d7e0; border-radius: 999px; background: #f2f7f9; padding: 3px 8px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; white-space: nowrap; }
-        .ws-review-content { padding: 0 18px 16px; }
-        .ws-review-panel[open] .ws-review-content { max-height: min(46vh, 420px); overflow-y: auto; overscroll-behavior: contain; }
-        .ws-review-intro { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 11px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); color: var(--muted); font-size: 11.5px; line-height: 1.65; }
-        .ws-review-intro i { margin-top: 2px; color: #245b78; font-size: 15px; flex-shrink: 0; }
-        .ws-review-progress { display: grid; grid-template-columns: auto minmax(90px,1fr); align-items: center; gap: 10px; margin-bottom: 10px; }
-        .ws-review-progress span { color: var(--text); font-size: 11.5px; font-weight: 700; }
-        .ws-review-track { height: 5px; overflow: hidden; border-radius: 999px; background: #e1e7eb; }
-        .ws-review-track i { display: block; width: 0; height: 100%; border-radius: inherit; background: #245b78; transition: width .2s ease; }
-        .ws-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
-        .ws-review-item { min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 10px; }
-        .ws-review-item.is-pass { border-color: #9bc9bd; background: #f1f9f6; }
-        .ws-review-item.is-revise { border-color: #dfc28d; background: #fff9ee; }
-        .ws-review-item-copy b { display: block; color: var(--ink); font-size: 11.8px; line-height: 1.45; }
-        .ws-review-item-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 10.8px; line-height: 1.5; }
-        .ws-review-item-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin-top: 8px; }
-        .ws-review-choice { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--text); padding: 7px 8px; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; transition: color .15s, background .15s, border-color .15s; }
-        .ws-review-choice:hover { border-color: var(--subtle); background: var(--soft-2); }
-        .ws-review-choice.active.pass { border-color: #6ea897; background: #e7f5f0; color: #1f6d5b; }
-        .ws-review-choice.active.revise { border-color: #c39745; background: #fff2d7; color: #875c0e; }
-        .ws-review-result { min-height: 18px; margin-top: 6px; color: var(--muted); font-size: 10.5px; line-height: 1.45; }
-        .ws-review-item.is-pass .ws-review-result { color: #1f6d5b; }
-        .ws-review-item.is-revise .ws-review-result { color: #875c0e; }
-        .ws-review-outcome { display: flex; align-items: flex-start; gap: 7px; margin-top: 10px; padding: 9px 10px; border-radius: 7px; background: #f2f7f9; color: #245b78; font-size: 11.5px; line-height: 1.55; }
-        .ws-review-outcome.complete { background: #eef8f5; color: #1f6d5b; }
-        .ws-review-outcome.revise { background: #fff7e8; color: #875c0e; }
-        .ws-review-outcome button { margin-left: auto; flex-shrink: 0; min-height: 44px; border: 1px solid currentColor; border-radius: 7px; background: var(--paper); color: inherit; padding: 6px 9px; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .ws-feedback-panel { flex-shrink: 0; border-top: 1px solid var(--line-soft); }
+        .ws-feedback-panel[hidden] { display: none; }
+        .ws-feedback-panel summary { padding: 10px 18px; color: var(--muted); font-size: 12px; cursor: pointer; }
+        .ws-feedback-panel .ws-feedback { margin: 0; padding: 0 18px 12px; border: 0; }
         .ws-feedback { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
         .ws-feedback > span { font-size: 11.5px; color: var(--muted); margin-right: 2px; }
         .ws-feedback button { min-height: 44px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--muted); font: inherit; font-size: 11px; padding: 6px 9px; cursor: pointer; }
@@ -353,7 +326,6 @@
         .ws-next > span { color: var(--muted); font-size: 11.5px; margin-right: 2px; }
         .ws-next button, .ws-next a { min-height: 44px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #b7ccd7; border-radius: 7px; background: var(--paper); color: #245b78; font: inherit; font-size: 11.5px; font-weight: 650; padding: 7px 10px; cursor: pointer; text-decoration: none; }
         .ws-next button:hover, .ws-next a:hover { border-color: #245b78; background: #edf5f8; }
-        @media (max-width: 620px) { .ws-review-grid { grid-template-columns: 1fr; } }
         @media (max-width: 900px) {
             .ws-form-layout { grid-template-columns: 1fr; }
             .ws-input-col { position: static; height: auto; max-height: none; }
@@ -502,8 +474,7 @@
         .workflow-actions button:hover { border-color: var(--ink); }
         .workflow-actions button.primary:hover { border-color: var(--brand); background: var(--brand); }
         .workflow-actions button:disabled { opacity: .55; cursor: wait; }
-        .ws-review-choice:focus-visible, .ws-feedback button:focus-visible, .ws-origin button:focus-visible, .workflow-actions button:focus-visible { outline: 3px solid rgba(36,91,120,.26); outline-offset: 2px; }
-        @media (prefers-reduced-motion: reduce) { .ws-review-track i { transition: none; } }
+        .ws-feedback button:focus-visible, .ws-origin button:focus-visible, .workflow-actions button:focus-visible { outline: 3px solid rgba(36,91,120,.26); outline-offset: 2px; }
         .project-modal { position: fixed; inset: 0; z-index: 660; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(23,33,43,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
         .project-modal.active { display: flex; }
         .project-box { width: min(680px,100%); max-height: 90vh; overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg); padding: 22px; }
@@ -567,7 +538,7 @@
         }
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
-    <link rel="stylesheet" href="css/ux.css?v=20261025-ux-reviewed">
+    <link rel="stylesheet" href="css/ux.css?v=20261026-edit-save">
 </head>
 <body class="ux-agents">
 <div id="main-nav"></div>
@@ -581,7 +552,7 @@
         <div class="agents-head-copy">
             <div class="page-kicker" data-site-copy="heroKicker">你的数字教研团队</div>
             <h1 class="page-title" data-site-copy="heroTitle">和一位懂教学的数字成员一起工作</h1>
-            <p class="page-sub" data-site-copy="heroIntro">他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。</p>
+            <p class="page-sub" data-site-copy="heroIntro">他们分工明确，会先了解你的教学任务，再和你一起完成初稿、修改与整理。</p>
         </div>
         <aside class="agent-team-index" aria-label="数字教研团队概况">
             <span class="agent-team-index-label" data-site-copy="teamIndexHeading">团队索引</span>
@@ -620,7 +591,7 @@
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
                         <span data-stage="working"><b>2</b> 生成初稿</span>
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
-                        <span data-stage="review"><b>3</b> 检查与保存</span>
+                        <span data-stage="edit"><b>3</b> 修改与保存</span>
                     </span>
                 </div>
             <div class="ws-status">
@@ -645,10 +616,15 @@
             <div class="ws-origin-copy"><small>CONTINUED FROM</small><b id="ws-origin-title"></b></div>
             <button type="button" onclick="returnToWorkflowSource()"><i class="ph ph-arrow-left"></i><span id="ws-origin-action">返回上一成果</span></button>
         </section>
-        <div id="ws-body"></div><div class="ws-stage-note"><span>AI 初稿，使用前请核对</span><button type="button" class="ui-note-trigger" data-note-source="agent-model-note" aria-label="查看模型与使用说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div>
+        <div id="ws-body"></div><div class="ws-stage-note"><span>AI 初稿，使用前请核对</span><button type="button" class="ui-note-trigger" data-note-source="agent-model-note" aria-label="使用前检查要点与模型说明" aria-expanded="false"><i class="ph ph-info" aria-hidden="true"></i></button></div>
         <div class="api-note ui-note-source" id="agent-model-note">
             <i class="ph ph-sparkle"></i>
-            <span>内容由 <strong id="api-model-name">本站智能体模型服务</strong> 实时生成，仅供参考，请结合教学实际核对后使用。</span>
+            <span>内容由 <strong id="api-model-name">本站智能体模型服务</strong> 生成。可直接编辑，再保存到备课本。</span>
+            <p>按需要留意以下问题，无需逐项确认：</p>
+            <p>• 教学目标、活动与评价是否一致。<br>
+            • 难度是否适合当前学生。<br>
+            • 概念、数据、例题是否准确。<br>
+            • 时间、设备和组织方式是否可行。</p>
         </div>
     </div>
 </div>
@@ -733,7 +709,7 @@
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261025-ux-reviewed"></script>
+<script src="js/site-copy.js?v=20261026-edit-save"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
     <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
@@ -1290,7 +1266,7 @@ function renderFiltered(q) {
 }
 
 /* ---------- 打开 / 返回 ---------- */
-const AGENT_STAGE_ORDER = ['brief', 'working', 'review'];
+const AGENT_STAGE_ORDER = ['brief', 'working', 'edit'];
 
 function setAgentWorkStage(stage, agent = window._wsAgent, message = '') {
     const presence = document.getElementById('ws-presence');
@@ -1304,7 +1280,7 @@ function setAgentWorkStage(stage, agent = window._wsAgent, message = '') {
     const defaultMessages = {
         brief: '正在了解你的教学任务',
         working: `${agent.name}正在处理任务`,
-        review: `${agent.name}已交付初稿，等待教师核验`
+        edit: `${agent.name}的初稿已生成，可直接修改和保存`
     };
     if (label) label.textContent = message || defaultMessages[stage] || defaultMessages.brief;
     stageBox?.querySelectorAll('[data-stage]').forEach(item => {
@@ -1404,16 +1380,7 @@ function backFromWorkspace() {
     else backToHome();
 }
 
-function reviewItemMarkup(key, title, description, agentId) {
-    return `<div class="ws-review-item" data-review-item="${key}">
-        <div class="ws-review-item-copy"><b>${escapeHtml(title)}</b>${UiNotes.button(description, title+'说明')}</div>
-        <div class="ws-review-item-actions" role="group" aria-label="${escapeHtml(title)}">
-            <button type="button" class="ws-review-choice pass" data-review-key="${key}" data-review-value="pass" aria-pressed="false" onclick="setTeacherReview(this,'${agentId}')"><i class="ph ph-check-circle"></i>符合</button>
-            <button type="button" class="ws-review-choice revise" data-review-key="${key}" data-review-value="revise" aria-pressed="false" onclick="setTeacherReview(this,'${agentId}')"><i class="ph ph-warning-circle"></i>需修改</button>
-        </div>
-        <div class="ws-review-result" id="review-result-${key}" aria-live="polite"></div>
-    </div>`;
-}
+
 
 /* ---------- form 工作台 ---------- */
 const AGENT_BRIEF_PRIMARY_KEYS = {
@@ -1514,29 +1481,14 @@ function buildForm(a) {
             <div class="ws-out-body placeholder" id="out-body" role="status" aria-live="polite" aria-busy="false">
                 <div class="ws-empty-delivery"><i class="ph ph-file-text"></i><b>${escapeHtml(deliverable)}</b><p>填写信息后，点击“${escapeHtml(agentRunLabel(a))}”</p></div>
             </div>
-            <details class="ws-review-panel" id="ws-review-panel" hidden>
-                <summary><i class="ph ph-shield-check"></i><span>检查初稿</span><span class="review-state" id="review-state">0 / 4</span></summary>
-                <div class="ws-review-content">
-                    <div class="ui-note-row"><span>逐项记录你的检查结果</span>${UiNotes.button('请结合教材、学情和课堂条件判断。“符合”表示你已人工检查，系统不会自动核验教学质量。','了解人工核验')}</div>
-                    <div class="ws-review-progress">
-                        <span id="review-progress-text">尚未开始核验 · 0 / 4</span>
-                        <div class="ws-review-track" id="review-progress-track" role="progressbar" aria-label="教师核验进度" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><i id="review-progress-bar"></i></div>
-                    </div>
-                    <div class="ws-review-grid">
-                        ${reviewItemMarkup('alignment','目标、活动与评价一致','检查教学目标是否在活动和评价任务中得到落实',a.id)}
-                        ${reviewItemMarkup('level','难度适合当前学生','结合本班基础、认知水平和学习差异判断',a.id)}
-                        ${reviewItemMarkup('facts','事实与教材依据已核对','核对概念、数据、例题和教材表述是否准确',a.id)}
-                        ${reviewItemMarkup('feasibility','课时与课堂条件可实施','判断时间、人数、设备和组织方式是否可行',a.id)}
-                    </div>
-                    <div class="ws-review-outcome" id="review-outcome" role="status" aria-live="polite"><i class="ph ph-shield-check"></i><span>请选择“符合”或“需修改”，记录你的人工判断。</span></div>
-                    <div class="ws-feedback" aria-label="结果反馈">
-                        <span>总体评价（可选）：</span>
-                        <button type="button" data-feedback="usable" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">基本可用</button>
-                        <button type="button" data-feedback="generic" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">过于笼统</button>
-                        <button type="button" data-feedback="level_mismatch" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">年级不符</button>
-                        <button type="button" data-feedback="facts_check" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">事实待核验</button>
-                        <button type="button" data-feedback="hard_to_apply" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">课堂难实施</button>
-                    </div>
+            <details class="ws-feedback-panel" id="ws-feedback-panel" hidden>
+                <summary>结果反馈（可选）</summary>
+                <div class="ws-feedback" aria-label="结果反馈">
+                    <button type="button" data-feedback="usable" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">基本可用</button>
+                    <button type="button" data-feedback="generic" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">过于笼统</button>
+                    <button type="button" data-feedback="level_mismatch" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">年级不符</button>
+                    <button type="button" data-feedback="facts_check" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">事实有误</button>
+                    <button type="button" data-feedback="hard_to_apply" aria-pressed="false" onclick="setResultFeedback(this,'${a.id}')">课堂难实施</button>
                 </div>
             </details>
             <div class="ws-next" id="ws-next" aria-label="下一步任务"></div>
@@ -1553,7 +1505,7 @@ function buildForm(a) {
     initAgentFormHelpers(a);
     initTeachingProjectForm(a);
     updateBriefSummary(a);
-    setAgentWorkStage(_lastResult ? 'review' : 'brief', a);
+    setAgentWorkStage(_lastResult ? 'edit' : 'brief', a);
 }
 
 function handwritingAssistMarkup(a) {
@@ -1638,7 +1590,6 @@ function collectInputs(a) {
 let _draftSaveTimer = null;
 let _workflowCarryInputs = null;
 let _resultFeedback = '';
-let _reviewTracked = false;
 
 function projectSummary(project) {
     return [project?.grade, project?.subject, project?.textbook, project?.topic].filter(Boolean).join(' · ');
@@ -1814,50 +1765,38 @@ function updateDraftState(text, saved) {
     if (span) span.textContent = saved && !/本机|备课本/.test(text) ? `${text}（本机）` : text;
 }
 
-function currentReviewDecisions() {
-    const decisions = {};
-    document.querySelectorAll('#ws-review-panel [data-review-key][aria-pressed="true"]').forEach(button => {
-        decisions[button.dataset.reviewKey] = button.dataset.reviewValue;
-    });
-    return decisions;
-}
 
-function currentReviewSummary() {
-    const decisions = currentReviewDecisions();
-    const values = Object.values(decisions);
-    const reviewed = values.length;
-    const revise = values.filter(value => value === 'revise').length;
-    const passed = values.filter(value => value === 'pass').length;
-    return {
-        decisions,
-        reviewed,
-        revise,
-        passed,
-        status: reviewed === 4 && revise === 0 ? 'reviewed' : (revise > 0 ? 'needs_revision' : 'draft')
-    };
-}
 
-function currentReviewState() {
-    const decisions = currentReviewDecisions();
-    return Object.keys(decisions).filter(key => decisions[key] === 'pass');
+
+
+
+
+function fingerprintWorkState(value, version = 'v2') {
+    const text = JSON.stringify(value);
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+    return `${version}:${text.length}:${(hash >>> 0).toString(16)}`;
 }
 
 function workStateFingerprint(agent) {
     if (!agent || !_lastResult) return '';
     const liveInputs = document.getElementById('agent-form') ? collectInputs(agent) : (_lastInputs || {});
-    const value = JSON.stringify({
-        agentId: agent.id,
-        inputs: liveInputs,
-        result: _lastResult,
-        review: currentReviewDecisions(),
-        feedback: _resultFeedback || ''
-    });
-    let hash = 2166136261;
-    for (let i = 0; i < value.length; i++) {
-        hash ^= value.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-    }
-    return `v1:${value.length}:${(hash >>> 0).toString(16)}`;
+    return fingerprintWorkState({ agentId: agent.id, inputs: liveInputs, result: _lastResult, feedback: _resultFeedback || '' });
+}
+
+function restoredWorkbookFingerprint(agent, draft) {
+    const stored = draft.workbookFingerprint || '';
+    if (!stored.startsWith('v1:')) return stored;
+    if (!draft.workbookId) return '';
+    // Recognize an unchanged saved draft from the old checklist without reviving its UI.
+    const review = Array.isArray(draft.review)
+        ? Object.fromEntries(draft.review.map(key => [key, 'pass']))
+        : (draft.review && typeof draft.review === 'object' ? draft.review : {});
+    const legacy = fingerprintWorkState({ agentId: agent.id, inputs: collectInputs(agent), result: draft.result || '', review, feedback: draft.feedback || '' }, 'v1');
+    return stored === legacy ? workStateFingerprint(agent) : '';
 }
 
 function currentVersionIsInWorkbook(agent = window._wsAgent) {
@@ -1885,7 +1824,6 @@ function persistCurrentDraft(agent, statusText) {
         resultComplete: _resultComplete,
         projectId: project?.id || '',
         projectTitle: project?.title || '',
-        review: currentReviewDecisions(),
         feedback: _resultFeedback,
         workbookFingerprint: _lastWorkbookFingerprint,
         workbookId: _lastWorkbookId
@@ -1915,22 +1853,13 @@ function clearFieldError(control) {
     if (error) error.textContent = '';
 }
 
-function restoreReviewState(agentId, draft) {
-    const review = Array.isArray(draft?.review)
-        ? Object.fromEntries(draft.review.map(key => [key, 'pass']))
-        : (draft?.review && typeof draft.review === 'object' ? draft.review : {});
-    document.querySelectorAll('#ws-review-panel [data-review-key]').forEach(button => {
-        const active = review[button.dataset.reviewKey] === button.dataset.reviewValue;
-        button.classList.toggle('active', active);
-        button.setAttribute('aria-pressed', String(active));
-    });
+function restoreResultFeedback(draft) {
     _resultFeedback = draft?.feedback || '';
-    document.querySelectorAll('#ws-review-panel [data-feedback]').forEach(button => {
+    document.querySelectorAll('#ws-feedback-panel [data-feedback]').forEach(button => {
         const active = button.dataset.feedback === _resultFeedback;
         button.classList.toggle('active', active);
         button.setAttribute('aria-pressed', String(active));
     });
-    updateReviewCounter(agentId, false);
 }
 
 function restoreAgentDraft(agent, draft) {
@@ -1951,6 +1880,9 @@ function restoreAgentDraft(agent, draft) {
         else { renderGenerationError(new Error('上次生成尚未完成，以下文字已保存在本机'), agent.id); syncGenerationUI(); }
         updateInputSummary(agent, _lastInputs || {});
     }
+    _lastWorkbookFingerprint = restoredWorkbookFingerprint(agent, draft);
+    refreshSaveButtonLabel();
+    setAgentWorkStage(_lastResult ? 'edit' : 'brief', agent);
     updateDraftState(`已恢复 ${formatDraftTime(draft.updatedAt)} 的本地草稿`, true);
     if (window.OperationsAnalytics) OperationsAnalytics.track('draft_restored', { feature: 'agents', targetId: agent.id, targetName: agent.name });
 }
@@ -2003,7 +1935,7 @@ function setAgentModelLabel(label) {
     const head = document.getElementById('ws-model-name');
     const note = document.getElementById('api-model-name');
     if (head) head.textContent = text;
-    if (note) note.textContent = text;
+    if (note) note.textContent = !label || label === '智能体路由' ? 'AI' : text;
     const badge = document.getElementById('ws-model-badge');
     if (badge) badge.hidden = !label || label === '智能体路由';
 }
@@ -2077,91 +2009,21 @@ function renderNextActions(agent) {
 }
 
 function showResultWorkflow(agent, draft) {
-    const review = document.getElementById('ws-review-panel');
-    if (review) { review.hidden = false; review.open = false; }
-    restoreReviewState(agent.id, draft || {});
+    const feedback = document.getElementById('ws-feedback-panel');
+    if (feedback) { feedback.hidden = false; feedback.open = false; }
+    restoreResultFeedback(draft);
     renderNextActions(agent);
 }
 
-function updateReviewCounter(agentId, track = true) {
-    const summary = currentReviewSummary();
-    const state = document.getElementById('review-state');
-    const progressText = document.getElementById('review-progress-text');
-    const progressTrack = document.getElementById('review-progress-track');
-    const progressBar = document.getElementById('review-progress-bar');
-    const outcome = document.getElementById('review-outcome');
-    if (state) {
-        state.textContent = summary.reviewed === 4
-            ? (summary.revise ? `已检查 · ${summary.revise} 项待修改` : '教师核验完成')
-            : `${summary.reviewed} / 4`;
-    }
-    if (progressText) {
-        progressText.textContent = summary.reviewed === 0
-            ? '尚未开始核验 · 0 / 4'
-            : `已检查 ${summary.reviewed} / 4${summary.revise ? ` · ${summary.revise} 项待修改` : ''}`;
-    }
-    if (progressTrack) progressTrack.setAttribute('aria-valuenow', String(summary.reviewed));
-    if (progressBar) progressBar.style.width = `${summary.reviewed * 25}%`;
 
-    document.querySelectorAll('#ws-review-panel [data-review-item]').forEach(item => {
-        const key = item.dataset.reviewItem;
-        const value = summary.decisions[key] || '';
-        const result = document.getElementById(`review-result-${key}`);
-        item.classList.toggle('is-pass', value === 'pass');
-        item.classList.toggle('is-revise', value === 'revise');
-        if (result) result.innerHTML = value === 'pass'
-            ? '<i class="ph ph-check-circle"></i> 已核验：符合'
-            : (value === 'revise' ? '<i class="ph ph-warning-circle"></i> 已标记：需修改' : '尚未判断');
-    });
 
-    if (outcome) {
-        outcome.className = 'ws-review-outcome';
-        if (summary.reviewed === 4 && summary.revise === 0) {
-            outcome.classList.add('complete');
-            outcome.innerHTML = '<i class="ph ph-shield-check"></i><span>教师核验完成。保存到备课本时将标记为“已核验”。</span>';
-        } else if (summary.revise > 0) {
-            outcome.classList.add('revise');
-            outcome.innerHTML = `<i class="ph ph-warning-circle"></i><span>${summary.reviewed === 4 ? '核验完成' : `已检查 ${summary.reviewed} 项`}，发现 ${summary.revise} 项待修改。建议修改后重新核验。</span><button type="button" onclick="openEditorFromReview()"><i class="ph ph-pencil-simple"></i> 编辑文稿</button>`;
-        } else {
-            outcome.innerHTML = `<i class="ph ph-shield-check"></i><span>${summary.reviewed ? `还需判断 ${4 - summary.reviewed} 项；核验记录已自动保存在本机。` : '请选择“符合”或“需修改”，记录你的人工判断。'}</span>`;
-        }
-    }
 
-    refreshSaveButtonLabel();
-    const agent = AGENTS.find(item => item.id === agentId);
-    if (agent && track) scheduleDraftSave(agent, summary.reviewed === 4 ? (summary.revise ? `核验完成，${summary.revise} 项待修改` : '教师核验已完成并保存') : '核验记录已自动保存');
-    if (summary.reviewed === 4 && track && !_reviewTracked) {
-        _reviewTracked = true;
-        if (window.OperationsAnalytics) OperationsAnalytics.track('teacher_reviewed', { feature: 'agents', targetId: agentId, targetName: agent?.name || '', meta: { status: summary.status, reviseCount: summary.revise } });
-        showToast(summary.revise ? `核验完成：${summary.revise} 项待修改` : '教师核验已完成');
-    }
-}
 
-function setTeacherReview(button, agentId) {
-    const key = button.dataset.reviewKey;
-    const wasActive = button.classList.contains('active');
-    document.querySelectorAll(`#ws-review-panel [data-review-key="${key}"]`).forEach(item => {
-        item.classList.remove('active');
-        item.setAttribute('aria-pressed', 'false');
-    });
-    if (!wasActive) {
-        button.classList.add('active');
-        button.setAttribute('aria-pressed', 'true');
-    }
-    updateReviewCounter(agentId, true);
-}
 
-function openEditorFromReview() {
-    const review = document.getElementById('ws-review-panel');
-    if (review) review.open = false;
-    if (!_editing) toggleEdit();
-    const editor = document.getElementById('edit-area');
-    editor?.focus();
-}
 
 function setResultFeedback(button, agentId) {
     _resultFeedback = button.dataset.feedback || '';
-    document.querySelectorAll('#ws-review-panel [data-feedback]').forEach(item => {
+    document.querySelectorAll('#ws-feedback-panel [data-feedback]').forEach(item => {
         const active = item === button;
         item.classList.toggle('active', active);
         item.setAttribute('aria-pressed', String(active));
@@ -2297,7 +2159,6 @@ function clearAgentWorkState(options = {}) {
     _lastWorkbookId = '';
     _editing = false;
     _resultFeedback = '';
-    _reviewTracked = false;
     _chatHistory = [];
     if (!options.keepAgent) window._wsAgent = null;
 
@@ -2513,7 +2374,7 @@ function renderGenerationError(error, aid) {
     body.setAttribute('aria-busy', 'false');
     const preserved = _lastResult ? `<p class="ws-preserved">${_resultComplete ? '下方保留上一份结果；本次重试未替换它。' : '以下是未完成的内容，仅保存在本机，可复制保留后重试。'}</p>${mdToHtml(_lastResult)}` : '';
     body.innerHTML = `<div class="ws-error-state"><i class="ph ph-warning-circle"></i><b>${escapeHtml(error.cancelled ? '已停止生成' : info.title)}</b><p>${escapeHtml(info.detail)}</p><button type="button" onclick="runForm('${aid}')"><i class="ph ph-arrow-clockwise"></i> 重新生成</button></div>${preserved}`;
-    setAgentWorkStage('brief', agent, _lastResult && _resultComplete ? '本次处理未完成，上一份结果已保留' : '内容尚未完成，可以调整简报后重试');
+    setAgentWorkStage(_lastResult && _resultComplete ? 'edit' : 'brief', agent, _lastResult && _resultComplete ? '本次处理未完成，上一份结果可继续修改和保存' : '内容尚未完成，可以调整简报后重试');
 }
 
 async function runForm(aid) {
@@ -2540,11 +2401,11 @@ async function runForm(aid) {
         return false;
     }
     persistCurrentDraft(a); // 先保存手工编辑，重试不能覆盖上一份成果。
-    const previous = { result: _lastResult, complete: _resultComplete, fingerprint: _lastWorkbookFingerprint, id: _lastWorkbookId, review: currentReviewDecisions(), feedback: _resultFeedback };
+    const previous = { result: _lastResult, complete: _resultComplete, fingerprint: _lastWorkbookFingerprint, id: _lastWorkbookId, feedback: _resultFeedback };
     const controller = new AbortController();
     _activeGeneration = controller;
     updateInputSummary(a, inputs);
-    document.getElementById('ws-review-panel').hidden = true;
+    document.getElementById('ws-feedback-panel').hidden = true;
     syncGenerationUI();
 
     const btn = document.getElementById('run-btn');
@@ -2585,7 +2446,7 @@ async function runForm(aid) {
         body.setAttribute('aria-busy', 'false');
         body.innerHTML = mdToHtml(_lastResult);
         actions.style.display = 'flex';
-        setAgentWorkStage('review', a);
+        setAgentWorkStage('edit', a);
         showResultWorkflow(a, {});
         toggleInputPanel(false);
         persistCurrentDraft(a, '生成结果已自动保存');
@@ -2607,7 +2468,7 @@ async function runForm(aid) {
         _resultComplete = previous.result ? previous.complete : false;
         _lastWorkbookFingerprint = previous.fingerprint;
         _lastWorkbookId = previous.id;
-        if (_lastResult && _resultComplete) { showResultWorkflow(a, previous); restoreReviewState(aid, previous); }
+        if (_lastResult && _resultComplete) { showResultWorkflow(a, previous); }
         if (e.curriculum) {
             showInputValidation(e.curriculum);
             showToast(e.curriculum.toast || '课程匹配未通过，已停止生成');
@@ -2695,16 +2556,13 @@ function buildWorkTitle(agent, inputs, content, type = 'draft') {
 
 function workInputsWithProject(inputs = {}) {
     const project = window.TeachingProjects?.getActiveProject?.();
-    const review = currentReviewSummary();
+    const { _reviewStatus, _reviewChecks, _reviewDecisions, ...contentInputs } = inputs;
     return {
-        ...inputs,
+        ...contentInputs,
         _projectId: project?.id || '',
         _projectTitle: project?.title || '',
         _projectSubject: project?.subject || '',
         _projectGrade: project?.grade || '',
-        _reviewStatus: review.status,
-        _reviewChecks: Object.keys(review.decisions).filter(key => review.decisions[key] === 'pass'),
-        _reviewDecisions: review.decisions,
         _resultFeedback: _resultFeedback || ''
     };
 }
@@ -2714,10 +2572,7 @@ function refreshSaveButtonLabel() {
     const savedStatus = document.getElementById('ws-save-status');
     if (savedStatus?.dataset.state === 'success' && !currentVersionIsInWorkbook()) savedStatus.hidden = true;
     if (!btn || btn.disabled || btn.classList.contains('copied')) return;
-    const review = currentReviewSummary();
     if (currentVersionIsInWorkbook()) btn.innerHTML = '<i class="ph ph-check-circle"></i> 已存入备课本';
-    else if (review.status === 'reviewed') btn.innerHTML = '<i class="ph ph-shield-check"></i> 保存已核验版本';
-    else if (review.status === 'needs_revision') btn.innerHTML = '<i class="ph ph-warning-circle"></i> 保存待修改版本';
     else btn.innerHTML = '<i class="ph ph-bookmark-simple"></i> 保存到备课本';
 }
 
@@ -2807,12 +2662,11 @@ async function saveToWorkbook(aid, options = {}) {
         _lastWorkbookFingerprint = savingFingerprint;
         _lastWorkbookId = workId || '';
         persistCurrentDraft(a, '已存入“我的备课本”');
-        const review = currentReviewSummary();
         if (window.OperationsAnalytics) OperationsAnalytics.track('workbook_save', {
             feature: 'workspace',
             targetId: aid,
             targetName: a ? a.name : '',
-            meta: { source: options.source || 'agent_form', reviewed: review.status === 'reviewed', reviewStatus: review.status }
+            meta: { source: options.source || 'agent_form' }
         });
         if (btn) { btn.classList.add('copied'); btn.innerHTML = '<i class="ph ph-check"></i> 已保存'; }
         const saved = document.getElementById('ws-save-status');
@@ -3194,7 +3048,7 @@ async function loadRequestedWork(user) {
         if (!work) throw new Error('这份作品不存在或不属于当前账号');
         _sourceWork = work;
         if (agent.type === 'form') {
-            restoreAgentDraft(agent, { inputs: work.inputs || {}, result: work.content, resultComplete: true, review: work.inputs?._reviewDecisions || {}, updatedAt: work.updatedAt || work.createdAt });
+            restoreAgentDraft(agent, { inputs: work.inputs || {}, result: work.content, resultComplete: true, updatedAt: work.updatedAt || work.createdAt });
             persistCurrentDraft(agent, '已载入所选作品；修改后保存为新稿');
         } else {
             _chatHistory = [{ role: 'user', content: '请基于以下已有记录继续：\n' + work.content }];
