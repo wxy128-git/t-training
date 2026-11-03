@@ -49,10 +49,48 @@ stateCtx.window = stateCtx;
 stateCtx.collectInputs = () => stateCtx.liveInputs;
 stateCtx.TeachingProjects = {getActiveProject: () => null};
 function sourceFunction(source, name) {
-    const match = source.match(new RegExp('^function '+name+'\\([^\\n]*\\) \\{\\n[\\s\\S]*?^\\}', 'm'));
+    const match = source.match(new RegExp('^(?:async )?function '+name+'\\([^\\n]*\\) \\{\\n[\\s\\S]*?^\\}', 'm'));
     assert.ok(match, name + ': definition exists');
     return match[0];
 }
+
+// An old local draft must not replace a fresh task, even with a matching project.
+const cachedDraft = {inputs:{topic:'上次的课题'},result:'上次生成的内容',projectId:'existing-project'};
+const project = {id:'existing-project',subject:'数学',grade:'小学三年级'};
+const freshInputs = {};
+const restored = [];
+const freshCtx = vm.createContext({
+    URLSearchParams, location:{search:''}, _workflowCarryInputs:null,
+    TeachingProjects:{getProfile:()=>({subject:'语文'}),getActiveProject:()=>project,getDraft:()=>cachedDraft},
+    renderActiveProject(){}, applyInputValues:(_agent,inputs)=>Object.assign(freshInputs,inputs),
+    applyProjectToForm:(_agent,value)=>Object.assign(freshInputs,{subject:value.subject,grade:value.grade}),
+    restoreAgentDraft:(_agent,draft)=>restored.push(draft),
+    document:{getElementById:()=>null}, updateBriefSummary(){}
+});
+freshCtx.window = freshCtx;
+vm.runInContext(sourceFunction(page, 'initTeachingProjectForm'), freshCtx);
+for (const agent of ctx.AGENTS.filter(a=>a.type==='form')) freshCtx.initTeachingProjectForm(agent);
+check(restored.length === 0 && !freshInputs.topic, 'reopening any form starts without the previous inputs or generated text');
+check(freshInputs.subject === '数学' && freshInputs.grade === '小学三年级', 'fresh tasks retain the chosen reusable teaching context');
+freshCtx._workflowCarryInputs = {topic:'本次交接的课题'};
+freshCtx.initTeachingProjectForm(lesson);
+check(freshInputs.topic === '本次交接的课题' && freshCtx._workflowCarryInputs === null, 'explicit workflow handoff retains the current inputs once');
+check(cachedDraft.result === '上次生成的内容', 'starting fresh does not delete stored legacy data');
+
+// Explicitly choosing a workbook item still loads that item into the workbench.
+const chosenWork = {id:'chosen-work',agentId:lesson.id,title:'所选教案',inputs:{topic:'所选课题'},content:'所选作品正文'};
+const nodes = {};
+Object.assign(freshCtx, {
+    location:{search:'?work=chosen-work'}, _sourceWork:null, _workImportSequence:0, _wsAgent:lesson,
+    currentAuthUid:()=> 'teacher-test', DB:{getMyWorks:async()=>[chosenWork]},
+    document:{getElementById:id=>(nodes[id] ||= {classList:{add(){}}})}, persistCurrentDraft(){},
+    showToast:message=>{throw new Error(message);}
+});
+vm.runInContext(sourceFunction(page, 'loadRequestedWork'), freshCtx);
+await freshCtx.loadRequestedWork({uid:'teacher-test'});
+check(restored.length === 1 && restored[0].result === chosenWork.content && restored[0].inputs.topic === chosenWork.inputs.topic, 'workbook entry loads only the explicitly chosen content and inputs');
+check(freshCtx._sourceWork.id === chosenWork.id && nodes['run-btn'].disabled === false, 'explicit workbook entry preserves version lineage and enables generation');
+
 for (const name of ['fingerprintWorkState','workStateFingerprint','restoredWorkbookFingerprint','workInputsWithProject']) {
     vm.runInContext(sourceFunction(page, name), stateCtx);
 }
@@ -83,6 +121,42 @@ for (const status of ['draft','needs_revision','reviewed']) {
     check(stateCtx.workDirectoryState(work).label === '生成文稿', status + ': legacy checklist does not create a workbook badge');
     check(JSON.stringify(work) === original, status + ': reading an old work preserves it');
 }
+
+// The library must distinguish loading, failures, no saved works and no search matches.
+const libraryNodes = {};
+const node = id => libraryNodes[id] ||= {style:{},dataset:{},textContent:'',innerHTML:'',value:'',hidden:false,classList:{toggle(){}},setAttribute(k,v){this[k]=v;}};
+const libraryCtx = vm.createContext({
+    console, workspacePageCopy:{filterAll:'全部',filterDraft:'生成文稿',filterChat:'对话记录',projectFilterAll:'全部教学项目',agentFilterAll:'全部智能体',moreActions:'更多操作'},
+    _worksLoading:false,_wbError:'',_wbState:{q:'',type:'all',project:'all',agent:'all',sort:'updated-desc',view:'list'},
+    _works:[
+        {id:'quoted-"id',title:'分数 <img src=x onerror=1>',agentId:'lesson',agentName:'教学设计助手',content:'# 标题\n平均分的课堂活动',workType:'draft',inputs:{_projectId:'math',_projectTitle:'数学单元'},createdAt:'2026-11-01T00:00:00Z'},
+        {id:'chat',title:'分数讨论',agentId:'chat',agentName:'对话助手',content:'同伴讨论',workType:'chat',inputs:{_projectId:'math',_projectTitle:'数学单元'},createdAt:'2026-11-02T00:00:00Z'},
+        {id:'reading',title:'阅读活动',agentId:'lesson',agentName:'教学设计助手',content:'共同阅读',workType:'draft',inputs:{},createdAt:'2026-11-03T00:00:00Z'}
+    ],
+    document:{getElementById:node,querySelectorAll:()=>[],querySelector:()=>node('library')}
+});
+vm.runInContext(workbook.slice(workbook.indexOf('function fmtDate('),workbook.indexOf('function updateWorkbookState(')),libraryCtx);
+for (const name of ['renderFilterControls','filteredWorks','renderWorks']) vm.runInContext(sourceFunction(workbook,name),libraryCtx);
+libraryCtx._worksLoading = true;
+libraryCtx.renderWorks();
+check(node('wb-loading').style.display==='flex' && node('wb-empty').style.display==='none' && node('wb-total-metric').textContent==='—', 'reading works does not show an empty library or pretend to know the total');
+libraryCtx._worksLoading = false;
+libraryCtx.renderWorks();
+check(node('wb-grid').innerHTML.includes('&lt;img') && !node('wb-grid').innerHTML.includes('<img') && node('wb-grid').innerHTML.includes('quoted-\\&quot;id'), 'titles and quoted work identifiers render without creating markup or breaking actions');
+check(node('wb-total-metric').textContent===3 && node('wb-draft-metric').textContent===2 && node('wb-chat-metric').textContent===1, 'type counts reflect saved content');
+Object.assign(libraryCtx._wbState,{q:'课堂',type:'draft',project:'math',agent:'lesson'});
+libraryCtx.renderWorks();
+check(libraryCtx.filteredWorks().length===1 && node('wb-statline').textContent==='找到 1 份成果' && !node('wb-clear').hidden, 'search, project, type and agent filters combine and offer a reset');
+libraryCtx._wbState.q='不存在的关键词';
+libraryCtx.renderWorks();
+check(node('wb-filter-empty').style.display==='grid' && node('wb-empty').style.display==='none', 'zero search matches do not claim that saved works are missing');
+libraryCtx._works=[];
+libraryCtx.renderWorks();
+check(node('wb-empty').style.display==='grid' && node('wb-grid').innerHTML==='', 'an empty library clears stale rendered content');
+libraryCtx._wbError='读取失败 <example>';
+libraryCtx.renderWorks();
+check(node('wb-error').style.display==='grid' && node('wb-error-msg').textContent==='读取失败 <example>' && node('wb-empty').style.display==='none', 'a read failure is displayed as an error with text-safe details');
+check(libraryCtx.previewText('# 重复标题\n课堂正文')==='课堂正文', 'list previews begin with content instead of repeating the document title');
 
 // Small DOM fixture for the note event lifecycle; no browser, storage or external requests.
 class Element {

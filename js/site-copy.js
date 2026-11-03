@@ -499,15 +499,9 @@
         workspace: Object.freeze({
             id: 'workspace', label: '我的备课本', path: '/workspace',
             fields: Object.freeze([
-                { key: 'heroKicker', label: '首屏眉题', maxLength: 40, defaultValue: '教学成果管理' },
                 { key: 'heroTitle', label: '首屏标题', maxLength: 50, defaultValue: '我的备课本' },
                 { key: 'heroAccent', label: '标题强调词', maxLength: 12, defaultValue: '备课本', help: '必须是首屏标题中出现的文字。' },
                 { key: 'heroIntro', label: '首屏简介', maxLength: 100, rows: 2, defaultValue: '查看、筛选和导出智能体成果。' },
-                { key: 'metricAll', label: '统计：全部内容', maxLength: 20, defaultValue: '全部内容' },
-                { key: 'metricDraft', label: '统计：生成文稿', maxLength: 20, defaultValue: '生成文稿' },
-                { key: 'metricChat', label: '统计：对话记录', maxLength: 20, defaultValue: '对话记录' },
-                { key: 'binderLabel', label: '书脊标签', maxLength: 30, defaultValue: '教学成果备课夹' },
-                { key: 'directoryKicker', label: '目录英文眉题', maxLength: 30, defaultValue: 'TEACHING WORKBOOK' },
                 { key: 'directoryTitle', label: '目录标题', maxLength: 24, defaultValue: '成果目录' },
                 { key: 'searchPlaceholder', label: '搜索框提示', maxLength: 60, defaultValue: '查找课题、项目或智能体' },
                 { key: 'sortLabel', label: '排序标题', maxLength: 16, defaultValue: '目录排序' },
@@ -523,10 +517,6 @@
                 { key: 'sortProject', label: '排序：教学项目', maxLength: 20, defaultValue: '按教学项目' },
                 { key: 'sortTitle', label: '排序：标题', maxLength: 20, defaultValue: '标题 A-Z' },
                 { key: 'sortAgent', label: '排序：智能体', maxLength: 20, defaultValue: '智能体名称' },
-                { key: 'columnPage', label: '目录列：页码', maxLength: 12, defaultValue: '页码' },
-                { key: 'columnWork', label: '目录列：课题来源', maxLength: 20, defaultValue: '课题 / 来源' },
-                { key: 'columnState', label: '目录列：内容类型', maxLength: 12, defaultValue: '内容类型' },
-                { key: 'columnUpdated', label: '目录列：更新', maxLength: 12, defaultValue: '更新' },
                 { key: 'moreActions', label: '更多操作', maxLength: 16, defaultValue: '更多操作' },
                 { key: 'clearFilters', label: '清除筛选按钮', maxLength: 20, defaultValue: '清除筛选' },
                 { key: 'emptyTitle', label: '空备课本标题', maxLength: 30, defaultValue: '备课本还是空的' },
@@ -643,9 +633,7 @@
             "设计问卷、访谈或观察表"
         ]
     },
-    "workspace": {
-        "columnState": "状态"
-    }
+    "workspace": {}
 };
 
     function normalize(pageId, source) {

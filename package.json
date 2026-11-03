@@ -10,6 +10,7 @@
     "preview:analytics": "node scripts/preview-analytics-privacy.mjs",
     "preview:privacy": "node scripts/preview-privacy.mjs",
     "preview:admin": "node scripts/preview-tencent-admin.mjs",
+    "preview:workbook": "node scripts/preview-workbook.mjs",
     "preview:operations": "node scripts/preview-tencent-admin.mjs --operations"
   },
   "dependencies": {

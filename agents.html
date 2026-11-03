@@ -709,7 +709,7 @@
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261026-edit-save"></script>
+<script src="js/site-copy.js?v=20261103-workbook-library"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
     <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
@@ -1460,7 +1460,7 @@ function buildForm(a) {
                     <button type="submit" class="ws-run" id="run-btn"><i class="ph-fill ph-sparkle"></i> ${escapeHtml(agentRunLabel(a))}</button>
                 </form>
                 <div class="ws-draft-state" id="ws-draft-state" role="status" aria-live="polite">
-                    <i class="ph ph-device-mobile"></i><span>填写后自动保存到本机</span>${UiNotes.button('输入和初稿自动保存在当前设备；点击“保存到备课本”才能跨设备查看。','草稿保存说明')}
+                    <i class="ph ph-device-mobile"></i><span>需要保留成果时，请保存到备课本</span>${UiNotes.button('每次打开智能体都会开始新任务，不会自动恢复上次输入和生成内容。需要下次继续使用时，请保存到备课本，再从备课本打开。','成果保留说明')}
                     <button type="button" onclick="clearCurrentDraft('${a.id}')">清空草稿</button>
                 </div>
             </div>
@@ -1897,8 +1897,7 @@ function initTeachingProjectForm(agent) {
         applyInputValues(agent, _workflowCarryInputs, true);
         _workflowCarryInputs = null;
     }
-    const draft = window.TeachingProjects?.getDraft?.(agent.id);
-    if (draft && (!project?.id || !draft.projectId || draft.projectId === project.id)) restoreAgentDraft(agent, draft);
+    // 普通入口始终开始新任务；只有用户从备课本选定作品时才载入旧内容。
 
     const form = document.getElementById('agent-form');
     form?.addEventListener('input', event => {
@@ -2064,7 +2063,7 @@ function requestWorkflowTransition(pending, trigger) {
     if (title) title.textContent = pending.type === 'agent' ? `${pending.label}？` : '打开我的备课本？';
     if (copy) copy.textContent = `当前${current?.name || '成果'}尚未存入“我的备课本”。你可以先保存，再继续当前教学任务。`;
     if (note) note.textContent = localSaved
-        ? '当前输入和生成内容已自动保存在这台设备上。保存到备课本后，可跨设备查找和复用。'
+        ? '再次打开智能体会开始新任务。保存到备课本后，可查找和继续使用当前成果。'
         : '本机存储空间不足，草稿未能自动保存。建议先存入备课本，再继续当前教学任务。';
     if (primary) primary.innerHTML = '<i class="ph ph-bookmark-simple"></i> 保存并继续';
     modal?.classList.add('active');
@@ -3027,7 +3026,7 @@ function routeFromHash(skipGuard, historyMode = 'restore') {
 }
 routeFromHash(true, 'replace'); // 首次进入不强制登录拦截（避免落地即弹窗），实际调用时再拦
 
-// 浏览器前进/后退或手动改 hash 时响应；跨智能体历史记录可恢复上一份本地草稿。
+// 浏览器前进/后退或手动改 hash 时响应；每次打开都开始新任务。
 window.addEventListener('hashchange', () => {
     if (location.hash && location.hash !== '#') routeFromHash(true, 'restore');
     else if (document.getElementById('view-workspace').style.display !== 'none') backToHome();

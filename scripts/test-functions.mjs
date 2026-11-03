@@ -47,7 +47,7 @@ try {
     assert(!('checklistHeading' in homeDefaults) && !('checklistAction' in homeDefaults), '首页后台仍显示退役核验字段');
     const workbookCopy = globalThis.SiteCopy.defaults('workspace');
     assert(!('metricReviewed' in workbookCopy) && !('filterReviewed' in workbookCopy), '备课本后台仍显示退役核验字段');
-    assert(globalThis.SiteCopy.normalize('workspace', {columnState:'状态'}).columnState === '内容类型', '目录旧默认状态标题未更新为内容类型');
+    assert(['heroKicker','metricAll','metricDraft','metricChat','binderLabel','directoryKicker','columnPage','columnWork','columnState','columnUpdated'].every(key => !(key in workbookCopy)), '备课本后台仍显示旧装订与重复统计字段');
     assert(globalThis.SiteCopy.normalize('agents', {heroIntro:'他们分工明确，会先了解你的教学任务，再和你一起完成初稿、核验与整理。'}).heroIntro.includes('修改'), '旧默认团队简介仍提示核验流程');
     assert(globalThis.SiteCopy.normalize('agents', {heroIntro:'管理员保留的自定义简介'}).heroIntro === '管理员保留的自定义简介', '简化流程覆盖了自定义简介');
     assert(globalThis.SiteCopy.normalize('multimodal', {heroTitle:'教学素材案例',heroAccent:'素材'}).heroTitle === '多模态工作坊', '多模态默认标题未按核对恢复');

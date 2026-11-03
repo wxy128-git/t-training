@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261026-v55-edit-save';
+const VERSION = '20261103-v57-workbook-library';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;
@@ -22,6 +22,7 @@ const CORE_ASSETS = [
     '/js/auth.js',
     '/js/ui-notes.js',
     '/css/ux.css',
+    '/css/workspace.css',
     '/privacy',
     '/css/privacy.css',
     '/js/privacy-policy.js',

@@ -58,10 +58,11 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261025-ux-reviewed'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261026-edit-save'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261103-workbook-library'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261025-ux-reviewed'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261025-ux-reviewed'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/task-search.js?v=20261025-ux-reviewed') && !body.includes('js/agents-data.js'), '首页任务映射或精简加载未上线');
+    assert(!body.includes('th-resume') && !body.includes('renderHomeContinuation'), '首页仍显示旧草稿恢复入口');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
     assert(body.includes('id="th-mobile-more"') && body.includes('th-mobile-secondary'), '首页移动端渐进展开入口未上线');
@@ -119,7 +120,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261026-v55-edit-save'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261103-v57-workbook-library'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -175,6 +176,9 @@ if (agents) {
     assert(body.includes('id="ws-project-options"') && body.includes('aria-controls="ws-input-scroll"') && body.includes('.ws-task-first .ws-titles p'), '移动工作台精简或无障碍折叠未上线');
     assert(body.includes('TaskSearch.tasks[a.id]?.title || a.name') && body.includes('AI 初稿，使用前请核对'), '任务标题或使用前提示未上线');
     assert(body.includes('js/curriculum-guard.js?v=20260828-curriculum-gate') && body.includes('function curriculumContext'), '课程匹配守卫未上线');
+    const formInit = body.slice(body.indexOf('function initTeachingProjectForm('), body.indexOf('function clearCurrentDraft('));
+    assert(formInit.includes('applyProjectToForm') && !formInit.includes('getDraft') && !formInit.includes('restoreAgentDraft'), '普通打开智能体仍自动恢复旧稿');
+    assert(body.includes('async function loadRequestedWork(') && body.includes("get('work')"), '从备课本主动载入作品的入口缺失');
     assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('showInputValidation(e.curriculum)'), '旧教材校验章未移除或服务端拦截反馈未上线');
 }
 
@@ -188,10 +192,12 @@ if (curriculumGuard) {
 const workspace = await request('/workspace');
 if (workspace) {
     const body = await workspace.text();
-    assert(body.includes('class="wb-desk-scene wb-workbook-light"') && body.includes('class="wb-binder-spine"') && body.includes('class="wb-directory-page"'), '轻量备课本或装订线索界面未上线');
-    assert(body.includes('data-type="draft"') && body.includes('class="wb-card-more"') && body.includes('wb-sheet-open'), '备课本筛选、页侧操作或轻量打开交互未上线');
-    assert(!/class="(?:wb-paper-under|wb-page-hole|wb-binder-ring|wb-sheet-hole)"/.test(body), '备课本仍渲染过重拟物装饰');
+    assert(body.includes('class="wb-library"') && body.includes('css/workspace.css?v=20261103-library'), '新版备课本内容库未上线');
+    assert(body.includes('data-type="draft"') && body.includes('class="wb-card-more"') && body.includes('id="wb-loading"'), '备课本筛选、更多操作或读取状态未上线');
+    assert(!/class="(?:wb-paper-under|wb-page-hole|wb-binder-ring|wb-sheet-hole|wb-binder-spine|wb-page-number)"/.test(body), '备课本仍渲染装订或装饰页码');
 }
+const workbookStyle = await request('/css/workspace.css?v=20261103-library');
+if (workbookStyle) assert(workbookStyle.status === 200 && (await workbookStyle.text()).includes('wb-reader-open'), '新版备课本阅读与响应式样式未上线');
 
 const safeRender = await request('/js/safe-render.js?v=20260719-security');
 if (safeRender) {
@@ -233,7 +239,7 @@ if (researchCopy) {
     assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
     assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
 }
-const researchRegistry = await request('/js/site-copy.js?v=20261026-edit-save');
+const researchRegistry = await request('/js/site-copy.js?v=20261103-workbook-library');
 if (researchRegistry) {
     const registry=await researchRegistry.text();
     assert(['designRole','instrumentRole','designGuide','instrumentGuide','reviewAction'].every(k=>registry.includes(k)), '第二批科研文案字段未发布');
