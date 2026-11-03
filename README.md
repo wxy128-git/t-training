@@ -22,7 +22,7 @@ node scripts/serve.mjs
 
 默认地址为 `http://127.0.0.1:8765`。本地服务器会运行登录所需的认证代理，以及公开内容、工具和 RSS 只读接口；依赖 Cloudflare 密钥的管理接口仍不会在本地启用。页面文案在本地预览时保存到浏览器存储，不会写入线上 Firestore。
 
-2026-11-03 备课本内容库重设计已在本地完成，尚未上线。使用 `npm run preview:workbook` 打开 `http://127.0.0.1:8769/workspace`，查看虚构账号的示例成果；`?state=empty`、`?state=error`、`?state=guest`、`?state=long` 分别演示空列表、读取失败、未登录和长文。示例的重命名、删除、编辑另存仅影响浏览器内存，刷新即重置，不连接模型、邮件或正式数据。结束按 Ctrl+C。改动及验收边界见 [本地重设计记录](reports/2026-11-03-workbook-library.md)。
+2026-11-03 备课本内容库重设计已上线（`f48a971`），同时移除首页草稿恢复入口、取消智能体自动载入旧稿。浏览器视觉验收尚未完成，用户知悉后明确要求发布。使用 `npm run preview:workbook` 打开 `http://127.0.0.1:8769/workspace`，可查看虚构账号的示例成果；`?state=empty`、`?state=error`、`?state=guest`、`?state=long` 分别演示空列表、读取失败、未登录和长文。示例的重命名、删除、编辑另存仅影响浏览器内存，刷新即重置，不连接模型、邮件或正式数据。结束按 Ctrl+C。改动及验收边界见 [重设计与发布记录](reports/2026-11-03-workbook-library.md)。
 
 ## 科研写作（2026-10-06 已上线）
 
