@@ -39,6 +39,7 @@ for (const file of publicPages) {
 
 for (const file of appPages) {
     const html = text(file);
+    if (!html.includes('js/privacy-ui.js?v=20261109-quieter-notices')) fail(file, '隐私提醒脚本缓存版本未统一');
     if (!html.includes('css/ux.css?v=20261026-edit-save') || !html.includes('js/ui-notes.js?v=20261025-ux')) fail(file, '任务与备注资源版本未统一');
     if (!/js\/safe-render\.js\?v=20260719-security/.test(html)) fail(file, '未加载当前 SafeRender');
     const styleVersion = '20261006-research-nav';
@@ -84,7 +85,7 @@ for (const file of pwaPages) {
     if (!/display-mode:\s*standalone/.test(html)) fail(file, '缺少安装态首帧识别');
     if (!/<meta\s+name="mobile-web-app-capable"\s+content="yes">/i.test(html)) fail(file, '缺少标准移动 Web App 声明');
     if (!/css\/pwa\.css\?v=20260924-local-email-direct/.test(html)) fail(file, 'PWA 样式缓存版本未统一');
-    if (!new RegExp('js/pwa\\.js\\?v=20261025-ux-reviewed').test(html)) fail(file, 'PWA 脚本缓存版本未统一');
+    if (!new RegExp('js/pwa\\.js\\?v=20261109-quieter-notices').test(html)) fail(file, 'PWA 脚本缓存版本未统一');
 }
 
 const pwaSource = text('js/pwa.js');
@@ -213,11 +214,11 @@ if (!/localApiModules/.test(previewServerSource) || !/\/api\/auth-proxy/.test(pr
 const pathsHtml = text('paths.html');
 if (!/PATH_PROGRESS_PREFIX/.test(pathsHtml) || !/step-complete-btn/.test(pathsHtml) || !/path-continue/.test(pathsHtml)) fail('paths.html', '学习路径续学或完成进度功能不完整');
 const offlineHtml = text('offline.html');
-if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20261025-ux-reviewed/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
+if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(offlineHtml) || !/js\/pwa\.js\?v=20261109-quieter-notices/.test(offlineHtml)) fail('offline.html', '离线页未接入当前 App 壳层');
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261103-v57-workbook-library/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261109-v59-quieter-notices/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }

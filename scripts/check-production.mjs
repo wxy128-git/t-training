@@ -60,7 +60,7 @@ if (home) {
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
     assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261103-workbook-library'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261025-ux-reviewed'), '首页未加载当前网站向导脚本版本');
-    assert(body.includes('js/pwa.js?v=20261025-ux-reviewed'), '首页未加载当前 PWA 脚本版本');
+    assert(body.includes('js/pwa.js?v=20261109-quieter-notices'), '首页未加载当前 PWA 脚本版本');
     assert(body.includes('js/task-search.js?v=20261025-ux-reviewed') && !body.includes('js/agents-data.js'), '首页任务映射或精简加载未上线');
     assert(!body.includes('th-resume') && !body.includes('renderHomeContinuation'), '首页仍显示旧草稿恢复入口');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
@@ -79,12 +79,19 @@ if (adminPage) {
     assert(body.includes('id="delete-user-modal"') && body.includes('previewUserDeletion') && body.includes('confirmUserDeletion'), '账号删除核对窗口未上线');
 }
 
-const pwaScript = await request('/js/pwa.js?v=20261025-ux-reviewed');
+const pwaScript = await request('/js/pwa.js?v=20261109-quieter-notices');
 if (pwaScript) {
     const body = await pwaScript.text();
     assert(pwaScript.status === 200 && pwaScript.headers.get('content-type')?.includes('javascript'), '当前 PWA 脚本未上线');
+    assert(body.includes('UPDATE_COOLDOWN = 7 * 24') && body.includes('data-pwa-check-update') && body.includes('QUIET_UPDATE_PATHS'), '更新提醒频率、主动入口或工作页面避让未上线');
     assert(body.includes('pwa-task-dialog') && body.includes('pwa_task_started'), 'PWA 任务启动层或统计事件未上线');
     assert(/data-pwa-tab="home"[\s\S]+data-pwa-tab="workspace"[\s\S]+data-pwa-start[\s\S]+data-pwa-tab="classroom"[\s\S]+data-pwa-more/.test(body), 'PWA 底部主导航顺序异常');
+}
+
+const privacyScript = await request('/js/privacy-ui.js?v=20261109-quieter-notices');
+if (privacyScript) {
+    const body = await privacyScript.text();
+    assert(privacyScript.status === 200 && body.includes('const seenNotices=new Set()') && body.includes('!loaded') && body.includes('function quietPage()'), '隐私提醒去重、失败处理或工作页面避让未上线');
 }
 
 const authScript = await request('/js/auth.js?v=20261025-ux-reviewed');
@@ -120,7 +127,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261103-v57-workbook-library'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261109-v59-quieter-notices'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -173,11 +180,12 @@ if (agents) {
     assert(body.includes('class="agent-member"') && body.includes('assets/agent-portraits/'), '数字教研团队人物化界面未上线');
     assert(body.includes('AGENT_BRIEF_PRIMARY_KEYS') && body.includes('填写教学信息') && body.includes('补充信息（可选）'), '数字成员任务简报或渐进参数未上线');
     assert(body.includes('id="ws-presence"') && body.includes('function setAgentWorkStage') && body.includes('生成${agentDeliverable(agent)}'), '数字成员工作阶段或交付物操作未上线');
-    assert(body.includes('id="ws-project-options"') && body.includes('aria-controls="ws-input-scroll"') && body.includes('.ws-task-first .ws-titles p'), '移动工作台精简或无障碍折叠未上线');
+    assert(!body.includes('id="ws-project-options"') && !body.includes('id="project-modal"') && !body.includes('TeachingProjects?.contextLines') && !body.includes('TeachingProjects?.getActiveProject') && !body.includes('TeachingProjects?.getProfile'), '复用教学背景的入口或自动注入仍存在');
+    assert(body.includes('aria-controls="ws-input-scroll"') && body.includes('.ws-task-first .ws-titles p'), '移动工作台精简或无障碍折叠未上线');
     assert(body.includes('TaskSearch.tasks[a.id]?.title || a.name') && body.includes('AI 初稿，使用前请核对'), '任务标题或使用前提示未上线');
     assert(body.includes('js/curriculum-guard.js?v=20260828-curriculum-gate') && body.includes('function curriculumContext'), '课程匹配守卫未上线');
-    const formInit = body.slice(body.indexOf('function initTeachingProjectForm('), body.indexOf('function clearCurrentDraft('));
-    assert(formInit.includes('applyProjectToForm') && !formInit.includes('getDraft') && !formInit.includes('restoreAgentDraft'), '普通打开智能体仍自动恢复旧稿');
+    const formInit = body.slice(body.indexOf('function initAgentForm('), body.indexOf('function clearCurrentDraft('));
+    assert(formInit.includes('function initAgentForm(') && !formInit.includes('getDraft') && !formInit.includes('restoreAgentDraft'), '普通打开智能体仍自动恢复旧稿');
     assert(body.includes('async function loadRequestedWork(') && body.includes("get('work')"), '从备课本主动载入作品的入口缺失');
     assert(!body.includes('教材校验章') && !body.includes('ws-textbook-locator') && body.includes('showInputValidation(e.curriculum)'), '旧教材校验章未移除或服务端拦截反馈未上线');
 }

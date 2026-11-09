@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261103-v57-workbook-library';
+const VERSION = '20261109-v59-quieter-notices';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;

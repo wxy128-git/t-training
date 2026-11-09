@@ -4,6 +4,9 @@
     const APP_NAME = 'AI 教师培训中心';
     const INSTALL_DISMISS_KEY = 'xylaoshi:pwa-install-dismissed-at';
     const UPDATE_LATER_KEY = 'xylaoshi:pwa-update-later';
+    const UPDATE_NOTICE_KEY = 'xylaoshi:pwa-update-notice-at';
+    const UPDATE_COOLDOWN = 7 * 24 * 60 * 60 * 1000;
+    const QUIET_UPDATE_PATHS = new Set(['/agents', '/research', '/workspace', '/classroom-tools', '/admin']);
     const APP_PREVIEW_KEY = 'xylaoshi:pwa-app-preview';
     const INSTALL_COOLDOWN = 30 * 24 * 60 * 60 * 1000;
     const AUTO_PROMPT_PATHS = new Set(['/', '/index.html', '/resources.html', '/paths.html', '/articles.html']);
@@ -17,6 +20,12 @@
     let installPrompt = null;
     let updateWorker = null;
     let reloadAfterUpdate = false;
+    let lastUpdateNoticeAt = 0;
+    let updateApplyTimer = 0;
+    let manualUpdateRequested = false;
+    let updateCheckPromise = null;
+    let serviceWorkerRegistration = null;
+    let serviceWorkerRegistrationPromise = null;
     let installCardTimer = 0;
     let networkStatusTimer = 0;
     let appShellSyncFrame = 0;
@@ -491,6 +500,10 @@
             button.hidden = !available;
             button.setAttribute('aria-label', isIOS ? '查看添加到主屏幕的方法' : `安装${APP_NAME}`);
         });
+        const footerLinks = document.querySelector('#main-footer .footer-col ul');
+        if (isSecure && 'serviceWorker' in navigator && footerLinks && !footerLinks.querySelector('[data-pwa-check-update]')) {
+            footerLinks.insertAdjacentHTML('beforeend', '<li><button type="button" class="footer-link-button" data-pwa-check-update>检查更新</button></li>');
+        }
     }
 
     function installPromptDismissedRecently() {
@@ -632,10 +645,35 @@
         track('pwa_install_help_opened', { meta: { platform: isIOS ? 'ios' : isSafari ? 'safari' : 'other' } });
     }
 
-    function showUpdateCard(worker) {
-        if (!worker || safeStorage(sessionStorage, 'get', UPDATE_LATER_KEY) === '1') return;
+    function rememberUpdateNotice() {
+        lastUpdateNoticeAt = Date.now();
+        safeStorage(localStorage, 'set', UPDATE_NOTICE_KEY, String(lastUpdateNoticeAt));
+        safeStorage(sessionStorage, 'remove', UPDATE_LATER_KEY);
+    }
+
+    function updateNoticeSuppressed() {
+        const saved = Number(safeStorage(localStorage, 'get', UPDATE_NOTICE_KEY)) || 0;
+        const last = Math.max(lastUpdateNoticeAt, saved);
+        return last > 0 && Date.now() - last < UPDATE_COOLDOWN;
+    }
+
+    function showUpdateCard(worker, manual = false) {
+        if (!worker || worker.state !== 'installed') return false;
         updateWorker = worker;
-        if (document.getElementById('pwa-update-card')) return;
+        const status = document.getElementById('pwa-network-status');
+        if (status && ['正在检查更新…', '正在准备更新，完成后会显示提示。'].includes(status.textContent)) {
+            window.clearTimeout(networkStatusTimer);
+            status.hidden = true;
+        }
+        if (document.getElementById('pwa-update-card')) return true;
+        // Carry the previous tab-only "later" choice into the durable cooldown once.
+        if (!manual && safeStorage(sessionStorage, 'get', UPDATE_LATER_KEY) === '1') {
+            rememberUpdateNotice();
+        }
+        if (!manual && (updateNoticeSuppressed() || document.visibilityState !== 'visible'
+            || QUIET_UPDATE_PATHS.has(cleanPathname()) || document.querySelector('dialog[open], .modal-overlay.active, .workflow-modal.active, #privacy-notice'))) return false;
+        rememberUpdateNotice();
+        removeCard('pwa-install-card');
 
         const card = document.createElement('section');
         card.id = 'pwa-update-card';
@@ -645,26 +683,65 @@
             <img class="pwa-card-icon" src="/assets/pwa/icon-192.png" alt="">
             <div class="pwa-card-copy">
                 <h2 class="pwa-card-title">新版本已准备好</h2>
-                <p class="pwa-card-text">点击更新后页面会刷新。请先保存正在编辑的教学成果。</p>
+                <p class="pwa-card-text">可稍后更新，当前使用不受影响。更新会刷新页面，请先保存教学成果。</p>
                 <div class="pwa-card-actions">
                     <button type="button" class="pwa-button pwa-button-primary" data-pwa-apply-update>立即更新</button>
-                    <button type="button" class="pwa-button" data-pwa-update-later>稍后</button>
+                    <button type="button" class="pwa-button" data-pwa-update-later>7 天后提醒</button>
                 </div>
             </div>`;
         getCardStack().appendChild(card);
+        return true;
     }
 
     function applyUpdate() {
-        if (!updateWorker) return;
+        if (reloadAfterUpdate) return;
+        if (!updateWorker || updateWorker.state !== 'installed') {removeCard('pwa-update-card');return;}
         reloadAfterUpdate = true;
-        updateWorker.postMessage({ type: 'SKIP_WAITING' });
+        const button = document.querySelector('[data-pwa-apply-update]');
+        if (button) {button.disabled = true;button.textContent = '正在更新…';}
+        const recover = () => {
+            reloadAfterUpdate = false;
+            if (button) {button.disabled = false;button.textContent = '重试更新';}
+            showNetworkStatus('更新暂未完成，可稍后重试。当前内容会保留。', 'offline', false);
+        };
+        updateApplyTimer = window.setTimeout(recover, 12000);
+        try {updateWorker.postMessage({ type: 'SKIP_WAITING' });}
+        catch (_) {window.clearTimeout(updateApplyTimer);recover();}
         track('pwa_update_applied');
     }
 
     function updateLater() {
-        safeStorage(sessionStorage, 'set', UPDATE_LATER_KEY, '1');
+        reloadAfterUpdate = false;
+        window.clearTimeout(updateApplyTimer);
+        rememberUpdateNotice();
         removeCard('pwa-update-card');
         track('pwa_update_deferred');
+    }
+
+    async function checkForUpdate() {
+        if (updateCheckPromise) return updateCheckPromise;
+        updateCheckPromise = (async () => {
+            showNetworkStatus('正在检查更新…', 'online', false);
+            try {
+                const registration = serviceWorkerRegistration || await registerServiceWorker();
+                if (!registration) throw new Error('unavailable');
+                manualUpdateRequested = true;
+                await registration.update();
+                if (registration.waiting && navigator.serviceWorker.controller) {
+                    showUpdateCard(registration.waiting, true);
+                    manualUpdateRequested = false;
+                } else if (registration.installing) {
+                    showNetworkStatus('正在准备更新，完成后会显示提示。', 'online', false);
+                } else {
+                    manualUpdateRequested = false;
+                    showNetworkStatus('当前已是最新版本。', 'online', false);
+                }
+            } catch (_) {
+                manualUpdateRequested = false;
+                showNetworkStatus('暂时无法检查更新，请联网后重试。', 'offline', false);
+            }
+        })();
+        try {await updateCheckPromise;} finally {updateCheckPromise = null;}
     }
 
     function showNetworkStatus(message, state, persistent) {
@@ -709,26 +786,42 @@
 
     async function registerServiceWorker() {
         if (!isSecure || !('serviceWorker' in navigator)) return;
-        try {
-            const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' });
-            if (registration.waiting && navigator.serviceWorker.controller) showUpdateCard(registration.waiting);
+        if (serviceWorkerRegistration) return serviceWorkerRegistration;
+        if (serviceWorkerRegistrationPromise) return serviceWorkerRegistrationPromise;
+        serviceWorkerRegistrationPromise = (async () => {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' });
+                serviceWorkerRegistration = registration;
+                if (registration.waiting && navigator.serviceWorker.controller) showUpdateCard(registration.waiting);
 
-            registration.addEventListener('updatefound', () => {
-                const worker = registration.installing;
-                if (!worker) return;
-                worker.addEventListener('statechange', () => {
-                    if (worker.state === 'installed' && navigator.serviceWorker.controller) showUpdateCard(worker);
+                registration.addEventListener('updatefound', () => {
+                    const worker = registration.installing;
+                    if (!worker) return;
+                    worker.addEventListener('statechange', () => {
+                        if (worker.state === 'installed') {
+                            const manual = manualUpdateRequested;
+                            manualUpdateRequested = false;
+                            if (navigator.serviceWorker.controller) showUpdateCard(worker, manual);
+                            else if (manual) showNetworkStatus('当前已是最新版本。', 'online', false);
+                        }
+                        if (worker.state === 'redundant' && manualUpdateRequested) {
+                            manualUpdateRequested = false;
+                            showNetworkStatus('更新准备失败，请稍后重新检查。', 'offline', false);
+                        }
+                    });
                 });
-            });
 
-            const lastCheck = Number(safeStorage(sessionStorage, 'get', 'xylaoshi:pwa-update-check')) || 0;
-            if (Date.now() - lastCheck > 60 * 60 * 1000) {
-                safeStorage(sessionStorage, 'set', 'xylaoshi:pwa-update-check', String(Date.now()));
-                registration.update().catch(() => {});
+                const lastCheck = Number(safeStorage(localStorage, 'get', 'xylaoshi:pwa-update-check')) || 0;
+                if (Date.now() - lastCheck > 60 * 60 * 1000) {
+                    safeStorage(localStorage, 'set', 'xylaoshi:pwa-update-check', String(Date.now()));
+                    registration.update().catch(() => {});
+                }
+                return registration;
+            } catch (error) {
+                console.warn('[PWA] Service Worker 注册失败：', error);
             }
-        } catch (error) {
-            console.warn('[PWA] Service Worker 注册失败：', error);
-        }
+        })();
+        try {return await serviceWorkerRegistrationPromise;} finally {serviceWorkerRegistrationPromise = null;}
     }
 
     window.addEventListener('beforeinstallprompt', (event) => {
@@ -762,7 +855,16 @@
     });
 
     navigator.serviceWorker && navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (reloadAfterUpdate) location.reload();
+        window.clearTimeout(updateApplyTimer);
+        updateWorker = null;
+        removeCard('pwa-update-card');
+        const shouldReload = reloadAfterUpdate;
+        reloadAfterUpdate = false;
+        if (shouldReload) location.reload();
+    });
+
+    window.addEventListener('storage', event => {
+        if (event.key === UPDATE_NOTICE_KEY && event.newValue) removeCard('pwa-update-card');
     });
 
     document.addEventListener('click', (event) => {
@@ -815,6 +917,7 @@
             if (dialog) typeof dialog.close === 'function' ? dialog.close() : dialog.removeAttribute('open');
         } else if (target.matches('[data-pwa-apply-update]')) applyUpdate();
         else if (target.matches('[data-pwa-update-later]')) updateLater();
+        else if (target.matches('[data-pwa-check-update]')) checkForUpdate();
     });
 
     document.addEventListener('keydown', (event) => {

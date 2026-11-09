@@ -54,7 +54,7 @@ function sourceFunction(source, name) {
     return match[0];
 }
 
-// An old local draft must not replace a fresh task, even with a matching project.
+// Retired teaching backgrounds and old drafts must not replace a fresh task.
 const cachedDraft = {inputs:{topic:'上次的课题'},result:'上次生成的内容',projectId:'existing-project'};
 const project = {id:'existing-project',subject:'数学',grade:'小学三年级'};
 const freshInputs = {};
@@ -62,18 +62,17 @@ const restored = [];
 const freshCtx = vm.createContext({
     URLSearchParams, location:{search:''}, _workflowCarryInputs:null,
     TeachingProjects:{getProfile:()=>({subject:'语文'}),getActiveProject:()=>project,getDraft:()=>cachedDraft},
-    renderActiveProject(){}, applyInputValues:(_agent,inputs)=>Object.assign(freshInputs,inputs),
-    applyProjectToForm:(_agent,value)=>Object.assign(freshInputs,{subject:value.subject,grade:value.grade}),
+    applyInputValues:(_agent,inputs)=>Object.assign(freshInputs,inputs),
     restoreAgentDraft:(_agent,draft)=>restored.push(draft),
     document:{getElementById:()=>null}, updateBriefSummary(){}
 });
 freshCtx.window = freshCtx;
-vm.runInContext(sourceFunction(page, 'initTeachingProjectForm'), freshCtx);
-for (const agent of ctx.AGENTS.filter(a=>a.type==='form')) freshCtx.initTeachingProjectForm(agent);
+vm.runInContext(sourceFunction(page, 'initAgentForm'), freshCtx);
+for (const agent of ctx.AGENTS.filter(a=>a.type==='form')) freshCtx.initAgentForm(agent);
 check(restored.length === 0 && !freshInputs.topic, 'reopening any form starts without the previous inputs or generated text');
-check(freshInputs.subject === '数学' && freshInputs.grade === '小学三年级', 'fresh tasks retain the chosen reusable teaching context');
+check(!freshInputs.subject && !freshInputs.grade, 'fresh tasks ignore stored teaching projects and default profiles');
 freshCtx._workflowCarryInputs = {topic:'本次交接的课题'};
-freshCtx.initTeachingProjectForm(lesson);
+freshCtx.initAgentForm(lesson);
 check(freshInputs.topic === '本次交接的课题' && freshCtx._workflowCarryInputs === null, 'explicit workflow handoff retains the current inputs once');
 check(cachedDraft.result === '上次生成的内容', 'starting fresh does not delete stored legacy data');
 
@@ -91,7 +90,7 @@ await freshCtx.loadRequestedWork({uid:'teacher-test'});
 check(restored.length === 1 && restored[0].result === chosenWork.content && restored[0].inputs.topic === chosenWork.inputs.topic, 'workbook entry loads only the explicitly chosen content and inputs');
 check(freshCtx._sourceWork.id === chosenWork.id && nodes['run-btn'].disabled === false, 'explicit workbook entry preserves version lineage and enables generation');
 
-for (const name of ['fingerprintWorkState','workStateFingerprint','restoredWorkbookFingerprint','workInputsWithProject']) {
+for (const name of ['fingerprintWorkState','workStateFingerprint','restoredWorkbookFingerprint','workbookInputs']) {
     vm.runInContext(sourceFunction(page, name), stateCtx);
 }
 const storedDraft = {result:'已保存的教案',review:{alignment:'pass',facts:'pass'},feedback:'',workbookId:'saved-work'};
@@ -105,12 +104,31 @@ stateCtx.liveInputs = {topic:'分数'};
 check(!stateCtx.restoredWorkbookFingerprint(lesson, {...storedDraft,workbookId:''}), 'missing saved work identity is not treated as saved');
 const current = stateCtx.workStateFingerprint(lesson);
 check(stateCtx.restoredWorkbookFingerprint(lesson, {workbookFingerprint:current}) === current, 'current saved fingerprints restore unchanged');
-const legacyInputs = {topic:'分数',_sourceWorkId:'parent',_reviewStatus:'reviewed',_reviewChecks:['facts'],_reviewDecisions:{facts:'pass'}};
+const legacyInputs = {topic:'分数',_sourceWorkId:'parent',_reviewStatus:'reviewed',_reviewChecks:['facts'],_reviewDecisions:{facts:'pass'},_projectId:'old-project',_projectTitle:'旧背景',_projectSubject:'数学',_projectGrade:'小学三年级'};
 const beforeInputs = JSON.stringify(legacyInputs);
-const cleanInputs = stateCtx.workInputsWithProject(legacyInputs);
+const cleanInputs = stateCtx.workbookInputs(legacyInputs);
 check(!('_reviewStatus' in cleanInputs) && !('_reviewChecks' in cleanInputs) && !('_reviewDecisions' in cleanInputs), 'new saves carry no checklist status');
+check(!Object.keys(cleanInputs).some(key=>key.startsWith('_project')), 'new saves carry no retired project metadata');
 check(cleanInputs.topic === '分数' && cleanInputs._sourceWorkId === 'parent', 'removing checklist metadata keeps task inputs and version lineage');
 check(JSON.stringify(legacyInputs) === beforeInputs, 'legacy input records are not mutated');
+
+// Both chat and form requests use only their task system prompt, despite old local context.
+const payloads = [];
+const apiCtx = vm.createContext({
+    TeachingProjects:{contextLines:()=>['旧项目背景不得发送']},
+    Auth:{getIdToken:async()=> 'synthetic-token'},
+    AgentStream:{request:async options=>{payloads.push(options.payload);return '合成结果';}},
+    buildUserPrompt:(_agent,inputs)=>inputs.topic,
+    curriculumContext:()=>null, _sourceWork:null
+});
+apiCtx.window=apiCtx;
+vm.runInContext(sourceFunction(page,'callAgentAPI'),apiCtx);
+for (const type of ['form','chat']) {
+    await apiCtx.callAgentAPI({agent:{id:'synthetic',type,system:'当前任务提示'},inputs:{topic:'本次课题'},history:[{role:'user',content:'本次对话'}]});
+    const messages=payloads.at(-1).messages;
+    check(messages[0].content==='当前任务提示' && !JSON.stringify(messages).includes('旧项目背景'), type+': stored background never enters the model request');
+    check(messages[1].content===(type==='form'?'本次课题':'本次对话'), type+': current task content is preserved');
+}
 const workbook = read('workspace.html');
 stateCtx.workType = () => 'draft';
 stateCtx.workTypeLabel = () => '生成文稿';

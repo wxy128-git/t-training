@@ -1,7 +1,7 @@
 /* ===================================================================
    教学项目与本地草稿
    - 只保存在当前设备，不上传输入/输出正文
-   - 按登录用户隔离；用于跨智能体复用教学背景与意外恢复
+   - 按登录用户隔离；智能体草稿不再使用旧教学项目分区
    =================================================================== */
 (function () {
     // V1 的 guest 槽可能混有多个账号的内容，保留原数据但不自动认领。
@@ -108,7 +108,7 @@
 
     function getDraft(agentId) {
         const drafts = read('agent-drafts', {});
-        const projectId = getActiveProject()?.id || 'unassigned';
+        const projectId = 'unassigned';
         return drafts?.[`${projectId}::${agentId}`]
             || Object.values(drafts || {}).find(item => item?.agentId === agentId && (item.projectId || 'unassigned') === projectId)
             || null;
@@ -135,7 +135,7 @@
 
     function clearDraft(agentId) {
         const drafts = read('agent-drafts', {}) || {};
-        const projectId = getActiveProject()?.id || 'unassigned';
+        const projectId = 'unassigned';
         const key = `${projectId}::${agentId}`;
         if (drafts[key]) delete drafts[key];
         Object.keys(drafts).forEach(itemKey => {

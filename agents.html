@@ -206,22 +206,6 @@
         .ws-model-badge { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--paper); color: var(--muted); border-radius: 999px; padding: 7px 11px; font-size: 12px; white-space: nowrap; }
         .ws-model-badge strong { color: var(--ink); font-weight: 700; }
         .ws-model-badge i { color: var(--brand); font-size: 15px; }
-        .ws-projectbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 11px; align-items: center; margin: 0 0 14px; padding: 9px 12px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f5f9fb; }
-        .ws-projectbar.is-empty { border-style: dashed; border-color: var(--line); background: var(--paper); }
-        .ws-project-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: #e7f0f5; color: #245b78; font-size: 16px; }
-        .ws-project-copy { min-width: 0; }
-        .ws-project-label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; color: #245b78; font-weight: 700; margin-bottom: 3px; }
-        .ws-project-copy b { display: block; color: var(--ink); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ws-project-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
-        .ws-project-action { min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--text); padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-        .ws-project-action:hover { color: #245b78; border-color: #8fb3c6; }
-        .ws-project-options { margin-bottom: 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
-        .ws-project-options > summary { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 10px 13px; color: #245b78; font-size: 13px; font-weight: 650; cursor: pointer; list-style: none; }
-        .ws-project-options > summary::-webkit-details-marker { display: none; }
-        .ws-project-options > summary span { min-width: 0; overflow-wrap: anywhere; }
-        .ws-project-options > summary .ph-caret-down { margin-left: auto; flex-shrink: 0; }
-        .ws-project-options[open] > summary .ph-caret-down { transform: rotate(180deg); }
-        .ws-project-options .ws-projectbar { margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0 0 9px 9px; }
         .ws-origin { display: none; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 10px; margin: -4px 0 18px; padding: 11px 13px; border: 1px solid #bfd1dc; border-radius: 9px; background: #f2f7f9; }
         .ws-origin.active { display: grid; }
         .ws-origin > i { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: #e2edf2; color: #245b78; font-size: 17px; }
@@ -234,8 +218,6 @@
             .ws-top { grid-template-columns: auto auto minmax(0,1fr); align-items: flex-start; }
             .ws-titles p { display: -webkit-box; overflow: hidden; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
             .ws-status { grid-column: 1 / -1; justify-self: start; }
-            .ws-projectbar { grid-template-columns: auto minmax(0,1fr); }
-            .ws-project-action { grid-column: 1 / -1; justify-content: center; }
             .ws-origin { grid-template-columns: auto minmax(0,1fr); }
             .ws-origin button { grid-column: 1 / -1; justify-content: center; }
         }
@@ -475,27 +457,7 @@
         .workflow-actions button.primary:hover { border-color: var(--brand); background: var(--brand); }
         .workflow-actions button:disabled { opacity: .55; cursor: wait; }
         .ws-feedback button:focus-visible, .ws-origin button:focus-visible, .workflow-actions button:focus-visible { outline: 3px solid rgba(36,91,120,.26); outline-offset: 2px; }
-        .project-modal { position: fixed; inset: 0; z-index: 660; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(23,33,43,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-        .project-modal.active { display: flex; }
-        .project-box { width: min(680px,100%); max-height: 90vh; overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg); padding: 22px; }
-        .project-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
-        .project-head i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 9px; background: #e7f0f5; color: #245b78; font-size: 20px; flex-shrink: 0; }
-        .project-head h2 { margin: 0; color: var(--ink); font-size: 19px; }
-        .project-head p { margin: 5px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
-        .project-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
-        .project-field { display: flex; flex-direction: column; gap: 6px; }
-        .project-field.wide { grid-column: 1 / -1; }
-        .project-field label { color: var(--text); font-size: 12px; font-weight: 650; }
-        .project-field input, .project-field select, .project-field textarea { width: 100%; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--ink); padding: 10px 11px; font: inherit; font-size: 13px; outline: 0; }
-        .project-field input:focus, .project-field select:focus, .project-field textarea:focus { border-color: var(--brand); background: var(--paper); box-shadow: 0 0 0 3px var(--brand-soft); }
-        .project-field textarea { resize: vertical; line-height: 1.55; }
-        .project-default { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--muted); font-size: 12px; }
-        .project-default input { accent-color: var(--brand); }
-        .project-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
-        .project-actions button { min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--text); padding: 8px 13px; font: inherit; font-size: 12.5px; cursor: pointer; }
-        .project-actions .danger { margin-right: auto; color: var(--danger); }
-        .project-actions .primary { border-color: var(--ink); background: var(--ink); color: #fff; font-weight: 700; }
-        @media (max-width: 620px) { .project-grid { grid-template-columns: 1fr; } .project-field.wide { grid-column: auto; } .project-actions { flex-wrap: wrap; } .workflow-actions { display: grid; grid-template-columns: 1fr; } .workflow-actions button.primary { grid-row: 1; } }
+        @media (max-width: 620px) { .workflow-actions { display: grid; grid-template-columns: 1fr; } .workflow-actions button.primary { grid-row: 1; } }
         @media (max-width: 680px) {
             .agent-team-index { display: none; }
             .agents-head { display: block; }
@@ -532,9 +494,6 @@
             .ws-extra-params summary { font-size: 14px; }
             .ws-draft-state { flex-wrap: wrap; font-size: 12px; }
             .ws-draft-state button { min-height: 44px; padding-inline: 8px; font-size: 12px; }
-            .ws-project-action { min-height: 44px; font-size: 14px; }
-            .project-field input, .project-field select, .project-field textarea { font-size: 16px; }
-            .project-actions button { min-height: 44px; }
         }
     </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
@@ -599,18 +558,6 @@
                 <span class="ws-model-badge" id="ws-model-badge"><i class="ph ph-cpu"></i><span>模型服务：<strong id="ws-model-name">智能体路由</strong></span></span>
             </div>
         </div>
-        <details class="ws-project-options" id="ws-project-options">
-            <summary><i class="ph ph-folder-notch-open" aria-hidden="true"></i><span id="ws-project-summary">复用教学背景（可选）</span><i class="ph ph-caret-down" aria-hidden="true"></i></summary>
-        <section class="ws-projectbar is-empty" id="ws-projectbar" aria-label="当前教学项目">
-            <div class="ws-project-icon"><i class="ph ph-folder-notch-open"></i></div>
-            <div class="ws-project-copy">
-                <span class="ws-project-label">教学项目</span>
-                <b id="ws-project-title">尚未设置教学项目</b>
-                <small id="ws-project-meta">设置一次学科、年级、课题与学情，后续智能体会自动复用。</small>
-            </div>
-            <button type="button" class="ws-project-action" onclick="openProjectModal()"><i class="ph ph-pencil-simple"></i><span id="ws-project-action-label">新建项目</span></button>
-        </section>
-        </details>
         <section class="ws-origin" id="ws-origin" aria-label="上一工作步骤">
             <i class="ph ph-arrow-u-up-left"></i>
             <div class="ws-origin-copy"><small>CONTINUED FROM</small><b id="ws-origin-title"></b></div>
@@ -629,37 +576,6 @@
     </div>
 </div>
 
-</div>
-
-<div class="project-modal" id="project-modal" onclick="if(event.target===this)closeProjectModal()">
-    <div class="project-box" role="dialog" aria-modal="true" aria-labelledby="project-modal-title">
-        <div class="project-head">
-            <i class="ph ph-folder-notch-open"></i>
-            <div>
-                <h2 id="project-modal-title">教学项目</h2>
-                <p>教学背景保存在本机，并随成果记录项目名称。</p>
-            </div>
-        </div>
-        <form id="project-form" onsubmit="saveProjectFromModal(); return false;">
-            <input type="hidden" id="project-id">
-            <div class="project-grid">
-                <div class="project-field wide"><label for="project-title">项目名称 <span class="req">*</span></label><input id="project-title" type="text" maxlength="80" required placeholder="如：八年级数学 · 一次函数单元"></div>
-                <div class="project-field"><label for="project-subject">学科</label><select id="project-subject"></select></div>
-                <div class="project-field"><label for="project-grade">年级</label><select id="project-grade"></select></div>
-                <div class="project-field"><label for="project-textbook">教材版本</label><input id="project-textbook" type="text" maxlength="80" placeholder="如：人教版八年级上册"></div>
-                <div class="project-field"><label for="project-class-size">班级人数</label><input id="project-class-size" type="number" min="1" max="120" inputmode="numeric" placeholder="如：45"></div>
-                <div class="project-field wide"><label for="project-topic">当前课题或单元</label><input id="project-topic" type="text" maxlength="120" placeholder="如：一次函数的图像与性质"></div>
-                <div class="project-field wide"><label for="project-profile">学情概况</label><textarea id="project-profile" rows="3" maxlength="600" placeholder="如：基础差异较大，能完成简单坐标描点，但对变量关系理解不足"></textarea></div>
-                <div class="project-field wide"><label for="project-goal">本次主要目标</label><textarea id="project-goal" rows="2" maxlength="600" placeholder="如：能结合图像解释 k、b 对一次函数变化的影响"></textarea></div>
-            </div>
-            <label class="project-default"><input id="project-save-default" type="checkbox" checked> 将学科、年级和班级信息保存为本设备默认背景</label>
-            <div class="project-actions">
-                <button type="button" class="danger" id="project-clear" onclick="clearCurrentProject()">清除当前项目</button>
-                <button type="button" onclick="closeProjectModal()">取消</button>
-                <button type="submit" class="primary">保存并应用</button>
-            </div>
-        </form>
-    </div>
 </div>
 
 <div class="workflow-modal" id="workflow-modal" onclick="if(event.target===this)closeWorkflowModal(true)">
@@ -712,7 +628,7 @@
 <script src="js/site-copy.js?v=20261103-workbook-library"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
     <script src="js/auth.js?v=20261025-ux-reviewed"></script>
-    <script src="js/privacy-ui.js?v=20261001-privacy-confirm"></script>
+    <script src="js/privacy-ui.js?v=20261109-quieter-notices"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
@@ -722,7 +638,7 @@
 <script src="js/agents-data.js?v=20260922-teaching-quality"></script>
 <script src="js/task-search.js?v=20261025-ux-reviewed"></script>
 <script src="js/agent-stream.js?v=20261017-sources"></script>
-<script src="js/teaching-projects.js?v=20260924-local-email-direct"></script>
+<script src="js/teaching-projects.js?v=20261109-no-background"></script>
 <script>
 /* ===================================================================
    智能体空间 · 页面逻辑
@@ -1317,7 +1233,6 @@ function openAgent(id, skipGuard, historyMode = 'replace', navigationState = {})
     document.getElementById('ws-intro').textContent = a.intro || a.desc;
     setAgentModelLabel('智能体路由');
     window._wsAgent = a;
-    renderActiveProject();
     renderWorkflowOrigin(activeHistoryState);
     if (window.OperationsAnalytics) OperationsAnalytics.track('agent_open', {
         feature: 'agents',
@@ -1359,10 +1274,9 @@ function renderWorkflowOrigin(state = {}) {
         box.classList.remove('active');
         return;
     }
-    const project = window.TeachingProjects?.getActiveProject?.();
     const title = document.getElementById('ws-origin-title');
     const action = document.getElementById('ws-origin-action');
-    if (title) title.textContent = [project?.title, from.name].filter(Boolean).join(' · ');
+    if (title) title.textContent = from.name;
     if (action) action.textContent = `返回${from.name}`;
     box.classList.add('active');
 }
@@ -1503,7 +1417,7 @@ function buildForm(a) {
         });
     });
     initAgentFormHelpers(a);
-    initTeachingProjectForm(a);
+    initAgentForm(a);
     updateBriefSummary(a);
     setAgentWorkStage(_lastResult ? 'edit' : 'brief', a);
 }
@@ -1586,122 +1500,10 @@ function collectInputs(a) {
     return data;
 }
 
-/* ---------- 教学项目、默认背景与本地草稿 ---------- */
+/* ---------- 本地草稿 ---------- */
 let _draftSaveTimer = null;
 let _workflowCarryInputs = null;
 let _resultFeedback = '';
-
-function projectSummary(project) {
-    return [project?.grade, project?.subject, project?.textbook, project?.topic].filter(Boolean).join(' · ');
-}
-
-function renderActiveProject() {
-    const project = window.TeachingProjects?.getActiveProject?.();
-    const bar = document.getElementById('ws-projectbar');
-    if (!bar) return;
-    bar.classList.toggle('is-empty', !project);
-    document.getElementById('ws-project-summary').textContent = project ? `教学背景：${project.title}` : '复用教学背景（可选）';
-    document.getElementById('ws-project-title').textContent = project?.title || '尚未设置教学项目';
-    document.getElementById('ws-project-meta').textContent = project
-        ? (projectSummary(project) || '已建立项目，可在不同智能体之间复用背景。')
-        : '设置一次学科、年级、课题与学情，后续智能体会自动复用。';
-    document.getElementById('ws-project-action-label').textContent = project ? '编辑项目' : '新建项目';
-}
-
-function populateProjectOptions() {
-    const subject = document.getElementById('project-subject');
-    const grade = document.getElementById('project-grade');
-    if (subject && !subject.options.length) {
-        subject.innerHTML = '<option value="">未指定</option>' + SUBJECTS.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
-    }
-    if (grade && !grade.options.length) {
-        grade.innerHTML = '<option value="">未指定</option>' + GRADES.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
-    }
-}
-
-function currentFormProjectSeed() {
-    const agent = window._wsAgent;
-    const inputs = agent?.type === 'form' && document.getElementById('agent-form') ? collectInputs(agent) : {};
-    return {
-        subject: inputs.subject || '',
-        grade: inputs.grade || '',
-        topic: inputs.topic || inputs.point || inputs.concept || inputs.scope || '',
-        goal: inputs.goal || '',
-        classProfile: inputs.note || ''
-    };
-}
-
-function openProjectModal(skipGuard) {
-    if (!skipGuard && typeof requireLogin === 'function' && !requireLogin(() => openProjectModal(true), '请先登录后建立教学项目')) return;
-    populateProjectOptions();
-    const active = window.TeachingProjects?.getActiveProject?.();
-    const profile = window.TeachingProjects?.getProfile?.() || {};
-    const seed = { ...profile, ...currentFormProjectSeed(), ...(active || {}) };
-    document.getElementById('project-id').value = seed.id || '';
-    document.getElementById('project-title').value = seed.title || [seed.grade, seed.subject, seed.topic].filter(Boolean).join(' · ');
-    document.getElementById('project-subject').value = seed.subject || '';
-    document.getElementById('project-grade').value = seed.grade || '';
-    document.getElementById('project-textbook').value = seed.textbook || '';
-    document.getElementById('project-class-size').value = seed.classSize || '';
-    document.getElementById('project-topic').value = seed.topic || '';
-    document.getElementById('project-profile').value = seed.classProfile || '';
-    document.getElementById('project-goal').value = seed.goal || '';
-    document.getElementById('project-clear').style.visibility = active ? 'visible' : 'hidden';
-    document.getElementById('project-modal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => document.getElementById('project-title')?.focus(), 30);
-}
-
-function closeProjectModal() {
-    document.getElementById('project-modal')?.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-function projectFormValue(id) {
-    return document.getElementById(id)?.value?.trim() || '';
-}
-
-function saveProjectFromModal() {
-    const title = projectFormValue('project-title');
-    if (!title) {
-        document.getElementById('project-title')?.focus();
-        showToast('请填写项目名称');
-        return;
-    }
-    const existing = window.TeachingProjects?.getActiveProject?.();
-    const project = window.TeachingProjects?.setActiveProject?.({
-        id: projectFormValue('project-id') || existing?.id,
-        createdAt: existing?.createdAt,
-        title,
-        subject: projectFormValue('project-subject'),
-        grade: projectFormValue('project-grade'),
-        textbook: projectFormValue('project-textbook'),
-        classSize: projectFormValue('project-class-size'),
-        topic: projectFormValue('project-topic'),
-        classProfile: projectFormValue('project-profile'),
-        goal: projectFormValue('project-goal')
-    });
-    if (document.getElementById('project-save-default')?.checked) window.TeachingProjects?.saveProfile?.(project);
-    closeProjectModal();
-    renderActiveProject();
-    if (window._wsAgent?.type === 'form') {
-        applyProjectToForm(window._wsAgent, project, true);
-        updateBriefSummary(window._wsAgent);
-        scheduleDraftSave(window._wsAgent, '项目背景已应用并保存');
-    }
-    if (window.OperationsAnalytics) OperationsAnalytics.track('project_saved', {
-        feature: 'agents', targetId: window._wsAgent?.id || '', meta: { hasSubject: !!project.subject, hasGrade: !!project.grade }
-    });
-    showToast('教学项目已保存并应用');
-}
-
-function clearCurrentProject() {
-    if (!confirm('清除当前教学项目？已自动保存的表单草稿不会删除。')) return;
-    window.TeachingProjects?.clearActiveProject?.();
-    closeProjectModal();
-    renderActiveProject();
-    showToast('已清除当前教学项目');
-}
 
 function setFormInputValue(form, field, value, overwrite) {
     if (value === undefined || value === null || value === '') return;
@@ -1730,25 +1532,6 @@ function applyInputValues(agent, values, overwrite) {
     const form = document.getElementById('agent-form');
     if (!form || !values) return;
     agent.fields.forEach(field => setFormInputValue(form, field, values[field.key], overwrite));
-}
-
-function projectInputValues(project) {
-    if (!project) return {};
-    const note = [project.textbook ? `教材：${project.textbook}` : '', project.classSize ? `班级约 ${project.classSize} 人` : '', project.classProfile].filter(Boolean).join('；');
-    return {
-        subject: project.subject,
-        grade: project.grade,
-        topic: project.topic,
-        point: project.topic,
-        concept: project.topic,
-        scope: project.topic,
-        goal: project.goal,
-        note
-    };
-}
-
-function applyProjectToForm(agent, project, overwrite) {
-    applyInputValues(agent, projectInputValues(project), overwrite);
 }
 
 function formatDraftTime(value) {
@@ -1817,13 +1600,12 @@ function persistCurrentDraft(agent, statusText) {
         const editor = document.getElementById('edit-area');
         if (editor) _lastResult = editor.value;
     }
-    const project = window.TeachingProjects?.getActiveProject?.();
     const ok = window.TeachingProjects?.saveDraft?.(agent.id, {
         inputs,
         result: _lastResult,
         resultComplete: _resultComplete,
-        projectId: project?.id || '',
-        projectTitle: project?.title || '',
+        projectId: '',
+        projectTitle: '',
         feedback: _resultFeedback,
         workbookFingerprint: _lastWorkbookFingerprint,
         workbookId: _lastWorkbookId
@@ -1887,12 +1669,7 @@ function restoreAgentDraft(agent, draft) {
     if (window.OperationsAnalytics) OperationsAnalytics.track('draft_restored', { feature: 'agents', targetId: agent.id, targetName: agent.name });
 }
 
-function initTeachingProjectForm(agent) {
-    renderActiveProject();
-    const profile = window.TeachingProjects?.getProfile?.() || {};
-    const project = window.TeachingProjects?.getActiveProject?.();
-    applyInputValues(agent, { subject: profile.subject, grade: profile.grade }, true);
-    applyProjectToForm(agent, project, true);
+function initAgentForm(agent) {
     if (_workflowCarryInputs) {
         applyInputValues(agent, _workflowCarryInputs, true);
         _workflowCarryInputs = null;
@@ -2457,8 +2234,7 @@ async function runForm(aid) {
             targetName: a ? a.name : '',
             meta: {
                 agentType: a ? a.type : 'form',
-                durationMs: Math.round(performance.now() - runStartedAt),
-                hasProject: !!window.TeachingProjects?.getActiveProject?.()
+                durationMs: Math.round(performance.now() - runStartedAt)
             }
         });
     } catch (e) {
@@ -2553,15 +2329,10 @@ function buildWorkTitle(agent, inputs, content, type = 'draft') {
     return compactWorkTitle(tpl ? tpl[1] : [grade, subject, base || agent?.name], fallback);
 }
 
-function workInputsWithProject(inputs = {}) {
-    const project = window.TeachingProjects?.getActiveProject?.();
-    const { _reviewStatus, _reviewChecks, _reviewDecisions, ...contentInputs } = inputs;
+function workbookInputs(inputs = {}) {
+    const { _reviewStatus, _reviewChecks, _reviewDecisions, _projectId, _projectTitle, _projectSubject, _projectGrade, ...contentInputs } = inputs;
     return {
         ...contentInputs,
-        _projectId: project?.id || '',
-        _projectTitle: project?.title || '',
-        _projectSubject: project?.subject || '',
-        _projectGrade: project?.grade || '',
         _resultFeedback: _resultFeedback || ''
     };
 }
@@ -2615,11 +2386,6 @@ document.addEventListener('keydown', e => {
         closeWorkflowModal(true);
         return;
     }
-    const projectModal = document.getElementById('project-modal');
-    if (projectModal?.classList.contains('active') && e.key === 'Escape') {
-        closeProjectModal();
-        return;
-    }
     const modal = document.getElementById('work-title-modal');
     if (!modal?.classList.contains('active')) return;
     if (e.key === 'Escape') closeWorkTitleModal(false);
@@ -2656,7 +2422,7 @@ async function saveToWorkbook(aid, options = {}) {
             workType: 'draft',
             title,
             content: _lastResult,
-            inputs: { ...workInputsWithProject(_lastInputs || {}), ...(_sourceWork ? { _sourceWorkId: _sourceWork.id } : {}) }
+            inputs: { ...workbookInputs(_lastInputs || {}), ...(_sourceWork ? { _sourceWorkId: _sourceWork.id } : {}) }
         });
         _lastWorkbookFingerprint = savingFingerprint;
         _lastWorkbookId = workId || '';
@@ -2891,7 +2657,7 @@ async function saveChatToWorkbook(aid) {
             workType: 'chat',
             title,
             content,
-            inputs: workInputsWithProject({})
+            inputs: workbookInputs({})
         });
         if (window.OperationsAnalytics) OperationsAnalytics.track('workbook_save', {
             feature: 'workspace',
@@ -2940,15 +2706,11 @@ function clearChat(aid) {
 async function callAgentAPI({ agent, inputs, history, onToken, signal }) {
     // ① 组装消息
     let messages;
-    const projectContext = window.TeachingProjects?.contextLines?.() || [];
-    const systemContent = projectContext.length
-        ? `${agent.system}\n\n用户当前教学项目背景（仅在与本次任务相关时使用）：\n${projectContext.join('\n')}`
-        : agent.system;
     if (agent.type === 'chat') {
-        messages = [{ role: 'system', content: systemContent },
+        messages = [{ role: 'system', content: agent.system },
                     ...history.map(h => ({ role: h.role, content: h.content }))];
     } else {
-        messages = [{ role: 'system', content: systemContent },
+        messages = [{ role: 'system', content: agent.system },
                     { role: 'user', content: buildUserPrompt(agent, inputs) + (_sourceWork ? `\n\n以下为教师选中的原稿，请依据本次任务修改并输出完整新版本：\n${_sourceWork.content.slice(0, 60000)}` : '') }];
     }
 
@@ -3080,7 +2842,7 @@ onAuthReady((user) => {
     renderFooter();
 });
 </script>
-<script src="js/pwa.js?v=20261025-ux-reviewed"></script>
+<script src="js/pwa.js?v=20261109-quieter-notices"></script>
 <script src="js/assistant.js?v=20261025-ux-reviewed"></script>
 </body>
 </html>

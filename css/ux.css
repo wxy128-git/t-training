@@ -42,7 +42,6 @@
 .ux-agents .ws-status{grid-column:4;grid-row:1}
 .ux-agents #ws-presence-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .ux-agents .ws-agent-stage{font-family:var(--font-sans);font-size:13px}
-.ux-agents .ws-project-options{margin-bottom:12px}
 .ux-agents .ws-form-layout{grid-template-columns:minmax(340px,.85fr) minmax(0,1.15fr)}
 .ux-agents .ws-brief-head strong{font-size:16px}
 .ux-agents .field-heading{display:flex;align-items:center;gap:4px;justify-content:space-between}
