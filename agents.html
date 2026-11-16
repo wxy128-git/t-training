@@ -638,7 +638,7 @@
 <script src="js/operations-policy.js?v=20261116-preschool-story"></script>
 <script src="js/operations-analytics.js?v=20261017-sources"></script>
 <script src="js/curriculum-guard.js?v=20260828-curriculum-gate"></script>
-<script src="js/agents-data.js?v=20261116-preschool-story"></script>
+<script src="js/agents-data.js?v=20261117-custom-story-style"></script>
 <script src="js/task-search.js?v=20261116-preschool-story"></script>
 <script src="js/agent-stream.js?v=20261017-sources"></script>
 <script src="js/teaching-projects.js?v=20261109-no-background"></script>
@@ -1462,11 +1462,11 @@ function insertHandwritingTemplate(aid, onlyEmpty) {
 }
 
 function renderField(aid, f, options = {}) {
-    const req = f.required ? '<span class="req" aria-hidden="true">*</span>' : '';
+    const req = f.required || f.requiredWhen ? '<span class="req" aria-hidden="true">*</span>' : '';
     const fieldId = `agent-${aid}-${f.key}`;
     const labelId = `${fieldId}-label`;
     const fieldLabel = options.label || f.label;
-    const optional = !f.required && !/可选|选填/.test(fieldLabel) ? '<span class="hint">选填</span>' : '';
+    const optional = !f.required && !f.requiredWhen && !/可选|选填/.test(fieldLabel) ? '<span class="hint">选填</span>' : '';
     const helpText = f.hint?.replace(/^可选[，,、\s]*/, '').trim();
     const help = helpText && helpText !== '可选' ? UiNotes.button(helpText, fieldLabel+'填写说明') : '';
     const label = f.type === 'chips'
@@ -1486,7 +1486,36 @@ function renderField(aid, f, options = {}) {
         control = `<input id="${fieldId}" type="${f.type || 'text'}" name="${f.key}" placeholder="${placeholder}" ${required}>`;
     }
     const classes = ['field', options.primary ? 'is-brief-primary' : '', options.context ? 'is-brief-context' : ''].filter(Boolean).join(' ');
-    return `<div class="${classes}" data-field="${f.key}"><div class="field-heading">${label}${help}</div>${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
+    return `<div class="${classes}" data-field="${f.key}"${f.requiredWhen ? ' hidden' : ''}><div class="field-heading">${label}${help}</div>${control}<p class="field-error" id="${fieldId}-error" role="alert"></p></div>`;
+}
+
+function isFieldActive(field, inputs) {
+    return !field.requiredWhen || inputs[field.requiredWhen.key] === field.requiredWhen.value;
+}
+
+function isFieldRequired(field, inputs) {
+    return !!field.required || (!!field.requiredWhen && isFieldActive(field, inputs));
+}
+
+function syncConditionalFields(agent) {
+    const form = document.getElementById('agent-form');
+    if (!form || !agent.fields.some(field => field.requiredWhen)) return;
+    const inputs = collectInputs(agent);
+    agent.fields.filter(field => field.requiredWhen).forEach(field => {
+        const wrapper = form.querySelector(`[data-field="${field.key}"]`);
+        const control = form.querySelector(`[name="${field.key}"]`);
+        if (!wrapper || !control) return;
+        const active = isFieldActive(field, inputs);
+        wrapper.hidden = !active;
+        control.disabled = !active;
+        control.required = active;
+        control.setAttribute('aria-required', String(active));
+        if (!active) clearFieldError(control);
+        else {
+            const details = wrapper.closest('details');
+            if (details) details.open = true;
+        }
+    });
 }
 
 function collectInputs(a) {
@@ -1500,6 +1529,9 @@ function collectInputs(a) {
             const el = form.querySelector(`[name="${f.key}"]`);
             data[f.key] = el ? el.value.trim() : '';
         }
+    });
+    a.fields.forEach(field => {
+        if (!isFieldActive(field, data)) data[field.key] = '';
     });
     return data;
 }
@@ -1536,6 +1568,7 @@ function applyInputValues(agent, values, overwrite) {
     const form = document.getElementById('agent-form');
     if (!form || !values) return;
     agent.fields.forEach(field => setFormInputValue(form, field, values[field.key], overwrite));
+    syncConditionalFields(agent);
 }
 
 function formatDraftTime(value) {
@@ -1690,6 +1723,7 @@ function initAgentForm(agent) {
     form?.addEventListener('change', event => {
         form.dataset.draftTouched = 'true';
         clearFieldError(event.target);
+        syncConditionalFields(agent);
         updateBriefSummary(agent);
         scheduleDraftSave(agent);
     });
@@ -1699,6 +1733,7 @@ function initAgentForm(agent) {
         updateBriefSummary(agent);
         scheduleDraftSave(agent);
     }));
+    syncConditionalFields(agent);
     updateBriefSummary(agent);
 }
 
@@ -2164,7 +2199,7 @@ async function runForm(aid) {
     const inputs = collectInputs(a);
     _lastInputs = inputs;
     // 必填校验
-    const missing = a.fields.filter(f => f.required && (!inputs[f.key] || (Array.isArray(inputs[f.key]) && !inputs[f.key].length)));
+    const missing = a.fields.filter(f => isFieldRequired(f, inputs) && (!inputs[f.key] || (Array.isArray(inputs[f.key]) && !inputs[f.key].length)));
     if (missing.length) {
         showMissingFields(missing);
         showToast(`请填写：${missing.map(m => m.label).join('、')}`);
@@ -2754,7 +2789,9 @@ function curriculumGuard(agent) {
 
 function buildUserPrompt(agent, inputs) {
     const lines = agent.fields.map(f => {
-        const v = inputs[f.key];
+        if (!isFieldActive(f, inputs) || (agent.id === 'preschool-story' && f.key === 'customStyle')) return null;
+        const v = agent.id === 'preschool-story' && f.key === 'style' && inputs.style === '自定义画风'
+            ? inputs.customStyle : inputs[f.key];
         const val = Array.isArray(v) ? v.join('、') : (v || '');
         return val ? `【${f.label}】${val}` : null;
     }).filter(Boolean);

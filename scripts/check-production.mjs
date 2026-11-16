@@ -111,11 +111,12 @@ if (emailGateScript) {
     assert(body.includes('请直接点击验证链接完成操作'), '邮箱验证窗口缺少腾讯本地邮件操作提示');
 }
 
-const agentsData = await request('/js/agents-data.js?v=20261116-preschool-story');
+const agentsData = await request('/js/agents-data.js?v=20261117-custom-story-style');
 if (agentsData) {
     const body = await agentsData.text();
     assert(agentsData.status === 200 && body.includes('先在内部选定符合实际的正整数答案'), '组卷教学质量约束未上线');
     assert(body.includes("id: 'preschool-story'") && body.includes('逐幅情景图提示词'), '幼儿故事智能体或配图交付要求未上线');
+    assert(body.includes("key: 'customStyle'") && body.includes('自定义画风'), '幼儿故事自定义画风未上线');
 }
 
 const storyPortrait = await request('/assets/agent-portraits/preschool-story.jpg');
@@ -133,7 +134,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261116-v60-preschool-story'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261117-v62-custom-story-style'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 

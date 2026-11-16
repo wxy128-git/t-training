@@ -67,6 +67,7 @@ const freshCtx = vm.createContext({
     document:{getElementById:()=>null}, updateBriefSummary(){}
 });
 freshCtx.window = freshCtx;
+vm.runInContext(sourceFunction(page, 'syncConditionalFields'), freshCtx);
 vm.runInContext(sourceFunction(page, 'initAgentForm'), freshCtx);
 for (const agent of ctx.AGENTS.filter(a=>a.type==='form')) freshCtx.initAgentForm(agent);
 check(restored.length === 0 && !freshInputs.topic, 'reopening any form starts without the previous inputs or generated text');

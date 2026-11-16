@@ -27,9 +27,21 @@ const sourceFunction = (source, name) => {
     return result[0];
 };
 vm.runInContext(page.slice(page.indexOf('const CURRICULUM_VALIDATION'), page.indexOf('const HANDWRITING_ASSIST')), ctx);
-for (const name of ['curriculumGuard','buildUserPrompt','curriculumContext','cleanWorkTitlePart','pickInput','markdownHeading','compactWorkTitle','buildWorkTitle','workbookInputs','callAgentAPI']) {
+for (const name of ['isFieldActive','isFieldRequired','curriculumGuard','buildUserPrompt','curriculumContext','cleanWorkTitlePart','pickInput','markdownHeading','compactWorkTitle','buildWorkTitle','workbookInputs','callAgentAPI']) {
     vm.runInContext(sourceFunction(page, name), ctx);
 }
+const customField = agent.fields.find(f => f.key === 'customStyle');
+ctx._resultFeedback = '';
+check(agent.fields.find(f => f.key === 'style').options.includes('自定义画风'), 'custom style is selectable');
+check(!ctx.isFieldActive(customField, {style:'温暖水彩绘本'}) && !ctx.isFieldRequired(customField, {style:'温暖水彩绘本'}), 'custom description is inactive and optional for a preset');
+check(ctx.isFieldActive(customField, {style:'自定义画风'}) && ctx.isFieldRequired(customField, {style:'自定义画风'}), 'custom description is required only when selected');
+const customInputs = {grade:'小班（3–4岁）',elements:'落叶、小熊',style:'自定义画风',customStyle:'毛毡拼贴，柔和暖色、简洁背景'};
+const customPrompt = ctx.buildUserPrompt(agent, customInputs);
+check(customPrompt.includes('【配图画风】'+customInputs.customStyle) && !customPrompt.includes('【配图画风】自定义画风'), 'request uses the concrete custom style');
+const presetPrompt = ctx.buildUserPrompt(agent, {...customInputs,style:'柔和彩铅绘本'});
+check(presetPrompt.includes('【配图画风】柔和彩铅绘本') && !presetPrompt.includes(customInputs.customStyle), 'hidden custom text does not override a selected preset');
+const savedCustom = ctx.workbookInputs(customInputs);
+check(savedCustom.style === '自定义画风' && savedCustom.customStyle === customInputs.customStyle && ctx.buildUserPrompt(agent, savedCustom) === customPrompt, 'saved workbook inputs reproduce the custom style request');
 vm.runInContext(page.slice(page.indexOf('const AGENT_BRIEF_PRIMARY_KEYS'), page.indexOf('function agentRunLabel')), ctx);
 check(ctx.briefFieldGroups(agent).primary.map(f => f.key).join(',') === 'grade,elements', 'age and elements are visible together at the start');
 check(ctx.briefFieldGroups(agent).extra.every(f => !f.required), 'all optional fields can stay collapsed');
