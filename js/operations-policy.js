@@ -1,6 +1,7 @@
 /* Operational counters only. No identifiers, free text, or research events. */
 (function (root) {
     const agents = Object.freeze({ ...root.AnalyticsPolicy.agents,
+        'preschool-story':'幼儿故事伙伴',
         'research-funnel':'研究问题教练', 'research-reading-card':'文献研读伙伴',
         'research-design':'研究设计顾问', 'research-instrument':'研究工具工坊' });
     const cases = root.AnalyticsPolicy.cases;

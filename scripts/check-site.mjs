@@ -59,7 +59,7 @@ for (const file of dataPages) {
 }
 
 for (const file of [...dataPages, 'admin.html']) {
-    if (!new RegExp('js/site-copy\\.js\\?v=20261103-workbook-library').test(text(file))) fail(file, '未加载当前页面文案脚本');
+    if (!new RegExp('js/site-copy\\.js\\?v=20261116-preschool-story').test(text(file))) fail(file, '未加载当前页面文案脚本');
 }
 
 for (const asset of [
@@ -122,7 +122,7 @@ for (const pageId of ['home','multimodal','agents','classroom','tools','resource
     }
 }
 const agentPortraitIds = [
-    'lesson-design', 'courseware-outline', 'micro-script', 'lesson-hook',
+    'lesson-design', 'courseware-outline', 'micro-script', 'lesson-hook', 'preschool-story',
     'socratic', 'layered-q', 'concept-explainer', 'class-activity',
     'quiz-gen', 'homework-grader', 'essay-review', 'exam-paper', 'error-diagnosis',
     'parent-comm', 'student-comment', 'class-meeting', 'heart-talk',
@@ -218,12 +218,12 @@ if (!/viewport-fit=cover/.test(offlineHtml) || !/mobile-web-app-capable/.test(of
 const manifest = JSON.parse(text('manifest.webmanifest'));
 if (manifest.display !== 'standalone' || manifest.scope !== '/') fail('manifest.webmanifest', 'PWA 显示模式或 scope 不正确');
 if (!manifest.launch_handler?.client_mode?.includes('navigate-existing')) fail('manifest.webmanifest', 'PWA 未配置复用现有应用窗口');
-if (!/20261109-v59-quieter-notices/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
+if (!/20261116-v60-preschool-story/.test(text('sw.js')) || !/['"]\/js\/site-copy\.js['"]/.test(text('sw.js')) || !/['"]\/js\/curriculum-guard\.js['"]/.test(text('sw.js'))) fail('sw.js', 'Service Worker 体验优化缓存未更新');
 for (const module of ['account-policy', 'email-gate']) {
     if (!text('sw.js').includes(`/js/${module}.js`)) fail('sw.js', `${module} 离线缓存缺失`);
 }
 for (const module of ['agent-stream', 'task-search']) {
-    if (!agentsHtml.includes(`js/${module}.js?v=${module==='agent-stream'?'20261017-sources':module==='task-search'?'20261025-ux-reviewed':'20260924-local-email-direct'}`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
+    if (!agentsHtml.includes(`js/${module}.js?v=${module==='agent-stream'?'20261017-sources':module==='task-search'?'20261116-preschool-story':'20260924-local-email-direct'}`) || !text('sw.js').includes(`/js/${module}.js`)) fail('agents.html', `${module} 的加载或离线缓存缺失`);
 }
 
 const loginTransitionSource = text('js/auth.js');

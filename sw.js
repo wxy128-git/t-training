@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261109-v59-quieter-notices';
+const VERSION = '20261116-v60-preschool-story';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;

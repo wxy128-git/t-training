@@ -1,6 +1,7 @@
 (function (root) {
     // User-facing tasks, independent of persona names and model instructions.
     const tasks = Object.freeze({
+        'preschool-story': {title:'创作幼儿故事', output:'幼儿故事与配图提示词'},
         'lesson-design': {title:'备一节课', output:'教案初稿'},
         'courseware-outline': {title:'制作课件大纲', output:'课件大纲'},
         'micro-script': {title:'写微课脚本', output:'微课脚本'},
@@ -22,6 +23,7 @@
         'lesson-observe': {title:'整理听评课记录', output:'听评课记录'}
     });
     const aliases = {
+        'preschool-story': ['幼儿故事', '幼儿园', '小班', '中班', '大班', '绘本', '哲理故事', '故事配图', '绘图提示词', '落叶', '小熊'],
         'lesson-design': ['教案', '备课', '教学设计', '设计一节课'],
         'courseware-outline': ['课件', 'ppt', '演示稿', '幻灯片'],
         'micro-script': ['微课', '讲解脚本', '教学视频'],

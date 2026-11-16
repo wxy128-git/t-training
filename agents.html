@@ -269,6 +269,9 @@
         .ws-draft-state button:hover { color: var(--danger); }
 
         /* 输出区 */
+        .ws-out-body .story-image-prompt { white-space: normal; }
+        .ws-out-body .story-image-prompt code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .story-image-prompt .ws-mini-btn { display: flex; margin: 0 0 12px auto; font-family: var(--font-sans); }
         .ws-out-panel { height: clamp(520px, calc(100vh - 150px), 760px); display: flex; flex-direction: column; }
         .ws-edit-area { width: 100%; flex: 1; min-height: 0; border: none; border-radius: 0; background: var(--soft); padding: 20px 22px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--ink); resize: none; outline: none; }
         .ws-edit-area:focus { background: var(--paper); box-shadow: inset 0 0 0 3px var(--brand-soft); }
@@ -515,7 +518,7 @@
         </div>
         <aside class="agent-team-index" aria-label="数字教研团队概况">
             <span class="agent-team-index-label" data-site-copy="teamIndexHeading">团队索引</span>
-            <strong data-site-copy="teamIndexSummary">5 个教研部门 · 19 位成员可协作</strong>
+            <strong data-site-copy="teamIndexSummary">5 个教研部门 · 20 位成员可协作</strong>
             <p data-site-copy="teamIndexHint">先描述任务，或从下方部门进入。</p>
         </aside>
     </div>
@@ -625,18 +628,18 @@
 <script src="js/account-policy.js?v=20260924-local-email-direct"></script>
 <script src="js/firebase-config.js?v=20260924-local-email-direct"></script>
 <script src="js/data.js?v=20261017-sources"></script>
-<script src="js/site-copy.js?v=20261103-workbook-library"></script>
+<script src="js/site-copy.js?v=20261116-preschool-story"></script>
 <script src="js/privacy-policy.js?v=20261017-sources"></script>
     <script src="js/auth.js?v=20261025-ux-reviewed"></script>
     <script src="js/privacy-ui.js?v=20261109-quieter-notices"></script>
 <script src="js/email-gate.js?v=20260924-local-email-direct"></script>
 <script src="js/analytics-policy.js?v=20260928-privacy1"></script>
 <script src="js/analytics.js?v=20260930-privacy-service"></script>
-<script src="js/operations-policy.js?v=20261017-sources"></script>
+<script src="js/operations-policy.js?v=20261116-preschool-story"></script>
 <script src="js/operations-analytics.js?v=20261017-sources"></script>
 <script src="js/curriculum-guard.js?v=20260828-curriculum-gate"></script>
-<script src="js/agents-data.js?v=20260922-teaching-quality"></script>
-<script src="js/task-search.js?v=20261025-ux-reviewed"></script>
+<script src="js/agents-data.js?v=20261116-preschool-story"></script>
+<script src="js/task-search.js?v=20261116-preschool-story"></script>
 <script src="js/agent-stream.js?v=20261017-sources"></script>
 <script src="js/teaching-projects.js?v=20261109-no-background"></script>
 <script>
@@ -695,7 +698,7 @@ function syncFilterState() {
 const FEATURED = ['lesson-design', 'quiz-gen', 'homework-grader', 'parent-comm'];
 const CAT_ICONS = { plan: 'ph-blueprint', class: 'ph-chalkboard-teacher', assess: 'ph-check-square', home: 'ph-house-line', growth: 'ph-trend-up' };
 const CAT_SCOPES = {
-    plan: '教案、课件、微课和新课导入',
+    plan: '教案、课件、微课、新课导入与幼儿故事',
     class: '提问、概念解释、课堂活动与思维引导',
     assess: '出题、批改、组卷和错因诊断',
     home: '家校沟通、学生评语、班会与成长支持',
@@ -1153,7 +1156,7 @@ function renderHome() {
         </div>
         <div class="agent-directory-list">${CATS.map(departmentHtml).join('')}</div>
         <div class="agent-directory-footer">
-            <button type="button" class="agent-directory-all" onclick="showAllAgents()">${escapeHtml(agentsPageCopy.allMembersAction || '查看全部 19 位成员')} <i class="ph ph-arrow-right"></i></button>
+            <button type="button" class="agent-directory-all" onclick="showAllAgents()">${escapeHtml(agentsPageCopy.allMembersAction || '查看全部 20 位成员')} <i class="ph ph-arrow-right"></i></button>
         </div>
     </section>`;
     document.getElementById('agent-content').innerHTML = html;
@@ -1298,6 +1301,7 @@ function backFromWorkspace() {
 
 /* ---------- form 工作台 ---------- */
 const AGENT_BRIEF_PRIMARY_KEYS = {
+    'preschool-story': ['grade', 'elements'],
     'lesson-design': ['topic'],
     'courseware-outline': ['topic'],
     'micro-script': ['topic'],
@@ -1767,6 +1771,7 @@ function toggleInputPanel(forceOpen) {
 }
 
 const WORKFLOW_NEXT = {
+    'preschool-story': [],
     'lesson-design': [['quiz-gen','生成配套练习','ph-exam'],['courseware-outline','生成课件大纲','ph-presentation-chart']],
     'courseware-outline': [['quiz-gen','设计随堂检测','ph-exam'],['lesson-design','返回教学设计','ph-blueprint']],
     'quiz-gen': [['lesson-design','完善教学设计','ph-blueprint'],['error-diagnosis','准备错题诊断','ph-chart-line-down']],
@@ -2306,6 +2311,7 @@ function buildWorkTitle(agent, inputs, content, type = 'draft') {
     const id = agent?.id || '';
 
     const templates = {
+        'preschool-story': ['幼儿故事', [grade, heading || pickInput(inputs, ['elements'], 30), '幼儿故事']],
         'lesson-design': ['教学设计', [grade, subject, base, '教学设计']],
         'courseware-outline': ['课件大纲', [grade, subject, base, '课件大纲']],
         'micro-script': ['微课脚本', [grade, base, '微课脚本']],
@@ -2753,14 +2759,38 @@ function buildUserPrompt(agent, inputs) {
         return val ? `【${f.label}】${val}` : null;
     }).filter(Boolean);
     const guard = curriculumGuard(agent);
+    if (agent.id === 'preschool-story') {
+        return `请根据以下信息创作一个适龄、有画面感且寓意自然的幼儿故事，并按系统要求附完整角色设定和逐幅绘图提示词：\n\n${lines.join('\n')}\n\n请直接输出Markdown成果。故事正文、给老师的小提示、角色与画面统一设定、逐幅情景图提示词、如何绘制这组图均不可省略。按小班4幅、中班5幅、大班6幅对应正文自然段，单幅提示词须可独立复制使用。`;
+    }
     return `${guard}请根据以下信息完成任务：\n\n${lines.join('\n')}\n\n请直接输出可用的结果，使用 Markdown 格式，条理清晰，贴合中小学教学实际。不要输出适配判断过程、通过性说明或地域政治表述；除非参数明显不匹配，否则不要出现“参数需要调整”。必要时使用“现行课程标准”“教材要求”“教学实际”等中性说法。`;
 }
 
 /* ---------- 工具函数 ---------- */
 function mdToHtml(md) {
-    return window.SafeRender
+    const html = window.SafeRender
         ? SafeRender.markdown(md)
         : escapeHtml(md).replace(/\n/g, '<br>');
+    if (window._wsAgent?.id !== 'preschool-story') return html;
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.querySelectorAll('pre').forEach((pre, index) => {
+        if (!pre.querySelector('code')) return;
+        pre.classList.add('story-image-prompt');
+        pre.insertAdjacentHTML('afterbegin', `<button type="button" class="ws-mini-btn" onclick="copyStoryImagePrompt(this)" aria-label="复制第${index + 1}幅绘图提示词"><i class="ph ph-copy" aria-hidden="true"></i>复制这幅提示词</button>`);
+    });
+    return container.innerHTML;
+}
+
+async function copyStoryImagePrompt(button) {
+    if (_activeGeneration) { showToast('请等待生成完成后再复制提示词'); return; }
+    const text = button.closest('pre')?.querySelector('code')?.textContent || '';
+    if (!text.trim()) return;
+    try {
+        await navigator.clipboard.writeText(text.trim());
+        showToast('这幅绘图提示词已复制，可粘贴到绘图模型');
+    } catch {
+        showToast('复制未成功，请选中这幅提示词后手动复制');
+    }
 }
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 

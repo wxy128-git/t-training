@@ -58,10 +58,10 @@ if (home) {
     assert(body.includes('css/pwa.css?v=20260924-local-email-direct'), '首页未加载当前 PWA 样式版本');
     assert(body.includes('js/auth.js?v=20261025-ux-reviewed'), '首页未加载当前导航与账户脚本版本');
     assert(body.includes('js/account-policy.js?v=20260924-local-email-direct') && body.includes('js/email-gate.js?v=20260924-local-email-direct'), '首页未加载邮箱完善流程');
-    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261103-workbook-library'), '首页未加载当前页面文案模块');
+    assert(body.includes('js/data.js?v=20261017-sources') && body.includes('js/site-copy.js?v=20261116-preschool-story'), '首页未加载当前页面文案模块');
     assert(body.includes('js/assistant.js?v=20261025-ux-reviewed'), '首页未加载当前网站向导脚本版本');
     assert(body.includes('js/pwa.js?v=20261109-quieter-notices'), '首页未加载当前 PWA 脚本版本');
-    assert(body.includes('js/task-search.js?v=20261025-ux-reviewed') && !body.includes('js/agents-data.js'), '首页任务映射或精简加载未上线');
+    assert(body.includes('js/task-search.js?v=20261116-preschool-story') && !body.includes('js/agents-data.js'), '首页任务映射或精简加载未上线');
     assert(!body.includes('th-resume') && !body.includes('renderHomeContinuation'), '首页仍显示旧草稿恢复入口');
     assert(body.includes('/vendor/firebase/10.12.0/firebase-app-compat.js'), '首页未加载本地 Firebase SDK');
     assert(!/https:\/\/(?:www\.gstatic\.com\/firebasejs|unpkg\.com\/@phosphor-icons)/.test(body), '首页仍依赖海外脚本 CDN');
@@ -111,10 +111,16 @@ if (emailGateScript) {
     assert(body.includes('请直接点击验证链接完成操作'), '邮箱验证窗口缺少腾讯本地邮件操作提示');
 }
 
-const agentsData = await request('/js/agents-data.js?v=20260922-teaching-quality');
+const agentsData = await request('/js/agents-data.js?v=20261116-preschool-story');
 if (agentsData) {
     const body = await agentsData.text();
     assert(agentsData.status === 200 && body.includes('先在内部选定符合实际的正整数答案'), '组卷教学质量约束未上线');
+    assert(body.includes("id: 'preschool-story'") && body.includes('逐幅情景图提示词'), '幼儿故事智能体或配图交付要求未上线');
+}
+
+const storyPortrait = await request('/assets/agent-portraits/preschool-story.jpg');
+if (storyPortrait) {
+    assert(storyPortrait.status === 200 && storyPortrait.headers.get('content-type')?.includes('image/jpeg'), '幼儿故事伙伴肖像未上线');
 }
 
 const manifest = await request('/manifest.webmanifest');
@@ -127,7 +133,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261109-v59-quieter-notices'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261116-v60-preschool-story'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -247,7 +253,7 @@ if (researchCopy) {
     assert(researchCopy.status === 200 && copy.ok === true && 'item' in copy, '科研文案接口不可用');
     assert(researchCopy.headers.get('cache-control')?.includes('no-store'), '科研文案接口允许旧缓存');
 }
-const researchRegistry = await request('/js/site-copy.js?v=20261103-workbook-library');
+const researchRegistry = await request('/js/site-copy.js?v=20261116-preschool-story');
 if (researchRegistry) {
     const registry=await researchRegistry.text();
     assert(['designRole','instrumentRole','designGuide','instrumentGuide','reviewAction'].every(k=>registry.includes(k)), '第二批科研文案字段未发布');
