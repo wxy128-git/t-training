@@ -35,6 +35,9 @@ for (const route of routes) {
     assert(response.headers.get('content-type')?.includes('text/html'), `${route} Content-Type 不是 HTML`);
     assert(body.includes('<title>') && body.includes('id="main-content"'), `${route} 缺少标题或主内容锚点`);
     if (route === '/') assert(body.includes('聚焦问题、研读文献、设计问卷'), '首页科研入口未更新');
+    if (route === '/resources') {
+        assert(body.includes('正在加载课件素材') && body.includes('id="resource-retry"') && !body.includes('全部 28 个入口'), '课件素材加载与重试界面未上线');
+    }
     if (route === '/research') {
         assert(['rs-design','rs-instrument','rs-print'].every(id=>body.includes(`id="${id}"`)), '第二批工作台未上线');
         assert(body.includes('research-core.js?v=20261014-coach-six-rounds') && body.includes('research-data.js'), '科研写作模块未上线');
@@ -134,7 +137,7 @@ if (manifest) {
 const serviceWorker = await request('/sw.js');
 if (serviceWorker) {
     const body = await serviceWorker.text();
-    assert(serviceWorker.status === 200 && body.includes('20261117-v62-custom-story-style'), '当前 Service Worker 版本未上线');
+    assert(serviceWorker.status === 200 && body.includes('20261120-v63-resource-loading'), '当前 Service Worker 版本未上线');
     assert(body.includes("'/'") && body.includes("'/agents'") && body.includes("'/classroom-tools'"), 'Service Worker 未预缓存核心任务页');
 }
 
@@ -219,6 +222,12 @@ if (safeRender) {
     const body = await safeRender.text();
     assert(safeRender.status === 200 && safeRender.headers.get('content-type')?.includes('javascript'), 'SafeRender 脚本未上线');
     assert(body.includes('initSafeRender') && body.includes('sanitizeHtml'), 'SafeRender 内容不完整');
+}
+
+const resourceContent = await request('/api/content?type=resources');
+if (resourceContent) {
+    const body = await resourceContent.json().catch(() => null);
+    assert(resourceContent.status === 200 && body?.ok === true && Array.isArray(body.items), '课件素材公开接口不可用');
 }
 
 const content = await request('/api/content?type=articles');

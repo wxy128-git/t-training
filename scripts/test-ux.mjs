@@ -177,6 +177,59 @@ libraryCtx.renderWorks();
 check(node('wb-error').style.display==='grid' && node('wb-error-msg').textContent==='读取失败 <example>' && node('wb-empty').style.display==='none', 'a read failure is displayed as an error with text-safe details');
 check(libraryCtx.previewText('# 重复标题\n课堂正文')==='课堂正文', 'list previews begin with content instead of repeating the document title');
 
+const resourcePage = read('resources.html');
+const resourceScript = resourcePage.match(/<script>\s*(SiteCopy\.load\('resources'\)[\s\S]*?)<\/script>/)[1];
+function resourceFixture(fetch, hostname = 'ai.teachailab.com') {
+    const byId = new Map();
+    const document = {
+        getElementById(id) {
+            if (!byId.has(id)) byId.set(id, {
+                value: '', innerHTML: '',
+                addEventListener(type, fn) { this[type] = fn; },
+                querySelectorAll() { return []; },
+                focus() { document.activeElement = this; }
+            });
+            return byId.get(id);
+        }
+    };
+    const context = vm.createContext({
+        URL, URLSearchParams, AbortController, setTimeout, clearTimeout, fetch, document,
+        location: new URL('https://' + hostname + '/resources'),
+        SiteCopy: { async load() {}, applyToDocument() {} },
+        renderNav() {}, renderFooter() {}, onAuthReady() {},
+        reviewTeachingText: value => value
+    });
+    for (const path of ['js/safe-render.js', 'js/data.js']) vm.runInContext(read(path), context);
+    vm.runInContext(resourceScript, context);
+    return { context, get: id => document.getElementById(id) };
+}
+const contentResponse = items => ({ ok: true, json: async () => ({ ok: true, items }) });
+const failedResponse = { ok: false, status: 503, json: async () => ({ ok: false }) };
+const publishedResources = [{ id:'vectors', title:'免费矢量图标库', items:[{ name:'图形练习', url:'https://example.com' }] }];
+let resolveResources;
+const resources = resourceFixture(() => new Promise(resolve => { resolveResources = resolve; }));
+const resourceList = resources.get('content-area');
+const retryButton = resources.get('resource-retry');
+const resourceMessage = resources.get('resource-load-message');
+check(resourceList.innerHTML === '' && retryButton.hidden && resourceMessage.textContent.includes('正在加载'), 'slow resource requests only show loading');
+resolveResources(failedResponse);
+await new Promise(setImmediate);
+check(resourceList.innerHTML === '' && !retryButton.hidden && resourceMessage.textContent.includes('无法加载'), 'public errors expose retry without substituting built-in resources');
+resources.context.fetch = async () => contentResponse(publishedResources);
+retryButton.focus();
+await retryButton.click();
+const resourceSearch = resources.get('searchInput');
+check(resourceList.innerHTML.includes('图形练习') && !resourceList.innerHTML.includes('AIGC 应用平台'), 'retry renders the authoritative list');
+check(resources.get('resource-load-status').hidden && resources.get('resource-match-count').textContent === '全部 1 个入口', 'successful retry shows the actual count');
+check(!resourceSearch.disabled && resources.context.document.activeElement === resourceSearch, 'retry restores keyboard navigation to the search field');
+resourceSearch.input({ target:{ value:'不存在' } });
+check(!resources.get('no-results').hidden && resourceList.innerHTML === '', 'search distinguishes no matches from a load error');
+const emptyResources = resourceFixture(async () => contentResponse([{ id:'empty', items:[] }]));
+const localResources = resourceFixture(async () => failedResponse, 'localhost');
+await new Promise(setImmediate);
+check(emptyResources.get('resource-load-message').textContent === '暂未添加课件素材。' && emptyResources.get('content-area').innerHTML === '', 'an empty published list stays empty');
+check(localResources.get('resource-load-message').textContent.includes('本地预览') && localResources.get('content-area').innerHTML.includes('AIGC 应用平台'), 'local previews still provide labeled demo resources');
+
 // Small DOM fixture for the note event lifecycle; no browser, storage or external requests.
 class Element {
     constructor(tag = 'div') { this.tag = tag; this.attrs = {}; this.dataset = {}; this.children = []; this.style = {}; this.listeners = {}; this.isConnected = true; this.rect = {left:370,top:620,bottom:652,width:32}; }
@@ -239,4 +292,4 @@ check(tooltip()?.textContent==='刚刚更新的说明', 'notes use updated admin
 b.isConnected=false; for (const fn of win.listeners.scroll) fn();
 check(!tooltip(), 'detached triggers cannot leave an orphaned tooltip');
 check(!notesCtx.UiNotes.button('<script>','"').includes('<script>'), 'dynamic note text is escaped');
-console.log(`易用性回归通过：${passed} 项断言（任务、必填项与备注生命周期；离线合成数据）。`);
+console.log(`易用性回归通过：${passed} 项断言（任务、表单、素材加载与备注；离线合成数据）。`);

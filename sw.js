@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '20261117-v62-custom-story-style';
+const VERSION = '20261120-v63-resource-loading';
 const CACHE_PREFIX = 'xylaoshi-pwa-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${VERSION}`;
 const PAGE_CACHE = `${CACHE_PREFIX}pages-${VERSION}`;

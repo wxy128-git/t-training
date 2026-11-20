@@ -27,7 +27,24 @@
     <meta name="apple-mobile-web-app-title" content="AI 教研">
     <link rel="stylesheet" href="css/style.css?v=20261006-research-nav">
     <link rel="stylesheet" href="css/pwa.css?v=20260924-local-email-direct">
-    <style>.resource-hero h1 .site-copy-accent{font-style:normal;color:var(--brand)}</style>
+    <style>
+        .resource-hero h1 .site-copy-accent { font-style: normal; color: var(--brand); }
+        .resource-filter-bar[hidden], .resource-load-status[hidden] { display: none; }
+        .resource-load-status {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 20px;
+            border: 1px solid #dde6ea;
+            border-radius: 14px;
+            background: #fff;
+        }
+        .resource-load-status p { margin: 0; }
+        .resource-load-status .resource-reset { min-height: 44px; padding-inline: 16px; font-size: 14px; }
+    </style>
     <link rel="stylesheet" href="css/privacy.css?v=20260930-privacy-service">
     <link rel="stylesheet" href="css/ux.css?v=20261026-edit-save">
 </head>
@@ -48,7 +65,7 @@
             <div class="resource-search-label">想找什么素材？</div>
             <label class="resource-search">
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-                <input type="search" id="searchInput" placeholder="搜索资源名称或描述…" aria-label="搜索课件素材" data-site-copy-placeholder="searchPlaceholder">
+                <input type="search" id="searchInput" placeholder="搜索资源名称或描述…" aria-label="搜索课件素材" data-site-copy-placeholder="searchPlaceholder" disabled>
                 <button type="button" id="resource-search-clear" class="resource-search-clear" aria-label="清除搜索" hidden><i class="ph-bold ph-x" aria-hidden="true"></i></button>
             </label>
             <div class="resource-search-hint"><i class="ph ph-info" aria-hidden="true"></i><span>点击卡片会在新窗口打开对应官网。</span></div>
@@ -56,12 +73,16 @@
     </section>
 
     <div class="resource-workbench resource-directory">
-        <section class="resource-filter-bar" aria-label="筛选素材网站">
-            <div class="resource-filter-summary"><strong>快速筛选</strong><span id="resource-match-count">全部 28 个入口</span></div>
+        <section class="resource-filter-bar" id="resource-filters" aria-label="筛选素材网站" hidden>
+            <div class="resource-filter-summary"><strong>快速筛选</strong><span id="resource-match-count"></span></div>
             <div id="resource-category-pills" class="resource-category-pills"></div>
             <button type="button" id="resource-reset" class="resource-reset" hidden><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>清除筛选</button>
         </section>
         <section class="resource-shelf" aria-label="素材网站列表">
+            <div class="resource-load-status" id="resource-load-status">
+                <p id="resource-load-message" role="status" tabindex="-1">正在加载课件素材…</p>
+                <button type="button" class="resource-reset" id="resource-retry" hidden>重新加载</button>
+            </div>
             <div id="content-area" class="resource-content"></div>
             <div id="no-results" class="resource-empty" hidden>
                 <div class="resource-empty-mark"><i class="ph ph-compass" aria-hidden="true"></i></div>
@@ -94,9 +115,7 @@
 <script>
 SiteCopy.load('resources').then(copy => SiteCopy.applyToDocument('resources', copy));
 
-// Start with the in-code defaults so the page paints immediately,
-// then swap in whatever Firestore returns.
-let categories = JSON.parse(JSON.stringify(DEFAULT_RESOURCES));
+let categories = [];
 let activeCategory = 'all';
 
 const RESOURCE_LOGOS = Object.freeze({
@@ -274,9 +293,46 @@ function renderContent(filterText = '') {
     bindLogoFallbacks(container);
 }
 
-renderCategoryPills();
-renderContent();
 const searchInput = document.getElementById('searchInput');
+const resourceStatus = document.getElementById('resource-load-status');
+const resourceMessage = document.getElementById('resource-load-message');
+const resourceRetry = document.getElementById('resource-retry');
+
+async function loadResources() {
+    const restoreFocus = document.activeElement === resourceRetry;
+    resourceRetry.hidden = true;
+    resourceMessage.textContent = '正在加载课件素材…';
+
+    let preview = false;
+    try {
+        categories = await callContentAPI('resources');
+    } catch {
+        if (!isLocalPreviewRuntime()) {
+            resourceMessage.textContent = '暂时无法加载课件素材，请重新加载。';
+            resourceRetry.hidden = false;
+            if (restoreFocus) resourceRetry.focus();
+            return;
+        }
+        categories = DEFAULT_RESOURCES;
+        preview = true;
+    }
+
+    if (!resourceItemsCount()) {
+        resourceMessage.textContent = '暂未添加课件素材。';
+        if (restoreFocus) resourceMessage.focus();
+        return;
+    }
+
+    resourceStatus.hidden = !preview;
+    if (preview) resourceMessage.textContent = '本地预览正在显示内置素材。';
+    searchInput.disabled = false;
+    document.getElementById('resource-filters').hidden = false;
+    renderCategoryPills();
+    renderContent(searchInput.value);
+    if (restoreFocus) searchInput.focus();
+}
+
+resourceRetry.addEventListener('click', loadResources);
 searchInput.addEventListener('input', event => renderContent(event.target.value));
 document.getElementById('resource-search-clear').addEventListener('click', () => {
     searchInput.value = '';
@@ -309,13 +365,7 @@ renderNav('resources');
 renderFooter();
 onAuthReady(() => { renderNav('resources'); renderFooter(); });
 
-DB.getResources().then(data => {
-    if (Array.isArray(data) && data.length) {
-        categories = data;
-        renderCategoryPills();
-        renderContent(searchInput.value);
-    }
-});
+loadResources();
 </script>
 <script src="js/pwa.js?v=20261109-quieter-notices"></script>
 <script src="js/assistant.js?v=20261025-ux-reviewed"></script>
